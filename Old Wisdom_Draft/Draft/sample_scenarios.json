@@ -1,0 +1,27 @@
+{
+  "1": [
+    {
+      "title": "Family Business vs Dreams",
+      "description": "Your family expects you to join their successful business, but your heart calls you toward becoming an artist.",
+      "category": "relationships",
+      "chapter": 1,
+      "heartResponse": "Follow your artistic passion and creative calling",
+      "dutyResponse": "Honor family legacy and traditional expectations",
+      "gitaWisdom": "Arjuna questioned his duty as a warrior. The Gita reveals that true dharma aligns with your authentic nature while honoring responsibilities.",
+      "actionSteps": [
+        "Have honest conversation with family",
+        "Propose trial period for artistic goals",
+        "Explore synthesis of both paths",
+        "Seek mentorship from others with similar experience"
+      ],
+      "verse": "Better is one's own dharma, though imperfectly performed, than the dharma of another well performed.",
+      "verseNumber": "Chapter 3, Verse 35",
+      "stickFigureScene": "family_vs_dreams",
+      "tags": [
+        "family expectations",
+        "career choice",
+        "authenticity"
+      ]
+    }
+  ]
+}

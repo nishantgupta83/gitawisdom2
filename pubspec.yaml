@@ -1,0 +1,9 @@
+
+flutter:
+  assets:
+    - assets/images/scroll_background.jpg
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: ^1.10.22
