@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "315365731796",
+    "project_id": "oldwisdom-2b2da",
+    "storage_bucket": "oldwisdom-2b2da.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:315365731796:android:44612fc8efc2b0fece7a41",
+        "android_client_info": {
+          "package_name": "com.example.oldwisdom"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA92WrqZ3GVAV8tmCwgUgjFe5gXYpFG5ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

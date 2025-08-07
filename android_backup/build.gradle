@@ -1,0 +1,41 @@
+
+// Top‐level build.gradle
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Gradle plugin for Android apps
+        classpath 'com.android.tools.build:gradle:8.0.2'
+        // Kotlin plugin
+        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.20'
+        // Google services (for Firebase)
+        classpath 'com.google.gms:google-services:4.3.15'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+// Inject missing namespace into any Android library modules
+subprojects { project ->
+    project.afterEvaluate {
+        if (project.plugins.hasPlugin('com.android.library')) {
+            def libExt = project.extensions.findByName('android')
+            if (libExt != null && !libExt.hasProperty('namespace')) {
+                def appExt = rootProject.project(':app').android
+                libExt.namespace = appExt.defaultConfig.applicationId
+            }
+        }
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
