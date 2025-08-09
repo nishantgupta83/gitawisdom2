@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -14,7 +15,7 @@ class AboutScreen extends StatelessWidget {
       appBar: AppBar(
         // use your theme surface so it shows up as a light card
         backgroundColor: theme.colorScheme.surface,
-        title: const Text('About'),
+        title: Text(AppLocalizations.of(context)!.about),
         centerTitle: true,
         elevation: 0,
       ),
@@ -31,7 +32,7 @@ class AboutScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(20),
                   child: Center(
                     child: Text(
-                      'Made with ❤️ for spiritual seekers everywhere',
+                      AppLocalizations.of(context)!.madeWithLove,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.primary,
@@ -54,7 +55,7 @@ class AboutScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'About GitaWisdom',
+                          AppLocalizations.of(context)!.aboutGitaWisdom,
                           style: theme.textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
@@ -64,8 +65,7 @@ class AboutScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                         
                         Text(
-                          'A bite-size guide to the Bhagavad Gita, offering chapters, scenarios, '
-                          'and reflections—now with custom themes, language support, and more.',
+                          AppLocalizations.of(context)!.aboutDescription,
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: theme.colorScheme.onSurface,
                             height: 1.5,
@@ -85,7 +85,7 @@ class AboutScreen extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            '"You have the right to perform your actions, but you are not entitled to the fruits of action."',
+                            AppLocalizations.of(context)!.gitaQuote,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               fontStyle: FontStyle.italic,
                               color: theme.colorScheme.onSurface,
@@ -98,7 +98,7 @@ class AboutScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         
                         Text(
-                          '- Bhagavad Gita 2.47',
+                          AppLocalizations.of(context)!.gitaQuoteReference,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurface.withOpacity(0.7),
                             fontWeight: FontWeight.w500,
@@ -120,7 +120,7 @@ class AboutScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Center(
                     child: Text(
-                      'GitaWisdom v1.0.0',
+                      AppLocalizations.of(context)!.appVersion,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: theme.colorScheme.onSurface.withOpacity(0.6),
                         fontWeight: FontWeight.w500,

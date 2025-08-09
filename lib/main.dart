@@ -533,10 +533,13 @@ class PlaceholderScreen extends StatelessWidget {
 // lib/main.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart'; // FOR GOOGLE FONT
+
+import 'l10n/app_localizations.dart';
 
 import 'models/daily_verse_set.dart';
 import 'models/chapter_summary.dart';
@@ -777,6 +780,7 @@ class WisdomGuideApp extends StatelessWidget {
         final fontPref = box.get(SettingsService.fontKey, defaultValue: 'medium') as String;
         final shadowEnabled = box.get(SettingsService.shadowKey, defaultValue: true) as bool;
         final backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3) as double;
+        final languageCode = box.get(SettingsService.langKey, defaultValue: 'en') as String;
         
         double textScale;
         switch (fontPref) {
@@ -787,6 +791,21 @@ class WisdomGuideApp extends StatelessWidget {
 
         return MaterialApp(
           debugShowCheckedModeBanner: false,
+          
+          // Localization setup
+          locale: Locale(languageCode),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', ''), // English
+            Locale('es', ''), // Spanish  
+            Locale('hi', ''), // Hindi
+          ],
+          
           theme: ThemeData.light().copyWith(
             scaffoldBackgroundColor: Colors.transparent,
             textTheme: _buildTextThemeWithShadows(
@@ -948,11 +967,11 @@ class _RootScaffoldState extends State<RootScaffold> {
         bottomNavigationBar: CustomNavBar(
           currentIndex: _currentIndex,
           onTap: (i) => _selectTab(i),
-          items:  const [
-            NavBarItem(icon: Icons.home, label: 'Home'),
-            NavBarItem(icon: Icons.menu_book, label: 'Chapters'),
-            NavBarItem(icon: Icons.list, label: 'Scenarios'),
-            NavBarItem(icon: Icons.more_horiz, label: 'More'),
+          items: [
+            NavBarItem(icon: Icons.home, label: AppLocalizations.of(context)!.homeTab),
+            NavBarItem(icon: Icons.menu_book, label: AppLocalizations.of(context)!.chaptersTab),
+            NavBarItem(icon: Icons.list, label: AppLocalizations.of(context)!.scenariosTab),
+            NavBarItem(icon: Icons.more_horiz, label: AppLocalizations.of(context)!.moreTab),
           ],
         ),
       ),

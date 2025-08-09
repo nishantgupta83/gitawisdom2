@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_localizations.dart';
 
 class ReferencesScreen extends StatelessWidget {
   const ReferencesScreen({Key? key}) : super(key: key);
@@ -13,7 +14,7 @@ class ReferencesScreen extends StatelessWidget {
 
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
-        title: const Text('References'),
+        title: Text(AppLocalizations.of(context)!.referencesTitle),
         centerTitle: true,
         elevation: 4,
       ),
@@ -28,17 +29,17 @@ class ReferencesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '* Bhagavad-gītā As It Is (A. C. Bhaktivedanta Swami Prabhupāda)',
+                  AppLocalizations.of(context)!.reference1,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '* The Bhagavad Gita: A New Translation (Stephen Mitchell)',
+                  AppLocalizations.of(context)!.reference2,
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  '• Other academic and traditional commentaries',
+                  AppLocalizations.of(context)!.reference3,
                   style: theme.textTheme.bodyMedium,
                 ),
               ],

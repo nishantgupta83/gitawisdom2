@@ -32,7 +32,10 @@ class SettingsService extends ChangeNotifier {
       }
 
   String get language => _box.get(langKey, defaultValue: 'en') as String;
-  set language(String v) => _box.put(langKey, v);
+  set language(String v) {
+    _box.put(langKey, v);
+    notifyListeners();
+  }
 
   String get fontSize => _box.get(fontKey, defaultValue: 'small') as String;
  // set fontSize(String v) => _box.put(fontKey, v);

@@ -1825,7 +1825,7 @@ import '../models/chapter_summary.dart';
 import '../services/supabase_service.dart';
 import 'chapters_detail_view.dart';
 import 'home_screen.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../l10n/app_localizations.dart';
 
 /// CHAPTERS SCREEN: Modern UI, themed background, Material cards, floating home button.
 /// This screen lists all Gita chapters as cards, using current app theming.
@@ -1878,6 +1878,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
 
     return Scaffold(
       // Global background handled by main.dart
@@ -1904,7 +1905,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                       child: Column(
                         children: [
                           Text(
-                            'GITA CHAPTERS',
+                            localizations!.gitaChapters,
                             style: theme.textTheme.headlineMedium?.copyWith(
                               fontWeight: FontWeight.w900,
                               letterSpacing: 1.3,
@@ -1913,7 +1914,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            'Immerse into the ocean of knowledge',
+                            localizations.immerseInKnowledge,
                             textAlign: TextAlign.center,
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -1928,13 +1929,13 @@ class _ChapterScreenState extends State<ChapterScreen> {
                 // ─── Chapters List or Status ────────────────────────────
                 if (_isLoading) ...[
                   const SizedBox(height: 200),
-                  const Center(child: CircularProgressIndicator()),
+                  Center(child: CircularProgressIndicator()),
                 ] else if (_error != null) ...[
                   const SizedBox(height: 200),
                   Center(child: Text(_error!)),
                 ] else if (_chapters.isEmpty) ...[
                   const SizedBox(height: 200),
-                  const Center(child: Text('No chapters available.')),
+                  Center(child: Text(localizations.noChaptersAvailable)),
                 ] else ...[
                   // map each chapter to a Card
                   for (var ch in _chapters)
@@ -2020,7 +2021,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                   children: [
                                     Flexible(
                                       child: Text(
-                                        'Verses -> ${ch.verseCount}',
+                                        '${localizations.versesCount} -> ${ch.verseCount}',
                                         style: theme.textTheme.bodySmall?.copyWith(
                                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                                         ),
@@ -2030,7 +2031,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                     const SizedBox(width: 8),
                                     Flexible(
                                       child: Text(
-                                        'Scenarios -> ${ch.scenarioCount}',
+                                        '${localizations.scenariosCount} -> ${ch.scenarioCount}',
                                         style: theme.textTheme.bodySmall?.copyWith(
                                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                                         ),

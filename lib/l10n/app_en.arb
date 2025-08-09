@@ -1,0 +1,341 @@
+{
+  "@@locale": "en",
+  
+  "appTitle": "GitaWisdom",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  
+  "homeTab": "Home",
+  "@homeTab": {
+    "description": "Home tab label in bottom navigation"
+  },
+  
+  "chaptersTab": "Chapters",
+  "@chaptersTab": {
+    "description": "Chapters tab label in bottom navigation"
+  },
+  
+  "scenariosTab": "Scenarios", 
+  "@scenariosTab": {
+    "description": "Scenarios tab label in bottom navigation"
+  },
+  
+  "journalTab": "Journal",
+  "@journalTab": {
+    "description": "Journal tab label in bottom navigation"
+  },
+  
+  "moreTab": "More",
+  "@moreTab": {
+    "description": "More tab label in bottom navigation"
+  },
+  
+  "verseOfTheDay": "Verse of the Day",
+  "@verseOfTheDay": {
+    "description": "Daily verse section title"
+  },
+  
+  "verseRefresher": "Verse Refresher",
+  "@verseRefresher": {
+    "description": "Verse carousel section title"
+  },
+  
+  "modernDilemma": "Modern Dilemma", 
+  "@modernDilemma": {
+    "description": "Modern scenarios section title"
+  },
+  
+  "showWisdom": "Show Wisdom",
+  "@showWisdom": {
+    "description": "Button text to view scenario wisdom"
+  },
+  
+  "applyGitaTeaching": "Apply Gita Teaching to Modern Day Situations",
+  "@applyGitaTeaching": {
+    "description": "Subtitle text describing app purpose"
+  },
+  
+  "viewScenarios": "View Scenarios ({count})",
+  "@viewScenarios": {
+    "description": "Button text to view all scenarios with count",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "25"
+      }
+    }
+  },
+  
+  "readAllVerses": "Read All Verses ({count})",
+  "@readAllVerses": {
+    "description": "Button text to read all verses with count", 
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "47"
+      }
+    }
+  },
+  
+  "relatedScenarios": "Related Scenarios",
+  "@relatedScenarios": {
+    "description": "Section title for related scenarios in chapter detail"
+  },
+  
+  "keyTeachings": "Key Teachings",
+  "@keyTeachings": {
+    "description": "Section title for key teachings in chapter detail"
+  },
+  
+  "exploreChapter": "Explore This Chapter",
+  "@exploreChapter": {
+    "description": "Section title for chapter exploration buttons"
+  },
+  
+  "viewMoreScenarios": "View {count} more scenarios",
+  "@viewMoreScenarios": {
+    "description": "Button text to expand scenario list",
+    "placeholders": {
+      "count": {
+        "type": "int", 
+        "example": "15"
+      }
+    }
+  },
+  
+  "showFewerScenarios": "Show fewer scenarios",
+  "@showFewerScenarios": {
+    "description": "Button text to collapse scenario list"
+  },
+  
+  "loading": "Loading...",
+  "@loading": {
+    "description": "Loading state text"
+  },
+  
+  "errorLoadingData": "Error loading data",
+  "@errorLoadingData": {
+    "description": "Generic error message for data loading failures"
+  },
+
+  "language": "Language",
+  "@language": {
+    "description": "Language settings label"
+  },
+  
+  "appearance": "Appearance",
+  "@appearance": {
+    "description": "Appearance settings section title"
+  },
+  
+  "darkMode": "Dark Mode",
+  "@darkMode": {
+    "description": "Dark mode toggle setting"
+  },
+  
+  "backgroundMusic": "Background Music",
+  "@backgroundMusic": {
+    "description": "Background music toggle setting"
+  },
+  
+  "fontSize": "Font Size",
+  "@fontSize": {
+    "description": "Font size setting"
+  },
+  
+  "textShadow": "Text Shadow",
+  "@textShadow": {
+    "description": "Text shadow effect setting"
+  },
+  
+  "backgroundOpacity": "Background Opacity",
+  "@backgroundOpacity": {
+    "description": "Background transparency setting"
+  },
+  
+  "storageAndCache": "Storage & Cache",
+  "@storageAndCache": {
+    "description": "Storage and cache settings section"
+  },
+  
+  "cacheSize": "Cache Size",
+  "@cacheSize": {
+    "description": "Cache size display"
+  },
+  
+  "clearCache": "Clear Cache",
+  "@clearCache": {
+    "description": "Clear cache button"
+  },
+  
+  "extras": "Extras",
+  "@extras": {
+    "description": "Extras settings section"
+  },
+  
+  "shareThisApp": "Share this App",
+  "@shareThisApp": {
+    "description": "Share app option"
+  },
+  
+  "resources": "Resources",
+  "@resources": {
+    "description": "Resources settings section"
+  },
+  
+  "about": "About",
+  "@about": {
+    "description": "About screen link"
+  },
+  
+  "references": "References",
+  "@references": {
+    "description": "References screen link"
+  },
+  
+  "supportAndLegal": "Support & Legal",
+  "@supportAndLegal": {
+    "description": "Support and legal settings section"
+  },
+  
+  "sendFeedback": "Send Feedback",
+  "@sendFeedback": {
+    "description": "Send feedback option"
+  },
+  
+  "privacyPolicy": "Privacy Policy",
+  "@privacyPolicy": {
+    "description": "Privacy policy link"
+  },
+  
+  "termsAndConditions": "Terms & Conditions",
+  "@termsAndConditions": {
+    "description": "Terms and conditions link"
+  },
+  
+  "appLanguage": "App Language",
+  "@appLanguage": {
+    "description": "App language setting label"
+  },
+  
+  "english": "English",
+  "@english": {
+    "description": "English language option"
+  },
+  
+  "spanish": "Español",
+  "@spanish": {
+    "description": "Spanish language option"
+  },
+  
+  "hindi": "हिंदी",
+  "@hindi": {
+    "description": "Hindi language option"
+  },
+
+  "gitaChapters": "GITA CHAPTERS",
+  "@gitaChapters": {
+    "description": "Main title for chapters screen"
+  },
+
+  "immerseInKnowledge": "Immerse into the ocean of knowledge",
+  "@immerseInKnowledge": {
+    "description": "Subtitle for chapters screen"
+  },
+
+  "noChaptersAvailable": "No chapters available.",
+  "@noChaptersAvailable": {
+    "description": "Empty state message when no chapters found"
+  },
+
+  "versesCount": "Verses",
+  "@versesCount": {
+    "description": "Label for verse count"
+  },
+
+  "scenariosCount": "Scenarios",
+  "@scenariosCount": {
+    "description": "Label for scenario count"
+  },
+
+  "scenarios": "SCENARIOS",
+  "@scenarios": {
+    "description": "Main title for scenarios screen"
+  },
+
+  "realWorldSituations": "Real-world situations guided by Gita wisdom",
+  "@realWorldSituations": {
+    "description": "Subtitle for scenarios screen"
+  },
+
+  "searchScenarios": "Search scenarios by title or description...",
+  "@searchScenarios": {
+    "description": "Search hint text for scenarios"
+  },
+
+  "noScenariosAvailable": "No scenarios available",
+  "@noScenariosAvailable": {
+    "description": "Empty state when no scenarios exist"
+  },
+
+  "noScenariosMatch": "No scenarios match your search",
+  "@noScenariosMatch": {
+    "description": "Empty state when search has no results"
+  },
+
+  "failedToRefresh": "Failed to refresh scenarios",
+  "@failedToRefresh": {
+    "description": "Error message when refresh fails"
+  },
+
+  "aboutGitaWisdom": "About GitaWisdom",
+  "@aboutGitaWisdom": {
+    "description": "Title for About screen"
+  },
+
+  "madeWithLove": "Made with ❤️ for spiritual seekers everywhere",
+  "@madeWithLove": {
+    "description": "Dedication message in About screen"
+  },
+
+  "aboutDescription": "A bite-size guide to the Bhagavad Gita, offering chapters, scenarios, and reflections—now with custom themes, language support, and more.",
+  "@aboutDescription": {
+    "description": "App description in About screen"
+  },
+
+  "gitaQuote": "\"You have the right to perform your actions, but you are not entitled to the fruits of action.\"",
+  "@gitaQuote": {
+    "description": "Famous Gita quote in About screen"
+  },
+
+  "gitaQuoteReference": "- Bhagavad Gita 2.47",
+  "@gitaQuoteReference": {
+    "description": "Reference for the Gita quote"
+  },
+
+  "appVersion": "GitaWisdom v1.0.0",
+  "@appVersion": {
+    "description": "App version display"
+  },
+
+  "referencesTitle": "References",
+  "@referencesTitle": {
+    "description": "Title for References screen"
+  },
+
+  "reference1": "* Bhagavad-gītā As It Is (A. C. Bhaktivedanta Swami Prabhupāda)",
+  "@reference1": {
+    "description": "First reference source"
+  },
+
+  "reference2": "* The Bhagavad Gita: A New Translation (Stephen Mitchell)",
+  "@reference2": {
+    "description": "Second reference source"
+  },
+
+  "reference3": "• Other academic and traditional commentaries",
+  "@reference3": {
+    "description": "Third reference source"
+  }
+}

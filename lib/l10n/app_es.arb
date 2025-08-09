@@ -1,0 +1,91 @@
+{
+  "@@locale": "es",
+  
+  "appTitle": "GitaWisdom",
+  
+  "homeTab": "Inicio",
+  
+  "chaptersTab": "Capítulos",
+  
+  "scenariosTab": "Escenarios",
+  
+  "journalTab": "Diario",
+  
+  "moreTab": "Más",
+  
+  "verseOfTheDay": "Verso del Día",
+  
+  "verseRefresher": "Refrescador de Versos",
+  
+  "modernDilemma": "Dilema Moderno",
+  
+  "showWisdom": "Mostrar Sabiduría",
+  
+  "applyGitaTeaching": "Aplica las Enseñanzas del Gita a Situaciones Modernas",
+  
+  "viewScenarios": "Ver Escenarios ({count})",
+  
+  "readAllVerses": "Leer Todos los Versos ({count})",
+  
+  "relatedScenarios": "Escenarios Relacionados",
+  
+  "keyTeachings": "Enseñanzas Clave",
+  
+  "exploreChapter": "Explorar Este Capítulo",
+  
+  "viewMoreScenarios": "Ver {count} escenarios más",
+  
+  "showFewerScenarios": "Mostrar menos escenarios",
+  
+  "loading": "Cargando...",
+  
+  "errorLoadingData": "Error al cargar datos",
+
+  "language": "Idioma",
+  "appearance": "Apariencia", 
+  "darkMode": "Modo Oscuro",
+  "backgroundMusic": "Música de Fondo",
+  "fontSize": "Tamaño de Letra",
+  "textShadow": "Sombra de Texto",
+  "backgroundOpacity": "Opacidad del Fondo",
+  "storageAndCache": "Almacenamiento y Caché",
+  "cacheSize": "Tamaño de Caché",
+  "clearCache": "Limpiar Caché",
+  "extras": "Extras",
+  "shareThisApp": "Compartir esta App",
+  "resources": "Recursos",
+  "about": "Acerca de",
+  "references": "Referencias",
+  "supportAndLegal": "Soporte y Legal",
+  "sendFeedback": "Enviar Comentarios",
+  "privacyPolicy": "Política de Privacidad",
+  "termsAndConditions": "Términos y Condiciones",
+  "appLanguage": "Idioma de la App",
+  "english": "English",
+  "spanish": "Español", 
+  "hindi": "हिंदी",
+
+  "gitaChapters": "CAPÍTULOS DEL GITA",
+  "immerseInKnowledge": "Sumérgete en el océano del conocimiento",
+  "noChaptersAvailable": "No hay capítulos disponibles.",
+  "versesCount": "Versos",
+  "scenariosCount": "Escenarios",
+
+  "scenarios": "ESCENARIOS",
+  "realWorldSituations": "Situaciones del mundo real guiadas por la sabiduría del Gita",
+  "searchScenarios": "Buscar escenarios por título o descripción...",
+  "noScenariosAvailable": "No hay escenarios disponibles",
+  "noScenariosMatch": "No hay escenarios que coincidan con tu búsqueda",
+  "failedToRefresh": "Error al actualizar escenarios",
+
+  "aboutGitaWisdom": "Acerca de GitaWisdom",
+  "madeWithLove": "Hecho con ❤️ para buscadores espirituales en todo el mundo",
+  "aboutDescription": "Una guía práctica del Bhagavad Gita, que ofrece capítulos, escenarios y reflexiones—ahora con temas personalizados, soporte de idiomas y más.",
+  "gitaQuote": "\"Tienes derecho a realizar tus acciones, pero no tienes derecho a los frutos de la acción.\"",
+  "gitaQuoteReference": "- Bhagavad Gita 2.47",
+  "appVersion": "GitaWisdom v1.0.0",
+  "referencesTitle": "Referencias",
+  "reference1": "* Bhagavad-gītā As It Is (A. C. Bhaktivedanta Swami Prabhupāda)",
+  "reference2": "* The Bhagavad Gita: A New Translation (Stephen Mitchell)",
+  "reference3": "• Otros comentarios académicos y tradicionales"
+}

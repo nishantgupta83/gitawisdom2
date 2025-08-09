@@ -1193,18 +1193,15 @@ Scaffold
 
  */
 
-import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../models/verse.dart';
 import '../models/scenario.dart';
 import '../services/supabase_service.dart';
 import '../services/daily_verse_service.dart';
-import '../screens/chapters_screen.dart';
-import '../screens/scenarios_screen.dart';
+import '../services/settings_service.dart';
 import '../screens/scenario_detail_view.dart';
+import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int)? onTabChange;
@@ -1218,6 +1215,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final SupabaseService _service = SupabaseService();
   final DailyVerseService _dailyVerseService = DailyVerseService.instance;
+  final SettingsService _settingsService = SettingsService();
 
   late final Future<List<Verse>> _versesFuture;
   Future<Scenario?>? _randomScenarioFuture;
@@ -1291,7 +1289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'GITA WISDOM',
+                              AppLocalizations.of(context)!.appTitle.toUpperCase(),
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
@@ -1300,7 +1298,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Apply Gita Teaching to Modern Day Situations',
+                              AppLocalizations.of(context)!.applyGitaTeaching,
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -1324,7 +1322,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             return _loadingCard(context);
                           }
                           if (snap.hasError || snap.data == null) {
-                            return _errorCard('Error loading verses');
+                            return _errorCard(AppLocalizations.of(context)!.errorLoadingData);
                           }
                           final verses = snap.data!;
                           return PageView.builder(
@@ -1352,7 +1350,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          "Verse Refresher",
+                                          AppLocalizations.of(context)!.verseRefresher,
                                           style: theme.textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.bold,
                                             color: theme.colorScheme.primary,
@@ -1445,6 +1443,16 @@ class _HomeScreenState extends State<HomeScreen> {
               },
             ),
           ),
+          
+          // Floating language switcher button (bottom-right)
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: AnimatedBuilder(
+              animation: _settingsService,
+              builder: (context, _) => _languageButton(_settingsService.language),
+            ),
+          ),
 
         ],
       ),
@@ -1480,7 +1488,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'MODERN DELIMA',
+                    AppLocalizations.of(context)!.modernDilemma.toUpperCase(),
                     style: theme.textTheme.titleMedium?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: theme.colorScheme.primary,
@@ -1588,7 +1596,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     const Icon(Icons.auto_awesome, size: 24, color: Colors.white),
                     const SizedBox(width: 12),
                     Text(
-                      '🔮 SHOW WISDOM',
+                      '🔮 ${AppLocalizations.of(context)!.showWisdom.toUpperCase()}',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -1632,4 +1640,103 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       );
+
+  /// Language cycling functionality: EN → ES → HI → EN
+  void _cycleLanguage() {
+    final currentLanguage = _settingsService.language;
+    
+    String nextLanguage;
+    switch (currentLanguage) {
+      case 'en':
+        nextLanguage = 'es';
+        break;
+      case 'es':
+        nextLanguage = 'hi';
+        break;
+      case 'hi':
+        nextLanguage = 'en';
+        break;
+      default:
+        nextLanguage = 'en';
+    }
+    
+    _settingsService.language = nextLanguage;
+    debugPrint('🌐 Language switched from $currentLanguage to $nextLanguage');
+  }
+
+  /// Language button with flag/code display
+  Widget _languageButton(String currentLanguage) {
+    final theme = Theme.of(context);
+    
+    // Language display info
+    final languageInfo = _getLanguageInfo(currentLanguage);
+    
+    return Container(
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.6),
+            blurRadius: 12,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: CircleAvatar(
+        radius: 24,
+        backgroundColor: theme.colorScheme.background,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: _cycleLanguage,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: theme.colorScheme.primary.withOpacity(0.3),
+                width: 1,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                languageInfo['display']!,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Get display info for each language
+  Map<String, String> _getLanguageInfo(String languageCode) {
+    switch (languageCode) {
+      case 'en':
+        return {
+          'display': '🇺🇸',
+          'name': 'English',
+        };
+      case 'es':
+        return {
+          'display': '🇪🇸',
+          'name': 'Español',
+        };
+      case 'hi':
+        return {
+          'display': '🇮🇳',
+          'name': 'हिंदी',
+        };
+      default:
+        return {
+          'display': '🌐',
+          'name': 'Default',
+        };
+    }
+  }
 }

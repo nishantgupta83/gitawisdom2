@@ -1,0 +1,91 @@
+{
+  "@@locale": "hi",
+  
+  "appTitle": "गीताज्ञान",
+  
+  "homeTab": "होम",
+  
+  "chaptersTab": "अध्याय",
+  
+  "scenariosTab": "स्थितियां",
+  
+  "journalTab": "डायरी",
+  
+  "moreTab": "और",
+  
+  "verseOfTheDay": "आज का श्लोक",
+  
+  "verseRefresher": "श्लोक रिफ्रेशर",
+  
+  "modernDilemma": "आधुनिक समस्या",
+  
+  "showWisdom": "ज्ञान दिखाएं",
+  
+  "applyGitaTeaching": "आधुनिक जीवन में गीता की शिक्षाएं लागू करें",
+  
+  "viewScenarios": "स्थितियां देखें ({count})",
+  
+  "readAllVerses": "सभी श्लोक पढ़ें ({count})",
+  
+  "relatedScenarios": "संबंधित स्थितियां",
+  
+  "keyTeachings": "मुख्य शिक्षाएं",
+  
+  "exploreChapter": "इस अध्याय का अन्वेषण करें",
+  
+  "viewMoreScenarios": "{count} और स्थितियां देखें",
+  
+  "showFewerScenarios": "कम स्थितियां दिखाएं",
+  
+  "loading": "लोड हो रहा है...",
+  
+  "errorLoadingData": "डेटा लोड करने में त्रुटि",
+
+  "language": "भाषा",
+  "appearance": "दिखावट",
+  "darkMode": "डार्क मोड",
+  "backgroundMusic": "बैकग्राउंड संगीत",
+  "fontSize": "फ़ॉन्ट साइज़",
+  "textShadow": "टेक्स्ट शैडो",
+  "backgroundOpacity": "बैकग्राउंड पारदर्शिता",
+  "storageAndCache": "स्टोरेज और कैश",
+  "cacheSize": "कैश साइज़",
+  "clearCache": "कैश साफ़ करें",
+  "extras": "अतिरिक्त",
+  "shareThisApp": "यह ऐप साझा करें",
+  "resources": "संसाधन",
+  "about": "के बारे में",
+  "references": "संदर्भ",
+  "supportAndLegal": "समर्थन और कानूनी",
+  "sendFeedback": "फीडबैक भेजें",
+  "privacyPolicy": "प्राइवेसी नीति",
+  "termsAndConditions": "नियम और शर्तें",
+  "appLanguage": "ऐप की भाषा",
+  "english": "English",
+  "spanish": "Español",
+  "hindi": "हिंदी",
+
+  "gitaChapters": "गीता अध्याय",
+  "immerseInKnowledge": "ज्ञान के सागर में डूब जाइए",
+  "noChaptersAvailable": "कोई अध्याय उपलब्ध नहीं है।",
+  "versesCount": "श्लोक",
+  "scenariosCount": "स्थितियां",
+
+  "scenarios": "स्थितियां",
+  "realWorldSituations": "गीता की बुद्धि से निर्देशित वास्तविक जीवन की स्थितियां",
+  "searchScenarios": "शीर्षक या विवरण से स्थितियां खोजें...",
+  "noScenariosAvailable": "कोई स्थिति उपलब्ध नहीं है",
+  "noScenariosMatch": "आपकी खोज से मेल खाने वाली कोई स्थिति नहीं है",
+  "failedToRefresh": "स्थितियों को रीफ्रेश करने में विफल",
+
+  "aboutGitaWisdom": "गीताज्ञान के बारे में",
+  "madeWithLove": "दुनिया भर के आध्यात्मिक साधकों के लिए ❤️ से बनाया गया",
+  "aboutDescription": "भगवद गीता के लिए एक व्यावहारिक गाइड, जो अध्याय, स्थितियाँ और चिंतन प्रदान करता है—अब कस्टम थीम, भाषा समर्थन और बहुत कुछ के साथ।",
+  "gitaQuote": "\"आपको अपने कर्म करने का अधिकार है, परन्तु कर्मफल पर आपका अधिकार नहीं है।\"",
+  "gitaQuoteReference": "- भगवद गीता 2.47",
+  "appVersion": "गीताज्ञान v1.0.0",
+  "referencesTitle": "संदर्भ",
+  "reference1": "* भगवद-गीता यथारूप (ए. सी. भक्तिवेदांत स्वामी प्रभुपाद)",
+  "reference2": "* भगवद गीता: एक नया अनुवाद (स्टीफन मिशेल)",
+  "reference3": "• अन्य शैक्षणिक और पारंपरिक टिप्पणियाँ"
+}

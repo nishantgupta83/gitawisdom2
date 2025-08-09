@@ -304,6 +304,7 @@ import '../services/cache_service.dart';
 import '../screens/about_screen.dart';
 import '../screens/references_screen.dart';
 import '../services/audio_service.dart';
+import '../l10n/app_localizations.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({Key? key}) : super(key: key);
@@ -321,6 +322,7 @@ class _MoreScreenState extends State<MoreScreen> {
   double _backgroundOpacity = 0.3;
   String _cacheSize = 'Calculating...';
   Map<String, double> _cacheSizes = {};
+  String _currentLanguage = 'en';
 
   // Helper functions for font size mapping
   String _getFontSizeString(double value) {
@@ -354,6 +356,7 @@ class _MoreScreenState extends State<MoreScreen> {
     _fontSizeValue = _getFontSizeValue(_fontSize);
     _textShadow = box.get(SettingsService.shadowKey, defaultValue: true);
     _backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3);
+    _currentLanguage = box.get(SettingsService.langKey, defaultValue: 'en');
     
     _loadCacheInfo();
   }
@@ -385,7 +388,31 @@ class _MoreScreenState extends State<MoreScreen> {
       }
       if (key == SettingsService.shadowKey) _textShadow = value;
       if (key == SettingsService.opacityKey) _backgroundOpacity = value;
+      if (key == SettingsService.langKey) _currentLanguage = value;
     });
+  }
+
+  void _changeLanguage(String newLanguage) {
+    final settingsService = SettingsService();
+    settingsService.language = newLanguage;
+    _toggleSetting(SettingsService.langKey, newLanguage);
+    debugPrint('🌐 Language changed to: $newLanguage');
+  }
+
+  String _getLanguageDisplayName(String languageCode) {
+    final localizations = AppLocalizations.of(context);
+    if (localizations == null) return languageCode;
+    
+    switch (languageCode) {
+      case 'en':
+        return localizations.english;
+      case 'es':
+        return localizations.spanish;
+      case 'hi':
+        return localizations.hindi;
+      default:
+        return languageCode;
+    }
   }
 
   void _updateFontSize(double value) {
@@ -505,22 +532,24 @@ class _MoreScreenState extends State<MoreScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
+    
     return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB (10,100,10,10),
           child: ListView(
             children: [
-              _sectionTitle('Appearance'),
+              _sectionTitle(localizations!.appearance),
               _settingTile(
-                title: 'Dark Mode',
+                title: localizations.darkMode,
                 trailing: Switch(
                   value: _darkMode,
                   onChanged: (val) => _toggleSetting(SettingsService.darkKey, val),
                 ),
               ),
               _settingTile(
-                title: 'Background Music',
+                title: localizations.backgroundMusic,
                 trailing: Switch(
                   value: _musicOn,
                   onChanged: (val) {
@@ -530,7 +559,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
               ),
               _settingTile(
-                title: 'Font Size',
+                title: localizations.fontSize,
                 subtitle: '${_getFontSizeLabel(_fontSizeValue)} - Adjust text size throughout the app',
                 trailing: SizedBox(
                   width: 150,
@@ -547,7 +576,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
               ),
               _settingTile(
-                title: 'Text Shadow',
+                title: localizations.textShadow,
                 subtitle: 'Add shadow effect to text',
                 trailing: Switch(
                   value: _textShadow,
@@ -555,7 +584,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
               ),
               _settingTile(
-                title: 'Background Opacity',
+                title: localizations.backgroundOpacity,
                 subtitle: '${(_backgroundOpacity * 100).round()}% - Adjust background transparency',
                 trailing: SizedBox(
                   width: 150,
@@ -569,19 +598,38 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
               ),
 
-              _sectionTitle('Storage & Cache'),
+              // Language Section
+              _sectionTitle(localizations.language),
+              _settingTile(
+                title: localizations.appLanguage,
+                trailing: DropdownButton<String>(
+                  value: _currentLanguage,
+                  items: [
+                    DropdownMenuItem(value: 'en', child: Text(localizations.english)),
+                    DropdownMenuItem(value: 'es', child: Text(localizations.spanish)),
+                    DropdownMenuItem(value: 'hi', child: Text(localizations.hindi)),
+                  ],
+                  onChanged: (newLang) {
+                    if (newLang != null) {
+                      _changeLanguage(newLang);
+                    }
+                  },
+                ),
+              ),
+
+              _sectionTitle(localizations.storageAndCache),
               
               // Simplified Cache Management - Single Button Approach
               // User requested: Simple one-button cache clearing while preserving detailed functionality
               _settingTile(
-                title: 'Cache Size',
+                title: localizations.cacheSize,
                 subtitle: _cacheSize,
                 leading: const Icon(Icons.storage),
                 onTap: () => _loadCacheInfo(),
               ),
               
               _settingTile(
-                title: 'Clear Cache',
+                title: localizations.clearCache,
                 subtitle: 'Remove all app cache to free up space',
                 leading: const Icon(Icons.delete_sweep, color: Colors.orange),
                 onTap: _clearAllCache,
@@ -647,9 +695,9 @@ class _MoreScreenState extends State<MoreScreen> {
               
               /* ============================================================================ */
 
-              _sectionTitle('Extras'),
+              _sectionTitle(localizations.extras),
               _settingTile(
-                title: 'Share this App',
+                title: localizations.shareThisApp,
                 onTap: () {
                   Share.share(
                     'Check out GitaWisdom on the App Store or Play Store!',
@@ -658,23 +706,23 @@ class _MoreScreenState extends State<MoreScreen> {
                 },
               ),
 
-              _sectionTitle('Resources'),
+              _sectionTitle(localizations.resources),
               _settingTile(
-                title: 'About',
+                title: localizations.about,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const AboutScreen()),
                 ),
               ),
               _settingTile(
-                title: 'References',
+                title: localizations.references,
                 onTap: () => Navigator.of(context).push(
                   MaterialPageRoute(builder: (_) => const ReferencesScreen()),
                 ),
               ),
 
-              _sectionTitle('Support & Legal'),
+              _sectionTitle(localizations.supportAndLegal),
               _settingTile(
-                title: 'Send Feedback',
+                title: localizations.sendFeedback,
                 leading: const Icon(Icons.email_outlined),
                   onTap: () async {
                     final now = DateTime.now();
@@ -700,8 +748,8 @@ class _MoreScreenState extends State<MoreScreen> {
                     }
                   }
               ),
-              _settingTile(title: 'Privacy Policy'),
-              _settingTile(title: 'Terms & Conditions'),
+              _settingTile(title: localizations.privacyPolicy),
+              _settingTile(title: localizations.termsAndConditions),
 
               const SizedBox(height: 40),
               Center(

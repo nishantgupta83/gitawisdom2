@@ -7,6 +7,7 @@ import '../services/supabase_service.dart';
 import '../services/scenario_service.dart';
 import 'scenario_detail_view.dart';
 import '../main.dart';
+import '../l10n/app_localizations.dart';
 
 class ScenariosScreen extends StatefulWidget {
   final String? filterTag;
@@ -106,7 +107,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       debugPrint('Error refreshing scenarios: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to refresh scenarios')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.failedToRefresh)),
         );
       }
     } finally {
@@ -117,6 +118,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
     
     return Scaffold(
       // Global background handled by main.dart
@@ -144,7 +146,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         child: Column(
                           children: [
                             Text(
-                              'SCENARIOS',
+                              localizations!.scenarios,
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
@@ -153,7 +155,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Real-world situations guided by Gita wisdom',
+                              localizations.realWorldSituations,
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -172,7 +174,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       controller: _searchController,
                       onChanged: _onSearchChanged,
                       decoration: InputDecoration(
-                        hintText: 'Search scenarios by title or description...',
+                        hintText: localizations.searchScenarios,
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -220,7 +222,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(40),
                                   child: Text(
-                                    _search.isEmpty ? 'No scenarios available' : 'No scenarios match your search',
+                                    _search.isEmpty ? localizations.noScenariosAvailable : localizations.noScenariosMatch,
                                     style: theme.textTheme.bodyLarge?.copyWith(
                                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                                     ),
