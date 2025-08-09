@@ -11,8 +11,8 @@ class TestUtils {
       const MethodChannel('plugins.flutter.io/package_info'),
       (MethodCall methodCall) async {
         return {
-          'appName': 'OldWisdom',
-          'packageName': 'com.example.oldwisdom',
+          'appName': 'GitaWisdom',
+          'packageName': 'com.gitawisdom.app',
           'version': '1.0.0',
           'buildNumber': '1',
         };

@@ -1,18 +1,45 @@
 
+import 'package:hive/hive.dart';
+
+part 'scenario.g.dart';
 
 /// Model for a scenario, matching the `scenarios` table.
-class Scenario {
+@HiveType(typeId: 5)
+class Scenario extends HiveObject {
+  @HiveField(0)
   final String title;           // sc_title
+  
+  @HiveField(1)
   final String description;     // sc_description
+  
+  @HiveField(2)
   final String category;        // sc_category
+  
+  @HiveField(3)
   final int chapter;            // sc_chapter
+  
+  @HiveField(4)
   final String heartResponse;   // sc_heart_response
+  
+  @HiveField(5)
   final String dutyResponse;    // sc_duty_response
+  
+  @HiveField(6)
   final String gitaWisdom;      // sc_gita_wisdom
+  
+  @HiveField(7)
   final String? verse;          // sc_verse
+  
+  @HiveField(8)
   final String? verseNumber;    // sc_verse_number (text)
+  
+  @HiveField(9)
   final List<String>? tags;     // sc_tags
+  
+  @HiveField(10)
   final List<String>? actionSteps; // sc_action_steps
+  
+  @HiveField(11)
   final DateTime createdAt;     // created_at timestamp
 
   Scenario({

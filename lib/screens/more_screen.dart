@@ -300,6 +300,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:intl/intl.dart';
 
 import '../services/settings_service.dart';
+import '../services/cache_service.dart';
 import '../screens/about_screen.dart';
 import '../screens/references_screen.dart';
 import '../services/audio_service.dart';
@@ -315,9 +316,33 @@ class _MoreScreenState extends State<MoreScreen> {
   bool _darkMode = false;
   bool _musicOn = false;
   String _fontSize = 'small';
+  double _fontSizeValue = 1.0; // 0.0 = small, 1.0 = medium, 2.0 = large
   bool _textShadow = true;
   double _backgroundOpacity = 0.3;
+  String _cacheSize = 'Calculating...';
+  Map<String, double> _cacheSizes = {};
 
+  // Helper functions for font size mapping
+  String _getFontSizeString(double value) {
+    if (value <= 0.5) return 'small';
+    if (value <= 1.5) return 'medium';
+    return 'large';
+  }
+
+  double _getFontSizeValue(String fontSize) {
+    switch (fontSize) {
+      case 'small': return 0.0;
+      case 'medium': return 1.0;
+      case 'large': return 2.0;
+      default: return 1.0;
+    }
+  }
+
+  String _getFontSizeLabel(double value) {
+    if (value <= 0.5) return 'Small';
+    if (value <= 1.5) return 'Medium';
+    return 'Large';
+  }
 
   @override
   void initState() {
@@ -326,8 +351,27 @@ class _MoreScreenState extends State<MoreScreen> {
     _darkMode = box.get(SettingsService.darkKey, defaultValue: false);
     _musicOn = box.get(SettingsService.musicKey, defaultValue: true);
     _fontSize = box.get(SettingsService.fontKey, defaultValue: 'small');
+    _fontSizeValue = _getFontSizeValue(_fontSize);
     _textShadow = box.get(SettingsService.shadowKey, defaultValue: true);
     _backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3);
+    
+    _loadCacheInfo();
+  }
+
+  Future<void> _loadCacheInfo() async {
+    try {
+      final totalSize = await CacheService.getTotalCacheSize();
+      final sizes = await CacheService.getCacheSizes();
+      
+      setState(() {
+        _cacheSize = CacheService.formatCacheSize(totalSize);
+        _cacheSizes = sizes;
+      });
+    } catch (e) {
+      setState(() {
+        _cacheSize = 'Error loading';
+      });
+    }
   }
 
   void _toggleSetting(String key, dynamic value) {
@@ -335,10 +379,127 @@ class _MoreScreenState extends State<MoreScreen> {
     setState(() {
       if (key == SettingsService.darkKey) _darkMode = value;
       if (key == SettingsService.musicKey) _musicOn = value;
-      if (key == SettingsService.fontKey) _fontSize = value;
+      if (key == SettingsService.fontKey) {
+        _fontSize = value;
+        _fontSizeValue = _getFontSizeValue(value);
+      }
       if (key == SettingsService.shadowKey) _textShadow = value;
       if (key == SettingsService.opacityKey) _backgroundOpacity = value;
     });
+  }
+
+  void _updateFontSize(double value) {
+    final newFontSize = _getFontSizeString(value);
+    _toggleSetting(SettingsService.fontKey, newFontSize);
+  }
+
+  Future<void> _clearAllCache() async {
+    final confirmed = await _showCacheConfirmation(
+      'Clear All Cache',
+      'This will remove all cached data (verses, chapters, journal) but keep your settings. The app will need to re-download content.',
+    );
+    
+    if (confirmed) {
+      try {
+        await CacheService.clearAllCache();
+        await _loadCacheInfo();
+        _showCacheSuccess('All cache cleared successfully');
+      } catch (e) {
+        _showCacheError('Error clearing cache: $e');
+      }
+    }
+  }
+
+  Future<void> _clearVerseCache() async {
+    final confirmed = await _showCacheConfirmation(
+      'Clear Verse Cache',
+      'This will remove cached daily verses. New verses will be downloaded tomorrow or when manually refreshed.',
+    );
+    
+    if (confirmed) {
+      try {
+        await CacheService.clearVerseCache();
+        await _loadCacheInfo();
+        _showCacheSuccess('Verse cache cleared');
+      } catch (e) {
+        _showCacheError('Error clearing verse cache: $e');
+      }
+    }
+  }
+
+  Future<void> _clearChapterCache() async {
+    final confirmed = await _showCacheConfirmation(
+      'Clear Chapter Cache',
+      'This will remove cached chapter data. Chapters will be re-downloaded when accessed.',
+    );
+    
+    if (confirmed) {
+      try {
+        await CacheService.clearChapterCache();
+        await _loadCacheInfo();
+        _showCacheSuccess('Chapter cache cleared');
+      } catch (e) {
+        _showCacheError('Error clearing chapter cache: $e');
+      }
+    }
+  }
+
+  Future<void> _clearJournalCache() async {
+    final confirmed = await _showCacheConfirmation(
+      'Clear Journal Cache',
+      'This will permanently delete all your local journal entries. This cannot be undone!',
+    );
+    
+    if (confirmed) {
+      try {
+        await CacheService.clearJournalCache();
+        await _loadCacheInfo();
+        _showCacheSuccess('Journal cache cleared');
+      } catch (e) {
+        _showCacheError('Error clearing journal cache: $e');
+      }
+    }
+  }
+
+  Future<bool> _showCacheConfirmation(String title, String message) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Clear', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
+  void _showCacheSuccess(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.green,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _showCacheError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -362,19 +523,27 @@ class _MoreScreenState extends State<MoreScreen> {
                 title: 'Background Music',
                 trailing: Switch(
                   value: _musicOn,
-                  onChanged: (val) => _toggleSetting(SettingsService.musicKey, val),
+                  onChanged: (val) {
+                    _toggleSetting(SettingsService.musicKey, val);
+                    AudioService.instance.setEnabled(val);
+                  },
                 ),
               ),
               _settingTile(
                 title: 'Font Size',
-                trailing: DropdownButton<String>(
-                  value: _fontSize,
-                  items: const [
-                    DropdownMenuItem(value: 'small', child: Text('Small')),
-                    DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                    DropdownMenuItem(value: 'large', child: Text('Large')),
-                  ],
-                  onChanged: (val) => _toggleSetting(SettingsService.fontKey, val!),
+                subtitle: '${_getFontSizeLabel(_fontSizeValue)} - Adjust text size throughout the app',
+                trailing: SizedBox(
+                  width: 150,
+                  child: Slider(
+                    value: _fontSizeValue,
+                    min: 0.0,
+                    max: 2.0,
+                    divisions: 2,
+                    onChanged: (val) {
+                      setState(() => _fontSizeValue = val);
+                      _updateFontSize(val);
+                    },
+                  ),
                 ),
               ),
               _settingTile(
@@ -399,6 +568,84 @@ class _MoreScreenState extends State<MoreScreen> {
                   ),
                 ),
               ),
+
+              _sectionTitle('Storage & Cache'),
+              
+              // Simplified Cache Management - Single Button Approach
+              // User requested: Simple one-button cache clearing while preserving detailed functionality
+              _settingTile(
+                title: 'Cache Size',
+                subtitle: _cacheSize,
+                leading: const Icon(Icons.storage),
+                onTap: () => _loadCacheInfo(),
+              ),
+              
+              _settingTile(
+                title: 'Clear Cache',
+                subtitle: 'Remove all app cache to free up space',
+                leading: const Icon(Icons.delete_sweep, color: Colors.orange),
+                onTap: _clearAllCache,
+              ),
+
+              /* ============================================================================
+               * DETAILED CACHE MANAGEMENT (PRESERVED FOR FUTURE RESTORATION)
+               * 
+               * This section contains granular cache management functionality that has been
+               * commented out per user request for simplified UX. All functionality is
+               * preserved and can be easily restored by uncommenting this block.
+               * 
+               * Features preserved:
+               * - Individual cache size breakdown display
+               * - Granular cache clearing (verses, chapters, journal separately)
+               * - Real-time cache size monitoring
+               * - Confirmation dialogs and success feedback
+               * 
+               * To restore: Simply uncomment the entire block below.
+               * ============================================================================ */
+              
+              // // Individual cache sizes breakdown
+              // if (_cacheSizes.isNotEmpty) ...[
+              //   for (final entry in _cacheSizes.entries)
+              //     if (entry.value > 0)
+              //       Padding(
+              //         padding: const EdgeInsets.only(left: 32, right: 16),
+              //         child: _settingTile(
+              //           title: entry.key,
+              //           subtitle: CacheService.formatCacheSize(entry.value),
+              //         ),
+              //       ),
+              // ],
+              // 
+              // // Granular cache clearing options
+              // _settingTile(
+              //   title: 'Clear All Cache',
+              //   subtitle: 'Remove all cached data except settings',
+              //   leading: const Icon(Icons.clear_all, color: Colors.red),
+              //   onTap: _clearAllCache,
+              // ),
+              // 
+              // _settingTile(
+              //   title: 'Clear Verse Cache',
+              //   subtitle: 'Remove daily verse cache',
+              //   leading: const Icon(Icons.auto_stories, color: Colors.orange),
+              //   onTap: _clearVerseCache,
+              // ),
+              // 
+              // _settingTile(
+              //   title: 'Clear Chapter Cache',
+              //   subtitle: 'Remove chapter data cache',
+              //   leading: const Icon(Icons.menu_book, color: Colors.blue),
+              //   onTap: _clearChapterCache,
+              // ),
+              // 
+              // _settingTile(
+              //   title: 'Clear Journal Cache',
+              //   subtitle: 'Permanently delete journal entries',
+              //   leading: const Icon(Icons.delete_forever, color: Colors.red),
+              //   onTap: _clearJournalCache,
+              // ),
+              
+              /* ============================================================================ */
 
               _sectionTitle('Extras'),
               _settingTile(

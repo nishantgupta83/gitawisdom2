@@ -1030,10 +1030,17 @@ Widget build(BuildContext context) {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(ch.title, style: theme.textTheme.titleMedium),
+                                  Flexible(
+                                    child: Text(
+                                      ch.title, 
+                                      style: theme.textTheme.titleMedium,
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 2,
+                                    ),
+                                  ),
                                   if (ch.subtitle != null && ch.subtitle!.isNotEmpty) ...[
                                     const SizedBox(height: 8),
-                                    ExpandableText(ch.subtitle!),
+                                    Flexible(child: ExpandableText(ch.subtitle!)),
                                   ],
                                 ],
                               ),
@@ -1046,10 +1053,14 @@ Widget build(BuildContext context) {
                         // ③ Counts at bottom‑right
                         Align(
                           alignment: Alignment.centerRight,
-                          child: Text(
-                            '${ch.verseCount} verses  •  ${ch.scenarioCount} scenarios',
-                            style: theme.textTheme.bodySmall
-                              ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                          child: Flexible(
+                            child: Text(
+                              '${ch.verseCount} verses  •  ${ch.scenarioCount} scenarios',
+                              style: theme.textTheme.bodySmall
+                                ?.copyWith(color: theme.colorScheme.onSurface.withOpacity(0.6)),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
                           ),
                         ),
                       ],
@@ -2003,25 +2014,27 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 12),
-                                // 3) Counts row
+                                // 3) Counts row - wrapped to prevent overflow
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
-
-                                    Text(
-                                      'Verses -> ${ch.verseCount} ',
-                                      style: theme.textTheme.bodyMedium ?.copyWith(
-                                        color: theme.colorScheme.onSurface
-                                            .withOpacity(0.6),
+                                    Flexible(
+                                      child: Text(
+                                        'Verses -> ${ch.verseCount}',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                    const SizedBox(width: 16),
-                                    Text(
-                                      'Modern Life Scenarios -> ${ch.scenarioCount} ',
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(
-                                        color: theme.colorScheme.onSurface
-                                            .withOpacity(0.6),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        'Scenarios -> ${ch.scenarioCount}',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ],

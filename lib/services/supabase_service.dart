@@ -1,6 +1,8 @@
 
 // lib/services/supabase_service.dart
 
+import 'dart:math' as math;
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math';
 import '../models/journal_entry.dart';
@@ -93,6 +95,50 @@ class SupabaseService {
     } catch (e) {
       print('Error fetching paginated scenarios: $e');
       return [];
+    }
+  }
+
+  /// Search scenarios by title and description
+  Future<List<Scenario>> searchScenarios(String query) async {
+    if (query.trim().isEmpty) {
+      return fetchScenarios(); // Return all scenarios if query is empty
+    }
+
+    try {
+      final response = await client
+          .from('scenarios')
+          .select()
+          .or('sc_title.ilike.%$query%,sc_description.ilike.%$query%')
+          .order('created_at', ascending: false);
+      final data = response as List;
+      return data
+          .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      print('Error searching scenarios: $e');
+      return [];
+    }
+  }
+
+  /// Fetch a random scenario for home screen preview
+  Future<Scenario?> fetchRandomScenario() async {
+    try {
+      final response = await client
+          .from('scenarios')
+          .select()
+          .order('created_at', ascending: false);
+      final data = response as List;
+      if (data.isEmpty) return null;
+      
+      // Pick a random scenario from the list
+      final scenarios = data
+          .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
+          .toList();
+      final randomIndex = math.Random().nextInt(scenarios.length);
+      return scenarios[randomIndex];
+    } catch (e) {
+      print('Error fetching random scenario: $e');
+      return null;
     }
   }
 

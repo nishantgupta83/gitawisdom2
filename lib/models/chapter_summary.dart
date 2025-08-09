@@ -1,10 +1,24 @@
 // lib/models/chapter_summary.dart
 
-class ChapterSummary {
+import 'package:hive/hive.dart';
+
+part 'chapter_summary.g.dart';
+
+@HiveType(typeId: 3)
+class ChapterSummary extends HiveObject {
+  @HiveField(0)
   final int chapterId;     // cs_chapter_id
+  
+  @HiveField(1)
   final String title;      // cs_title
+  
+  @HiveField(2)
   final String? subtitle;  // cs_subtitle
+  
+  @HiveField(3)
   final int scenarioCount; // cs_scenario_count
+  
+  @HiveField(4)
   final int verseCount;    // cs_verse_count
 
   ChapterSummary({

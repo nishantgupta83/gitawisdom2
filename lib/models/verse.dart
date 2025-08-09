@@ -1,6 +1,10 @@
 
 // lib/models/verse.dart
 
+import 'package:hive/hive.dart';
+
+part 'verse.g.dart';
+
 /// ---------------------------------------------
 /// MODEL: Verse
 /// ---------------------------------------------
@@ -11,17 +15,25 @@
 ///
 /// Provides JSON serialization for seamless Supabase integration.
 
-class Verse {
+@HiveType(typeId: 4)
+class Verse extends HiveObject {
   /// The verse number within its chapter.
+  @HiveField(0)
   final int verseId;
 
   /// The text content of the verse.
+  @HiveField(1)
   final String description;
+
+  /// The chapter ID this verse belongs to.
+  @HiveField(2)
+  final int? chapterId;
 
   /// Constructs a [Verse] instance.
   Verse({
     required this.verseId,
     required this.description,
+    this.chapterId,
   });
 
   /// Creates a [Verse] from a JSON map returned by Supabase.
@@ -29,6 +41,7 @@ class Verse {
     return Verse(
       verseId: json['gv_verses_id'] as int,
       description: json['gv_verses'] as String,
+      chapterId: json['gv_chapter_id'] as int?,
     );
   }
 
@@ -36,5 +49,6 @@ class Verse {
   Map<String, dynamic> toJson() => {
         'gv_verses_id': verseId,
         'gv_verses': description,
+        if (chapterId != null) 'gv_chapter_id': chapterId,
       };
 }

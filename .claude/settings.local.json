@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(gh repo view:*)",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(flutter run:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(grep:*)",
+      "Bash(sed:*)",
+      "Bash(flutter test:*)",
+      "Bash(flutter build:*)",
+      "Bash(awk:*)",
+      "Bash(flutter packages pub run build_runner build:*)"
     ],
     "deny": []
   }

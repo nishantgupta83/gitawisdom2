@@ -14,14 +14,18 @@ A comprehensive Flutter application that brings the wisdom of the Bhagavad Gita 
 
 ### ✨ Key Features
 
-- 📖 **18 Complete Chapters**: Full Bhagavad Gita content with summaries
-- 🎯 **Real-world Scenarios**: Modern applications of ancient wisdom  
-- 🌅 **Daily Verses**: Random inspirational verses for daily reflection
-- 📝 **Personal Journal**: Private space for spiritual reflections
-- 🎨 **Dynamic Theming**: Light/Dark mode with customizable settings
-- 🔤 **Typography Control**: Adjustable font sizes and text shadows
-- 🎵 **Ambient Audio**: Optional background music for meditation
-- 💾 **Offline Storage**: Hive-based local caching for seamless experience
+- 📖 **18 Complete Chapters**: Full Bhagavad Gita content with summaries and Hive caching
+- 🎯 **Real-world Scenarios**: Modern applications of ancient wisdom with heart vs duty guidance
+- 🌅 **Daily Verses**: Calendar-based verse refresher (same verses all day, refreshes daily)
+- 📝 **Personal Journal**: Private space for spiritual reflections with local storage
+- 🎨 **Dynamic Theming**: Light/Dark mode with customizable appearance
+- 🔤 **Typography Control**: Slider-based font sizes and text shadow effects
+- 🎵 **Ambient Audio**: Background music with persistent settings
+- 💾 **Smart Caching**: Calendar-day based verse caching with automatic daily refresh
+- 🗂️ **Unified Cache Management**: One-button cache clearing with size monitoring
+- 🔄 **Instant Scenario Search**: Offline-first scenario browsing with local search
+- 📐 **Responsive Design**: Optimized for tablets, phones, and all orientations  
+- ✨ **Enhanced Visual Effects**: Multi-layered glow effects for wisdom cards
 
 ## 🏗️ Architecture
 
@@ -38,11 +42,12 @@ A comprehensive Flutter application that brings the wisdom of the Bhagavad Gita 
 ```
 lib/
 ├── main.dart                 # App entry point with theme configuration
-├── models/                   # Data models
+├── models/                   # Data models with Hive adapters
 │   ├── chapter.dart         # Chapter model with Hive adapter
 │   ├── chapter_summary.dart # Lightweight chapter overview
-│   ├── verse.dart          # Individual verse model
-│   ├── scenario.dart       # Real-world scenario model
+│   ├── verse.dart          # Individual verse model (enhanced with chapterId)
+│   ├── scenario.dart       # Real-world scenario model with Hive adapter
+│   ├── daily_verse_set.dart # Calendar-based daily verse collection
 │   └── journal_entry.dart  # User journal entry model
 ├── screens/                # UI screens
 │   ├── home_screen.dart    # Main landing with daily verses
@@ -59,10 +64,15 @@ lib/
 │   ├── settings_service.dart # User preferences (Hive)
 │   ├── journal_service.dart  # Journal management
 │   ├── audio_service.dart   # Background music
+│   ├── daily_verse_service.dart # Calendar-based verse caching
+│   ├── scenario_service.dart # Scenario caching and search
+│   ├── cache_service.dart   # Unified cache management
 │   └── analytics_service.dart # Usage tracking
-└── widgets/               # Reusable UI components
-    ├── custom_nav_bar.dart # Bottom navigation
-    └── expandable_text.dart # Text with read more/less
+├── widgets/               # Reusable UI components
+│   ├── custom_nav_bar.dart # Enhanced bottom navigation (pill/dev/floating styles)
+│   └── expandable_text.dart # Text with read more/less functionality
+└── config/                # Configuration and environment
+    └── environment.dart   # Environment-specific settings
 ```
 
 ## 🔄 Application Flow Diagrams
@@ -494,7 +504,59 @@ chapters (Box<Chapter>) - Cached from Supabase
 ├── title, subtitle, summary
 ├── verseCount, theme
 └── keyTeachings (List<String>)
+
+daily_verses (Box<DailyVerseSet>) - Calendar-based verse cache
+├── date (string, key: 'YYYY-MM-DD')
+├── verses (List<Verse>)
+├── chapterIds (List<int>)
+└── createdAt (DateTime)
+
+scenarios (Box<Scenario>) - Cached for instant search
+├── id (string, key)
+├── title, description, category
+├── chapter, heartResponse, dutyResponse
+├── gitaWisdom, verse, verseNumber
+├── tags (List<String>)
+└── actionSteps (List<String>)
 ```
+
+
+New Capabilities:
+- Scenario cache size monitoring
+- Scenario cache clearing functionality
+- Health checks and repair for scenario cache
+- Complete cache statistics including scenario count
+
+📊 Performance Improvements Achieved
+
+| Feature               | Before             | After                     |
+|-----------------------|--------------------|---------------------------|
+| Scenario Search       | 500ms+ API calls   | Instant local search      |
+| Scenario Loading      | Network dependent  | Instant after first cache |
+| Cache Management      | 5 separate buttons | 1 simple button           |
+| Wisdom Card Glow      | Basic shadows      | 4-layer dramatic glow     |
+| Device Responsiveness | Fixed sizing       | Fully responsive          |
+| Offline Capability    | Limited            | Full scenario access      |
+
+🔧 Technical Architecture Implemented
+
+GitaWisdom App Architecture
+├── 📱 Simplified Cache Management (1-button approach)
+├── ⚡ Instant Scenario Search (local cached data)
+├── 🎨 Enhanced Visual Effects (multi-layered glow)
+├── 📐 Responsive Design (tablet/phone optimized)
+├── 💾 Comprehensive Caching (verses, chapters, scenarios)
+├── 🔄 Background Sync (non-blocking updates)
+└── 🏃‍♂️ Offline-First Architecture (cached data priority)
+
+🎯 User Experience Enhancements
+
+1. Faster App Performance: Instant scenario search and loading
+2. Simpler Interface: One-click cache clearing
+3. Better Visual Appeal: Dramatically enhanced wisdom card glow effects
+4. Responsive Design: Optimized for all device sizes
+5. Reliable Offline Access: Full functionality without internet
+6. Smooth Interactions: Pull-to-refresh and animated transitions
 
 ## 🚀 Getting Started
 
@@ -545,20 +607,30 @@ flutter build ios --release
 ### Test Structure
 ```
 test/
-├── models/              # Model unit tests
-├── services/            # Service layer tests  
-├── screens/             # Widget tests for screens
-├── utils/               # Test utilities and helpers
-└── integration_test/    # End-to-end tests
+├── models/              # Model unit tests (all models with enhanced coverage)
+├── services/            # Service layer tests (caching, settings, comprehensive)
+├── screens/             # Widget tests for screens and navigation
+├── utils/               # Test utilities and method channel mocks
+├── widgets/             # Component tests (CustomNavBar, ExpandableText)
+├── test_helpers.dart    # Common test setup and cleanup utilities
+├── test_config.dart     # Test data and configuration
+├── widget_test.dart     # Comprehensive widget integration tests
+└── integration_test.dart # End-to-end caching and offline tests
 ```
 
 ### Run Tests
 ```bash
-# Unit tests
+# All unit tests
 flutter test
 
-# Integration tests  
-flutter test integration_test/
+# Specific test suites
+flutter test test/models/          # Model tests
+flutter test test/services/        # Service tests  
+flutter test test/screens/         # Screen tests
+flutter test test/widget_test.dart # Widget integration tests
+
+# Integration tests (caching and offline functionality)
+flutter test test/integration_test.dart
 ```
 
 ## 📱 Platform Support

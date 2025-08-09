@@ -1,10 +1,12 @@
 // lib/screens/scenarios_screen.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/scenario.dart';
 import '../services/supabase_service.dart';
+import '../services/scenario_service.dart';
 import 'scenario_detail_view.dart';
-import '../widgets/expandable_text.dart';
+import '../main.dart';
 
 class ScenariosScreen extends StatefulWidget {
   final String? filterTag;
@@ -16,10 +18,14 @@ class ScenariosScreen extends StatefulWidget {
 
 class _ScenariosScreenState extends State<ScenariosScreen> {
   final SupabaseService _service = SupabaseService();
+  final ScenarioService _scenarioService = ScenarioService.instance;
   List<Scenario> _scenarios = [];
+  List<Scenario> _allScenarios = []; // Cache all scenarios for instant filtering
   String _search = '';
   String? _selectedTag;
   bool _isLoading = true;
+  Timer? _debounceTimer;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -28,105 +34,332 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     _loadScenarios();
   }
 
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadScenarios() async {
     setState(() => _isLoading = true);
     try {
-      final scenarios = await _service.fetchScenarios();
-      setState(() => _scenarios = scenarios);
+      // Load all scenarios from cache (instant after first load)
+      final allScenarios = await _scenarioService.getAllScenarios();
+      
+      setState(() {
+        _allScenarios = allScenarios;
+        _scenarios = _filterScenarios(allScenarios);
+      });
+      
+      // Start background sync if needed (non-blocking)
+      _scenarioService.backgroundSync();
+      
+    } catch (e) {
+      debugPrint('Error loading scenarios: $e');
+      // Keep existing scenarios on error
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+  
+  /// Filter scenarios based on search and selected tag
+  List<Scenario> _filterScenarios(List<Scenario> scenarios) {
+    List<Scenario> filtered = scenarios;
+    
+    // Apply search filter
+    if (_search.trim().isNotEmpty) {
+      filtered = _scenarioService.searchScenarios(_search.trim());
+    }
+    
+    // Apply tag filter
+    if (_selectedTag != null) {
+      filtered = filtered.where((s) => s.tags?.contains(_selectedTag) ?? false).toList();
+    }
+    
+    return filtered;
+  }
+
+  void _onSearchChanged(String query) {
+    setState(() {
+      _search = query;
+      // Update filtered scenarios instantly - no debouncing needed for local search!
+      _scenarios = _filterScenarios(_allScenarios);
+    });
+  }
+
+  List<String> get _tags {
+    // Use cached service method for all available tags
+    return _scenarioService.getAllTags();
+  }
+
+
+  List<Scenario> get _filtered => _scenarios; // Already filtered by _filterScenarios
+  
+  /// Force refresh from server
+  Future<void> _refreshFromServer() async {
+    setState(() => _isLoading = true);
+    try {
+      await _scenarioService.refreshFromServer();
+      await _loadScenarios(); // Reload with fresh data
+    } catch (e) {
+      debugPrint('Error refreshing scenarios: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to refresh scenarios')),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  List<String> get _tags {
-    final tags = <String>{};
-    for (final s in _scenarios) {
-      if (s.tags != null) tags.addAll(s.tags!);
-    }
-    final sorted = tags.toList()..sort();
-    return sorted;
-  }
-
-
-  List<Scenario> get _filtered => _scenarios.where((s) {
-    final tagOk = _selectedTag == null || (s.tags?.contains(_selectedTag) ?? false);
-    final textOk = _search.isEmpty || s.title.toLowerCase().contains(_search.toLowerCase());
-    return tagOk && textOk;
-  }).toList();
-
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
+    final theme = Theme.of(context);
+    
     return Scaffold(
+      // Global background handled by main.dart
       backgroundColor: Colors.transparent,
-      body:
-        SafeArea(
-          child: Column(
-            children: [
-              // Search Bar
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 18, 20, 8),
-                child: TextField(
-                  onChanged: (s) => setState(() => _search = s),
-                  decoration: InputDecoration(
-                    hintText: 'Search scenarios…',
-                    hintStyle: t.textTheme.bodyMedium,
-                    prefixIcon: const Icon(Icons.search),
-                    suffixIcon: _search.isNotEmpty
-                        ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () => setState(() => _search = ''),
-                    )
-                        : null,
-                    filled: true,
-                    fillColor: t.colorScheme.surface.withOpacity(.95),
-                    contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  style: t.textTheme.bodyMedium,
+      body: Stack(
+        children: [
+          // Main scrollable content
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: _refreshFromServer,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
-              ),
-
-              _tagPillsRow(
-                _tags, // a List<String> of tags in this scenario list
-                _selectedTag, // nullable, null for "All"
-                    (tag) => setState(() => _selectedTag = tag),
-              ),
-
-              // Scenario List
-              Expanded(
-                child: _isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 120),
-                  itemCount: _filtered.length,
-                  itemBuilder: (_, i) {
-                    final s = _filtered[i];
-                    return Card(
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(18),
-                        title: Text(s.title, style: t.textTheme.titleMedium),
-                        subtitle: s.description.isNotEmpty
-                            ? Text(s.description, maxLines: 2, overflow: TextOverflow.ellipsis, style: t.textTheme.bodyMedium)
-                            : null,
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => ScenarioDetailView(scenario: s)),
+                child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  // Branding Card
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
+                    child: Card(
+                      // Use theme.cardTheme styling
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
+                        child: Column(
+                          children: [
+                            Text(
+                              'SCENARIOS',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.3,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Real-world situations guided by Gita wisdom',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
+
+                  // Search Bar
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: _onSearchChanged,
+                      decoration: InputDecoration(
+                        hintText: 'Search scenarios by title or description...',
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        ),
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: _search.isNotEmpty
+                            ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _onSearchChanged('');
+                          },
+                        )
+                            : null,
+                        filled: true,
+                        fillColor: theme.colorScheme.surface.withOpacity(.95),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ),
+
+                  // Tag Pills Row
+                  _tagPillsRow(
+                    _tags,
+                    _selectedTag,
+                    (tag) => setState(() => _selectedTag = tag),
+                  ),
+
+                  // Scenario List
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+                    child: _isLoading
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(40),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : _filtered.isEmpty
+                            ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(40),
+                                  child: Text(
+                                    _search.isEmpty ? 'No scenarios available' : 'No scenarios match your search',
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              )
+                            : Column(
+                                children: _filtered.map((scenario) => _buildScenarioCard(scenario, theme)).toList(),
+                              ),
+                  ),
+                ],
+              ),
+            ),
+            ), // RefreshIndicator
+          ), // SafeArea
+          
+          // Floating navigation buttons
+          Positioned(
+            top: 26,
+            right: 84,
+            child: _glowingNavButton(
+              icon: Icons.arrow_back,
+              onTap: () {
+                // Check if we can pop, otherwise go to home
+                if (Navigator.of(context).canPop()) {
+                  Navigator.pop(context);
+                } else {
+                  // If no route to pop to, navigate back to root
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const RootScaffold()),
+                    (route) => false,
+                  );
+                }
+              },
+            ),
+          ),
+          Positioned(
+            top: 26,
+            right: 24,
+            child: _glowingNavButton(
+              icon: Icons.home,
+              onTap: () {
+                // Navigate back to root by popping until we reach the root
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+
+  }
+
+  Widget _buildScenarioCard(Scenario scenario, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                scenario.title,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.primary,
                 ),
+              ),
+              if (scenario.description.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  scenario.description,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+              const SizedBox(height: 12),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Chapter ${scenario.chapter}',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('🔍 Navigating to scenario detail: ${scenario.title}');
+                      // Navigate normally to preserve bottom navigation
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ScenarioDetailView(scenario: scenario),
+                        ),
+                      );
+                    },
+                    child: const Text('Read More'),
+                  ),
+                ],
               ),
             ],
           ),
         ),
+      ),
     );
-
   }
+
+  Widget _glowingNavButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) =>
+      Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.amberAccent.withOpacity(0.5),
+              blurRadius: 16,
+              spreadRadius: 4,
+            ),
+          ],
+        ),
+        child: CircleAvatar(
+          radius: 26,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          child: IconButton(
+            splashRadius: 32,
+            icon: Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
+            onPressed: onTap,
+          ),
+        ),
+      );
 
   Widget _tagPillsRow(List<String> tags, String? selectedTag, ValueChanged<String?> onTapTag) {
     final theme = Theme.of(context);

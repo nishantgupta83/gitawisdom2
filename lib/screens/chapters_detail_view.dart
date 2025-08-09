@@ -67,25 +67,57 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
     }
 
     return Scaffold(
-      backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: surface,
-        iconTheme: IconThemeData(color: onSurface),
-        title: Text(
-          _chapter!.title,
-          style: theme.textTheme.titleLarge?.copyWith(color: onSurface),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Overview
-            Card(
-              color: surface,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              margin: const EdgeInsets.only(bottom: 24),
+      // Global background handled by main.dart
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Main scrollable content
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  // Branding Card with Chapter Title
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
+                        child: Column(
+                          children: [
+                            Text(
+                              _chapter!.title,
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.3,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'CHAPTER ${widget.chapterId}',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Overview Card
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+                    child: Column(
+                      children: [
+                        Card(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          margin: const EdgeInsets.only(bottom: 24),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -289,6 +321,7 @@ import '../models/scenario.dart';
 import '../services/supabase_service.dart';
 import '../screens/scenario_detail_view.dart';
 import '../screens/verse_list_view.dart';
+import '../screens/scenarios_screen.dart';
 
 class ChapterDetailView extends StatefulWidget {
   final int chapterId;
@@ -304,6 +337,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
   Chapter? _chapter;
   List<Scenario> _scenarios = [];
   bool _isLoading = true;
+  bool _showAllScenarios = false;
 
   @override
   void initState() {
@@ -596,8 +630,8 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                     Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                    builder: (_) => VerseListView(
-                                    chapterId: widget.chapterId,
+                                    builder: (_) => ScenariosScreen(
+                                    filterTag: 'chapter_${widget.chapterId}',
                                     ),
                                     ),
                                     );
@@ -650,7 +684,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                   ),
                                 ),
                                 const SizedBox(height: 14),
-                                ..._scenarios.take(5).map((scenario) =>
+                                ...(_showAllScenarios ? _scenarios : _scenarios.take(5)).map((scenario) =>
                                     InkWell(
                                onTap: () => Navigator.push(
                                         context,
@@ -721,14 +755,14 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                   Center(
                                     child: TextButton(
                                       onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text('View all ${_scenarios.length} scenarios'),
-                                          ),
-                                        );
+                                        setState(() {
+                                          _showAllScenarios = !_showAllScenarios;
+                                        });
                                       },
                                       child: Text(
-                                        'View ${_scenarios.length - 5} more scenarios',
+                                        _showAllScenarios 
+                                            ? 'Show fewer scenarios'
+                                            : 'View ${_scenarios.length - 5} more scenarios',
                                         style: theme.textTheme.bodyMedium?.copyWith(
                                           color: theme.colorScheme.primary,
                                           fontWeight: FontWeight.w600,
@@ -992,15 +1026,55 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
     final extraCount = _scenarios.length - visible.length;
 
     return Scaffold(
-      backgroundColor: bg,
-      appBar: AppBar(
-        backgroundColor: surface,
-        iconTheme: IconThemeData(color: onSurface),
-        title: Text(_chapter!.ch_title, style: theme.textTheme.titleLarge?.copyWith(color: onSurface)),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      // Global background handled by main.dart
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Main scrollable content
+          SafeArea(
+            child: Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  // Branding Card with Chapter Title
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
+                        child: Column(
+                          children: [
+                            Text(
+                              _chapter!.ch_title,
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.3,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'CHAPTER ${widget.chapterId}',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Content Cards
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
           // counts row
           Card(
             color: surface,
@@ -1070,10 +1144,75 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
               ),
             ),
           ),
-        ]),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Floating navigation buttons
+          Positioned(
+            top: 26,
+            right: 84,
+            child: _glowingNavButton(
+              icon: Icons.arrow_back,
+              onTap: () {
+                // Check if we can pop, otherwise go to home
+                if (Navigator.of(context).canPop()) {
+                  Navigator.pop(context);
+                } else {
+                  // If no route to pop to, navigate back to root
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const RootScaffold()),
+                    (route) => false,
+                  );
+                }
+              },
+            ),
+          ),
+          Positioned(
+            top: 26,
+            right: 24,
+            child: _glowingNavButton(
+              icon: Icons.home,
+              onTap: () {
+                // Navigate back to root by popping until we reach the root
+                Navigator.of(context).popUntil((route) => route.isFirst);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
+
+  Widget _glowingNavButton({
+    required IconData icon,
+    required VoidCallback onTap,
+  }) =>
+      Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.amberAccent.withOpacity(0.5),
+              blurRadius: 16,
+              spreadRadius: 4,
+            ),
+          ],
+        ),
+        child: CircleAvatar(
+          radius: 26,
+          backgroundColor: Theme.of(context).colorScheme.surface,
+          child: IconButton(
+            splashRadius: 32,
+            icon: Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
+            onPressed: onTap,
+          ),
+        ),
+      );
 }
 
 */

@@ -292,9 +292,9 @@ class WisdomGuideApp extends StatelessWidget {
 }
 class _RootScaffoldState extends State<RootScaffold> {
   int _currentIndex = 0;
-  final _pages = [
+  List<Widget> _getPages() => [
     //PlaceholderScreen(title: 'Home'),
-    HomeScreen(),
+    HomeScreen(onTabChange: (index) => setState(() => _currentIndex = index)),
     ChapterScreen(),
     ScenariosScreen(),
     //PlaceholderScreen(title: 'Journal'),
@@ -305,8 +305,9 @@ class _RootScaffoldState extends State<RootScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final pages = _getPages();
     return Scaffold(
-      body: _pages[_currentIndex],
+      body: pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
@@ -537,6 +538,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:google_fonts/google_fonts.dart'; // FOR GOOGLE FONT
 
+import 'models/daily_verse_set.dart';
+import 'models/chapter_summary.dart';
+import 'models/verse.dart';
+import 'models/scenario.dart';
+import 'services/daily_verse_service.dart';
+import 'services/scenario_service.dart';
+
 
 import 'models/chapter.dart';
 import 'models/journal_entry.dart';
@@ -558,63 +566,85 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // ✅ Validate environment configuration first
+    // ✅ Critical initialization only - everything else will be lazy loaded
     Environment.validateConfiguration();
 
-    // ✅ Initialize Supabase with environment variables
+    // ✅ Initialize Supabase (essential for app functionality)
     await Supabase.initialize(
       url: Environment.supabaseUrl,
       anonKey: Environment.supabaseAnonKey,
-      // Optional: Add additional configuration
-      authOptions: FlutterAuthClientOptions(
-        authFlowType: AuthFlowType.pkce, // More secure auth flow
-      ),
-      realtimeClientOptions: const RealtimeClientOptions(
-        logLevel: RealtimeLogLevel.info, // Adjust based on environment
-      ),
     );
 
-    // ✅ Hive setup
+    // ✅ Basic Hive setup only
     final appDocDir = await getApplicationDocumentsDirectory();
     Hive.init(appDocDir.path);
     await SettingsService.init();
 
-    // Register adapters
-    Hive.registerAdapter(ChapterAdapter());
-    Hive.registerAdapter(JournalEntryAdapter());
-
-    // Open boxes with error handling
-    await Hive.openBox<Chapter>('chapters');
-
-    try {
-      await Hive.openBox<JournalEntry>('journal_entries');
-    } on HiveError {
-      // Clean slate if there's a schema mismatch
-      await Hive.deleteBoxFromDisk('journal_entries');
-      await Hive.openBox<JournalEntry>('journal_entries');
-    }
-
-    // ✅ Audio service initialization
-    final musicEnabled = await AudioService.instance.loadEnabled();
-    if (musicEnabled) {
-      await AudioService.instance.start();
-    }
-
-    // ✅ Log successful initialization (safe for production)
-    if (Environment.enableLogging) {
-      debugPrint('🚀 GitaWisdom initialized successfully');
-      debugPrint('📊 Config: ${Environment.getConfigSummary()}');
-    }
-
+    debugPrint('🚀 GitaWisdom core initialized - starting app');
     runApp(const WisdomGuideApp());
 
   } catch (error, stackTrace) {
-    // ✅ Graceful error handling
-    debugPrint('❌ Initialization failed: $error');
+    debugPrint('❌ Critical initialization failed: $error');
     debugPrint('Stack trace: $stackTrace');
-
-    // You might want to show an error screen or fallback UI
     runApp(InitializationErrorApp(error: error));
+  }
+}
+
+// Lazy initialization function called after app starts
+Future<void> _initializeAppServices() async {
+  try {
+    // Register Hive adapters
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(JournalEntryAdapter()); // typeId: 0
+    }
+    if (!Hive.isAdapterRegistered(1)) {
+      Hive.registerAdapter(ChapterAdapter()); // typeId: 1
+    }
+    if (!Hive.isAdapterRegistered(2)) {
+      Hive.registerAdapter(DailyVerseSetAdapter()); // typeId: 2
+    }
+    if (!Hive.isAdapterRegistered(3)) {
+      Hive.registerAdapter(ChapterSummaryAdapter()); // typeId: 3
+    }
+    if (!Hive.isAdapterRegistered(4)) {
+      Hive.registerAdapter(VerseAdapter()); // typeId: 4
+    }
+    if (!Hive.isAdapterRegistered(5)) {
+      Hive.registerAdapter(ScenarioAdapter()); // typeId: 5
+    }
+
+    // Open boxes with error handling
+    if (!Hive.isBoxOpen('chapters')) {
+      await Hive.openBox<Chapter>('chapters');
+    }
+
+    if (!Hive.isBoxOpen('journal_entries')) {
+      try {
+        await Hive.openBox<JournalEntry>('journal_entries');
+      } on HiveError {
+        await Hive.deleteBoxFromDisk('journal_entries');
+        await Hive.openBox<JournalEntry>('journal_entries');
+      }
+    }
+
+    // Open daily verse service box
+    await DailyVerseService.instance.initialize();
+    
+    // Open scenario service box
+    await ScenarioService.instance.initialize();
+
+    // Initialize audio service (non-blocking)
+    AudioService.instance.loadEnabled().then((musicEnabled) {
+      if (musicEnabled) {
+        AudioService.instance.start().catchError((e) {
+          debugPrint('Audio initialization failed: $e');
+        });
+      }
+    });
+
+    debugPrint('✅ App services initialized');
+  } catch (e) {
+    debugPrint('⚠️ Non-critical service initialization failed: $e');
   }
 }
 
@@ -818,11 +848,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   @override
   void initState() {
     super.initState();
+    
+    // Initialize remaining services while showing splash screen
+    _initializeAppServices();
+    
     // Navigate to root after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
-      );
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
     });
   }
 
@@ -831,8 +867,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Full-screen GIF background
-        Image.asset('assets/app_bg.png', fit: BoxFit.cover),
+        // Full-screen background image
+        Image.asset('assets/images/app_bg.png', fit: BoxFit.cover),
         // Centered SVG or Lottie animation placeholder
       ],
     );
@@ -870,10 +906,10 @@ class _RootScaffoldState extends State<RootScaffold> {
     }
   }
 
-  static const _pages = [
-    HomeScreen(),
+  List<Widget> get _pages => [
+    HomeScreen(onTabChange: _selectTab),
     ChapterScreen(),
-    ScenariosScreen(),
+    ScenariosScreen(), 
     MoreScreen(),
   ];
 

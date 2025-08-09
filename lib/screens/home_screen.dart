@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../models/verse.dart';
 import '../services/supabase_service.dart';
+import '../services/daily_verse_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -1198,12 +1199,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../models/verse.dart';
+import '../models/scenario.dart';
 import '../services/supabase_service.dart';
+import '../services/daily_verse_service.dart';
 import '../screens/chapters_screen.dart';
 import '../screens/scenarios_screen.dart';
+import '../screens/scenario_detail_view.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final Function(int)? onTabChange;
+  
+  const HomeScreen({Key? key, this.onTabChange}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -1211,30 +1217,41 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final SupabaseService _service = SupabaseService();
-  // Change from 'late final' to regular field with initialization
-//  late final List<int> _chapterIds;
-  // Replace: late final List<int> _chapterIds;
-  List<int> _chapterIds = [];
+  final DailyVerseService _dailyVerseService = DailyVerseService.instance;
 
   late final Future<List<Verse>> _versesFuture;
+  Future<Scenario?>? _randomScenarioFuture;
   final PageController _pageController = PageController(viewportFraction: 0.9);
   int _currentPage = 0;
+  bool _isRefreshingScenario = false;
+  
+  // Number of verses to display in carousel
   final int _carouselCount = 5;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize _chapterIds first
-    // 1️⃣  generate one random chapter *per card*
-    _chapterIds = List.generate(_carouselCount, (_) => math.Random().nextInt(18) + 1);
+    // 1️⃣ Use calendar-based verse refreshing (same verses all day)
+    _versesFuture = _dailyVerseService.getTodaysVerses();
+    
+    // 2️⃣ Fetch random scenario for the preview card (only on first load)
+    _refreshScenario();
+  }
 
-    // 2️⃣  NOW you can use that list to fetch ten independent verses
-    _versesFuture = Future.wait(
-      _chapterIds
-          .map((id) => _service.fetchRandomVerseByChapter(id))
-          .toList(),
-    );
+  void _refreshScenario() {
+    setState(() {
+      _isRefreshingScenario = true;
+      _randomScenarioFuture = _service.fetchRandomScenario();
+    });
+
+    _randomScenarioFuture!.whenComplete(() {
+      if (mounted) {
+        setState(() {
+          _isRefreshingScenario = false;
+        });
+      }
+    });
   }
 
   @override
@@ -1316,8 +1333,8 @@ class _HomeScreenState extends State<HomeScreen> {
                             onPageChanged: (idx) => setState(() => _currentPage = idx),
                             itemBuilder: (ctx, i) {
                               final v = verses[i];
-                              // Safe access to _chapterIds using bounds check
-                              final chapterId = i < _chapterIds.length ? _chapterIds[i] : 1;
+                              // Use chapter ID from the verse model
+                              final chapterId = v.chapterId ?? 1;
 
                               return Container(
                                 margin: EdgeInsets.only(
@@ -1388,6 +1405,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
+
+                  // Random Scenario Preview Card
+                  FutureBuilder<Scenario?>(
+                    future: _randomScenarioFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return _buildScenarioPreviewCard(snapshot.data!, theme);
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 ],
               ),
             ),
@@ -1398,11 +1426,11 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 84,
             child: _glowingNavButton(
               icon: Icons.menu_book,
-     //       onTap: () => onTabChange(1), // for the Scenarios tab
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ChapterScreen()),
-              ),
+              onTap: () {
+                if (widget.onTabChange != null) {
+                  widget.onTabChange!(1); // Navigate to chapters tab (index 1)
+                }
+              },
             ),
           ),
           Positioned(
@@ -1410,11 +1438,11 @@ class _HomeScreenState extends State<HomeScreen> {
             right: 24,
             child: _glowingNavButton(
               icon: Icons.list_alt,
-          //    onTap: () => onTabChange(2), // for the Scenarios tab
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const ScenariosScreen()),
-                ),
+              onTap: () {
+                if (widget.onTabChange != null) {
+                  widget.onTabChange!(2); // Navigate to scenarios tab (index 2)
+                }
+              },
             ),
           ),
 
@@ -1438,6 +1466,145 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Center(child: Text(msg)),
     ),
   );
+
+  Widget _buildScenarioPreviewCard(Scenario scenario, ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: Card(
+        elevation: 4,
+        child: Stack(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'MODERN DELIMA',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+              const SizedBox(height: 8),
+              Text(
+                scenario.title,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 12),
+              _buildShowWisdomButton(scenario, theme),
+                ],
+              ),
+            ),
+            // Refresh button in top-right corner of MODERN DELIMA card
+            Positioned(
+              top: 8,
+              right: 8,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: _isRefreshingScenario ? null : () {
+                    debugPrint('🔄 Refreshing scenario...');
+                    _refreshScenario();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                    ),
+                    child: _isRefreshingScenario
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh,
+                            size: 16,
+                            color: theme.colorScheme.primary,
+                          ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShowWisdomButton(Scenario scenario, ThemeData theme) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.amber.shade400,
+            Colors.orange.shade600,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.amber.withOpacity(0.6),
+            blurRadius: 20,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: Stack(
+          children: [
+            InkWell(
+              borderRadius: BorderRadius.circular(16),
+              onTap: () {
+                debugPrint('🔍 Home: Navigating to scenario detail: ${scenario.title}');
+                // Navigate to scenario detail view
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ScenarioDetailView(scenario: scenario),
+                  ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.auto_awesome, size: 24, color: Colors.white),
+                    const SizedBox(width: 12),
+                    Text(
+                      '🔮 SHOW WISDOM',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _glowingNavButton({
     required IconData icon,
