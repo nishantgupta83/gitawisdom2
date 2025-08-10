@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../models/scenario.dart';
+import '../models/journal_entry.dart';
 import '../screens/scenarios_screen.dart';
+import '../screens/new_journal_entry_dialog.dart';
+import '../services/journal_service.dart';
 import '../main.dart';
+import '../services/favorites_service.dart';
+import '../l10n/app_localizations.dart';
 
 class ScenarioDetailView extends StatefulWidget {
   final Scenario scenario;
@@ -17,6 +22,90 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
   final ScrollController _ctrl = ScrollController();
   final GlobalKey _actionsKey = GlobalKey();
   bool _showActions = false;
+  bool _isFavorited = false;
+  bool _favoriteLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoriteStatus();
+  }
+
+  /// Load favorite status from service
+  void _loadFavoriteStatus() {
+    setState(() {
+      _isFavorited = FavoritesService.instance.isFavorited(widget.scenario.title);
+    });
+  }
+
+  /// Toggle favorite status with animation
+  Future<void> _toggleFavorite() async {
+    if (_favoriteLoading) return;
+    
+    setState(() => _favoriteLoading = true);
+    
+    try {
+      final newStatus = await FavoritesService.instance.toggleFavorite(widget.scenario.title);
+      setState(() {
+        _isFavorited = newStatus;
+        _favoriteLoading = false;
+      });
+      
+      // Show feedback
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(newStatus ? 'Added to favorites!' : 'Removed from favorites'),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() => _favoriteLoading = false);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error updating favorite: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  /// Open journal entry dialog with scenario context
+  void _showJournalDialog() {
+    showDialog(
+      context: context,
+      builder: (_) => NewJournalEntryDialog(
+        scenarioId: widget.scenario.key is int ? widget.scenario.key as int : null,
+        scenarioTitle: widget.scenario.title,
+        initialCategory: 'categoryScenarioWisdom',
+        onSave: (entry) async {
+          try {
+            await JournalService.instance.createEntry(entry);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.journalEntrySaved ?? 'Journal entry saved!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('${AppLocalizations.of(context)!.failedToSaveEntry}: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+      ),
+    );
+  }
 
   void _revealActions() {
     setState(() => _showActions = true);
@@ -74,19 +163,63 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   ),
                 ),
                 
-                // Scenario Title Card
+                // Scenario Title Card with Heart
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
                   child: Card(
                     elevation: 4,
                     child: Padding(
                       padding: const EdgeInsets.all(18),
-                      child: Text(
-                        widget.scenario.title,
-                        style: t.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: t.colorScheme.primary,
-                        ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.scenario.title,
+                              style: t.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: t.colorScheme.primary,
+                              ),
+                              // Allow multiple lines for long titles but prevent overflow
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          // Heart favorite button with fixed size to prevent layout shifts
+                          SizedBox(
+                            width: 48,
+                            height: 48,
+                            child: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 300),
+                              child: _favoriteLoading
+                                  ? Center(
+                                      child: SizedBox(
+                                        width: 24,
+                                        height: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(t.colorScheme.primary),
+                                        ),
+                                      ),
+                                    )
+                                  : IconButton(
+                                      key: ValueKey(_isFavorited),
+                                      onPressed: _toggleFavorite,
+                                      icon: AnimatedSwitcher(
+                                        duration: const Duration(milliseconds: 200),
+                                        child: Icon(
+                                          _isFavorited ? Icons.favorite : Icons.favorite_border,
+                                          key: ValueKey(_isFavorited),
+                                          color: _isFavorited ? Colors.red : t.colorScheme.onSurface.withOpacity(0.6),
+                                          size: 28,
+                                        ),
+                                      ),
+                                      tooltip: _isFavorited ? 'Remove from favorites' : 'Add to favorites',
+                                    ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -111,7 +244,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             // Floating navigation buttons with higher z-index
             Positioned(
               top: 26,
-              right: 84,
+              right: 144,
               child: Material(
                 elevation: 12,
                 shape: CircleBorder(),
@@ -123,6 +256,17 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     Navigator.of(context).pop();
                   },
                 ),
+              ),
+            ),
+            // Journal This button
+            Positioned(
+              top: 26,
+              right: 84,
+              child: Material(
+                elevation: 12,
+                shape: CircleBorder(),
+                color: Colors.transparent,
+                child: _glowingJournalButton(),
               ),
             ),
             Positioned(
@@ -186,10 +330,16 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Heart Says',
-                      style: t.textTheme.titleMedium),
+                      style: t.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   Text(widget.scenario.heartResponse,
-                      style: t.textTheme.bodyMedium),
+                      style: t.textTheme.bodyMedium,
+                      // Allow flexible text length for heart response
+                      overflow: TextOverflow.visible),
                 ],
               ),
             ),
@@ -213,10 +363,16 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Duty Says',
-                      style: t.textTheme.titleMedium),
+                      style: t.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 4),
                   Text(widget.scenario.dutyResponse,
-                      style: t.textTheme.bodyMedium),
+                      style: t.textTheme.bodyMedium,
+                      // Allow flexible text length for duty response
+                      overflow: TextOverflow.visible),
                 ],
               ),
             ),
@@ -506,6 +662,34 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             splashRadius: 32,
             icon: Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
             onPressed: onTap,
+          ),
+        ),
+      );
+
+  Widget _glowingJournalButton() =>
+      Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.greenAccent.withOpacity(0.6),
+              blurRadius: 18,
+              spreadRadius: 4,
+            ),
+          ],
+        ),
+        child: CircleAvatar(
+          radius: 26,
+          backgroundColor: Colors.green.shade50,
+          child: IconButton(
+            splashRadius: 32,
+            icon: Icon(
+              Icons.book,
+              size: 32, 
+              color: Colors.green.shade700,
+            ),
+            tooltip: 'Journal This',
+            onPressed: _showJournalDialog,
           ),
         ),
       );

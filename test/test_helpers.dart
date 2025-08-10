@@ -40,24 +40,24 @@ Future<void> commonTestSetup() async {
       MethodChannel('com.ryanheise.just_audio.methods');
   audioChannel.setMockMethodCallHandler((call) async => null);
 
-  // 5) init Hive & register type adapters for new models
+  // 5) init Hive & register type adapters matching main app structure
   await Hive.initFlutter();
   
-  // Register Hive adapters for new models (if not already registered)
+  // Register Hive adapters in same order as main app (lib/main.dart)
   if (!Hive.isAdapterRegistered(0)) {
-    Hive.registerAdapter(VerseAdapter());
+    Hive.registerAdapter(JournalEntryAdapter()); // typeId: 0
   }
   if (!Hive.isAdapterRegistered(1)) {
-    Hive.registerAdapter(DailyVerseSetAdapter());
+    Hive.registerAdapter(ChapterAdapter()); // typeId: 1
   }
   if (!Hive.isAdapterRegistered(2)) {
-    Hive.registerAdapter(ScenarioAdapter());
-  }
-  if (!Hive.isAdapterRegistered(3)) {
-    Hive.registerAdapter(JournalEntryAdapter());
+    Hive.registerAdapter(DailyVerseSetAdapter()); // typeId: 2
   }
   if (!Hive.isAdapterRegistered(4)) {
-    Hive.registerAdapter(ChapterAdapter());
+    Hive.registerAdapter(VerseAdapter()); // typeId: 4
+  }
+  if (!Hive.isAdapterRegistered(5)) {
+    Hive.registerAdapter(ScenarioAdapter()); // typeId: 5
   }
   
   await SettingsService.init();
@@ -78,14 +78,29 @@ Future<void> commonTestSetup() async {
 /// Clean up test data and close Hive boxes
 Future<void> commonTestCleanup() async {
   try {
-    // Close all test boxes gracefully
-    for (var box in Hive.openedBoxes) {
-      if (box.isOpen) {
-        await box.close();
+    // List of known test box names to close
+    final testBoxNames = [
+      'daily_verses',
+      'scenarios', 
+      'journal_entries',
+      SettingsService.boxName,
+    ];
+    
+    // Close specific boxes if they're open
+    for (final boxName in testBoxNames) {
+      try {
+        if (Hive.isBoxOpen(boxName)) {
+          final box = Hive.box(boxName);
+          await box.close();
+        }
+      } catch (e) {
+        // Continue with other boxes if one fails
+        print('Warning closing box $boxName: $e');
       }
     }
-    // Clear all boxes from memory
-    Hive.init('');
+    
+    // Clear all box data and reset Hive
+    await Hive.deleteFromDisk();
   } catch (e) {
     // Ignore cleanup errors in tests
     print('Test cleanup warning: $e');
@@ -130,17 +145,21 @@ Scenario createTestScenario({
   );
 }
 
-/// Create test journal entry
+/// Create test journal entry with updated model structure
 JournalEntry createTestJournalEntry({
   String? id,
   String? reflection,
   int? rating,
+  String? category,
+  int? scenarioId,
 }) {
   return JournalEntry(
     id: id ?? 'test-entry-123',
     reflection: reflection ?? 'Today I learned about the importance of performing duty without attachment',
     rating: rating ?? 4,
     dateCreated: DateTime(2024, 1, 15, 10, 30),
+    category: category ?? 'General',
+    scenarioId: scenarioId,
   );
 }
 

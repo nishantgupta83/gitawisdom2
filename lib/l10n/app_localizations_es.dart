@@ -213,4 +213,106 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get reference3 => '• Otros comentarios académicos y tradicionales';
+
+  @override
+  String get myJournal => 'MI DIARIO';
+
+  @override
+  String get trackSpiritual =>
+      'Registra tus reflexiones espirituales y crecimiento';
+
+  @override
+  String get noJournalEntries => 'Aún no tienes entradas de diario';
+
+  @override
+  String get tapPlusButton => 'Toca el botón + para crear tu primera reflexión';
+
+  @override
+  String get addJournalEntry => 'Agregar Entrada de Diario';
+
+  @override
+  String get readMore => 'Leer Más';
+
+  @override
+  String get failedToSaveEntry => 'Error al guardar entrada del diario';
+
+  @override
+  String get journalEntry => 'ENTRADA DE DIARIO';
+
+  @override
+  String reflectionFrom(String date) {
+    return 'Reflexión del $date';
+  }
+
+  @override
+  String writtenOn(String date) {
+    return 'Escrito el $date';
+  }
+
+  @override
+  String get newJournalEntry => 'Nueva Entrada de Diario';
+
+  @override
+  String get yourReflection => 'Tu Reflexión';
+
+  @override
+  String get category => 'Categoría';
+
+  @override
+  String get rating => 'Calificación';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get categoryGeneral => 'General';
+
+  @override
+  String get categoryPersonalGrowth => 'Crecimiento Personal';
+
+  @override
+  String get categoryMeditation => 'Meditación';
+
+  @override
+  String get categoryDailyReflection => 'Reflexión Diaria';
+
+  @override
+  String get categoryScenarioWisdom => 'Sabiduría de Escenarios';
+
+  @override
+  String get categoryChapterInsights => 'Percepciones de Capítulos';
+
+  @override
+  String get journalEntrySaved => '¡Entrada de diario guardada!';
+
+  @override
+  String get deleteEntry => 'Eliminar Entrada';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get deleteConfirmation =>
+      '¿Estás seguro de que quieres eliminar esta entrada del diario? Esta acción no se puede deshacer.';
+
+  @override
+  String get entryDeleted => 'Entrada del diario eliminada';
+
+  @override
+  String get undo => 'Deshacer';
+
+  @override
+  String get entryRestored => 'Entrada del diario restaurada';
+
+  @override
+  String get failedToRestoreEntry => 'No se pudo restaurar la entrada';
+
+  @override
+  String get failedToDeleteEntry => 'No se pudo eliminar la entrada';
+
+  @override
+  String get pleaseSelectRating => 'Por favor selecciona una calificación';
 }

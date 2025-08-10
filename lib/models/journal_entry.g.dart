@@ -20,14 +20,16 @@ class JournalEntryAdapter extends TypeAdapter<JournalEntry> {
       id: fields[0] as String,
       reflection: fields[1] as String,
       rating: fields[2] as int,
-      dateCreated: fields[3] as DateTime?,
+      dateCreated: fields[3] as DateTime,
+      scenarioId: fields[4] as int?,
+      category: fields[5] as String,
     );
   }
 
   @override
   void write(BinaryWriter writer, JournalEntry obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class JournalEntryAdapter extends TypeAdapter<JournalEntry> {
       ..writeByte(2)
       ..write(obj.rating)
       ..writeByte(3)
-      ..write(obj.dateCreated);
+      ..write(obj.dateCreated)
+      ..writeByte(4)
+      ..write(obj.scenarioId)
+      ..writeByte(5)
+      ..write(obj.category);
   }
 
   @override

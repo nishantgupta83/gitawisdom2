@@ -211,4 +211,106 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reference3 => '• Other academic and traditional commentaries';
+
+  @override
+  String get myJournal => 'MY JOURNAL';
+
+  @override
+  String get trackSpiritual => 'Track your spiritual reflections and growth';
+
+  @override
+  String get noJournalEntries => 'No journal entries yet';
+
+  @override
+  String get tapPlusButton =>
+      'Tap the + button to create your first reflection';
+
+  @override
+  String get addJournalEntry => 'Add Journal Entry';
+
+  @override
+  String get readMore => 'Read More';
+
+  @override
+  String get failedToSaveEntry => 'Failed to save journal entry';
+
+  @override
+  String get journalEntry => 'JOURNAL ENTRY';
+
+  @override
+  String reflectionFrom(String date) {
+    return 'Reflection from $date';
+  }
+
+  @override
+  String writtenOn(String date) {
+    return 'Written on $date';
+  }
+
+  @override
+  String get newJournalEntry => 'New Journal Entry';
+
+  @override
+  String get yourReflection => 'Your Reflection';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get categoryGeneral => 'General';
+
+  @override
+  String get categoryPersonalGrowth => 'Personal Growth';
+
+  @override
+  String get categoryMeditation => 'Meditation';
+
+  @override
+  String get categoryDailyReflection => 'Daily Reflection';
+
+  @override
+  String get categoryScenarioWisdom => 'Scenario Wisdom';
+
+  @override
+  String get categoryChapterInsights => 'Chapter Insights';
+
+  @override
+  String get journalEntrySaved => 'Journal entry saved!';
+
+  @override
+  String get deleteEntry => 'Delete Entry';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get deleteConfirmation =>
+      'Are you sure you want to delete this journal entry? This action cannot be undone.';
+
+  @override
+  String get entryDeleted => 'Journal entry deleted';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get entryRestored => 'Journal entry restored';
+
+  @override
+  String get failedToRestoreEntry => 'Failed to restore entry';
+
+  @override
+  String get failedToDeleteEntry => 'Failed to delete entry';
+
+  @override
+  String get pleaseSelectRating => 'Please select a rating';
 }

@@ -483,6 +483,198 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'• Other academic and traditional commentaries'**
   String get reference3;
+
+  /// Main title for journal screen
+  ///
+  /// In en, this message translates to:
+  /// **'MY JOURNAL'**
+  String get myJournal;
+
+  /// Subtitle for journal screen
+  ///
+  /// In en, this message translates to:
+  /// **'Track your spiritual reflections and growth'**
+  String get trackSpiritual;
+
+  /// Empty state title when no journal entries exist
+  ///
+  /// In en, this message translates to:
+  /// **'No journal entries yet'**
+  String get noJournalEntries;
+
+  /// Empty state subtitle for journal screen
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the + button to create your first reflection'**
+  String get tapPlusButton;
+
+  /// Floating action button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Add Journal Entry'**
+  String get addJournalEntry;
+
+  /// Button text to view full journal entry
+  ///
+  /// In en, this message translates to:
+  /// **'Read More'**
+  String get readMore;
+
+  /// Error message when saving journal entry fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to save journal entry'**
+  String get failedToSaveEntry;
+
+  /// Title for journal entry detail view
+  ///
+  /// In en, this message translates to:
+  /// **'JOURNAL ENTRY'**
+  String get journalEntry;
+
+  /// Subtitle for journal entry detail with date
+  ///
+  /// In en, this message translates to:
+  /// **'Reflection from {date}'**
+  String reflectionFrom(String date);
+
+  /// Date metadata in journal entry detail
+  ///
+  /// In en, this message translates to:
+  /// **'Written on {date}'**
+  String writtenOn(String date);
+
+  /// Title for new journal entry dialog
+  ///
+  /// In en, this message translates to:
+  /// **'New Journal Entry'**
+  String get newJournalEntry;
+
+  /// Label for reflection text field
+  ///
+  /// In en, this message translates to:
+  /// **'Your Reflection'**
+  String get yourReflection;
+
+  /// Label for category dropdown
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get category;
+
+  /// Label for rating stars
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// Cancel button text
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// Save button text
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get save;
+
+  /// General category option
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get categoryGeneral;
+
+  /// Personal Growth category option
+  ///
+  /// In en, this message translates to:
+  /// **'Personal Growth'**
+  String get categoryPersonalGrowth;
+
+  /// Meditation category option
+  ///
+  /// In en, this message translates to:
+  /// **'Meditation'**
+  String get categoryMeditation;
+
+  /// Daily Reflection category option
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Reflection'**
+  String get categoryDailyReflection;
+
+  /// Scenario Wisdom category option
+  ///
+  /// In en, this message translates to:
+  /// **'Scenario Wisdom'**
+  String get categoryScenarioWisdom;
+
+  /// Chapter Insights category option
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter Insights'**
+  String get categoryChapterInsights;
+
+  /// Success message when journal entry is saved
+  ///
+  /// In en, this message translates to:
+  /// **'Journal entry saved!'**
+  String get journalEntrySaved;
+
+  /// Title for delete journal entry dialog
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Entry'**
+  String get deleteEntry;
+
+  /// Delete button text
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// Confirmation message for deleting journal entry
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to delete this journal entry? This action cannot be undone.'**
+  String get deleteConfirmation;
+
+  /// Success message when journal entry is deleted
+  ///
+  /// In en, this message translates to:
+  /// **'Journal entry deleted'**
+  String get entryDeleted;
+
+  /// Undo button text for restoring deleted entry
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// Success message when deleted journal entry is restored
+  ///
+  /// In en, this message translates to:
+  /// **'Journal entry restored'**
+  String get entryRestored;
+
+  /// Error message when restoring journal entry fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to restore entry'**
+  String get failedToRestoreEntry;
+
+  /// Error message when deleting journal entry fails
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to delete entry'**
+  String get failedToDeleteEntry;
+
+  /// Validation message when no rating is selected
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a rating'**
+  String get pleaseSelectRating;
 }
 
 class _AppLocalizationsDelegate

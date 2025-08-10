@@ -337,5 +337,177 @@
   "reference3": "• Other academic and traditional commentaries",
   "@reference3": {
     "description": "Third reference source"
+  },
+
+  "myJournal": "MY JOURNAL",
+  "@myJournal": {
+    "description": "Main title for journal screen"
+  },
+
+  "trackSpiritual": "Track your spiritual reflections and growth",
+  "@trackSpiritual": {
+    "description": "Subtitle for journal screen"
+  },
+
+  "noJournalEntries": "No journal entries yet",
+  "@noJournalEntries": {
+    "description": "Empty state title when no journal entries exist"
+  },
+
+  "tapPlusButton": "Tap the + button to create your first reflection",
+  "@tapPlusButton": {
+    "description": "Empty state subtitle for journal screen"
+  },
+
+  "addJournalEntry": "Add Journal Entry",
+  "@addJournalEntry": {
+    "description": "Floating action button tooltip"
+  },
+
+  "readMore": "Read More",
+  "@readMore": {
+    "description": "Button text to view full journal entry"
+  },
+
+  "failedToSaveEntry": "Failed to save journal entry",
+  "@failedToSaveEntry": {
+    "description": "Error message when saving journal entry fails"
+  },
+
+  "journalEntry": "JOURNAL ENTRY",
+  "@journalEntry": {
+    "description": "Title for journal entry detail view"
+  },
+
+  "reflectionFrom": "Reflection from {date}",
+  "@reflectionFrom": {
+    "description": "Subtitle for journal entry detail with date",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2024-01-15"
+      }
+    }
+  },
+
+  "writtenOn": "Written on {date}",
+  "@writtenOn": {
+    "description": "Date metadata in journal entry detail",
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "2024-01-15"
+      }
+    }
+  },
+
+  "newJournalEntry": "New Journal Entry",
+  "@newJournalEntry": {
+    "description": "Title for new journal entry dialog"
+  },
+
+  "yourReflection": "Your Reflection",
+  "@yourReflection": {
+    "description": "Label for reflection text field"
+  },
+
+  "category": "Category",
+  "@category": {
+    "description": "Label for category dropdown"
+  },
+
+  "rating": "Rating",
+  "@rating": {
+    "description": "Label for rating stars"
+  },
+
+  "cancel": "Cancel",
+  "@cancel": {
+    "description": "Cancel button text"
+  },
+
+  "save": "Save",
+  "@save": {
+    "description": "Save button text"
+  },
+
+  "categoryGeneral": "General",
+  "@categoryGeneral": {
+    "description": "General category option"
+  },
+
+  "categoryPersonalGrowth": "Personal Growth",
+  "@categoryPersonalGrowth": {
+    "description": "Personal Growth category option"
+  },
+
+  "categoryMeditation": "Meditation",
+  "@categoryMeditation": {
+    "description": "Meditation category option"
+  },
+
+  "categoryDailyReflection": "Daily Reflection",
+  "@categoryDailyReflection": {
+    "description": "Daily Reflection category option"
+  },
+
+  "categoryScenarioWisdom": "Scenario Wisdom",
+  "@categoryScenarioWisdom": {
+    "description": "Scenario Wisdom category option"
+  },
+
+  "categoryChapterInsights": "Chapter Insights",
+  "@categoryChapterInsights": {
+    "description": "Chapter Insights category option"
+  },
+
+  "journalEntrySaved": "Journal entry saved!",
+  "@journalEntrySaved": {
+    "description": "Success message when journal entry is saved"
+  },
+
+  "deleteEntry": "Delete Entry",
+  "@deleteEntry": {
+    "description": "Title for delete journal entry dialog"
+  },
+
+  "delete": "Delete",
+  "@delete": {
+    "description": "Delete button text"
+  },
+
+  "deleteConfirmation": "Are you sure you want to delete this journal entry? This action cannot be undone.",
+  "@deleteConfirmation": {
+    "description": "Confirmation message for deleting journal entry"
+  },
+
+  "entryDeleted": "Journal entry deleted",
+  "@entryDeleted": {
+    "description": "Success message when journal entry is deleted"
+  },
+
+  "undo": "Undo",
+  "@undo": {
+    "description": "Undo button text for restoring deleted entry"
+  },
+
+  "entryRestored": "Journal entry restored",
+  "@entryRestored": {
+    "description": "Success message when deleted journal entry is restored"
+  },
+
+  "failedToRestoreEntry": "Failed to restore entry",
+  "@failedToRestoreEntry": {
+    "description": "Error message when restoring journal entry fails"
+  },
+
+  "failedToDeleteEntry": "Failed to delete entry",
+  "@failedToDeleteEntry": {
+    "description": "Error message when deleting journal entry fails"
+  },
+
+  "pleaseSelectRating": "Please select a rating",
+  "@pleaseSelectRating": {
+    "description": "Validation message when no rating is selected"
   }
 }

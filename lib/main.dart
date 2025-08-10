@@ -547,10 +547,13 @@ import 'models/verse.dart';
 import 'models/scenario.dart';
 import 'services/daily_verse_service.dart';
 import 'services/scenario_service.dart';
+import 'services/journal_service.dart';
+import 'services/favorites_service.dart';
 
 
 import 'models/chapter.dart';
 import 'models/journal_entry.dart';
+import 'models/user_favorite.dart';
 import '../widgets/custom_nav_bar.dart';
 import '../services/settings_service.dart';
 import 'services/audio_service.dart';
@@ -559,6 +562,7 @@ import 'config/environment.dart'; // 👈 Import our environment config
 import 'screens/home_screen.dart';
 import 'screens/chapters_screen.dart';
 import 'screens/scenarios_screen.dart';
+import 'screens/journal_screen.dart';
 import 'screens/more_screen.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
@@ -615,6 +619,9 @@ Future<void> _initializeAppServices() async {
     if (!Hive.isAdapterRegistered(5)) {
       Hive.registerAdapter(ScenarioAdapter()); // typeId: 5
     }
+    if (!Hive.isAdapterRegistered(6)) {
+      Hive.registerAdapter(UserFavoriteAdapter()); // typeId: 6
+    }
 
     // Open boxes with error handling
     if (!Hive.isBoxOpen('chapters')) {
@@ -635,6 +642,12 @@ Future<void> _initializeAppServices() async {
     
     // Open scenario service box
     await ScenarioService.instance.initialize();
+    
+    // Open journal service box
+    await JournalService.instance.initialize();
+    
+    // Open favorites service box
+    await FavoritesService.instance.initialize();
 
     // Initialize audio service (non-blocking)
     AudioService.instance.loadEnabled().then((musicEnabled) {
@@ -771,6 +784,62 @@ class WisdomGuideApp extends StatelessWidget {
     );
   }
 
+  /// Build app background - supports both image and theme-based backgrounds
+  Widget _buildAppBackground(bool isDark, double opacity) {
+    // Option 1: Theme-based background (currently active)
+    return _buildThemeBasedBackground(isDark, opacity);
+    
+    // Option 2: Image-based background (commented out but preserved)
+    // To switch back to image background, comment out the line above and uncomment below:
+    // return _buildImageBackground(opacity);
+  }
+
+  /// Theme-based background with accent colors (not full bright/dark)
+  Widget _buildThemeBasedBackground(bool isDark, double opacity) {
+    if (isDark) {
+      // Dark theme: Enhanced to match the quality of light theme
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFF2C2C2C).withOpacity(opacity), // Warmer dark base (like light theme warmth)
+              const Color(0xFF3A3A3A).withOpacity(opacity), // Mid-tone for depth
+              const Color(0xFF2E2E3E).withOpacity(opacity), // Subtle purple accent (elegant like light theme)
+              const Color(0xFF404040).withOpacity(opacity), // Lighter edge for dimension
+            ],
+            stops: const [0.0, 0.4, 0.7, 1.0],
+          ),
+        ),
+      );
+    } else {
+      // Light theme: Soft warm gray with subtle accent (#FAFAFA base)
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              const Color(0xFFFAFAFA).withOpacity(opacity), // Soft white base
+              const Color(0xFFF5F5F5).withOpacity(opacity), // Light gray for gradient
+              const Color(0xFFF0F0F8).withOpacity(opacity), // Warm accent
+            ],
+            stops: const [0.0, 0.7, 1.0],
+          ),
+        ),
+      );
+    }
+  }
+
+  /// Image-based background (preserved for future use)
+  Widget _buildImageBackground(double opacity) {
+    return Opacity(
+      opacity: opacity,
+      child: Image.asset('assets/images/app_bg.png', fit: BoxFit.cover),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<Box>(
@@ -839,11 +908,14 @@ class WisdomGuideApp extends StatelessWidget {
               data: mq,
               child: Stack(
                 children: [
+                  // Background system - choose between image and theme-based
                   Positioned.fill(
-                    child: Opacity(
-                      opacity: backgroundOpacity,
-                      child: Image.asset('assets/images/app_bg.png', fit: BoxFit.cover),
-                    ),
+              //                     child: Opacity(
+              //                            opacity: backgroundOpacity,
+              //                            child: Image.asset('assets/images/app_bg.png', fit: BoxFit.cover),
+              //                     ),
+
+                    child: _buildAppBackground(isDark, backgroundOpacity),
                   ),
                   if (child != null) child,
                 ],
@@ -894,6 +966,13 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 }
 
+// Public navigation methods
+class NavigationHelper {
+  static void goToScenariosWithChapter(int chapterId) {
+    _RootScaffoldState.goToScenariosWithChapter(chapterId);
+  }
+}
+
 class RootScaffold extends StatefulWidget {
   const RootScaffold({Key? key}) : super(key: key);
   @override
@@ -903,13 +982,30 @@ class RootScaffold extends StatefulWidget {
 class _RootScaffoldState extends State<RootScaffold> {
   static _RootScaffoldState? _instance;
   int _currentIndex = 0;
+  int? _pendingChapterFilter; // Store chapter filter to apply to scenarios tab
+  late List<Widget> _pages; // Cache pages to prevent recreation
 
   static void goToTab(int index) => _instance?._selectTab(index);
+  
+  static void goToScenariosWithChapter(int chapterId) {
+    _instance?._goToScenariosWithChapter(chapterId);
+  }
 
   @override
   void initState() {
     super.initState();
     _instance = this;
+    _initializePages();
+  }
+
+  void _initializePages() {
+    _pages = [
+      HomeScreen(onTabChange: _selectTab),
+      ChapterScreen(),
+      ScenariosScreen(filterChapter: _pendingChapterFilter),
+      JournalScreen(),
+      MoreScreen(),
+    ];
   }
   @override
   void dispose() {
@@ -924,15 +1020,15 @@ class _RootScaffoldState extends State<RootScaffold> {
       setState(() => _currentIndex = index);
     }
   }
+  
+  void _goToScenariosWithChapter(int chapterId) {
+    _pendingChapterFilter = chapterId;
+    // Recreate scenarios screen with new filter
+    _pages[2] = ScenariosScreen(filterChapter: _pendingChapterFilter);
+    _selectTab(2); // Switch to scenarios tab (index 2)
+  }
 
-  List<Widget> get _pages => [
-    HomeScreen(onTabChange: _selectTab),
-    ChapterScreen(),
-    ScenariosScreen(), 
-    MoreScreen(),
-  ];
-
-  final _navigatorKeys = List.generate(4, (_) => GlobalKey<NavigatorState>());
+  final _navigatorKeys = List.generate(5, (_) => GlobalKey<NavigatorState>());
 
   Widget _buildOffstageNavigator(int idx, Widget screen) {
     return Offstage(
@@ -971,6 +1067,7 @@ class _RootScaffoldState extends State<RootScaffold> {
             NavBarItem(icon: Icons.home, label: AppLocalizations.of(context)!.homeTab),
             NavBarItem(icon: Icons.menu_book, label: AppLocalizations.of(context)!.chaptersTab),
             NavBarItem(icon: Icons.list, label: AppLocalizations.of(context)!.scenariosTab),
+            NavBarItem(icon: Icons.book, label: AppLocalizations.of(context)!.journalTab),
             NavBarItem(icon: Icons.more_horiz, label: AppLocalizations.of(context)!.moreTab),
           ],
         ),

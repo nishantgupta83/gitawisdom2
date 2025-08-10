@@ -319,9 +319,11 @@ import 'package:flutter/material.dart';
 import '../models/chapter.dart';
 import '../models/scenario.dart';
 import '../services/supabase_service.dart';
+import '../services/scenario_service.dart';
 import '../screens/scenario_detail_view.dart';
 import '../screens/verse_list_view.dart';
 import '../screens/scenarios_screen.dart';
+import '../main.dart';
 
 class ChapterDetailView extends StatefulWidget {
   final int chapterId;
@@ -348,7 +350,9 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
   Future<void> _loadData() async {
     try {
       final chapter = await _service.fetchChapterById(widget.chapterId);
-      final scenarios = await _service.fetchScenariosByChapter(widget.chapterId);
+      // Ensure scenarios are loaded, then filter by chapter
+      await ScenarioService.instance.getAllScenarios();
+      final scenarios = ScenarioService.instance.filterByChapter(widget.chapterId);
       setState(() {
         _chapter = chapter;
         _scenarios = scenarios;
@@ -627,26 +631,10 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                 width: double.infinity,
                                 child: OutlinedButton.icon(
                                     onPressed: () {
-                                    Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                    builder: (_) => ScenariosScreen(
-                                    filterTag: 'chapter_${widget.chapterId}',
-                                    ),
-                                    ),
-                                    );
-                                    },
-
-                              /*    onPressed: () {
-                                    // Navigate to scenarios
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text('Navigate to scenarios for Chapter ${widget.chapterId}'),
-                                      ),
-                                    );
+                                    // Navigate back to root and switch to scenarios tab with chapter filter
+                                    Navigator.of(context).popUntil((route) => route.isFirst);
+                                    NavigationHelper.goToScenariosWithChapter(widget.chapterId);
                                   },
-
-                                  */
 
                                   icon: const Icon(Icons.lightbulb_outline),
                                   label: Text('View Scenarios (${_scenarios.length})'),

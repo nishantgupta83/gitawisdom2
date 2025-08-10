@@ -11,7 +11,8 @@ import '../l10n/app_localizations.dart';
 
 class ScenariosScreen extends StatefulWidget {
   final String? filterTag;
-  const ScenariosScreen({Key? key, this.filterTag}) : super(key: key);
+  final int? filterChapter; // Add chapter filtering
+  const ScenariosScreen({Key? key, this.filterTag, this.filterChapter}) : super(key: key);
 
   @override
   State<ScenariosScreen> createState() => _ScenariosScreenState();
@@ -24,6 +25,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   List<Scenario> _allScenarios = []; // Cache all scenarios for instant filtering
   String _search = '';
   String? _selectedTag;
+  int? _selectedChapter; // Add chapter filter state
   bool _isLoading = true;
   Timer? _debounceTimer;
   final TextEditingController _searchController = TextEditingController();
@@ -32,6 +34,11 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   void initState() {
     super.initState();
     _selectedTag = widget.filterTag;
+    _selectedChapter = widget.filterChapter;
+    // Clear other filters when chapter filter is active
+    if (_selectedChapter != null) {
+      _selectedTag = null; // Clear tag filter when filtering by chapter
+    }
     _loadScenarios();
   }
 
@@ -64,7 +71,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     }
   }
   
-  /// Filter scenarios based on search and selected tag
+  /// Filter scenarios based on search, selected tag, and chapter
   List<Scenario> _filterScenarios(List<Scenario> scenarios) {
     List<Scenario> filtered = scenarios;
     
@@ -73,8 +80,12 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       filtered = _scenarioService.searchScenarios(_search.trim());
     }
     
-    // Apply tag filter
-    if (_selectedTag != null) {
+    // Apply chapter filter (takes priority)
+    if (_selectedChapter != null) {
+      filtered = filtered.where((s) => s.chapter == _selectedChapter).toList();
+    }
+    // Apply tag filter only if no chapter filter
+    else if (_selectedTag != null) {
       filtered = filtered.where((s) => s.tags?.contains(_selectedTag) ?? false).toList();
     }
     
@@ -123,22 +134,19 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     return Scaffold(
       // Global background handled by main.dart
       backgroundColor: Colors.transparent,
-      body: Stack(
-        children: [
-          // Main scrollable content
-          SafeArea(
-            child: RefreshIndicator(
-              onRefresh: _refreshFromServer,
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                ),
-                child: ListView(
-                padding: EdgeInsets.zero,
-                children: [
-                  // Branding Card
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
+      body: SafeArea(
+        child: RefreshIndicator(
+          onRefresh: _refreshFromServer,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            ),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                // Branding Card
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
                     child: Card(
                       // Use theme.cardTheme styling
                       child: Padding(
@@ -146,7 +154,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         child: Column(
                           children: [
                             Text(
-                              localizations!.scenarios,
+                              _selectedChapter != null 
+                                  ? 'Chapter $_selectedChapter ${localizations!.scenarios}'
+                                  : localizations!.scenarios,
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
@@ -155,7 +165,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              localizations.realWorldSituations,
+                              _selectedChapter != null
+                                  ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
+                                  : localizations.realWorldSituations,
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -200,8 +212,47 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     ),
                   ),
 
-                  // Tag Pills Row
-                  _tagPillsRow(
+                  // Chapter Filter Clear Button
+                  if (_selectedChapter != null)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                      child: Row(
+                        children: [
+                          Icon(Icons.filter_alt, 
+                               color: theme.colorScheme.primary,
+                               size: 20),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Showing scenarios for Chapter $_selectedChapter',
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              setState(() {
+                                _selectedChapter = null;
+                                _scenarios = _filterScenarios(_allScenarios);
+                              });
+                            },
+                            child: Text(
+                              'Show All',
+                              style: TextStyle(
+                                color: theme.colorScheme.secondary,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  // Tag Pills Row (hidden when chapter filter is active)
+                  if (_selectedChapter == null)
+                    _tagPillsRow(
                     _tags,
                     _selectedTag,
                     (tag) => setState(() => _selectedTag = tag),
@@ -209,7 +260,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
                   // Scenario List
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 80),
                     child: _isLoading
                         ? const Center(
                             child: Padding(
@@ -237,42 +288,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                 ],
               ),
             ),
-            ), // RefreshIndicator
-          ), // SafeArea
-          
-          // Floating navigation buttons
-          Positioned(
-            top: 26,
-            right: 84,
-            child: _glowingNavButton(
-              icon: Icons.arrow_back,
-              onTap: () {
-                // Check if we can pop, otherwise go to home
-                if (Navigator.of(context).canPop()) {
-                  Navigator.pop(context);
-                } else {
-                  // If no route to pop to, navigate back to root
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const RootScaffold()),
-                    (route) => false,
-                  );
-                }
-              },
-            ),
-          ),
-          Positioned(
-            top: 26,
-            right: 24,
-            child: _glowingNavButton(
-              icon: Icons.home,
-              onTap: () {
-                // Navigate back to root by popping until we reach the root
-                Navigator.of(context).popUntil((route) => route.isFirst);
-              },
-            ),
-          ),
-        ],
-      ),
+          ), // RefreshIndicator
+        ), // SafeArea
     );
 
   }
@@ -282,86 +299,90 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: Card(
         elevation: 4,
-        child: Padding(
-          padding: const EdgeInsets.all(18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                scenario.title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-              if (scenario.description.isNotEmpty) ...[
-                const SizedBox(height: 8),
+        child: IntrinsicHeight( // Ensures consistent card height
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title with proper overflow handling
                 Text(
-                  scenario.description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface,
+                  scenario.title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
                   ),
-                  maxLines: 3,
+                  maxLines: 2, // Prevent title from taking too much space
                   overflow: TextOverflow.ellipsis,
                 ),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Chapter ${scenario.chapter}',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                if (scenario.description.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Flexible(
+                    child: Text(
+                      scenario.description,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface,
+                      ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      debugPrint('🔍 Navigating to scenario detail: ${scenario.title}');
-                      // Navigate normally to preserve bottom navigation
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ScenarioDetailView(scenario: scenario),
-                        ),
-                      );
-                    },
-                    child: const Text('Read More'),
-                  ),
                 ],
-              ),
-            ],
+                // Spacer to push bottom content down
+                const SizedBox(height: 12), // Increased spacing to prevent overflow
+                
+                // Bottom row with flexible layout
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Flexible(
+                      flex: 2,
+                      child: Text(
+                        'Chapter ${scenario.chapter}',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    // Compact button to prevent overflow
+                    TextButton(
+                      onPressed: () {
+                        debugPrint('🔍 Navigating to scenario detail: ${scenario.title}');
+                        // Navigate normally to preserve bottom navigation
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ScenarioDetailView(scenario: scenario),
+                          ),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        minimumSize: const Size(60, 30), // Fixed minimum size
+                      ),
+                      child: Text(
+                        'Read More',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontSize: 12, // Slightly smaller font
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _glowingNavButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) =>
-      Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.amberAccent.withOpacity(0.5),
-              blurRadius: 16,
-              spreadRadius: 4,
-            ),
-          ],
-        ),
-        child: CircleAvatar(
-          radius: 26,
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          child: IconButton(
-            splashRadius: 32,
-            icon: Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
-            onPressed: onTap,
-          ),
-        ),
-      );
 
   Widget _tagPillsRow(List<String> tags, String? selectedTag, ValueChanged<String?> onTapTag) {
     final theme = Theme.of(context);

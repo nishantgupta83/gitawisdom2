@@ -14,7 +14,11 @@
       "Bash(flutter test:*)",
       "Bash(flutter build:*)",
       "Bash(awk:*)",
-      "Bash(flutter packages pub run build_runner build:*)"
+      "Bash(flutter packages pub run build_runner build:*)",
+      "Bash(mkdir:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter gen-l10n:*)",
+      "Bash(flutter clean:*)"
     ],
     "deny": []
   }

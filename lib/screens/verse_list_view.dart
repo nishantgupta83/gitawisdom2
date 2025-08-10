@@ -211,33 +211,35 @@ class _VerseListViewState extends State<VerseListView> {
               ),
               children: [
                 // Chapter header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 28.0, horizontal: 16),
-                      child: Column(
-                        children: [
-                          Text(
-                            _chapter!.title ?? '',
-                            style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.3,
+                if (_chapter != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 28.0, horizontal: 16),
+                        child: Column(
+                          children: [
+                            Text(
+                              _chapter!.title ?? '',
+                              style: theme.textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: 1.3,
+                              ),
+                              textAlign: TextAlign.center,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _chapter!.summary ?? '',
-                            textAlign: TextAlign.center,
-                            style: theme.textTheme.bodyMedium,
-                          ),
-                        ],
+                            const SizedBox(height: 6),
+                            Text(
+                              _chapter!.summary ?? '',
+                              textAlign: TextAlign.center,
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
+                ],
 
                 // Verse list or status
                 if (_isLoading) ...[

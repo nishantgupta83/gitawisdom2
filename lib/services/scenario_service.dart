@@ -145,6 +145,24 @@ class ScenarioService {
     return categories;
   }
 
+  /// Get scenarios by specific categories in random order
+  List<Scenario> getScenariosByCategories(List<String> categories, {int? limit}) {
+    final filteredScenarios = _cachedScenarios.where((scenario) {
+      return categories.contains(scenario.category.toLowerCase());
+    }).toList();
+    
+    // Shuffle for random order
+    filteredScenarios.shuffle();
+    
+    // Apply limit if specified
+    if (limit != null && filteredScenarios.length > limit) {
+      return filteredScenarios.take(limit).toList();
+    }
+    
+    debugPrint('🎲 Random scenarios from categories ${categories.join(", ")}: ${filteredScenarios.length} results');
+    return filteredScenarios;
+  }
+
   /// Force refresh from server
   Future<void> refreshFromServer() async {
     try {

@@ -3,6 +3,7 @@
 
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:math';
 import '../models/journal_entry.dart';
@@ -249,41 +250,143 @@ class SupabaseService {
     }
   }
 
-  /// Insert a journal entry (offline: Hive + online: Supabase)
+  /// Insert a journal entry to Supabase
   Future<void> insertJournalEntry(JournalEntry entry) async {
     try {
+      final jsonData = entry.toJson();
+      
+      // Validate required fields before insertion
+      if (!jsonData.containsKey('je_id') || jsonData['je_id'] == null || (jsonData['je_id'] as String).isEmpty) {
+        throw ArgumentError('Journal entry must have a valid ID');
+      }
+      
+      if (!jsonData.containsKey('je_reflection') || jsonData['je_reflection'] == null || (jsonData['je_reflection'] as String).trim().isEmpty) {
+        throw ArgumentError('Journal entry must have a reflection');
+      }
+      
       await client
-          .from('journal_entry')
-          .insert({
-        'je_id': entry.id,
-        'je_reflection': entry.reflection,
-        'je_rating': entry.rating,
-        'je_date_created': entry.dateCreated.toIso8601String(),
-      });
+          .from('journal_entries')
+          .insert(jsonData);
+      debugPrint('✅ Journal entry inserted to Supabase: ${entry.id}');
     } catch (e) {
-      print('Error inserting journal entry: $e');
+      debugPrint('❌ Error inserting journal entry to Supabase: $e');
+      rethrow; // Let the calling service handle the error
     }
   }
 
-  /// Fetch all journal entries from Supabase
+  /// Delete a journal entry from Supabase
+  Future<void> deleteJournalEntry(String entryId) async {
+    try {
+      if (entryId.isEmpty) {
+        throw ArgumentError('Entry ID cannot be empty');
+      }
+      
+      await client
+          .from('journal_entries')
+          .delete()
+          .eq('je_id', entryId);
+      debugPrint('✅ Journal entry deleted from Supabase: $entryId');
+    } catch (e) {
+      debugPrint('❌ Error deleting journal entry from Supabase: $e');
+      rethrow; // Let the calling service handle the error
+    }
+  }
+
+  /// Fetch all journal entries from Supabase with error recovery
   Future<List<JournalEntry>> fetchJournalEntries() async {
     try {
       final response = await client
-          .from('journal_entry')
+          .from('journal_entries')
           .select()
           .order('je_date_created', ascending: false);
+      
+      if (response.isEmpty) {
+        debugPrint('⚠️ Empty response from Supabase journal entries');
+        return [];
+      }
+      
       final data = response as List;
-      return data
-          .map((e) => JournalEntry(
-                id: e['je_id'] as String,
-                reflection: e['je_reflection'] as String,
-                rating: e['je_rating'] as int,
-                dateCreated: DateTime.parse(e['je_date_created'] as String),
-              ))
-          .toList();
+      final List<JournalEntry> validEntries = [];
+      
+      // Process each entry with individual error handling
+      for (final item in data) {
+        try {
+          if (item is Map<String, dynamic>) {
+            // Ensure required fields exist
+            if (item['je_id'] != null && 
+                item['je_reflection'] != null && 
+                item['je_rating'] != null &&
+                item['je_date_created'] != null) {
+              
+              final entry = JournalEntry.fromJson(item);
+              validEntries.add(entry);
+            } else {
+              debugPrint('⚠️ Skipping journal entry with missing required fields');
+            }
+          }
+        } catch (e) {
+          debugPrint('⚠️ Error parsing journal entry, skipping: $e');
+          // Continue processing other entries
+        }
+      }
+      
+      debugPrint('✅ Fetched ${validEntries.length} valid journal entries from Supabase');
+      return validEntries;
     } catch (e) {
-      print('Error fetching journal entries: $e');
-      return [];
+      debugPrint('❌ Error fetching journal entries from Supabase: $e');
+      rethrow; // Let the calling service handle the error
+    }
+  }
+
+  /// Insert a favorite scenario to Supabase
+  Future<void> insertFavorite(String scenarioTitle) async {
+    try {
+      await client
+          .from('user_favorites')
+          .insert({
+            'scenario_title': scenarioTitle,
+            // Remove favorited_at since column doesn't exist yet
+            // Will be handled by database DEFAULT now() if column exists
+          });
+      debugPrint('✅ Favorite inserted to Supabase: $scenarioTitle');
+    } catch (e) {
+      debugPrint('❌ Error inserting favorite to Supabase: $e');
+      rethrow;
+    }
+  }
+
+  /// Remove a favorite scenario from Supabase
+  Future<void> removeFavorite(String scenarioTitle) async {
+    try {
+      await client
+          .from('user_favorites')
+          .delete()
+          .eq('scenario_title', scenarioTitle);
+      debugPrint('✅ Favorite removed from Supabase: $scenarioTitle');
+    } catch (e) {
+      debugPrint('❌ Error removing favorite from Supabase: $e');
+      rethrow;
+    }
+  }
+
+  /// Fetch all favorite scenario titles from Supabase
+  Future<List<String>> fetchFavorites() async {
+    try {
+      final response = await client
+          .from('user_favorites')
+          .select('scenario_title')
+          // Remove ordering by favorited_at since column doesn't exist yet
+          // .order('favorited_at', ascending: false);
+          .order('id', ascending: false); // Order by id instead (most recent first)
+      final data = response as List;
+      final favorites = data
+          .map((e) => e['scenario_title'] as String)
+          .toList();
+      debugPrint('✅ Fetched ${favorites.length} favorites from Supabase');
+      return favorites;
+    } catch (e) {
+      debugPrint('❌ Error fetching favorites from Supabase: $e');
+      rethrow;
     }
   }
 }

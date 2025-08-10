@@ -633,9 +633,34 @@ flutter test test/widget_test.dart # Widget integration tests
 flutter test test/integration_test.dart
 ```
 
+## 🔧 Recent Bug Fixes & Improvements
+
+### ✅ Latest Updates (January 2025)
+- **Fixed ListView rebuild assertion error** in journal screen that was causing crashes on Android
+- **Fixed bottom navigation bug** - "View Scenarios" button from chapter details now properly switches to scenarios tab
+- **Enhanced responsive design** - Improved pixel overflow handling for large text settings
+- **Added swipe-to-delete** functionality for journal entries with confirmation dialogs
+- **Improved theme-based backgrounds** - Replaced background images with gradient themes
+- **Enhanced localization** - Full support for English, Spanish, and Hindi languages
+- **Navigation flow improvements** - Seamless chapter-to-scenarios navigation with proper filtering
+
+### 🐛 Known Issues Resolved
+- ✅ ListView rebuild errors on Android devices
+- ✅ Bottom navigation not switching when navigating from chapters to scenarios  
+- ✅ Pixel overflow issues with large text accessibility settings
+- ✅ Journal entry deletion with proper undo functionality
+- ✅ Dark theme background consistency improvements
+
+### 🔄 Auto-Resume Feature
+This project supports Claude Code's `--resume` feature. When your usage limit resets, you can run:
+```bash
+claude-code --resume
+```
+This will automatically continue from the last conversation context, maintaining all project history and allowing seamless continuation of development work.
+
 ## 📱 Platform Support
 
-- ✅ **Android** 7.0+ (API level 24+)
+- ✅ **Android** 7.0+ (API level 24+) - Recently tested and optimized
 - ✅ **iOS** 11.0+  
 - ✅ **Web** (Progressive Web App ready)
 - ✅ **Desktop** (Windows, macOS, Linux)

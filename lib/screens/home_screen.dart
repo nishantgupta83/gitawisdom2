@@ -1199,8 +1199,11 @@ import '../models/verse.dart';
 import '../models/scenario.dart';
 import '../services/supabase_service.dart';
 import '../services/daily_verse_service.dart';
+import '../services/scenario_service.dart';
+import '../services/journal_service.dart';
 import '../services/settings_service.dart';
 import '../screens/scenario_detail_view.dart';
+import '../screens/new_journal_entry_dialog.dart';
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -1215,16 +1218,23 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final SupabaseService _service = SupabaseService();
   final DailyVerseService _dailyVerseService = DailyVerseService.instance;
+  final ScenarioService _scenarioService = ScenarioService.instance;
   final SettingsService _settingsService = SettingsService();
 
   late final Future<List<Verse>> _versesFuture;
-  Future<Scenario?>? _randomScenarioFuture;
   final PageController _pageController = PageController(viewportFraction: 0.9);
+  final PageController _scenarioPageController = PageController(viewportFraction: 0.9);
   int _currentPage = 0;
-  bool _isRefreshingScenario = false;
+  int _currentScenarioPage = 0;
+  
+  List<Scenario> _modernDilemmaScenarios = [];
+  bool _isLoadingScenarios = true;
   
   // Number of verses to display in carousel
   final int _carouselCount = 5;
+  
+  // Categories for Modern Dilemma carousel
+  final List<String> _modernDilemmaCategories = ['new parents', 'family', 'relationships'];
 
   @override
   void initState() {
@@ -1233,28 +1243,48 @@ class _HomeScreenState extends State<HomeScreen> {
     // 1️⃣ Use calendar-based verse refreshing (same verses all day)
     _versesFuture = _dailyVerseService.getTodaysVerses();
     
-    // 2️⃣ Fetch random scenario for the preview card (only on first load)
-    _refreshScenario();
+    // 2️⃣ Load Modern Dilemma scenarios
+    _loadModernDilemmaScenarios();
   }
 
-  void _refreshScenario() {
-    setState(() {
-      _isRefreshingScenario = true;
-      _randomScenarioFuture = _service.fetchRandomScenario();
-    });
-
-    _randomScenarioFuture!.whenComplete(() {
+  void _loadModernDilemmaScenarios() async {
+    try {
+      setState(() => _isLoadingScenarios = true);
+      
+      // Ensure ScenarioService is initialized
+      await _scenarioService.initialize();
+      
+      // Get 5 random scenarios from the specified categories
+      final scenarios = _scenarioService.getScenariosByCategories(
+        _modernDilemmaCategories,
+        limit: 5,
+      );
+      
       if (mounted) {
         setState(() {
-          _isRefreshingScenario = false;
+          _modernDilemmaScenarios = scenarios;
+          _isLoadingScenarios = false;
         });
       }
-    });
+      
+      debugPrint('🎯 Loaded ${scenarios.length} Modern Dilemma scenarios');
+    } catch (e) {
+      debugPrint('❌ Error loading Modern Dilemma scenarios: $e');
+      if (mounted) {
+        setState(() => _isLoadingScenarios = false);
+      }
+    }
+  }
+
+  void _refreshModernDilemmaScenarios() {
+    debugPrint('🔄 Refreshing Modern Dilemma scenarios...');
+    _loadModernDilemmaScenarios();
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _scenarioPageController.dispose();
     super.dispose();
   }
 
@@ -1310,7 +1340,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
 
-                  // Verse of the Day Card - Now with random chapters
+                  // Modern Dilemma Carousel (5 cards) - moved up
+                  _buildModernDilemmaCarousel(theme),
+                  
+                  // Verse of the Day Card - Now with random chapters - moved down
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 15, 20, 18),
                     child: SizedBox(
@@ -1403,17 +1436,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-
-                  // Random Scenario Preview Card
-                  FutureBuilder<Scenario?>(
-                    future: _randomScenarioFuture,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return _buildScenarioPreviewCard(snapshot.data!, theme);
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
+                  
+                  // Journal Reflection Widget
+                  _buildJournalReflectionWidget(theme),
                 ],
               ),
             ),
@@ -1475,82 +1500,179 @@ class _HomeScreenState extends State<HomeScreen> {
     ),
   );
 
-  Widget _buildScenarioPreviewCard(Scenario scenario, ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-      child: Card(
-        elevation: 4,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.modernDilemma.toUpperCase(),
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ),
-              const SizedBox(height: 8),
-              Text(
-                scenario.title,
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
+
+  Widget _buildModernDilemmaCarousel(ThemeData theme) {
+    if (_isLoadingScenarios) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+        child: Card(
+          elevation: 4,
+          child: Container(
+            height: 180,
+            child: const Center(child: CircularProgressIndicator()),
+          ),
+        ),
+      );
+    }
+
+    if (_modernDilemmaScenarios.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+        child: Card(
+          elevation: 4,
+          child: Container(
+            height: 180,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.refresh,
+                  size: 32,
+                  color: theme.colorScheme.onSurface.withOpacity(0.5),
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 12),
-              _buildShowWisdomButton(scenario, theme),
-                ],
-              ),
+                const SizedBox(height: 8),
+                Text(
+                  'No scenarios available',
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _refreshModernDilemmaScenarios,
+                  child: const Text('Retry'),
+                ),
+              ],
             ),
-            // Refresh button in top-right corner of MODERN DELIMA card
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Material(
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        // Modern Dilemma Section Title
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  AppLocalizations.of(context)!.modernDilemma.toUpperCase(),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: theme.colorScheme.primary,
+                    letterSpacing: 0.8,
+                  ),
+                ),
+              ),
+              Material(
                 color: Colors.transparent,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(20),
-                  onTap: _isRefreshingScenario ? null : () {
-                    debugPrint('🔄 Refreshing scenario...');
-                    _refreshScenario();
-                  },
+                  onTap: _isLoadingScenarios ? null : _refreshModernDilemmaScenarios,
                   child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.colorScheme.primary.withOpacity(0.1),
+                    padding: const EdgeInsets.all(8),
+                    child: Icon(
+                      Icons.refresh,
+                      size: 20,
+                      color: theme.colorScheme.primary,
                     ),
-                    child: _isRefreshingScenario
-                        ? SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
-                            ),
-                          )
-                        : Icon(
-                            Icons.refresh,
-                            size: 16,
-                            color: theme.colorScheme.primary,
-                          ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
+        
+        // Modern Dilemma Carousel
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          child: SizedBox(
+            height: 200,
+            child: PageView.builder(
+              controller: _scenarioPageController,
+              itemCount: _modernDilemmaScenarios.length,
+              onPageChanged: (idx) => setState(() => _currentScenarioPage = idx),
+              itemBuilder: (ctx, i) {
+                final scenario = _modernDilemmaScenarios[i];
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Card(
+                    elevation: i == _currentScenarioPage ? 8 : 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Category Badge
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: theme.colorScheme.primary.withOpacity(0.2),
+                                width: 1,
+                              ),
+                            ),
+                            child: Text(
+                              scenario.category.toUpperCase(),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          
+                          // Scenario Title
+                          Text(
+                            scenario.title,
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          
+                          const Spacer(),
+                          
+                          // Show Wisdom Button
+                          _buildCompactShowWisdomButton(scenario, theme),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+        
+        // Page indicator for Modern Dilemma carousel
+        Center(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8, bottom: 20),
+            child: SmoothPageIndicator(
+              controller: _scenarioPageController,
+              count: _modernDilemmaScenarios.length,
+              effect: WormEffect(
+                dotWidth: 12,
+                dotHeight: 12,
+                activeDotColor: theme.colorScheme.primary,
+                dotColor: theme.colorScheme.onSurface.withOpacity(0.3),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Widget _buildShowWisdomButton(Scenario scenario, ThemeData theme) {
+  Widget _buildCompactShowWisdomButton(Scenario scenario, ThemeData theme) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -1562,54 +1684,319 @@ class _HomeScreenState extends State<HomeScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.6),
-            blurRadius: 20,
-            spreadRadius: 2,
-            offset: const Offset(0, 8),
+            color: Colors.amber.withOpacity(0.4),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Material(
         color: Colors.transparent,
-        child: Stack(
-          children: [
-            InkWell(
-              borderRadius: BorderRadius.circular(16),
-              onTap: () {
-                debugPrint('🔍 Home: Navigating to scenario detail: ${scenario.title}');
-                // Navigate to scenario detail view
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ScenarioDetailView(scenario: scenario),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () {
+            debugPrint('🔍 Home: Navigating to scenario detail: ${scenario.title}');
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ScenarioDetailView(scenario: scenario),
+              ),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.auto_awesome, size: 18, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(
+                  '🔮 ${AppLocalizations.of(context)!.showWisdom.toUpperCase()}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 1.0,
                   ),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.auto_awesome, size: 24, color: Colors.white),
-                    const SizedBox(width: 12),
-                    Text(
-                      '🔮 ${AppLocalizations.of(context)!.showWisdom.toUpperCase()}',
-                      style: TextStyle(
-                        fontSize: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJournalReflectionWidget(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header with journal icon
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(
+                      Icons.book,
+                      color: Colors.green.shade700,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'DAILY REFLECTION',
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                        letterSpacing: 1.2,
+                        color: Colors.green.shade700,
                       ),
                     ),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8), // Add spacing between title and subtitle
+              Padding(
+                padding: const EdgeInsets.only(left: 44), // Align with title text after icon
+                child: Text(
+                  'Start your spiritual journal',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+              ),
+              Row(
+                children: [
+                  const SizedBox(width: 44), // Placeholder for alignment
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Daily prompt or recent entry
+              _buildJournalContent(theme),
+              
+              const SizedBox(height: 16),
+              
+              // Action buttons row
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildJournalActionButton(
+                      icon: Icons.add,
+                      label: 'NEW ENTRY',
+                      color: Colors.green,
+                      onTap: _openNewJournalEntry,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildJournalActionButton(
+                      icon: Icons.list,
+                      label: 'VIEW ALL',
+                      color: Colors.blue,
+                      onTap: () => widget.onTabChange?.call(3), // Navigate to journal tab
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildJournalContent(ThemeData theme) {
+    return FutureBuilder<List<dynamic>>(
+      future: _getJournalContentData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState != ConnectionState.done) {
+          return Container(
+            height: 60,
+            child: const Center(
+              child: SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            ),
+          );
+        }
+        
+        if (snapshot.hasData && snapshot.data![0] != null) {
+          // Show recent journal entry
+          final entries = snapshot.data![0] as List;
+          if (entries.isNotEmpty) {
+            final recentEntry = entries.first;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Your latest reflection:',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    recentEntry.reflection.length > 120 
+                        ? '${recentEntry.reflection.substring(0, 120)}...'
+                        : recentEntry.reflection,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontStyle: FontStyle.italic,
+                      color: theme.colorScheme.onSurface.withOpacity(0.8),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          }
+        }
+        
+        // Show daily prompt for new users
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Today\'s reflection prompt:',
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.green.shade50,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.green.shade200,
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                _getDailyPrompt(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: Colors.green.shade800,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
           ],
+        );
+      },
+    );
+  }
+
+  Widget _buildJournalActionButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+          decoration: BoxDecoration(
+            border: Border.all(color: color.withOpacity(0.3), width: 1),
+            borderRadius: BorderRadius.circular(8),
+            color: color.withOpacity(0.1),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  Future<List<dynamic>> _getJournalContentData() async {
+    try {
+      final entries = await JournalService.instance.fetchEntries();
+      return [entries];
+    } catch (e) {
+      debugPrint('❌ Error fetching journal entries for home widget: $e');
+      return [null];
+    }
+  }
+
+  String _getDailyPrompt() {
+    final prompts = [
+      "How did I apply dharma (righteous duty) in a difficult situation today?",
+      "What teaching from the Gita resonated with me this week?",
+      "When did I choose between heart and duty today? What did I learn?",
+      "How can I bring more peace and wisdom into tomorrow?",
+      "What am I grateful for in my spiritual journey right now?",
+      "How did I practice detachment from outcomes today?",
+      "What challenged my understanding of karma this week?",
+    ];
+    final dayOfYear = DateTime.now().difference(DateTime(DateTime.now().year, 1, 1)).inDays;
+    return prompts[dayOfYear % prompts.length];
+  }
+
+  void _openNewJournalEntry() {
+    showDialog(
+      context: context,
+      builder: (_) => NewJournalEntryDialog(
+        onSave: (entry) async {
+          try {
+            await JournalService.instance.createEntry(entry);
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.journalEntrySaved ?? 'Journal entry saved!'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Failed to save entry: $e'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
       ),
     );
   }

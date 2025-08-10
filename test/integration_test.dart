@@ -6,14 +6,15 @@ import 'package:integration_test/integration_test.dart';
 import 'package:provider/provider.dart';
 import 'package:hive/hive.dart';
 
-import 'package:GitaWisdom/main.dart' as app;
 import 'package:GitaWisdom/services/daily_verse_service.dart';
 import 'package:GitaWisdom/services/scenario_service.dart';
 import 'package:GitaWisdom/services/cache_service.dart';
 import 'package:GitaWisdom/services/settings_service.dart';
+import 'package:GitaWisdom/services/journal_service.dart';
 import 'package:GitaWisdom/models/daily_verse_set.dart';
 import 'package:GitaWisdom/models/scenario.dart';
 import 'package:GitaWisdom/models/verse.dart';
+import 'package:GitaWisdom/models/journal_entry.dart';
 import 'package:GitaWisdom/screens/home_screen.dart';
 import 'package:GitaWisdom/screens/scenarios_screen.dart';
 import 'package:GitaWisdom/widgets/custom_nav_bar.dart';
@@ -405,6 +406,89 @@ void main() {
       // Cache size calculation should work with large data
       final sizes = await CacheService.getCacheSizes();
       expect(sizes['Scenarios'], greaterThan(0.0));
+    });
+
+    testWidgets('Journal integration with scenarios workflow', (WidgetTester tester) async {
+      // Setup journal service and cache with scenario data
+      await JournalService.instance.initialize();
+      final scenarioBox = await Hive.openBox<Scenario>('scenarios');
+      await scenarioBox.put('test_scenario', createTestScenario(title: 'Career Decision Test'));
+      await ScenarioService.instance.initialize();
+
+      // Create a journal entry linked to scenario
+      final testEntry = createTestJournalEntry(
+        id: 'scenario-journal-1',
+        scenarioId: 123,
+        category: 'Scenario Wisdom',
+        reflection: 'This scenario helped me understand the balance between heart and duty',
+      );
+      await JournalService.instance.createEntry(testEntry);
+
+      // Start app with home screen
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => SettingsService(),
+          child: TestConfig.wrapWithMaterialApp(HomeScreen()),
+        ),
+      );
+      
+      await TestConfig.pumpWithSettle(tester);
+      
+      // Should show home screen with journal reflection widget
+      expect(find.byType(HomeScreen), findsOneWidget);
+      
+      // Check journal service functionality
+      final allEntries = await JournalService.instance.fetchEntries();
+      expect(allEntries, isNotEmpty);
+      expect(allEntries.first.scenarioId, equals(123));
+      expect(allEntries.first.category, equals('Scenario Wisdom'));
+    });
+
+    testWidgets('Journal offline persistence and sync', (WidgetTester tester) async {
+      // Initialize journal service
+      final journalService = JournalService.instance;
+      await journalService.initialize();
+      
+      // Create multiple journal entries
+      final entries = [
+        createTestJournalEntry(
+          id: 'offline-1',
+          category: 'Dharma Insights',
+          reflection: 'Understanding righteous action in daily life',
+        ),
+        createTestJournalEntry(
+          id: 'offline-2', 
+          category: 'Karma Reflections',
+          reflection: 'Learning to act without attachment to results',
+        ),
+        createTestJournalEntry(
+          id: 'offline-3',
+          category: 'Meditation Experiences',
+          reflection: 'Finding inner peace through regular practice',
+        ),
+      ];
+      
+      // Store entries locally
+      for (final entry in entries) {
+        await journalService.createEntry(entry);
+      }
+      
+      // Verify offline storage
+      final storedEntries = await journalService.fetchEntries();
+      expect(storedEntries.length, equals(3));
+      
+      // Test search functionality
+      final searchResults = journalService.searchEntries('meditation');
+      expect(searchResults.length, equals(1));
+      expect(searchResults.first.category, equals('Meditation Experiences'));
+      
+      // Test category filtering
+      final dharmaEntries = storedEntries.where((e) => e.category == 'Dharma Insights').toList();
+      expect(dharmaEntries.length, equals(1));
+      
+      // Test statistics
+      expect(journalService.totalEntries, equals(3));
+      expect(journalService.averageRating, greaterThan(0.0));
     });
   });
 

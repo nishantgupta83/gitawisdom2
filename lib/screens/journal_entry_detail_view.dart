@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/journal_entry.dart';
 import '../main.dart';
+import '../l10n/app_localizations.dart';
 
 class JournalEntryDetailView extends StatelessWidget {
   final JournalEntry entry;
@@ -9,6 +10,7 @@ class JournalEntryDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
     final formattedDate = entry.dateCreated.toLocal().toIso8601String().split('T').first;
     
     return Scaffold(
@@ -34,7 +36,7 @@ class JournalEntryDetailView extends StatelessWidget {
                         child: Column(
                           children: [
                             Text(
-                              'JOURNAL ENTRY',
+                              localizations.journalEntry,
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
@@ -43,7 +45,7 @@ class JournalEntryDetailView extends StatelessWidget {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              'Reflection from $formattedDate',
+                              localizations.reflectionFrom(formattedDate),
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -109,12 +111,27 @@ class JournalEntryDetailView extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
-                                    'Written on $formattedDate',
+                                    localizations.writtenOn(formattedDate),
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       color: theme.colorScheme.primary,
                                       fontWeight: FontWeight.w500,
                                     ),
                                     textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.secondary.withOpacity(0.2),
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    child: Text(
+                                      entry.category,
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.secondary,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               ),

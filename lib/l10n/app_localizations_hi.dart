@@ -210,4 +210,105 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get reference3 => '• अन्य शैक्षणिक और पारंपरिक टिप्पणियाँ';
+
+  @override
+  String get myJournal => 'मेरी डायरी';
+
+  @override
+  String get trackSpiritual => 'अपने आध्यात्मिक चिंतन और विकास को ट्रैक करें';
+
+  @override
+  String get noJournalEntries => 'अभी तक कोई डायरी प्रविष्टि नहीं है';
+
+  @override
+  String get tapPlusButton => 'अपना पहला चिंतन बनाने के लिए + बटन दबाएं';
+
+  @override
+  String get addJournalEntry => 'डायरी प्रविष्टि जोड़ें';
+
+  @override
+  String get readMore => 'और पढ़ें';
+
+  @override
+  String get failedToSaveEntry => 'डायरी प्रविष्टि सहेजने में विफल';
+
+  @override
+  String get journalEntry => 'डायरी प्रविष्टि';
+
+  @override
+  String reflectionFrom(String date) {
+    return '$date का चिंतन';
+  }
+
+  @override
+  String writtenOn(String date) {
+    return '$date को लिखा गया';
+  }
+
+  @override
+  String get newJournalEntry => 'नई डायरी प्रविष्टि';
+
+  @override
+  String get yourReflection => 'आपका चिंतन';
+
+  @override
+  String get category => 'श्रेणी';
+
+  @override
+  String get rating => 'रेटिंग';
+
+  @override
+  String get cancel => 'रद्द करें';
+
+  @override
+  String get save => 'सहेजें';
+
+  @override
+  String get categoryGeneral => 'सामान्य';
+
+  @override
+  String get categoryPersonalGrowth => 'व्यक्तिगत विकास';
+
+  @override
+  String get categoryMeditation => 'ध्यान';
+
+  @override
+  String get categoryDailyReflection => 'दैनिक चिंतन';
+
+  @override
+  String get categoryScenarioWisdom => 'परिस्थिति ज्ञान';
+
+  @override
+  String get categoryChapterInsights => 'अध्याय अंतर्दृष्टि';
+
+  @override
+  String get journalEntrySaved => 'डायरी प्रविष्टि सहेजी गई!';
+
+  @override
+  String get deleteEntry => 'प्रविष्टि हटाएं';
+
+  @override
+  String get delete => 'हटाएं';
+
+  @override
+  String get deleteConfirmation =>
+      'क्या आप वाकई इस डायरी प्रविष्टि को हटाना चाहते हैं? यह कार्य वापस नहीं लिया जा सकता।';
+
+  @override
+  String get entryDeleted => 'डायरी प्रविष्टि हटा दी गई';
+
+  @override
+  String get undo => 'पूर्ववत करें';
+
+  @override
+  String get entryRestored => 'डायरी प्रविष्टि बहाल की गई';
+
+  @override
+  String get failedToRestoreEntry => 'प्रविष्टि बहाल करने में असफल';
+
+  @override
+  String get failedToDeleteEntry => 'प्रविष्टि हटाने में असफल';
+
+  @override
+  String get pleaseSelectRating => 'कृपया एक रेटिंग चुनें';
 }
