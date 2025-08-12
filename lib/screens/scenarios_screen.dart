@@ -42,9 +42,15 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       // Map tags to comprehensive filter categories with intelligent matching
       // Create a dummy scenario to test tag matching
       final testScenario = Scenario(
-        title: '', description: '', heartResponse: '', dutyResponse: '', 
-        gitaWisdom: '', chapter: 1, category: '', tags: [widget.filterTag!],
-        createdAt: DateTime.now()
+        title: '',
+        description: '',
+        category: '',
+        chapter: 1,
+        heartResponse: '',
+        dutyResponse: '',
+        gitaWisdom: '',
+        tags: [widget.filterTag!],
+        createdAt: DateTime.now(),
       );
       
       // Use helper methods to determine best category match
