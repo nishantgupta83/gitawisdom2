@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import '../models/scenario.dart';
 import '../services/supabase_service.dart';
 import '../services/scenario_service.dart';
+// import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import 'scenario_detail_view.dart';
-import '../main.dart';
 import '../l10n/app_localizations.dart';
 
 class ScenariosScreen extends StatefulWidget {
@@ -21,10 +21,11 @@ class ScenariosScreen extends StatefulWidget {
 class _ScenariosScreenState extends State<ScenariosScreen> {
   final SupabaseService _service = SupabaseService();
   final ScenarioService _scenarioService = ScenarioService.instance;
+  // final FavoritesService _favoritesService = FavoritesService.instance; // COMMENTED OUT: User-specific features disabled
   List<Scenario> _scenarios = [];
   List<Scenario> _allScenarios = []; // Cache all scenarios for instant filtering
   String _search = '';
-  String? _selectedTag;
+  String _selectedFilter = 'All'; // Top-level filter: All, Favorite, Teenager, Parents
   int? _selectedChapter; // Add chapter filter state
   bool _isLoading = true;
   Timer? _debounceTimer;
@@ -33,12 +34,36 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   @override
   void initState() {
     super.initState();
-    _selectedTag = widget.filterTag;
     _selectedChapter = widget.filterChapter;
-    // Clear other filters when chapter filter is active
-    if (_selectedChapter != null) {
-      _selectedTag = null; // Clear tag filter when filtering by chapter
+    
+    
+    // Set initial filter based on any existing tag
+    if (widget.filterTag != null) {
+      // Map tags to comprehensive filter categories with intelligent matching
+      // Create a dummy scenario to test tag matching
+      final testScenario = Scenario(
+        title: '', description: '', heartResponse: '', dutyResponse: '', 
+        gitaWisdom: '', chapter: 1, category: '', tags: [widget.filterTag!],
+        createdAt: DateTime.now()
+      );
+      
+      // Use helper methods to determine best category match
+      if (_matchesLifeStages(testScenario)) {
+        _selectedFilter = 'Life Stages';
+      } else if (_matchesRelationships(testScenario)) {
+        _selectedFilter = 'Relationships';
+      } else if (_matchesCareerWork(testScenario)) {
+        _selectedFilter = 'Career & Work';
+      } else if (_matchesPersonalGrowth(testScenario)) {
+        _selectedFilter = 'Personal Growth';
+      } else if (_matchesModernLife(testScenario)) {
+        _selectedFilter = 'Modern Life';
+      } else {
+        // For unmatched tags, use custom filter approach
+        _selectedFilter = 'Tag:${widget.filterTag}'; // Custom tag filter
+      }
     }
+    
     _loadScenarios();
   }
 
@@ -52,44 +77,218 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   Future<void> _loadScenarios() async {
     setState(() => _isLoading = true);
     try {
-      // Load all scenarios from cache (instant after first load)
-      final allScenarios = await _scenarioService.getAllScenarios();
-      
-      setState(() {
-        _allScenarios = allScenarios;
-        _scenarios = _filterScenarios(allScenarios);
-      });
-      
-      // Start background sync if needed (non-blocking)
-      _scenarioService.backgroundSync();
+      // If a specific chapter is requested, fetch scenarios directly from Supabase for that chapter
+      if (_selectedChapter != null) {
+        final chapterScenarios = await _service.fetchScenariosByChapter(_selectedChapter!);
+        
+        setState(() {
+          _allScenarios = chapterScenarios;
+          _scenarios = chapterScenarios; // No additional filtering needed for chapter-specific load
+        });
+      } else {
+        // Load all scenarios from cache (instant after first load)
+        final allScenarios = await _scenarioService.getAllScenarios();
+        
+        setState(() {
+          _allScenarios = allScenarios;
+          _scenarios = _filterScenarios(allScenarios);
+        });
+        
+        // Start background sync if needed (non-blocking)
+        _scenarioService.backgroundSync();
+      }
       
     } catch (e) {
-      debugPrint('Error loading scenarios: $e');
       // Keep existing scenarios on error
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
   
-  /// Filter scenarios based on search, selected tag, and chapter
+  /// Filter scenarios based on search, selected filter, and chapter
+  /// Handles ALL filtering scenarios: search, chapter, tags, categories, etc.
   List<Scenario> _filterScenarios(List<Scenario> scenarios) {
-    List<Scenario> filtered = scenarios;
+    // Start with the input scenarios
+    List<Scenario> filtered = List.from(scenarios);
     
-    // Apply search filter
-    if (_search.trim().isNotEmpty) {
-      filtered = _scenarioService.searchScenarios(_search.trim());
-    }
-    
-    // Apply chapter filter (takes priority)
+    // STEP 1: Apply chapter filter first (highest priority - overrides everything except search)
     if (_selectedChapter != null) {
       filtered = filtered.where((s) => s.chapter == _selectedChapter).toList();
+      
+      // STEP 2: Apply search within chapter scenarios if search exists
+      if (_search.trim().isNotEmpty) {
+        filtered = filtered.where((s) => 
+          s.title.toLowerCase().contains(_search.toLowerCase()) ||
+          s.description.toLowerCase().contains(_search.toLowerCase()) ||
+          s.category.toLowerCase().contains(_search.toLowerCase()) ||
+          s.gitaWisdom.toLowerCase().contains(_search.toLowerCase()) ||
+          (s.tags?.any((tag) => tag.toLowerCase().contains(_search.toLowerCase())) ?? false)
+        ).toList();
+      }
     }
-    // Apply tag filter only if no chapter filter
-    else if (_selectedTag != null) {
-      filtered = filtered.where((s) => s.tags?.contains(_selectedTag) ?? false).toList();
+    // STEP 1 ALT: No chapter filter, so apply other filters
+    else {
+      // STEP 2: Apply search filter first (if exists)
+      if (_search.trim().isNotEmpty) {
+        filtered = _scenarioService.searchScenarios(_search.trim());
+      }
+      
+      // STEP 3: Apply category/tag filters to search results (or all scenarios if no search)
+      switch (_selectedFilter) {
+        case 'Life Stages':
+          filtered = filtered.where((s) =>
+            _matchesLifeStages(s) || _matchesCategory(s, ['new parents', 'parenting', 'pregnancy', 'education'])
+          ).toList();
+          break;
+          
+        case 'Relationships':
+          filtered = filtered.where((s) => 
+            _matchesRelationships(s) || _matchesCategory(s, ['relationships', 'family', 'friendships'])
+          ).toList();
+          break;
+          
+        case 'Career & Work':
+          filtered = filtered.where((s) =>
+            _matchesCareerWork(s) || _matchesCategory(s, ['career', 'business', 'work', 'workplace', 'finances'])
+          ).toList();
+          break;
+          
+        case 'Personal Growth':
+          filtered = filtered.where((s) =>
+            _matchesPersonalGrowth(s) || _matchesCategory(s, ['personal', 'spiritual', 'life direction', 'ethics', 'mental health', 'mentalHealth'])
+          ).toList();
+          break;
+          
+        case 'Modern Life':
+          filtered = filtered.where((s) =>
+            _matchesModernLife(s) || _matchesCategory(s, ['social', 'social pressure', 'digital', 'modern life', 'lifestyle', 'living situation'])
+          ).toList();
+          break;
+          
+        case 'All':
+          // No additional filtering for 'All' - show all results from search (if any)
+          break;
+          
+        default:
+          // STEP 4: Handle custom tag filters (Tag:tagname format)
+          if (_selectedFilter.startsWith('Tag:')) {
+            final tagName = _selectedFilter.substring(4); // Remove 'Tag:' prefix
+            filtered = filtered.where((s) => 
+              s.tags?.any((tag) => tag.toLowerCase().contains(tagName.toLowerCase())) ?? false
+            ).toList();
+          }
+          // STEP 5: Handle legacy filter names for backward compatibility
+          else if (_selectedFilter == 'Parenting') {
+            filtered = filtered.where((s) => _matchesLifeStages(s)).toList();
+          }
+          else if (_selectedFilter == 'Family') {
+            filtered = filtered.where((s) => _matchesRelationships(s)).toList();
+          }
+          // STEP 6: Handle any other unknown filter types
+          else if (_selectedFilter != 'All') {
+            filtered = filtered.where((s) => 
+              s.tags?.any((tag) => tag.toLowerCase().contains(_selectedFilter.toLowerCase())) ?? false ||
+              s.category.toLowerCase().contains(_selectedFilter.toLowerCase())
+            ).toList();
+          }
+          break;
+      }
     }
     
     return filtered;
+  }
+  
+  /// Helper method to check if scenario matches life stages categories
+  bool _matchesLifeStages(Scenario s) {
+    final lifeStageKeywords = [
+      // Parenting & Children
+      'parenting', 'parent', 'parents', 'child', 'children', 'kids', 'baby', 'toddler', 'teenager', 'teens',
+      'pregnancy', 'pregnant', 'new parents', 'first-time parent', 'twins', 'siblings', 'newborn',
+      'daycare', 'education', 'school', 'student', 'learning', 'feeding', 'sleep', 'development',
+      // Life stages
+      'newly_married', 'joint family', 'empty nest', 'birth', 'breastfeeding', 'postpartum'
+    ];
+    
+    return s.tags?.any((tag) => lifeStageKeywords.any((keyword) => 
+      tag.toLowerCase().contains(keyword.toLowerCase())
+    )) ?? false;
+  }
+  
+  /// Helper method to check if scenario matches relationships categories
+  bool _matchesRelationships(Scenario s) {
+    final relationshipKeywords = [
+      // Relationships
+      'relationships', 'relationship', 'relation', 'dating', 'romance', 'love', 'partner', 'couple',
+      'marriage', 'married', 'spouse', 'wedding', 'engagement', 'breakup', 'ex-partner', 'cheating',
+      // Family
+      'family', 'relatives', 'in-laws', 'mother-in-law', 'father-in-law', 'sister-in-law', 'brother-in-law',
+      'grandparents', 'extended family', 'traditions', 'household', 'home', 'domestic',
+      // Friendships
+      'friendship', 'friends', 'social', 'connection', 'intimacy', 'communication', 'trust'
+    ];
+    
+    return s.tags?.any((tag) => relationshipKeywords.any((keyword) => 
+      tag.toLowerCase().contains(keyword.toLowerCase())
+    )) ?? false;
+  }
+  
+  /// Helper method to check if scenario matches career & work categories
+  bool _matchesCareerWork(Scenario s) {
+    final careerKeywords = [
+      // Career & Work
+      'career', 'job', 'work', 'workplace', 'professional', 'business', 'entrepreneurship', 'startup',
+      'employment', 'office', 'colleague', 'boss', 'authority', 'leadership', 'performance',
+      // Finance
+      'money', 'financial', 'finances', 'budget', 'salary', 'income', 'debt', 'loans', 'expenses',
+      'investment', 'saving', 'spending', 'housing', 'rent', 'mortgage', 'insurance'
+    ];
+    
+    return s.tags?.any((tag) => careerKeywords.any((keyword) => 
+      tag.toLowerCase().contains(keyword.toLowerCase())
+    )) ?? false;
+  }
+  
+  /// Helper method to check if scenario matches personal growth categories
+  bool _matchesPersonalGrowth(Scenario s) {
+    final growthKeywords = [
+      // Personal Development
+      'personal', 'growth', 'purpose', 'identity', 'self-care', 'confidence', 'self-doubt', 'self-worth',
+      'values', 'authenticity', 'boundaries', 'balance', 'change', 'transformation', 'goals',
+      // Mental Health
+      'mental health', 'anxiety', 'depression', 'stress', 'therapy', 'emotional', 'emotions',
+      'burnout', 'exhaustion', 'wellness', 'mindfulness', 'healing',
+      // Spiritual
+      'spiritual', 'spirituality', 'meditation', 'wisdom', 'enlightenment', 'consciousness',
+      'detachment', 'dharma', 'karma', 'service', 'duty', 'ethics', 'morals'
+    ];
+    
+    return s.tags?.any((tag) => growthKeywords.any((keyword) => 
+      tag.toLowerCase().contains(keyword.toLowerCase())
+    )) ?? false;
+  }
+  
+  /// Helper method to check if scenario matches modern life categories
+  bool _matchesModernLife(Scenario s) {
+    final modernKeywords = [
+      // Technology & Digital
+      'technology', 'digital', 'social media', 'internet', 'online', 'apps', 'screen time',
+      'comparison', 'fomo', 'influencers', 'networking',
+      // Modern Challenges
+      'modern', 'contemporary', 'lifestyle', 'urban', 'climate', 'environment', 'sustainability',
+      'travel', 'vacation', 'experiences', 'adventure', 'hobbies', 'entertainment',
+      // Social Pressure
+      'pressure', 'expectations', 'judgment', 'criticism', 'peer pressure', 'status', 'image',
+      'celebration', 'events', 'parties', 'gifts', 'holidays', 'traditions'
+    ];
+    
+    return s.tags?.any((tag) => modernKeywords.any((keyword) => 
+      tag.toLowerCase().contains(keyword.toLowerCase())
+    )) ?? false;
+  }
+  
+  /// Helper method to check if scenario matches specific categories
+  bool _matchesCategory(Scenario s, List<String> categories) {
+    return categories.contains(s.category.toLowerCase());
   }
 
   void _onSearchChanged(String query) {
@@ -100,9 +299,11 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     });
   }
 
-  List<String> get _tags {
-    // Use cached service method for all available tags
-    return _scenarioService.getAllTags();
+  void _onFilterChanged(String filter) {
+    setState(() {
+      _selectedFilter = filter;
+      _scenarios = _filterScenarios(_allScenarios);
+    });
   }
 
 
@@ -212,8 +413,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     ),
                   ),
 
-                  // Chapter Filter Clear Button
-                  if (_selectedChapter != null)
+                  // Chapter/Tag Filter Clear Button
+                  if (_selectedChapter != null || _selectedFilter.startsWith('Tag:'))
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                       child: Row(
@@ -224,7 +425,11 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              'Showing scenarios for Chapter $_selectedChapter',
+                              _selectedChapter != null
+                                  ? 'Showing scenarios for Chapter $_selectedChapter'
+                                  : _selectedFilter.startsWith('Tag:')
+                                      ? 'Showing scenarios tagged with "${_selectedFilter.substring(4)}"'
+                                      : 'Showing $_selectedFilter scenarios',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.primary,
                                 fontWeight: FontWeight.w500,
@@ -235,8 +440,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                             onPressed: () {
                               setState(() {
                                 _selectedChapter = null;
-                                _scenarios = _filterScenarios(_allScenarios);
+                                _selectedFilter = 'All';
                               });
+                              _loadScenarios(); // Reload all scenarios
                             },
                             child: Text(
                               'Show All',
@@ -250,13 +456,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       ),
                     ),
 
-                  // Tag Pills Row (hidden when chapter filter is active)
-                  if (_selectedChapter == null)
-                    _tagPillsRow(
-                    _tags,
-                    _selectedTag,
-                    (tag) => setState(() => _selectedTag = tag),
-                  ),
+                  // Filter Buttons Row (hidden when chapter filter or custom tag filter is active)
+                  if (_selectedChapter == null && !_selectedFilter.startsWith('Tag:'))
+                    _buildFilterButtons(),
 
                   // Scenario List
                   Padding(
@@ -350,7 +552,6 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     // Compact button to prevent overflow
                     TextButton(
                       onPressed: () {
-                        debugPrint('🔍 Navigating to scenario detail: ${scenario.title}');
                         // Navigate normally to preserve bottom navigation
                         Navigator.push(
                           context,
@@ -384,71 +585,41 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   }
 
 
-  Widget _tagPillsRow(List<String> tags, String? selectedTag, ValueChanged<String?> onTapTag) {
+  Widget _buildFilterButtons() {
     final theme = Theme.of(context);
-    const int showCount = 3;
-    final totalCount = tags.length;
-
-    // Always start with ALL
-    final pills = <Widget>[
-      Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: ChoiceChip(
-          label: Text('All', style: theme.textTheme.labelMedium),
-          selected: selectedTag == null,
-          onSelected: (_) => onTapTag(null),
-        ),
-      ),
-    ];
-
-    // Then up to 3 tags
-    for (var i = 0; i < totalCount && i < showCount; ++i) {
-      final tag = tags[i];
-      pills.add(
-        Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: ChoiceChip(
-            label: Text('#$tag', style: theme.textTheme.labelMedium),
-            selected: selectedTag == tag,
-            onSelected: (_) => onTapTag(tag),
-          ),
-        ),
-      );
-    }
-    // "+N" chip for more tags
-    if (totalCount > showCount) {
-      final moreCount = totalCount - showCount;
-      pills.add(
-        ActionChip(
-          label: Text('+$moreCount', style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onPrimary)),
-          backgroundColor: theme.colorScheme.primary,
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: theme.colorScheme.surface,
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(18))),
-              builder: (_) => ListView(
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 14),
-                children: tags.map((tag) => ListTile(
-                  title: Text('#$tag', style: theme.textTheme.bodyMedium),
-                  selected: selectedTag == tag,
-                  onTap: () {
-                    Navigator.pop(context);
-                    onTapTag(tag);
-                  },
-                )).toList(),
-              ),
-            );
-          },
-        ),
-      );
-    }
+    final filters = ['All', 'Life Stages', 'Relationships', 'Career & Work', 'Personal Growth', 'Modern Life']; // Comprehensive category groupings
+    
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-      child: Row(children: pills),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Row(
+        children: filters.map((filter) {
+          final isSelected = _selectedFilter == filter;
+          // Removed favorite-specific UI since user-specific features are disabled
+          
+          return Padding(
+            padding: const EdgeInsets.only(right: 12),
+            child: FilterChip(
+              label: Text(
+                filter,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: isSelected 
+                    ? theme.colorScheme.onPrimary 
+                    : theme.colorScheme.onSurface,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+              ),
+              selected: isSelected,
+              onSelected: (_) => _onFilterChanged(filter),
+              selectedColor: theme.colorScheme.primary,
+              backgroundColor: theme.colorScheme.surface.withOpacity(0.7),
+              checkmarkColor: theme.colorScheme.onPrimary,
+              elevation: isSelected ? 4 : 1,
+              shadowColor: theme.colorScheme.primary.withOpacity(0.3),
+            ),
+          );
+        }).toList(),
+      ),
     );
   }
 

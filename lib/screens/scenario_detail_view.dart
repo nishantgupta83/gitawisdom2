@@ -6,7 +6,7 @@ import '../screens/scenarios_screen.dart';
 import '../screens/new_journal_entry_dialog.dart';
 import '../services/journal_service.dart';
 import '../main.dart';
-import '../services/favorites_service.dart';
+// import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import '../l10n/app_localizations.dart';
 
 class ScenarioDetailView extends StatefulWidget {
@@ -22,15 +22,17 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
   final ScrollController _ctrl = ScrollController();
   final GlobalKey _actionsKey = GlobalKey();
   bool _showActions = false;
-  bool _isFavorited = false;
-  bool _favoriteLoading = false;
+  // bool _isFavorited = false; // COMMENTED OUT: User-specific features disabled
+  // bool _favoriteLoading = false; // COMMENTED OUT: User-specific features disabled
 
   @override
   void initState() {
     super.initState();
-    _loadFavoriteStatus();
+    // _loadFavoriteStatus(); // COMMENTED OUT: User-specific features disabled
   }
 
+  // COMMENTED OUT: User-specific features disabled
+  /*
   /// Load favorite status from service
   void _loadFavoriteStatus() {
     setState(() {
@@ -72,7 +74,10 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
       }
     }
   }
+  */
 
+  // COMMENTED OUT: User-specific journal features disabled
+  /*
   /// Open journal entry dialog with scenario context
   void _showJournalDialog() {
     showDialog(
@@ -106,6 +111,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
       ),
     );
   }
+  */
 
   void _revealActions() {
     setState(() => _showActions = true);
@@ -186,6 +192,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                             ),
                           ),
                           const SizedBox(width: 12),
+                          // COMMENTED OUT: User-specific favorites feature disabled
+                          /*
                           // Heart favorite button with fixed size to prevent layout shifts
                           SizedBox(
                             width: 48,
@@ -219,6 +227,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                                     ),
                             ),
                           ),
+                          */
                         ],
                       ),
                     ),
@@ -244,7 +253,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             // Floating navigation buttons with higher z-index
             Positioned(
               top: 26,
-              right: 144,
+              right: 84, // Moved to where journal button was to close the gap
               child: Material(
                 elevation: 12,
                 shape: CircleBorder(),
@@ -252,12 +261,13 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 child: _glowingNavButton(
                   icon: Icons.arrow_back,
                   onTap: () {
-                    debugPrint('🔙 Back button tapped');
                     Navigator.of(context).pop();
                   },
                 ),
               ),
             ),
+            // COMMENTED OUT: User-specific journal features disabled
+            /*
             // Journal This button
             Positioned(
               top: 26,
@@ -269,6 +279,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 child: _glowingJournalButton(),
               ),
             ),
+            */
             Positioned(
               top: 26,
               right: 24,
@@ -279,7 +290,6 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 child: _glowingNavButton(
                   icon: Icons.home,
                   onTap: () {
-                    debugPrint('🏠 Home button tapped');
                     // Return to existing root without creating new navigation stack
                     Navigator.of(context).popUntil((route) => route.isFirst);
                   },
@@ -666,6 +676,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         ),
       );
 
+  // COMMENTED OUT: User-specific journal features disabled
+  /*
   Widget _glowingJournalButton() =>
       Container(
         decoration: BoxDecoration(
@@ -693,4 +705,5 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           ),
         ),
       );
+  */
 }

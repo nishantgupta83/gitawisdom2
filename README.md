@@ -215,7 +215,7 @@ Navigation Paths:
 • Rich content with expandable sections
 ```
 
-#### 🎯 **Scenarios Screen Flow**
+#### 🎯 **Scenarios Screen Flow** (Updated with Bulletproof Filtering)
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                        SCENARIOS SCREEN                            │
@@ -225,9 +225,11 @@ Navigation Paths:
 │  │  "Apply Gita wisdom to real-world situations"                │  │
 │  └───────────────────────────────────────────────────────────────┘  │
 │                                                                     │
-│  ┌─ Filter Bar ──────────────────────────────────────────────────┐  │
-│  │  [All] [Work] [Family] [Relationships] [Stress] [Decisions]  │  │
-│  │  🔍 Search scenarios by keywords or tags                      │  │
+│  ┌─ Advanced Filter System ─────────────────────────────────────┐  │
+│  │  [All] [Life Stages] [Relationships] [Career & Work]        │  │
+│  │  [Personal Growth] [Modern Life]                             │  │
+│  │  🔍 Advanced Search: "parenting stress" "work life balance"  │  │
+│  │  • Compound queries • Cross-field matching • Tag mapping    │  │
 │  └───────────────────────────────────────────────────────────────┘  │
 │                                                                     │
 │  ┌─ Scenario List ───────────────────────────────────────────────┐  │
@@ -250,11 +252,14 @@ Navigation Paths:
 └─────────────────────────────────────────────────────────────────────┘
 
 Features:
-• Filter scenarios by category/chapter/tags
+• **Bulletproof filtering** with 5 comprehensive categories automatically mapping 699+ scenarios
+• **Advanced search** with compound queries ("work stress", "family duty")
+• **Smart tag matching** using extensive keyword libraries for precise categorization
+• **Chapter-specific filtering** with seamless navigation integration
+• **Future-proof design** automatically handles new scenario categories
 • Expandable text with "Read more" functionality  
 • Chapter reference for each scenario
 • Tap any scenario → Scenario Detail View with full guidance
-• Search functionality for finding specific situations
 ```
 
 #### 🎯 **Scenario Detail View Flow**
@@ -520,8 +525,79 @@ scenarios (Box<Scenario>) - Cached for instant search
 └── actionSteps (List<String>)
 ```
 
+### 🎯 Advanced Filtering System Architecture
+
+#### Category Mapping System
+```
+GitaWisdom Filtering Architecture
+├── 🧬 Life Stages
+│   ├── Parenting (new parents, twins, daycare, discipline)
+│   ├── Pregnancy (prenatal, medical decisions, family planning)
+│   ├── Education (student struggles, career choices, learning)
+│   └── Family Transitions (newly married, joint family, elderly care)
+│
+├── 💕 Relationships  
+│   ├── Dating & Romance (apps, ghosting, commitment, breakups)
+│   ├── Marriage (communication, conflict, expectations, intimacy)
+│   ├── Family Dynamics (in-laws, traditions, boundaries, loyalty)
+│   └── Friendships (adult connections, social changes, support)
+│
+├── 💼 Career & Work
+│   ├── Professional Growth (advancement, skills, networking, leadership)
+│   ├── Workplace Challenges (harassment, toxic culture, ethics, boundaries)
+│   ├── Entrepreneurship (startups, risk management, business decisions)
+│   └── Financial Management (budgeting, debt, investments, security)
+│
+├── 🌱 Personal Growth
+│   ├── Mental Health (anxiety, depression, therapy, self-care, healing)
+│   ├── Spiritual Development (dharma, meditation, consciousness, service)
+│   ├── Identity & Purpose (life direction, self-discovery, authenticity)
+│   └── Personal Challenges (habits, addiction, change, resilience)
+│
+└── 🌐 Modern Life
+    ├── Digital & Technology (social media, screen time, online presence)
+    ├── Social Pressure (expectations, judgment, status, celebrations)
+    ├── Lifestyle Choices (travel, health, hobbies, minimalism)
+    └── Contemporary Issues (climate anxiety, cultural adaptation, modernity)
+```
+
+#### Search Intelligence Features
+```
+Advanced Search Capabilities
+├── 📝 Compound Queries
+│   ├── "parenting stress" → matches both keywords across all fields
+│   ├── "work life balance" → finds scenarios addressing professional equilibrium
+│   └── "family duty tradition" → locates multi-faceted cultural situations
+│
+├── 🔍 Cross-Field Matching
+│   ├── Title: Primary scenario identification
+│   ├── Description: Detailed situation context
+│   ├── Tags: Categorical keywords and labels  
+│   ├── Category: Broad classification groups
+│   ├── Gita Wisdom: Spiritual guidance content
+│   ├── Heart/Duty Responses: Emotional vs dharmic approaches
+│   └── Action Steps: Practical implementation guidance
+│
+├── 🏷️ Smart Tag Mapping
+│   ├── Automatic categorization using keyword libraries
+│   ├── 50+ life stage keywords (parenting, pregnancy, education)
+│   ├── 30+ relationship keywords (dating, marriage, family, friends)
+│   ├── 25+ career keywords (professional, business, financial, work)
+│   ├── 40+ growth keywords (mental health, spiritual, personal, identity)
+│   └── 35+ modern life keywords (digital, social, lifestyle, contemporary)
+│
+└── 🔄 Future-Proof Design
+    ├── Extensible keyword libraries for new categories
+    ├── Automatic tag-to-category intelligent mapping
+    ├── Graceful handling of unknown or new scenario types
+    └── Scalable architecture ready for content expansion
+```
 
 New Capabilities:
+- **Bulletproof filtering system** with comprehensive category mapping for 699+ scenarios
+- **Advanced compound search** functionality across all scenario fields
+- **Smart tag-to-category mapping** using extensive keyword libraries  
+- **Future-proof architecture** ready for new scenario categories
 - Scenario cache size monitoring
 - Scenario cache clearing functionality
 - Health checks and repair for scenario cache
@@ -636,6 +712,11 @@ flutter test test/integration_test.dart
 ## 🔧 Recent Bug Fixes & Improvements
 
 ### ✅ Latest Updates (January 2025)
+- **Bulletproof Filtering System** - Comprehensive scenario filtering with 5 major categories (Life Stages, Relationships, Career & Work, Personal Growth, Modern Life)
+- **Advanced Search Capabilities** - Compound search queries ("parenting stress", "work life balance") with intelligent matching
+- **Smart Category Mapping** - Automatic tag-to-category mapping using extensive keyword libraries for 699+ scenarios
+- **Production-Ready Optimization** - Removed debug statements, fixed compilation issues, enhanced performance
+- **Future-Proof Architecture** - Extensible filtering system ready for new scenario categories
 - **Fixed ListView rebuild assertion error** in journal screen that was causing crashes on Android
 - **Fixed bottom navigation bug** - "View Scenarios" button from chapter details now properly switches to scenarios tab
 - **Enhanced responsive design** - Improved pixel overflow handling for large text settings
@@ -645,6 +726,10 @@ flutter test test/integration_test.dart
 - **Navigation flow improvements** - Seamless chapter-to-scenarios navigation with proper filtering
 
 ### 🐛 Known Issues Resolved
+- ✅ **Comprehensive filtering system** - All scenario categories and tags now properly handled
+- ✅ **Search functionality** - Advanced compound searches work across all scenario fields  
+- ✅ **Category navigation** - Intelligent tag-to-category mapping for seamless user experience
+- ✅ **Performance optimization** - Production-ready code with clean compilation
 - ✅ ListView rebuild errors on Android devices
 - ✅ Bottom navigation not switching when navigating from chapters to scenarios  
 - ✅ Pixel overflow issues with large text accessibility settings
@@ -693,8 +778,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Email**: support@gitawisdom.app
-- **Website**: [https://gitawisdom.app](https://gitawisdom.app)  
+- **Email**: support@hub4apps.com
+- **Website**: [https://hub4apps.com/](https://hub4apps.com/)  
 - **Issues**: [GitHub Issues](https://github.com/your-username/GitaWisdom/issues)
 
 ---

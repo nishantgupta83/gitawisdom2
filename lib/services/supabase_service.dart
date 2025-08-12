@@ -57,11 +57,13 @@ class SupabaseService {
           .select()
           .eq('sc_chapter', chapterId);
       final data = response as List;
-      return data
+      
+      final scenarios = data
           .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
           .toList();
+      
+      return scenarios;
     } catch (e) {
-      print('Error fetching scenarios for chapter $chapterId: $e');
       return [];
     }
   }
