@@ -53,11 +53,52 @@ void main() {
       await TestConfig.pumpWithSettle(tester);
 
       expect(find.byType(Scaffold), findsOneWidget);
-      expect(find.byType(AppBar), findsOneWidget);
       // Should have search functionality
       expect(find.byIcon(Icons.search), findsOneWidget);
       // Should have scenarios list
       expect(find.byType(ListView), findsOneWidget);
+      
+      // Should display new filter categories
+      expect(find.text('All'), findsOneWidget);
+      expect(find.text('Life Stages'), findsOneWidget);
+      expect(find.text('Relationships'), findsOneWidget);
+      expect(find.text('Career & Work'), findsOneWidget);
+      expect(find.text('Personal Growth'), findsOneWidget);
+      expect(find.text('Modern Life'), findsOneWidget);
+    });
+
+    testWidgets('ScenariosScreen with filterTag should map to correct category', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => SettingsService(),
+          child: TestConfig.wrapWithMaterialApp(
+            ScenariosScreen(filterTag: 'parenting'),
+          ),
+        ),
+      );
+
+      await TestConfig.pumpWithSettle(tester);
+
+      expect(find.byType(Scaffold), findsOneWidget);
+      // Should show filter indication for tagged scenarios
+      expect(find.textContaining('tagged with'), findsWidgets);
+    });
+
+    testWidgets('ScenariosScreen with filterChapter should show chapter filter', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ChangeNotifierProvider(
+          create: (_) => SettingsService(),
+          child: TestConfig.wrapWithMaterialApp(
+            ScenariosScreen(filterChapter: 2),
+          ),
+        ),
+      );
+
+      await TestConfig.pumpWithSettle(tester);
+
+      expect(find.byType(Scaffold), findsOneWidget);
+      // Should show chapter filter indication
+      expect(find.textContaining('Chapter 2'), findsWidgets);
     });
 
     testWidgets('JournalScreen displays journal entries', (WidgetTester tester) async {

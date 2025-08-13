@@ -79,23 +79,61 @@ class ScenarioService {
     }
   }
 
-  /// Search scenarios locally with instant results
+  /// Search scenarios locally with instant results and compound query support
   List<Scenario> searchScenarios(String query) {
     if (query.trim().isEmpty) {
       return _cachedScenarios;
     }
     
-    final searchLower = query.toLowerCase().trim();
-    final results = _cachedScenarios.where((scenario) {
-      return scenario.title.toLowerCase().contains(searchLower) ||
-             scenario.description.toLowerCase().contains(searchLower) ||
-             scenario.category.toLowerCase().contains(searchLower) ||
-             scenario.gitaWisdom.toLowerCase().contains(searchLower) ||
-             (scenario.tags?.any((tag) => tag.toLowerCase().contains(searchLower)) ?? false);
-    }).toList();
+    final results = _cachedScenarios.where((scenario) => 
+      _matchesSearchQuery(scenario, query.trim())
+    ).toList();
     
     debugPrint('🔍 Local search for "$query": ${results.length} results');
     return results;
+  }
+
+  /// Advanced search matching with compound query support
+  bool _matchesSearchQuery(Scenario s, String query) {
+    final lowerQuery = query.toLowerCase().trim();
+    
+    // Handle compound searches (e.g., "parenting stress", "work life balance")
+    final searchTerms = lowerQuery.split(' ').where((term) => term.length > 1).toList();
+    
+    // If single term, do simple search
+    if (searchTerms.length == 1) {
+      return _matchesSingleTerm(s, lowerQuery);
+    }
+    
+    // For compound searches, all terms should match somewhere in the scenario
+    return searchTerms.every((term) => _matchesSingleTerm(s, term));
+  }
+  
+  /// Single term matching across all scenario fields
+  bool _matchesSingleTerm(Scenario s, String term) {
+    // Search in title (highest priority)
+    if (s.title.toLowerCase().contains(term)) return true;
+    
+    // Search in description
+    if (s.description.toLowerCase().contains(term)) return true;
+    
+    // Search in category
+    if (s.category.toLowerCase().contains(term)) return true;
+    
+    // Search in tags
+    if (s.tags?.any((tag) => tag.toLowerCase().contains(term)) ?? false) return true;
+    
+    // Search in Gita wisdom content
+    if (s.gitaWisdom.toLowerCase().contains(term)) return true;
+    
+    // Search in heart/duty responses
+    if (s.heartResponse.toLowerCase().contains(term)) return true;
+    if (s.dutyResponse.toLowerCase().contains(term)) return true;
+    
+    // Search in action steps if available
+    if (s.actionSteps?.any((step) => step.toLowerCase().contains(term)) ?? false) return true;
+    
+    return false;
   }
 
   /// Filter scenarios by tag
@@ -177,8 +215,8 @@ class ScenarioService {
   /// Internal method to refresh from server
   Future<void> _refreshFromServer() async {
     try {
-      // Fetch all scenarios from server (no pagination limit for full cache)
-      final serverScenarios = await _supabaseService.fetchScenarios(limit: 1000);
+      // Fetch all scenarios from server (increased limit to handle current 699+ scenarios)
+      final serverScenarios = await _supabaseService.fetchScenarios(limit: 2000);
       
       if (serverScenarios.isNotEmpty) {
         // Clear existing cache and add new scenarios

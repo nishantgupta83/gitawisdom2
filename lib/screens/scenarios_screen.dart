@@ -325,7 +325,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       debugPrint('Error refreshing scenarios: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.failedToRefresh)),
+          SnackBar(content: Text(AppLocalizations.of(context)?.failedToRefresh ?? 'Failed to refresh')),
         );
       }
     } finally {
@@ -362,8 +362,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           children: [
                             Text(
                               _selectedChapter != null 
-                                  ? 'Chapter $_selectedChapter ${localizations!.scenarios}'
-                                  : localizations!.scenarios,
+                                  ? 'Chapter $_selectedChapter ${localizations?.scenarios ?? 'Scenarios'}'
+                                  : localizations?.scenarios ?? 'Scenarios',
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
@@ -374,7 +374,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                             Text(
                               _selectedChapter != null
                                   ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
-                                  : localizations.realWorldSituations,
+                                  : localizations?.realWorldSituations ?? 'Real-world situations guided by ancient wisdom',
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -393,7 +393,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       controller: _searchController,
                       onChanged: _onSearchChanged,
                       decoration: InputDecoration(
-                        hintText: localizations.searchScenarios,
+                        hintText: localizations?.searchScenarios ?? 'Search scenarios...',
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
@@ -481,7 +481,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.all(40),
                                   child: Text(
-                                    _search.isEmpty ? localizations.noScenariosAvailable : localizations.noScenariosMatch,
+                                    _search.isEmpty ? (localizations?.noScenariosAvailable ?? 'No scenarios available') : (localizations?.noScenariosMatch ?? 'No scenarios match your search'),
                                     style: theme.textTheme.bodyLarge?.copyWith(
                                       color: theme.colorScheme.onSurface.withOpacity(0.6),
                                     ),

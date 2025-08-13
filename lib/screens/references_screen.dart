@@ -14,7 +14,7 @@ class ReferencesScreen extends StatelessWidget {
 
       appBar: AppBar(
         backgroundColor: theme.colorScheme.surface,
-        title: Text(AppLocalizations.of(context)!.referencesTitle),
+        title: Text(AppLocalizations.of(context)?.referencesTitle ?? 'References'),
         centerTitle: true,
         elevation: 4,
       ),
@@ -29,17 +29,17 @@ class ReferencesScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  AppLocalizations.of(context)!.reference1,
+                  AppLocalizations.of(context)?.reference1 ?? 'Bhagavad-gītā As It Is by A.C. Bhaktivedanta Swami Prabhupāda',
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  AppLocalizations.of(context)!.reference2,
+                  AppLocalizations.of(context)?.reference2 ?? 'The Bhagavad Gita translated by Eknath Easwaran',
                   style: theme.textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  AppLocalizations.of(context)!.reference3,
+                  AppLocalizations.of(context)?.reference3 ?? 'The Bhagavad Gita translated by Barbara Stoler Miller',
                   style: theme.textTheme.bodyMedium,
                 ),
               ],

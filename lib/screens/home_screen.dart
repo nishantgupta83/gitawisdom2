@@ -1200,10 +1200,10 @@ import '../models/scenario.dart';
 import '../services/supabase_service.dart';
 import '../services/daily_verse_service.dart';
 import '../services/scenario_service.dart';
-import '../services/journal_service.dart';
+// import '../services/journal_service.dart'; // COMMENTED OUT: User-specific features disabled
 import '../services/settings_service.dart';
 import '../screens/scenario_detail_view.dart';
-import '../screens/new_journal_entry_dialog.dart';
+// import '../screens/new_journal_entry_dialog.dart'; // COMMENTED OUT: User-specific features disabled
 import '../l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -1319,7 +1319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: Column(
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.appTitle.toUpperCase(),
+                              (AppLocalizations.of(context)?.appTitle ?? 'Gitawisdom').toUpperCase(),
                               style: theme.textTheme.headlineMedium?.copyWith(
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.3,
@@ -1328,7 +1328,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              AppLocalizations.of(context)!.applyGitaTeaching,
+                              AppLocalizations.of(context)?.applyGitaTeaching ?? 'Apply Gita teaching to real-life situations',
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -1355,7 +1355,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             return _loadingCard(context);
                           }
                           if (snap.hasError || snap.data == null) {
-                            return _errorCard(AppLocalizations.of(context)!.errorLoadingData);
+                            return _errorCard(AppLocalizations.of(context)?.errorLoadingData ?? 'Error loading data');
                           }
                           final verses = snap.data!;
                           return PageView.builder(
@@ -1383,7 +1383,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          AppLocalizations.of(context)!.verseRefresher,
+                                          AppLocalizations.of(context)?.verseRefresher ?? 'Tap for new verse',
                                           style: theme.textTheme.titleMedium?.copyWith(
                                             fontWeight: FontWeight.bold,
                                             color: theme.colorScheme.primary,
@@ -1391,10 +1391,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                         const SizedBox(height: 12),
                                         Expanded(
-                                          child: Text(
-                                            v.description,
-                                            style: theme.textTheme.bodyMedium?.copyWith(
-                                              color: theme.colorScheme.onSurface,
+                                          child: SingleChildScrollView(
+                                            child: Text(
+                                              v.description,
+                                              style: theme.textTheme.bodyMedium?.copyWith(
+                                                color: theme.colorScheme.onSurface,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -1437,8 +1439,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   
-                  // Journal Reflection Widget
-                  _buildJournalReflectionWidget(theme),
+                  // COMMENTED OUT: User-specific journal features disabled
+                  // _buildJournalReflectionWidget(theme),
                 ],
               ),
             ),
@@ -1558,7 +1560,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Expanded(
                 child: Text(
-                  AppLocalizations.of(context)!.modernDilemma.toUpperCase(),
+                  (AppLocalizations.of(context)?.modernDilemma ?? 'Modern Dilemma').toUpperCase(),
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: theme.colorScheme.primary,
@@ -1715,7 +1717,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const Icon(Icons.auto_awesome, size: 18, color: Colors.white),
                 const SizedBox(width: 8),
                 Text(
-                  '🔮 ${AppLocalizations.of(context)!.showWisdom.toUpperCase()}',
+                  '🔮 ${(AppLocalizations.of(context)?.showWisdom ?? 'Show Wisdom').toUpperCase()}',
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -1731,6 +1733,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  // COMMENTED OUT: User-specific journal features disabled
+  /*
   Widget _buildJournalReflectionWidget(ThemeData theme) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
@@ -1818,7 +1822,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  */
 
+  // COMMENTED OUT: User-specific journal features disabled
+  /*
   Widget _buildJournalContent(ThemeData theme) {
     return FutureBuilder<List<dynamic>>(
       future: _getJournalContentData(),
@@ -1981,7 +1988,7 @@ class _HomeScreenState extends State<HomeScreen> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(AppLocalizations.of(context)!.journalEntrySaved ?? 'Journal entry saved!'),
+                  content: Text(AppLocalizations.of(context)?.journalEntrySaved ?? 'Journal entry saved!'),
                   backgroundColor: Colors.green,
                 ),
               );
@@ -2000,6 +2007,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+  */
 
   Widget _glowingNavButton({
     required IconData icon,
