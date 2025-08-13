@@ -533,6 +533,7 @@ class PlaceholderScreen extends StatelessWidget {
 // lib/main.dart
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -572,6 +573,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Set full-screen app layout - ensure app uses full device size
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+    statusBarColor: Colors.transparent,
+    statusBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Colors.transparent,
+    systemNavigationBarDividerColor: Colors.transparent,
+  ));
+
   try {
     // ✅ Critical initialization only - everything else will be lazy loaded
     Environment.validateConfiguration();
@@ -587,7 +597,6 @@ void main() async {
     Hive.init(appDocDir.path);
     await SettingsService.init();
 
-    debugPrint('🚀 GitaWisdom core initialized - starting app');
     runApp(const WisdomGuideApp());
 
   } catch (error, stackTrace) {
@@ -847,14 +856,14 @@ class WisdomGuideApp extends StatelessWidget {
       builder: (context, box, _) {
         final isDark = box.get(SettingsService.darkKey, defaultValue: false) as bool;
         final fontPref = box.get(SettingsService.fontKey, defaultValue: 'medium') as String;
-        final shadowEnabled = box.get(SettingsService.shadowKey, defaultValue: true) as bool;
-        final backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3) as double;
+        final shadowEnabled = box.get(SettingsService.shadowKey, defaultValue: false) as bool;
+        final backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 1.0) as double;
         final languageCode = box.get(SettingsService.langKey, defaultValue: 'en') as String;
         
         double textScale;
         switch (fontPref) {
-          case 'small':    textScale = 0.85; break;
-          case 'large':    textScale = 1.25; break;
+          case 'small':    textScale = 0.90; break; // Reduced scaling to prevent overflow
+          case 'large':    textScale = 1.05; break; // Reduced scaling to prevent overflow
           default:         textScale = 1.0;
         }
 
@@ -955,13 +964,62 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        // Full-screen background image
-        Image.asset('assets/images/app_bg.png', fit: BoxFit.cover),
-        // Centered SVG or Lottie animation placeholder
-      ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.transparent,
+      ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        extendBody: true,
+        body: SizedBox(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/app_bg.png'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: SafeArea(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // App logo or loading indicator
+                    const Icon(
+                      Icons.auto_stories,
+                      size: 80,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'GitaWisdom',
+                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        shadows: [
+                          const Shadow(
+                            offset: Offset(0, 2),
+                            blurRadius: 4,
+                            color: Colors.black54,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 40),
+                    const CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -995,6 +1053,7 @@ class _RootScaffoldState extends State<RootScaffold> {
   void initState() {
     super.initState();
     _instance = this;
+    _navigatorKeys = List.generate(5, (_) => GlobalKey<NavigatorState>());
     _initializePages();
   }
 
@@ -1003,7 +1062,7 @@ class _RootScaffoldState extends State<RootScaffold> {
       HomeScreen(onTabChange: _selectTab),
       ChapterScreen(),
       ScenariosScreen(filterChapter: _pendingChapterFilter),
-      JournalScreen(),
+    //  JournalScreen(),
       MoreScreen(),
     ];
   }
@@ -1015,20 +1074,35 @@ class _RootScaffoldState extends State<RootScaffold> {
 
   void _selectTab(int index) {
     if (index == _currentIndex) {
+      // If tapping same tab, pop to root
       _navigatorKeys[index].currentState?.popUntil((r) => r.isFirst);
     } else {
+      // Reset navigator state when switching tabs to prevent stale state
+      _navigatorKeys[index] = GlobalKey<NavigatorState>();
       setState(() => _currentIndex = index);
     }
   }
   
   void _goToScenariosWithChapter(int chapterId) {
+    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: chapterId=$chapterId');
     _pendingChapterFilter = chapterId;
+    
     // Recreate scenarios screen with new filter
     _pages[2] = ScenariosScreen(filterChapter: _pendingChapterFilter);
-    _selectTab(2); // Switch to scenarios tab (index 2)
+    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Created new ScenariosScreen with filterChapter=$_pendingChapterFilter');
+    
+    // Create a new navigator key to force the Navigator to rebuild with the new screen
+    _navigatorKeys[2] = GlobalKey<NavigatorState>();
+    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Created new navigator key for scenarios tab');
+    
+    // Trigger a rebuild to use the new ScenariosScreen instance
+    setState(() {
+      _currentIndex = 2; // Switch to scenarios tab (index 2)
+    });
+    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Switched to scenarios tab with setState');
   }
 
-  final _navigatorKeys = List.generate(5, (_) => GlobalKey<NavigatorState>());
+  late List<GlobalKey<NavigatorState>> _navigatorKeys;
 
   Widget _buildOffstageNavigator(int idx, Widget screen) {
     return Offstage(
@@ -1036,12 +1110,24 @@ class _RootScaffoldState extends State<RootScaffold> {
       child: Navigator(
         key: _navigatorKeys[idx],
         onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => screen),
+        // Add a unique key that changes when scenarios screen is updated
+        // This forces Navigator to rebuild when we change the scenarios screen
       ),
     );
   }
 
   Future<bool> _onWillPop() async {
-    final isFirst = !await _navigatorKeys[_currentIndex].currentState!.maybePop();
+    final navigatorState = _navigatorKeys[_currentIndex].currentState;
+    if (navigatorState == null) {
+      // If navigator state is null, just switch to home
+      if (_currentIndex != 0) {
+        setState(() => _currentIndex = 0);
+        return false;
+      }
+      return true;
+    }
+    
+    final isFirst = !await navigatorState.maybePop();
     if (isFirst) {
       if (_currentIndex != 0) {
         setState(() => _currentIndex = 0);
@@ -1067,7 +1153,7 @@ class _RootScaffoldState extends State<RootScaffold> {
             NavBarItem(icon: Icons.home, label: AppLocalizations.of(context)!.homeTab),
             NavBarItem(icon: Icons.menu_book, label: AppLocalizations.of(context)!.chaptersTab),
             NavBarItem(icon: Icons.list, label: AppLocalizations.of(context)!.scenariosTab),
-            NavBarItem(icon: Icons.book, label: AppLocalizations.of(context)!.journalTab),
+         //   NavBarItem(icon: Icons.book, label: AppLocalizations.of(context)!.journalTab),
             NavBarItem(icon: Icons.more_horiz, label: AppLocalizations.of(context)!.moreTab),
           ],
         ),

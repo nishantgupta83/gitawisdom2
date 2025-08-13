@@ -28,6 +28,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   String _selectedFilter = 'All'; // Top-level filter: All, Favorite, Teenager, Parents
   int? _selectedChapter; // Add chapter filter state
   bool _isLoading = true;
+  bool _hasNewContent = false;
+  int _totalScenarioCount = 0;
   Timer? _debounceTimer;
   final TextEditingController _searchController = TextEditingController();
 
@@ -98,10 +100,14 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         setState(() {
           _allScenarios = allScenarios;
           _scenarios = _filterScenarios(allScenarios);
+          _totalScenarioCount = allScenarios.length;
         });
         
         // Start background sync if needed (non-blocking)
         _scenarioService.backgroundSync();
+        
+        // Check for new content availability (non-blocking)
+        _checkForNewContent();
       }
       
     } catch (e) {
@@ -315,12 +321,25 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
   List<Scenario> get _filtered => _scenarios; // Already filtered by _filterScenarios
   
+  /// Check for new content availability
+  Future<void> _checkForNewContent() async {
+    try {
+      final hasNew = await _scenarioService.hasNewScenariosAvailable();
+      if (mounted && hasNew) {
+        setState(() => _hasNewContent = true);
+      }
+    } catch (e) {
+      debugPrint('Error checking for new content: $e');
+    }
+  }
+
   /// Force refresh from server
   Future<void> _refreshFromServer() async {
     setState(() => _isLoading = true);
     try {
       await _scenarioService.refreshFromServer();
       await _loadScenarios(); // Reload with fresh data
+      setState(() => _hasNewContent = false); // Reset new content indicator
     } catch (e) {
       debugPrint('Error refreshing scenarios: $e');
       if (mounted) {
@@ -378,6 +397,36 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                            ),
+                            // Scenario count indicator
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.primary.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: theme.colorScheme.primary.withOpacity(0.3),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.inventory, 
+                                    color: theme.colorScheme.primary, 
+                                    size: 16
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '$_totalScenarioCount scenarios available',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -597,7 +646,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(20, 8, 18, 8), // Reduced right padding to fix overflow
       child: Row(
         children: filters.map((filter) {
           final isSelected = _selectedFilter == filter;

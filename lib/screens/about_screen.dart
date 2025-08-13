@@ -23,8 +23,9 @@ class AboutScreen extends StatelessWidget {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
               // Made with... section at top
               Card(
                 color: theme.colorScheme.surface,
@@ -46,8 +47,7 @@ class AboutScreen extends StatelessWidget {
               const SizedBox(height: 16),
               
               // Main content in the middle
-              Expanded(
-                child: Card(
+              Card(
                   color: theme.colorScheme.surface,
                   child: Padding(
                     padding: const EdgeInsets.all(20),
@@ -129,7 +129,8 @@ class AboutScreen extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

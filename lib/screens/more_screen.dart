@@ -71,7 +71,7 @@ class _MoreScreenState extends State<MoreScreen> {
       'body': body,
     },*/
 
-   final url = 'mailto:hub4app@gmail.com?subject=$subject&body=$body';
+   final url = 'mailto:support@hub4apps.com?subject=$subject&body=$body';
 
  //);
 
@@ -278,12 +278,12 @@ void _showWebsiteQr() {
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: const Text('Privacy Policy'),
-            onTap: () => _launchUrl('https://hub4apps.com/privacy-policy'),
+            onTap: () => _launchUrl('https://hub4apps.com/#privacy'),
           ),
           ListTile(
             leading: const Icon(Icons.article_outlined),
             title: const Text('Terms of Service'),
-            onTap: () => _launchUrl('https://hub4apps.com/terms-and-conditions'),
+            onTap: () => _launchUrl('https://hub4apps.com/#terms'),
           ),
         ],
       ),
@@ -540,6 +540,20 @@ class _MoreScreenState extends State<MoreScreen> {
           padding: const EdgeInsets.fromLTRB (10,100,10,10),
           child: ListView(
             children: [
+              // Made with love section - moved to top and made bigger
+              const SizedBox(height: 20),
+              Center(
+                child: Text(
+                  'Made with ❤️ for spiritual seekers everywhere',
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 30),
+              
               _sectionTitle(localizations!.appearance),
               _settingTile(
                 title: localizations.darkMode,
@@ -598,23 +612,29 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
               ),
 
-              // Language Section
+              // Language Section - Reactive to changes
               _sectionTitle(localizations.language),
-              _settingTile(
-                title: localizations.appLanguage,
-                trailing: DropdownButton<String>(
-                  value: _currentLanguage,
-                  items: [
-                    DropdownMenuItem(value: 'en', child: Text(localizations.english)),
-                    DropdownMenuItem(value: 'es', child: Text(localizations.spanish)),
-                    DropdownMenuItem(value: 'hi', child: Text(localizations.hindi)),
-                  ],
-                  onChanged: (newLang) {
-                    if (newLang != null) {
-                      _changeLanguage(newLang);
-                    }
-                  },
-                ),
+              ValueListenableBuilder<Box>(
+                valueListenable: Hive.box(SettingsService.boxName).listenable(keys: [SettingsService.langKey]),
+                builder: (context, box, _) {
+                  final currentLang = box.get(SettingsService.langKey, defaultValue: 'en') as String;
+                  return _settingTile(
+                    title: localizations.appLanguage,
+                    trailing: DropdownButton<String>(
+                      value: currentLang,
+                      items: [
+                        DropdownMenuItem(value: 'en', child: Text(localizations.english)),
+                        DropdownMenuItem(value: 'es', child: Text(localizations.spanish)),
+                        DropdownMenuItem(value: 'hi', child: Text(localizations.hindi)),
+                      ],
+                      onChanged: (newLang) {
+                        if (newLang != null) {
+                          _changeLanguage(newLang);
+                        }
+                      },
+                    ),
+                  );
+                },
               ),
 
               _sectionTitle(localizations.storageAndCache),
@@ -734,7 +754,7 @@ class _MoreScreenState extends State<MoreScreen> {
 
                     final Uri emailLaunchUri = Uri(
                       scheme: 'mailto',
-                      path: 'support@gitawisdom.app',
+                      path: 'support@hub4apps.com',
                       query: 'subject=$subject&body=$body',
                     );
 
@@ -754,8 +774,7 @@ class _MoreScreenState extends State<MoreScreen> {
               const SizedBox(height: 40),
               Center(
                 child: Text(
-                  'Made with ❤️ for spiritual seekers everywhere'
-                      '\n                        App Version 1.0.0',
+                  'App Version 1.0.0',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
