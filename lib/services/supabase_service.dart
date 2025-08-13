@@ -157,6 +157,29 @@ class SupabaseService {
     }
   }
 
+  /// Get total scenario count from server
+  Future<int> getScenarioCount() async {
+    try {
+      // Use the correct Supabase count syntax
+      final response = await client
+          .from('scenarios')
+          .select('id')
+          .count();
+      return response.count;
+    } catch (e) {
+      debugPrint('Error getting scenario count: $e');
+      // Fallback: fetch a larger batch and count
+      try {
+        final scenarios = await fetchScenarios(limit: 2000);
+        debugPrint('📊 Fallback count: ${scenarios.length} scenarios');
+        return scenarios.length;
+      } catch (e2) {
+        debugPrint('Error with fallback scenario count: $e2');
+        return 0;
+      }
+    }
+  }
+
   /// Fetch all verses for a chapter
   Future<List<Verse>> fetchVersesByChapter(int chapterId) async {
     try {

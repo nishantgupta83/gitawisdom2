@@ -14,8 +14,8 @@ class ScenarioService {
   static const String boxName = 'scenarios';
   static const String lastSyncKey = 'last_sync_timestamp';
   
-  // Cache scenarios for 24 hours before background refresh
-  static const Duration cacheValidityDuration = Duration(hours: 24);
+  // Cache scenarios for 6 hours before background refresh (faster content updates)
+  static const Duration cacheValidityDuration = Duration(hours: 6);
   
   List<Scenario> _cachedScenarios = [];
   DateTime? _lastLocalFetch;
@@ -209,6 +209,24 @@ class ScenarioService {
     } catch (e) {
       debugPrint('❌ Error force refreshing scenarios: $e');
       rethrow;
+    }
+  }
+
+  /// Check if there are new scenarios available on server
+  Future<bool> hasNewScenariosAvailable() async {
+    try {
+      final currentCount = _cachedScenarios.length;
+      // Quick count check from server without downloading all data
+      final totalOnServer = await _supabaseService.getScenarioCount();
+      
+      final hasNew = totalOnServer > currentCount;
+      if (hasNew) {
+        debugPrint('🆕 New scenarios available: $currentCount cached vs $totalOnServer on server');
+      }
+      return hasNew;
+    } catch (e) {
+      debugPrint('❌ Error checking for new scenarios: $e');
+      return false;
     }
   }
 
