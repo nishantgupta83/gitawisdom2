@@ -234,6 +234,21 @@
     "description": "Hindi language option"
   },
 
+  "german": "Deutsch",
+  "@german": {
+    "description": "German language option"
+  },
+
+  "french": "Français",
+  "@french": {
+    "description": "French language option"
+  },
+
+  "italian": "Italiano",
+  "@italian": {
+    "description": "Italian language option"
+  },
+
   "gitaChapters": "GITA CHAPTERS",
   "@gitaChapters": {
     "description": "Main title for chapters screen"

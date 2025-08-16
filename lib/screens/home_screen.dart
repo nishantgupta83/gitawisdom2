@@ -1325,6 +1325,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 letterSpacing: 1.3,
                               ),
                               textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -1333,6 +1335,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
                               ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ],
                         ),
@@ -1471,15 +1475,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
           
-          // Floating language switcher button (bottom-right)
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: AnimatedBuilder(
-              animation: _settingsService,
-              builder: (context, _) => _languageButton(_settingsService.language),
-            ),
-          ),
 
         ],
       ),
@@ -1566,6 +1561,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: theme.colorScheme.primary,
                     letterSpacing: 0.8,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Material(
@@ -2036,102 +2033,4 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
 
-  /// Language cycling functionality: EN → ES → HI → EN
-  void _cycleLanguage() {
-    final currentLanguage = _settingsService.language;
-    
-    String nextLanguage;
-    switch (currentLanguage) {
-      case 'en':
-        nextLanguage = 'es';
-        break;
-      case 'es':
-        nextLanguage = 'hi';
-        break;
-      case 'hi':
-        nextLanguage = 'en';
-        break;
-      default:
-        nextLanguage = 'en';
-    }
-    
-    _settingsService.language = nextLanguage;
-    debugPrint('🌐 Language switched from $currentLanguage to $nextLanguage');
-  }
-
-  /// Language button with flag/code display
-  Widget _languageButton(String currentLanguage) {
-    final theme = Theme.of(context);
-    
-    // Language display info
-    final languageInfo = _getLanguageInfo(currentLanguage);
-    
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blueAccent.withOpacity(0.6),
-            blurRadius: 12,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: CircleAvatar(
-        radius: 24,
-        backgroundColor: theme.colorScheme.background,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: _cycleLanguage,
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: theme.colorScheme.primary.withOpacity(0.3),
-                width: 1,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                languageInfo['display']!,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  /// Get display info for each language
-  Map<String, String> _getLanguageInfo(String languageCode) {
-    switch (languageCode) {
-      case 'en':
-        return {
-          'display': '🇺🇸',
-          'name': 'English',
-        };
-      case 'es':
-        return {
-          'display': '🇪🇸',
-          'name': 'Español',
-        };
-      case 'hi':
-        return {
-          'display': '🇮🇳',
-          'name': 'हिंदी',
-        };
-      default:
-        return {
-          'display': '🌐',
-          'name': 'Default',
-        };
-    }
-  }
 }

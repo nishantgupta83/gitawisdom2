@@ -18,7 +18,10 @@
       "Bash(mkdir:*)",
       "Bash(flutter pub:*)",
       "Bash(flutter gen-l10n:*)",
-      "Bash(flutter clean:*)"
+      "Bash(flutter clean:*)",
+      "WebFetch(domain:hub4apps.com)",
+      "Bash(flutter:*)",
+      "Bash(mv:*)"
     ],
     "deny": []
   }

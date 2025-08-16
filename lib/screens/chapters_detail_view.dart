@@ -631,8 +631,10 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                 width: double.infinity,
                                 child: OutlinedButton.icon(
                                     onPressed: () {
+                                    debugPrint('🔧 ChapterDetailView: View Scenarios button pressed for chapter ${widget.chapterId}');
                                     // Navigate back to root and switch to scenarios tab with chapter filter
                                     Navigator.of(context).popUntil((route) => route.isFirst);
+                                    debugPrint('🔧 ChapterDetailView: Calling NavigationHelper.goToScenariosWithChapter(${widget.chapterId})');
                                     NavigationHelper.goToScenariosWithChapter(widget.chapterId);
                                   },
 

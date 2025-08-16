@@ -37,6 +37,15 @@ class SettingsService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Set app language with enhanced notifications
+  void setAppLanguage(String langCode) {
+    if (language != langCode) {
+      language = langCode;
+      // Notify UI to rebuild with new language
+      notifyListeners();
+    }
+  }
+
   String get fontSize => _box.get(fontKey, defaultValue: 'small') as String;
  // set fontSize(String v) => _box.put(fontKey, v);
     set fontSize(String v) {
@@ -72,9 +81,9 @@ class SettingsService extends ChangeNotifier {
         notifyListeners();
       }
 
-  bool get textShadowEnabled => _box.get(shadowKey, defaultValue: true) as bool;
+  bool get textShadowEnabled => _box.get(shadowKey, defaultValue: false) as bool;
   set textShadowEnabled(bool v) => _box.put(shadowKey, v);
 
-  double get backgroundOpacity => _box.get(opacityKey, defaultValue: 0.3) as double;
+  double get backgroundOpacity => _box.get(opacityKey, defaultValue: 1.0) as double;
   set backgroundOpacity(double v) => _box.put(opacityKey, v);
 }

@@ -1,0 +1,138 @@
+{
+  "@@locale": "te",
+  
+  "appTitle": "గీతా జ్ఞానం",
+  
+  "homeTab": "హోమ్",
+  
+  "chaptersTab": "అధ్యాయాలు",
+  
+  "scenariosTab": "పరిస్థితులు",
+  
+  "journalTab": "డైరీ",
+  
+  "moreTab": "మరిన్ని",
+  
+  "verseOfTheDay": "రోజు శ్లోకం",
+  
+  "verseRefresher": "శ్లోక రిఫ్రెషర్",
+  
+  "modernDilemma": "ఆధునిక దుఴళం",
+  
+  "showWisdom": "జ్ఞానం చూపించు",
+  
+  "applyGitaTeaching": "ఆధునిక పరిస్థితులలో గీత బోధనలను వర్తింపజేయండి",
+  
+  "viewScenarios": "పరిస్థితులను చూడండి ({count})",
+  
+  "readAllVerses": "అన్ని శ్లోకాలను చదవండి ({count})",
+  
+  "relatedScenarios": "సంబంధిత పరిస్థితులు",
+  
+  "keyTeachings": "ముఖ్య బోధనలు",
+  
+  "exploreChapter": "ఈ అధ్యాయాన్ని అన్వేషించండి",
+  
+  "viewMoreScenarios": "మరిన్ని {count} పరిస్థితులను చూడండి",
+  
+  "showFewerScenarios": "తక్కువ పరిస్థితులను చూపించు",
+  
+  "loading": "లోడ్ అవుతోంది...",
+  
+  "errorLoadingData": "డేటా లోడ్ చేయడంలో లోపం",
+
+  "language": "భాష",
+  "appearance": "రూపం", 
+  "darkMode": "డార్క్ మోడ్",
+  "backgroundMusic": "బ్యాక్‌గ్రౌండ్ సంగీతం",
+  "fontSize": "ఫాంట్ పరిమాణం",
+  "textShadow": "టెక్స్ట్ షేడో",
+  "backgroundOpacity": "బ్యాక్‌గ్రౌండ్ పారదర్శకత",
+  "storageAndCache": "స్టోరేజ్ మరియు కేష్",
+  "cacheSize": "కేష్ పరిమాణం",
+  "clearCache": "కేష్ క్లియర్ చేయండి",
+  "extras": "అదనపు",
+  "shareThisApp": "ఈ యాప్‌ను షేర్ చేయండి",
+  "resources": "వనరులు",
+  "about": "గురించి",
+  "references": "సూచనలు",
+  "supportAndLegal": "మద్దతు మరియు చట్టపరమైన",
+  "sendFeedback": "ఫీడ్‌బ్యాక్ పంపండి",
+  "privacyPolicy": "గోప్యతా విధానం",
+  "termsAndConditions": "నియమాలు మరియు షరతులు",
+  "appLanguage": "యాప్ భాష",
+  "english": "English",
+  "spanish": "Español",
+  "hindi": "हिंदी",
+  "german": "Deutsch",
+  "french": "Français",
+  "italian": "Italiano",
+  "sanskrit": "संस्कृतम्",
+  "bengali": "বাংলা",
+  "gujarati": "ગુજરાતી",
+  "tamil": "தமிழ்",
+  "telugu": "తెలుగు",
+  "marathi": "मराठी",
+  "portuguese": "Português",
+  "russian": "Русский",
+  "kannada": "ಕನ್ನಡ",
+
+  "gitaChapters": "గీత అధ్యాయాలు",
+  "immerseInKnowledge": "జ్ఞాన సముద్రంలో మునిగిపోండి",
+  "noChaptersAvailable": "అధ్యాయాలు ఏవీ అందుబాటులో లేవు.",
+  "versesCount": "శ్లోకాలు",
+  "scenariosCount": "పరిస్థితులు",
+
+  "scenarios": "పరిస్థితులు",
+  "realWorldSituations": "గీత జ్ఞానంతో మార్గదర్శకత్వం పొందిన వాస్తవ జీవిత పరిస్థితులు",
+  "searchScenarios": "శీర్షిక లేదా వివరణ ద్వారా పరిస్థితులను వెతకండి...",
+  "noScenariosAvailable": "పరిస్థితులు ఏవీ అందుబాటులో లేవు",
+  "noScenariosMatch": "మీ వెతుకులాటతో ఏ పరిస్థితి సరిపోలలేదు",
+  "failedToRefresh": "పరిస్థితులను రిఫ్రెష్ చేయడంలో విఫలమైంది",
+
+  "aboutGitaWisdom": "గీత జ్ఞానం గురించి",
+  "madeWithLove": "ప్రపంచవ్యాప్త ఆధ్యాత్మిక అన్వేషకుల కోసం ❤️ తో తయారు చేయబడింది",
+  "aboutDescription": "భగవద్గీత యొక్క ఆచరణాత్మక మార్గదర్శిని, అధ్యాయాలు, పరిస్థితులు మరియు ఆలోచనలను అందిస్తుంది—ఇప్పుడు కస్టమ్ థీమ్‌లు, భాషా మద్దతు మరియు మరిన్నింటితో.",
+  "gitaQuote": "\"మీకు మీ కర్మలను చేసే హక్కు ఉంది, కానీ కర్మ ఫలాలపై మీకు హక్కు లేదు.\"",
+  "gitaQuoteReference": "- భగవద్గీత 2.47",
+  "appVersion": "గీత జ్ఞానం v1.0.0",
+  "referencesTitle": "సూచనలు",
+  "reference1": "* భగవద్గీత యథారూపం (ఎ.సి. భక్తివేదాంత స్వామి ప్రభుపాద)",
+  "reference2": "* భగవద్గీత: కొత్త అనువాదం (స్టీఫెన్ మిచెల్)",
+  "reference3": "• ఇతర అకడమిక్ మరియు సాంప్రదాయ వ్యాఖ్యానాలు",
+
+  "myJournal": "నా డైరీ",
+  "trackSpiritual": "మీ ఆధ్యాత్మిక ఆలోచనలు మరియు వృద్ధిని ట్రాక్ చేయండి",
+  "noJournalEntries": "ఇంకా డైరీ ఎంట్రీలు లేవు",
+  "tapPlusButton": "మీ మొదటి ఆలోచనను సృష్టించడానికి + బటన్‌ను నొక్కండి",
+  "addJournalEntry": "డైరీ ఎంట్రీని జోడించండి",
+  "readMore": "మరింత చదవండి",
+  "failedToSaveEntry": "డైరీ ఎంట్రీని సేవ్ చేయడంలో విఫలమైంది",
+  "journalEntry": "డైరీ ఎంట్రీ",
+  "reflectionFrom": "{date} నుండి ఆలోచన",
+  "writtenOn": "{date}న వ్రాయబడింది",
+  "newJournalEntry": "కొత్త డైరీ ఎంట్రీ",
+  "yourReflection": "మీ ఆలోచన",
+  "category": "వర్గం",
+  "rating": "రేటింగ్",
+  "cancel": "రద్దు చేయండి",
+  "save": "సేవ్ చేయండి",
+  "categoryGeneral": "సాధారణ",
+  "categoryPersonalGrowth": "వ్యక్తిగత వృద్ధి",
+  "categoryMeditation": "ధ్యానం",
+  "categoryDailyReflection": "దైనందిన ఆలోచన",
+  "categoryScenarioWisdom": "పరిస్థితి జ్ఞానం",
+  "categoryChapterInsights": "అధ్యాయ అంతర్దృష్టులు",
+  
+  "deleteEntry": "ఎంట్రీని తొలగించండి",
+  "delete": "తొలగించండి",
+  "deleteConfirmation": "మీరు ఈ డైరీ ఎంట్రీని తొలగించాలని అనుకుంటున్నారా? ఈ చర్య వెనక్కి తీసుకోలేము.",
+  "entryDeleted": "డైరీ ఎంట్రీ తొలగించబడింది",
+  "undo": "రద్దు చేయండి",
+  "entryRestored": "డైరీ ఎంట్రీ పునరుద్ధరించబడింది",
+  "failedToRestoreEntry": "ఎంట్రీని పునరుద్ధరించడంలో విఫలమైంది",
+  "failedToDeleteEntry": "ఎంట్రీని తొలగించడంలో విఫలమైంది",
+  
+  "journalEntrySaved": "డైరీ ఎంట్రీ సేవ్ అయింది!",
+  "pleaseSelectRating": "దయచేసి రేటింగ్‌ను ఎంచుకోండి"
+}

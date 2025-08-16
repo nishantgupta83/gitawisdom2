@@ -388,6 +388,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 letterSpacing: 1.3,
                               ),
                               textAlign: TextAlign.center,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(height: 6),
                             Text(
@@ -398,6 +400,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
                               ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             // Scenario count indicator
                             const SizedBox(height: 8),

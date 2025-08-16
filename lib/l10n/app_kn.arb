@@ -1,0 +1,138 @@
+{
+  "@@locale": "kn",
+  
+  "appTitle": "ಗೀತಾಜ್ಞಾನ",
+  
+  "homeTab": "ಮನೆ",
+  
+  "chaptersTab": "ಅಧ್ಯಾಯಗಳು",
+  
+  "scenariosTab": "ಪರಿಸ್ಥಿತಿಗಳು",
+  
+  "journalTab": "ಡೈರಿ",
+  
+  "moreTab": "ಇನ್ನಷ್ಟು",
+  
+  "verseOfTheDay": "ದಿನದ ಶ್ಲೋಕ",
+  
+  "verseRefresher": "ಶ್ಲೋಕ ರಿಫ್ರೆಶರ್",
+  
+  "modernDilemma": "ಆಧುನಿಕ ದ್ವಂದ್ವ",
+  
+  "showWisdom": "ಜ್ಞಾನವನ್ನು ತೋರಿಸಿ",
+  
+  "applyGitaTeaching": "ಆಧುನಿಕ ಪರಿಸ್ಥಿತಿಗಳಿಗೆ ಗೀತೆಯ ಬೋಧನೆಗಳನ್ನು ಅನ್ವಯಿಸಿ",
+  
+  "viewScenarios": "ಪರಿಸ್ಥಿತಿಗಳನ್ನು ನೋಡಿ ({count})",
+  
+  "readAllVerses": "ಎಲ್ಲಾ ಶ್ಲೋಕಗಳನ್ನು ಓದಿ ({count})",
+  
+  "relatedScenarios": "ಸಂಬಂಧಿತ ಪರಿಸ್ಥಿತಿಗಳು",
+  
+  "keyTeachings": "ಮುಖ್ಯ ಬೋಧನೆಗಳು",
+  
+  "exploreChapter": "ಈ ಅಧ್ಯಾಯವನ್ನು ಅನ್ವೇಷಿಸಿ",
+  
+  "viewMoreScenarios": "ಇನ್ನಷ್ಟು {count} ಪರಿಸ್ಥಿತಿಗಳನ್ನು ನೋಡಿ",
+  
+  "showFewerScenarios": "ಕಡಿಮೆ ಪರಿಸ್ಥಿತಿಗಳನ್ನು ತೋರಿಸಿ",
+  
+  "loading": "ಲೋಡ್ ಆಗುತ್ತಿದೆ...",
+  
+  "errorLoadingData": "ಡೇಟಾ ಲೋಡ್ ಮಾಡುವಲ್ಲಿ ದೋಷ",
+
+  "language": "ಭಾಷೆ",
+  "appearance": "ಕಾಣಿಕೆ", 
+  "darkMode": "ಡಾರ್ಕ್ ಮೋಡ್",
+  "backgroundMusic": "ಹಿನ್ನೆಲೆ ಸಂಗೀತ",
+  "fontSize": "ಫಾಂಟ್ ಗಾತ್ರ",
+  "textShadow": "ಪಠ್ಯ ನೆರಳು",
+  "backgroundOpacity": "ಹಿನ್ನೆಲೆ ಪಾರದರ್ಶಕತೆ",
+  "storageAndCache": "ಸಂಗ್ರಹಣೆ ಮತ್ತು ಕ್ಯಾಶ್",
+  "cacheSize": "ಕ್ಯಾಶ್ ಗಾತ್ರ",
+  "clearCache": "ಕ್ಯಾಶ್ ತೆರವುಗೊಳಿಸಿ",
+  "extras": "ಹೆಚ್ಚುವರಿ",
+  "shareThisApp": "ಈ ಅಪ್ಲಿಕೇಶನ್ ಹಂಚಿಕೊಳ್ಳಿ",
+  "resources": "ಸಂಪನ್ಮೂಲಗಳು",
+  "about": "ಕುರಿತು",
+  "references": "ಉಲ್ಲೇಖಗಳು",
+  "supportAndLegal": "ಬೆಂಬಲ ಮತ್ತು ಕಾನೂನು",
+  "sendFeedback": "ಪ್ರತಿಕ್ರಿಯೆ ಕಳುಹಿಸಿ",
+  "privacyPolicy": "ಗೌಪ್ಯತೆ ನೀತಿ",
+  "termsAndConditions": "ನಿಯಮಗಳು ಮತ್ತು ಷರತ್ತುಗಳು",
+  "appLanguage": "ಅಪ್ಲಿಕೇಶನ್ ಭಾಷೆ",
+  "english": "English",
+  "spanish": "Español",
+  "hindi": "हिंदी",
+  "german": "Deutsch",
+  "french": "Français",
+  "italian": "Italiano",
+  "sanskrit": "संस्कृतम्",
+  "bengali": "বাংলা",
+  "gujarati": "ગુજરાતી",
+  "tamil": "தமிழ்",
+  "telugu": "తెలుగు",
+  "marathi": "मराठी",
+  "portuguese": "Português",
+  "russian": "Русский",
+  "kannada": "ಕನ್ನಡ",
+
+  "gitaChapters": "ಗೀತಾ ಅಧ್ಯಾಯಗಳು",
+  "immerseInKnowledge": "ಜ್ಞಾನದ ಸಾಗರದಲ್ಲಿ ಮುಳುಗಿಸಿ",
+  "noChaptersAvailable": "ಯಾವುದೇ ಅಧ್ಯಾಯಗಳು ಲಭ್ಯವಿಲ್ಲ.",
+  "versesCount": "ಶ್ಲೋಕಗಳು",
+  "scenariosCount": "ಪರಿಸ್ಥಿತಿಗಳು",
+
+  "scenarios": "ಪರಿಸ್ಥಿತಿಗಳು",
+  "realWorldSituations": "ಗೀತಾ ಜ್ಞಾನದಿಂದ ಮಾರ್ಗದರ್ಶನ ಪಡೆದ ನೈಜ ಜೀವನದ ಪರಿಸ್ಥಿತಿಗಳು",
+  "searchScenarios": "ಶೀರ್ಷಿಕೆ ಅಥವಾ ವಿವರಣೆಯಿಂದ ಪರಿಸ್ಥಿತಿಗಳನ್ನು ಹುಡುಕಿ...",
+  "noScenariosAvailable": "ಯಾವುದೇ ಪರಿಸ್ಥಿತಿಗಳು ಲಭ್ಯವಿಲ್ಲ",
+  "noScenariosMatch": "ನಿಮ್ಮ ಹುಡುಕಾಟಕ್ಕೆ ಯಾವುದೇ ಪರಿಸ್ಥಿತಿಗಳು ಹೊಂದಿಕೆಯಾಗುವುದಿಲ್ಲ",
+  "failedToRefresh": "ಪರಿಸ್ಥಿತಿಗಳನ್ನು ರಿಫ್ರೆಶ್ ಮಾಡುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
+
+  "aboutGitaWisdom": "ಗೀತಾಜ್ಞಾನದ ಕುರಿತು",
+  "madeWithLove": "ಪ್ರಪಂಚದಾದ್ಯಂತದ ಆಧ್ಯಾತ್ಮಿಕ ಸಾಧಕರಿಗಾಗಿ ❤️ ನೊಂದಿಗೆ ತಯಾರಿಸಲಾಗಿದೆ",
+  "aboutDescription": "ಭಗವದ್ಗೀತೆಯ ಪ್ರಾಯೋಗಿಕ ಮಾರ್ಗದರ್ಶಿ, ಅಧ್ಯಾಯಗಳು, ಪರಿಸ್ಥಿತಿಗಳು ಮತ್ತು ಚಿಂತನೆಗಳನ್ನು ಒದಗಿಸುತ್ತದೆ—ಈಗ ಕಸ್ಟಮ್ ಥೀಮ್‌ಗಳು, ಭಾಷಾ ಬೆಂಬಲ ಮತ್ತು ಇನ್ನೂ ಹೆಚ್ಚಿನದರ ಜೊತೆಗೆ.",
+  "gitaQuote": "\"ನಿಮಗೆ ನಿಮ್ಮ ಕರ್ಮಗಳನ್ನು ಮಾಡುವ ಹಕ್ಕಿದೆ, ಆದರೆ ಕರ್ಮದ ಫಲಗಳ ಮೇಲೆ ನಿಮಗೆ ಹಕ್ಕಿಲ್ಲ.\"",
+  "gitaQuoteReference": "- ಭಗವದ್ಗೀತೆ ೨.೪೭",
+  "appVersion": "ಗೀತಾಜ್ಞಾನ v೧.೦.೦",
+  "referencesTitle": "ಉಲ್ಲೇಖಗಳು",
+  "reference1": "* ಭಗವದ್ಗೀತೆ ಅದೇ ರೂಪದಲ್ಲಿ (ಎ. ಸಿ. ಭಕ್ತಿವೇದಾಂತ ಸ್ವಾಮೀ ಪ್ರಭುಪಾದ)",
+  "reference2": "* ಭಗವದ್ಗೀತೆ: ಹೊಸ ಅನುವಾದ (ಸ್ಟೀಫನ್ ಮಿಚೆಲ್)",
+  "reference3": "• ಇತರ ಶೈಕ್ಷಣಿಕ ಮತ್ತು ಸಾಂಪ್ರದಾಯಿಕ ವ್ಯಾಖ್ಯಾನಗಳು",
+
+  "myJournal": "ನನ್ನ ಡೈರಿ",
+  "trackSpiritual": "ನಿಮ್ಮ ಆಧ್ಯಾತ್ಮಿಕ ಚಿಂತನೆಗಳು ಮತ್ತು ಬೆಳವಣಿಗೆಯನ್ನು ಟ್ರ್ಯಾಕ್ ಮಾಡಿ",
+  "noJournalEntries": "ಇನ್ನೂ ಯಾವುದೇ ಡೈರಿ ನಮೂದುಗಳಿಲ್ಲ",
+  "tapPlusButton": "ನಿಮ್ಮ ಮೊದಲ ಚಿಂತನೆಯನ್ನು ರಚಿಸಲು + ಬಟನ್ ಒತ್ತಿ",
+  "addJournalEntry": "ಡೈರಿ ನಮೂದನ್ನು ಸೇರಿಸಿ",
+  "readMore": "ಇನ್ನಷ್ಟು ಓದಿ",
+  "failedToSaveEntry": "ಡೈರಿ ನಮೂದನ್ನು ಉಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
+  "journalEntry": "ಡೈರಿ ನಮೂದು",
+  "reflectionFrom": "{date} ರ ಚಿಂತನೆ",
+  "writtenOn": "{date} ದಿನ ಬರೆಯಲಾಗಿದೆ",
+  "newJournalEntry": "ಹೊಸ ಡೈರಿ ನಮೂದು",
+  "yourReflection": "ನಿಮ್ಮ ಚಿಂತನೆ",
+  "category": "ವರ್ಗ",
+  "rating": "ರೇಟಿಂಗ್",
+  "cancel": "ರದ್ದುಮಾಡಿ",
+  "save": "ಉಳಿಸಿ",
+  "categoryGeneral": "ಸಾಮಾನ್ಯ",
+  "categoryPersonalGrowth": "ವೈಯಕ್ತಿಕ ಬೆಳವಣಿಗೆ",
+  "categoryMeditation": "ಧ್ಯಾನ",
+  "categoryDailyReflection": "ದೈನಂದಿನ ಚಿಂತನೆ",
+  "categoryScenarioWisdom": "ಪರಿಸ್ಥಿತಿ ಜ್ಞಾನ",
+  "categoryChapterInsights": "ಅಧ್ಯಾಯ ಒಳನೋಟಗಳು",
+  
+  "deleteEntry": "ನಮೂದನ್ನು ಅಳಿಸಿ",
+  "delete": "ಅಳಿಸಿ",
+  "deleteConfirmation": "ನೀವು ಖಚಿತವಾಗಿ ಈ ಡೈರಿ ನಮೂದನ್ನು ಅಳಿಸಲು ಬಯಸುವಿರಾ? ಈ ಕ್ರಿಯೆಯನ್ನು ರದ್ದುಗೊಳಿಸಲಾಗುವುದಿಲ್ಲ.",
+  "entryDeleted": "ಡೈರಿ ನಮೂದನ್ನು ಅಳಿಸಲಾಗಿದೆ",
+  "undo": "ರದ್ದುಗೊಳಿಸಿ",
+  "entryRestored": "ಡೈರಿ ನಮೂದನ್ನು ಮರುಸ್ಥಾಪಿಸಲಾಗಿದೆ",
+  "failedToRestoreEntry": "ನಮೂದನ್ನು ಮರುಸ್ಥಾಪಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
+  "failedToDeleteEntry": "ನಮೂದನ್ನು ಅಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
+  
+  "journalEntrySaved": "ಡೈರಿ ನಮೂದನ್ನು ಉಳಿಸಲಾಗಿದೆ!",
+  "pleaseSelectRating": "ದಯವಿಟ್ಟು ರೇಟಿಂಗ್ ಆಯ್ಕೆಮಾಡಿ"
+}

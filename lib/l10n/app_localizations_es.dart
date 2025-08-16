@@ -145,6 +145,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get hindi => 'हिंदी';
 
   @override
+  String get german => 'Deutsch';
+
+  @override
+  String get french => 'Français';
+
+  @override
+  String get italian => 'Italiano';
+
+  @override
   String get gitaChapters => 'CAPÍTULOS DEL GITA';
 
   @override

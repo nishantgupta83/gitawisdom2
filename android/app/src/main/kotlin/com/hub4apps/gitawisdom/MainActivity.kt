@@ -1,4 +1,4 @@
-package com.example.oldwisdom
+package com.hub4apps.gitawisdom
 
 import io.flutter.embedding.android.FlutterActivity
 

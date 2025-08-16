@@ -1,0 +1,138 @@
+{
+  "@@locale": "sa",
+  
+  "appTitle": "गीताज्ञानम्",
+  
+  "homeTab": "गृहम्",
+  
+  "chaptersTab": "अध्यायाः",
+  
+  "scenariosTab": "स्थितयः",
+  
+  "journalTab": "दैनन्दिनी",
+  
+  "moreTab": "अधिकम्",
+  
+  "verseOfTheDay": "दिनस्य श्लोकः",
+  
+  "verseRefresher": "श्लोक नवीकरणम्",
+  
+  "modernDilemma": "आधुनिक संशयः",
+  
+  "showWisdom": "ज्ञानं दर्शयतु",
+  
+  "applyGitaTeaching": "आधुनिक परिस्थितिषु गीता शिक्षाणां प्रयोगः",
+  
+  "viewScenarios": "स्थितीन् पश्यतु ({count})",
+  
+  "readAllVerses": "सर्वान् श्लोकान् पठतु ({count})",
+  
+  "relatedScenarios": "सम्बद्धाः स्थितयः",
+  
+  "keyTeachings": "मुख्य उपदेशाः",
+  
+  "exploreChapter": "अस्य अध्यायस्य अन्वेषणम्",
+  
+  "viewMoreScenarios": "{count} अधिकाः स्थितीः पश्यतु",
+  
+  "showFewerScenarios": "न्यूनाः स्थितीः दर्शयतु",
+  
+  "loading": "लोड् भवति...",
+  
+  "errorLoadingData": "डेटा लोडे त्रुटिः",
+
+  "language": "भाषा",
+  "appearance": "रूपम्", 
+  "darkMode": "तमोमार्गः",
+  "backgroundMusic": "पृष्ठभूमि संगीतम्",
+  "fontSize": "अक्षर परिमाणम्",
+  "textShadow": "पाठ छाया",
+  "backgroundOpacity": "पृष्ठभूमि पारदर्शिता",
+  "storageAndCache": "संग्रहणम् कैशः च",
+  "cacheSize": "कैश परिमाणम्",
+  "clearCache": "कैश निर्मुक्तिः",
+  "extras": "अतिरिक्तम्",
+  "shareThisApp": "एतत् अप्प साझम् करोतु",
+  "resources": "साधनानि",
+  "about": "विषये",
+  "references": "सन्दर्भाः",
+  "supportAndLegal": "समर्थनम् न्यायिकं च",
+  "sendFeedback": "प्रतिक्रिया प्रेषयतु",
+  "privacyPolicy": "गोपनीयता नीतिः",
+  "termsAndConditions": "नियमाः शर्ताः च",
+  "appLanguage": "अप्प भाषा",
+  "english": "English",
+  "spanish": "Español",
+  "hindi": "हिंदी",
+  "german": "Deutsch",
+  "french": "Français",
+  "italian": "Italiano",
+  "sanskrit": "संस्कृतम्",
+  "bengali": "বাংলা",
+  "gujarati": "ગુજરાતી",
+  "tamil": "தமிழ்",
+  "telugu": "తెలుగు",
+  "marathi": "मराठी",
+  "portuguese": "Português",
+  "russian": "Русский",
+  "kannada": "ಕನ್ನಡ",
+
+  "gitaChapters": "गीता अध्यायाः",
+  "immerseInKnowledge": "ज्ञानसागरे निमग्ना भवतु",
+  "noChaptersAvailable": "कोऽपि अध्यायः उपलब्धः नास्ति।",
+  "versesCount": "श्लोकाः",
+  "scenariosCount": "स्थितयः",
+
+  "scenarios": "स्थितयः",
+  "realWorldSituations": "गीता ज्ञानेन निर्देशिताः वास्तविक स्थितयः",
+  "searchScenarios": "शीर्षकेन अथवा विवरणेन स्थितीन् अन्वेषयतु...",
+  "noScenariosAvailable": "कोऽपि स्थितिः उपलब्धा नास्ति",
+  "noScenariosMatch": "भवतः अन्वेषणेन सह कोऽपि स्थितिः न मेलति",
+  "failedToRefresh": "स्थितीनां नवीकरणे असफलता",
+
+  "aboutGitaWisdom": "गीताज्ञानस्य विषये",
+  "madeWithLove": "विश्वस्य आध्यात्मिक साधकेभ्यः ❤️ इत्यनेन निर्मितम्",
+  "aboutDescription": "भगवद्गीतायाः व्यावहारिकः मार्गदर्शिका, अध्यायान्, स्थितीन्, चिन्तनानि च प्रदत्ता—अधुना रूपविशेषैः, भाषासमर्थनेन, अधिकैः च सह।",
+  "gitaQuote": "\"कर्मण्येवाधिकारस्ते मा फलेषु कदाचन।\"",
+  "gitaQuoteReference": "- भगवद्गीता २.४७",
+  "appVersion": "गीताज्ञानम् v१.०.०",
+  "referencesTitle": "सन्दर्भाः",
+  "reference1": "* भगवद्गीता यथारूप (ए. सी. भक्तिवेदान्त स्वामी प्रभुपाद)",
+  "reference2": "* भगवद्गीता: नूतनम् अनुवादम् (स्टीफन मिशेल)",
+  "reference3": "• अन्ये शैक्षणिकाः पारम्परिकाः च टीकाः",
+
+  "myJournal": "मम दैनन्दिनी",
+  "trackSpiritual": "स्वकीयाः आध्यात्मिकाः चिन्तनाः विकासं च अनुसरतु",
+  "noJournalEntries": "अद्यावधि कोऽपि दैनन्दिनी प्रविष्टिः नास्ति",
+  "tapPlusButton": "प्रथमं चिन्तनं सृष्टुं + इति बटनं स्पृशतु",
+  "addJournalEntry": "दैनन्दिनी प्रविष्टिः योजयतु",
+  "readMore": "अधिकं पठतु",
+  "failedToSaveEntry": "दैनन्दिनी प्रविष्टेः संरक्षणे असफलता",
+  "journalEntry": "दैनन्दिनी प्रविष्टिः",
+  "reflectionFrom": "{date} तः चिन्तनम्",
+  "writtenOn": "{date} दिने लिखितम्",
+  "newJournalEntry": "नूतना दैनन्दिनी प्रविष्टिः",
+  "yourReflection": "भवतः चिन्तनम्",
+  "category": "वर्गः",
+  "rating": "मूल्याङ्कनम्",
+  "cancel": "रद्दं करोतु",
+  "save": "संरक्षयतु",
+  "categoryGeneral": "सामान्यम्",
+  "categoryPersonalGrowth": "व्यक्तिगत विकासः",
+  "categoryMeditation": "ध्यानम्",
+  "categoryDailyReflection": "दैनिक चिन्तनम्",
+  "categoryScenarioWisdom": "स्थिति ज्ञानम्",
+  "categoryChapterInsights": "अध्याय अन्तर्दृष्टिः",
+  
+  "deleteEntry": "प्रविष्टिं मुञ्चतु",
+  "delete": "मुञ्चतु",
+  "deleteConfirmation": "किम् वास्तवम् एतां दैनन्दिनी प्रविष्टिं मोचयितुम् इच्छन्ति? एषा क्रिया पुनः न कर्तुं शक्यते।",
+  "entryDeleted": "दैनन्दिनी प्रविष्टिः मुक्ता",
+  "undo": "पूर्ववत् करोतु",
+  "entryRestored": "दैनन्दिनी प्रविष्टिः पुनः स्थापिता",
+  "failedToRestoreEntry": "प्रविष्टेः पुनर्स्थापने असफलता",
+  "failedToDeleteEntry": "प्रविष्टेः मोचने असफलता",
+  
+  "journalEntrySaved": "दैनन्दिनी प्रविष्टिः संरक्षिता!",
+  "pleaseSelectRating": "कृपया मूल्याङ्कनं चिनुतु"
+}

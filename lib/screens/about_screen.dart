@@ -15,7 +15,11 @@ class AboutScreen extends StatelessWidget {
       appBar: AppBar(
         // use your theme surface so it shows up as a light card
         backgroundColor: theme.colorScheme.surface,
-        title: Text(AppLocalizations.of(context)?.about ?? 'About'),
+        title: Text(
+          AppLocalizations.of(context)?.about ?? 'About',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         centerTitle: true,
         elevation: 0,
       ),
@@ -39,6 +43,8 @@ class AboutScreen extends StatelessWidget {
                         color: theme.colorScheme.primary,
                       ),
                       textAlign: TextAlign.center,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -60,6 +66,8 @@ class AboutScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.onSurface,
                           ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         
                         const SizedBox(height: 16),
@@ -70,6 +78,8 @@ class AboutScreen extends StatelessWidget {
                             color: theme.colorScheme.onSurface,
                             height: 1.5,
                           ),
+                          maxLines: 5,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         
                         const SizedBox(height: 24),
@@ -92,6 +102,8 @@ class AboutScreen extends StatelessWidget {
                               height: 1.4,
                             ),
                             textAlign: TextAlign.center,
+                            maxLines: 4,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         
@@ -104,12 +116,14 @@ class AboutScreen extends StatelessWidget {
                             fontWeight: FontWeight.w500,
                           ),
                           textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
+
               
               const SizedBox(height: 16),
               
@@ -125,6 +139,8 @@ class AboutScreen extends StatelessWidget {
                         color: theme.colorScheme.onSurface.withOpacity(0.6),
                         fontWeight: FontWeight.w500,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -135,5 +151,6 @@ class AboutScreen extends StatelessWidget {
         ),
       ),
     );
+
   }
 }

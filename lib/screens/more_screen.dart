@@ -301,9 +301,11 @@ import 'package:intl/intl.dart';
 
 import '../services/settings_service.dart';
 import '../services/cache_service.dart';
+import '../services/enhanced_supabase_service.dart';
 import '../screens/about_screen.dart';
 import '../screens/references_screen.dart';
 import '../services/audio_service.dart';
+import '../models/supported_language.dart';
 import '../l10n/app_localizations.dart';
 
 class MoreScreen extends StatefulWidget {
@@ -323,6 +325,8 @@ class _MoreScreenState extends State<MoreScreen> {
   String _cacheSize = 'Calculating...';
   Map<String, double> _cacheSizes = {};
   String _currentLanguage = 'en';
+  List<SupportedLanguage> _supportedLanguages = [];
+  EnhancedSupabaseService? _supabaseService;
 
   // Helper functions for font size mapping
   String _getFontSizeString(double value) {
@@ -358,6 +362,7 @@ class _MoreScreenState extends State<MoreScreen> {
     _backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3);
     _currentLanguage = box.get(SettingsService.langKey, defaultValue: 'en');
     
+    _initializeLanguageSupport();
     _loadCacheInfo();
   }
 
@@ -377,6 +382,25 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
+  Future<void> _initializeLanguageSupport() async {
+    try {
+      _supabaseService = EnhancedSupabaseService();
+      await _supabaseService!.initializeLanguages();
+      
+      setState(() {
+        _supportedLanguages = _supabaseService!.supportedLanguages;
+      });
+      
+      debugPrint('🌐 Language support initialized with ${_supportedLanguages.length} languages');
+    } catch (e) {
+      debugPrint('❌ Error initializing language support: $e');
+      // Fallback to default languages
+      setState(() {
+        _supportedLanguages = SupportedLanguage.defaultLanguages;
+      });
+    }
+  }
+
   void _toggleSetting(String key, dynamic value) {
     Hive.box(SettingsService.boxName).put(key, value);
     setState(() {
@@ -392,14 +416,55 @@ class _MoreScreenState extends State<MoreScreen> {
     });
   }
 
-  void _changeLanguage(String newLanguage) {
-    final settingsService = SettingsService();
-    settingsService.language = newLanguage;
-    _toggleSetting(SettingsService.langKey, newLanguage);
-    debugPrint('🌐 Language changed to: $newLanguage');
+  Future<void> _changeLanguage(String newLanguage) async {
+    try {
+      // Update settings
+      final settingsService = SettingsService();
+      settingsService.setAppLanguage(newLanguage);
+      _toggleSetting(SettingsService.langKey, newLanguage);
+      
+      // Update supabase service if available
+      if (_supabaseService != null) {
+        await _supabaseService!.setCurrentLanguage(newLanguage);
+      }
+      
+      debugPrint('🌐 Language changed to: $newLanguage');
+      
+      // Show success message
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Language changed to ${_getLanguageDisplayName(newLanguage)}'),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Error changing language: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error changing language. Please try again.'),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   String _getLanguageDisplayName(String languageCode) {
+    // First try to get from supported languages
+    final supportedLang = _supportedLanguages
+        .where((lang) => lang.langCode == languageCode)
+        .firstOrNull;
+    
+    if (supportedLang != null) {
+      return supportedLang.displayNameWithFlag(useNative: true);
+    }
+    
+    // Fallback to localization
     final localizations = AppLocalizations.of(context);
     if (localizations == null) return languageCode;
     
@@ -550,6 +615,8 @@ class _MoreScreenState extends State<MoreScreen> {
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.primary,
                   ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: 30),
@@ -612,7 +679,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
               ),
 
-              // Language Section - Reactive to changes
+              // Language Section with Enhanced Multilingual Support
               _sectionTitle(localizations.language),
               ValueListenableBuilder<Box>(
                 valueListenable: Hive.box(SettingsService.boxName).listenable(keys: [SettingsService.langKey]),
@@ -620,22 +687,122 @@ class _MoreScreenState extends State<MoreScreen> {
                   final currentLang = box.get(SettingsService.langKey, defaultValue: 'en') as String;
                   return _settingTile(
                     title: localizations.appLanguage,
-                    trailing: DropdownButton<String>(
-                      value: currentLang,
-                      items: [
-                        DropdownMenuItem(value: 'en', child: Text(localizations.english)),
-                        DropdownMenuItem(value: 'es', child: Text(localizations.spanish)),
-                        DropdownMenuItem(value: 'hi', child: Text(localizations.hindi)),
-                      ],
-                      onChanged: (newLang) {
-                        if (newLang != null) {
-                          _changeLanguage(newLang);
-                        }
-                      },
-                    ),
+                    subtitle: _supportedLanguages.isNotEmpty 
+                        ? 'Content language for chapters, scenarios, and verses'
+                        : 'Loading language options...',
+                    trailing: _supportedLanguages.isNotEmpty
+                        ? DropdownButton<String>(
+                            value: currentLang,
+                            isExpanded: false,
+                            items: _supportedLanguages
+                                .where((lang) => lang.isActive)
+                                .map((lang) => DropdownMenuItem(
+                                  value: lang.langCode,
+                                  child: Text(
+                                    lang.displayNameWithFlag(useNative: true),
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ))
+                                .toList(),
+                            onChanged: (newLang) {
+                              if (newLang != null && newLang != currentLang) {
+                                _changeLanguage(newLang);
+                              }
+                            },
+                          )
+                        : const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                   );
                 },
               ),
+              
+              // Language Coverage Information
+              if (_supportedLanguages.isNotEmpty && _supabaseService != null)
+                FutureBuilder<Map<String, dynamic>>(
+                  future: _supabaseService!.getTranslationCoverage(_currentLanguage),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      final coverage = snapshot.data!;
+                      final hasPartialTranslations = coverage.values.any((v) => 
+                          v is Map && v['percentage'] != null && v['percentage'] < 100);
+                      
+                      if (hasPartialTranslations) {
+                        return Padding(
+                          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+                          child: Card(
+                            color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.info_outline,
+                                        size: 16,
+                                        color: Theme.of(context).colorScheme.primary,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'Translation Coverage',
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  ...coverage.entries.map((entry) {
+                                    final data = entry.value as Map<String, dynamic>;
+                                    final percentage = data['percentage'] as double;
+                                    return Padding(
+                                      padding: const EdgeInsets.only(bottom: 4),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            entry.key.replaceAll('_', ' ').toUpperCase(),
+                                            style: Theme.of(context).textTheme.bodySmall,
+                                          ),
+                                          Text(
+                                            '${percentage.toStringAsFixed(0)}%',
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: percentage == 100 
+                                                  ? Colors.green 
+                                                  : percentage > 50 
+                                                      ? Colors.orange 
+                                                      : Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Missing translations will show in English',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                                      fontStyle: FontStyle.italic,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
 
               _sectionTitle(localizations.storageAndCache),
               
@@ -778,6 +945,8 @@ class _MoreScreenState extends State<MoreScreen> {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurface.withOpacity(0.6),
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: 30),
@@ -798,6 +967,8 @@ class _MoreScreenState extends State<MoreScreen> {
           fontWeight: FontWeight.bold,
           color: theme.colorScheme.primary.withOpacity(0.9),
         ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
     );
   }
@@ -819,12 +990,16 @@ class _MoreScreenState extends State<MoreScreen> {
         title: Text(
           title,
           style: theme.textTheme.bodyLarge,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: subtitle != null ? Text(
           subtitle,
           style: theme.textTheme.bodySmall?.copyWith(
             color: theme.colorScheme.onSurface.withOpacity(0.7),
           ),
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
         ) : null,
         trailing: trailing,
       ),

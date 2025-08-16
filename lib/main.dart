@@ -882,6 +882,18 @@ class WisdomGuideApp extends StatelessWidget {
             Locale('en', ''), // English
             Locale('es', ''), // Spanish  
             Locale('hi', ''), // Hindi
+            Locale('de', ''), // German
+            Locale('fr', ''), // French
+            Locale('it', ''), // Italian
+            Locale('sa', ''), // Sanskrit
+            Locale('bn', ''), // Bengali
+            Locale('gu', ''), // Gujarati
+            Locale('ta', ''), // Tamil
+            Locale('te', ''), // Telugu
+            Locale('mr', ''), // Marathi
+            Locale('pt', ''), // Portuguese
+            Locale('ru', ''), // Russian
+            Locale('kn', ''), // Kannada
           ],
           
           theme: ThemeData.light().copyWith(

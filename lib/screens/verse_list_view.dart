@@ -214,27 +214,87 @@ class _VerseListViewState extends State<VerseListView> {
                 if (_chapter != null) ...[
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 28.0, horizontal: 16),
-                        child: Column(
-                          children: [
-                            Text(
-                              _chapter!.title ?? '',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.3,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _chapter!.summary ?? '',
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodyMedium,
-                            ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(18),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.amber.shade400.withOpacity(0.4),
+                            Colors.orange.shade500.withOpacity(0.4),
+                            Colors.deepOrange.shade400.withOpacity(0.4),
+                            Colors.amber.shade300.withOpacity(0.3),
                           ],
+                          stops: const [0.0, 0.3, 0.7, 1.0],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        boxShadow: [
+                          // Outermost glow - strongest and largest
+                          BoxShadow(
+                            color: Colors.amber.withOpacity(0.6),
+                            blurRadius: 25,
+                            spreadRadius: 6,
+                            offset: const Offset(0, 8),
+                          ),
+                          // Middle glow - medium intensity
+                          BoxShadow(
+                            color: Colors.orange.withOpacity(0.4),
+                            blurRadius: 18,
+                            spreadRadius: 3,
+                            offset: const Offset(0, 4),
+                          ),
+                          // Inner glow - subtle and close
+                          BoxShadow(
+                            color: Colors.deepOrange.withOpacity(0.3),
+                            blurRadius: 12,
+                            spreadRadius: 1,
+                            offset: const Offset(0, 2),
+                          ),
+                          // Accent glow - golden shimmer
+                          BoxShadow(
+                            color: Colors.amberAccent.withOpacity(0.5),
+                            blurRadius: 30,
+                            spreadRadius: 8,
+                            offset: const Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: Container(
+                        margin: const EdgeInsets.all(3), // Creates enhanced border effect
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: theme.colorScheme.surface,
+                          border: Border.all(
+                            color: Colors.amber.withOpacity(0.2),
+                            width: 1,
+                          ),
+                        ),
+                        child: Card(
+                          margin: EdgeInsets.zero,
+                          elevation: 0,
+                          color: Colors.transparent,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 28.0, horizontal: 16),
+                            child: Column(
+                              children: [
+                                Text(
+                                  _chapter!.title ?? '',
+                                  style: theme.textTheme.headlineMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 1.3,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  _chapter!.summary ?? '',
+                                  textAlign: TextAlign.center,
+                                  style: theme.textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ),
@@ -272,8 +332,8 @@ class _VerseListViewState extends State<VerseListView> {
                             children: [
                               // Verse number badge
                               Container(
-                                width: 36,
-                                height: 36,
+                                width: 48,
+                                height: 48,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   color: theme.colorScheme.primaryContainer,
@@ -284,6 +344,7 @@ class _VerseListViewState extends State<VerseListView> {
                                     style: theme.textTheme.labelMedium?.copyWith(
                                       color: theme.colorScheme.onPrimaryContainer,
                                       fontWeight: FontWeight.w600,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ),

@@ -9,7 +9,6 @@ class ReferencesScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Scaffold(
-      extendBodyBehindAppBar: true,
       backgroundColor: Colors.transparent,
 
       appBar: AppBar(
@@ -19,8 +18,9 @@ class ReferencesScreen extends StatelessWidget {
         elevation: 4,
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB (10,100,10,450),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
         child: Card(
           color: theme.colorScheme.surface,
           child: Padding(
@@ -46,6 +46,7 @@ class ReferencesScreen extends StatelessWidget {
             ),
           ),
         ),
+      ),
       ),
     );
   }

@@ -1,0 +1,138 @@
+{
+  "@@locale": "mr",
+  
+  "appTitle": "गीताज्ञान",
+  
+  "homeTab": "होम",
+  
+  "chaptersTab": "अध्याय",
+  
+  "scenariosTab": "परिस्थिती",
+  
+  "journalTab": "डायरी",
+  
+  "moreTab": "अधिक",
+  
+  "verseOfTheDay": "आजचा श्लोक",
+  
+  "verseRefresher": "श्लोक रिफ्रेशर",
+  
+  "modernDilemma": "आधुनिक कोंडी",
+  
+  "showWisdom": "ज्ञान दाखवा",
+  
+  "applyGitaTeaching": "आधुनिक परिस्थितींमध्ये गीतेची शिकवण लागू करा",
+  
+  "viewScenarios": "परिस्थिती पहा ({count})",
+  
+  "readAllVerses": "सर्व श्लोक वाचा ({count})",
+  
+  "relatedScenarios": "संबंधित परिस्थिती",
+  
+  "keyTeachings": "मुख्य शिकवणी",
+  
+  "exploreChapter": "या अध्यायाचा शोध घ्या",
+  
+  "viewMoreScenarios": "आणखी {count} परिस्थिती पहा",
+  
+  "showFewerScenarios": "कमी परिस्थिती दाखवा",
+  
+  "loading": "लोड होत आहे...",
+  
+  "errorLoadingData": "डेटा लोड करण्यात त्रुटी",
+
+  "language": "भाषा",
+  "appearance": "दिसणे", 
+  "darkMode": "डार्क मोड",
+  "backgroundMusic": "पार्श्वभूमी संगीत",
+  "fontSize": "फॉन्ट आकार",
+  "textShadow": "मजकूर सावली",
+  "backgroundOpacity": "पार्श्वभूमी पारदर्शकता",
+  "storageAndCache": "स्टोरेज आणि कॅशे",
+  "cacheSize": "कॅशे आकार",
+  "clearCache": "कॅशे साफ करा",
+  "extras": "अतिरिक्त",
+  "shareThisApp": "हे अॅप शेअर करा",
+  "resources": "संसाधने",
+  "about": "विषयी",
+  "references": "संदर्भ",
+  "supportAndLegal": "सहाय्य आणि कायदेशीर",
+  "sendFeedback": "फीडबॅक पाठवा",
+  "privacyPolicy": "गोपनीयता धोरण",
+  "termsAndConditions": "नियम आणि अटी",
+  "appLanguage": "अॅप भाषा",
+  "english": "English",
+  "spanish": "Español",
+  "hindi": "हिंदी",
+  "german": "Deutsch",
+  "french": "Français",
+  "italian": "Italiano",
+  "sanskrit": "संस्कृतम्",
+  "bengali": "বাংলা",
+  "gujarati": "ગુજરાતી",
+  "tamil": "தமிழ்",
+  "telugu": "తెలుగు",
+  "marathi": "मराठी",
+  "portuguese": "Português",
+  "russian": "Русский",
+  "kannada": "ಕನ್ನಡ",
+
+  "gitaChapters": "गीता अध्याय",
+  "immerseInKnowledge": "ज्ञानाच्या समुद्रात बुडून जा",
+  "noChaptersAvailable": "कोणतेही अध्याय उपलब्ध नाहीत.",
+  "versesCount": "श्लोक",
+  "scenariosCount": "परिस्थिती",
+
+  "scenarios": "परिस्थिती",
+  "realWorldSituations": "गीतेच्या ज्ञानाने मार्गदर्शन केलेल्या वास्तविक जीवनातील परिस्थिती",
+  "searchScenarios": "शीर्षक किंवा वर्णनानुसार परिस्थिती शोधा...",
+  "noScenariosAvailable": "कोणतीही परिस्थिती उपलब्ध नाही",
+  "noScenariosMatch": "तुमच्या शोधाशी कोणतीही परिस्थिती जुळत नाही",
+  "failedToRefresh": "परिस्थिती रिफ्रेश करण्यात अपयश",
+
+  "aboutGitaWisdom": "गीताज्ञान विषयी",
+  "madeWithLove": "जगभरातील आध्यात्मिक साधकांसाठी ❤️ ने बनवले",
+  "aboutDescription": "भगवद्गीतेची एक व्यावहारिक मार्गदर्शिका, अध्याय, परिस्थिती आणि चिंतन देते—आता सानुकूल थीम, भाषा समर्थन आणि बरेच काही.",
+  "gitaQuote": "\"तुम्हाला तुमची कर्मे करण्याचा अधिकार आहे, परंतु कर्माच्या फळावर तुमचा अधिकार नाही.\"",
+  "gitaQuoteReference": "- भगवद्गीता २.४७",
+  "appVersion": "गीताज्ञान v१.०.०",
+  "referencesTitle": "संदर्भ",
+  "reference1": "* भगवद्गीता जसी आहे (ए. सी. भक्तिवेदांत स्वामी प्रभुपाद)",
+  "reference2": "* भगवद्गीता: एक नवीन भाषांतर (स्टीफन मिशेल)",
+  "reference3": "• इतर शैक्षणिक आणि पारंपरिक भाष्ये",
+
+  "myJournal": "माझी डायरी",
+  "trackSpiritual": "तुमचे आध्यात्मिक चिंतन आणि वाढ ट्रॅक करा",
+  "noJournalEntries": "अजूनही कोणत्याही डायरी नोंदी नाहीत",
+  "tapPlusButton": "तुमचे पहिले चिंतन तयार करण्यासाठी + बटण दाबा",
+  "addJournalEntry": "डायरी नोंद जोडा",
+  "readMore": "अधिक वाचा",
+  "failedToSaveEntry": "डायरी नोंद जतन करण्यात अपयश",
+  "journalEntry": "डायरी नोंद",
+  "reflectionFrom": "{date} चे चिंतन",
+  "writtenOn": "{date} ला लिहिले",
+  "newJournalEntry": "नवीन डायरी नोंद",
+  "yourReflection": "तुमचे चिंतन",
+  "category": "श्रेणी",
+  "rating": "रेटिंग",
+  "cancel": "रद्द करा",
+  "save": "जतन करा",
+  "categoryGeneral": "सामान्य",
+  "categoryPersonalGrowth": "वैयक्तिक वाढ",
+  "categoryMeditation": "ध्यान",
+  "categoryDailyReflection": "दैनंदिन चिंतन",
+  "categoryScenarioWisdom": "परिस्थिती ज्ञान",
+  "categoryChapterInsights": "अध्याय अंतर्दृष्टी",
+  
+  "deleteEntry": "नोंद हटवा",
+  "delete": "हटवा",
+  "deleteConfirmation": "तुम्हाला खरोखर ही डायरी नोंद हटवायची आहे का? ही क्रिया पूर्ववत करता येणार नाही.",
+  "entryDeleted": "डायरी नोंद हटवली",
+  "undo": "पूर्ववत करा",
+  "entryRestored": "डायरी नोंद पुनर्संचयित केली",
+  "failedToRestoreEntry": "नोंद पुनर्संचयित करण्यात अपयश",
+  "failedToDeleteEntry": "नोंद हटवण्यात अपयश",
+  
+  "journalEntrySaved": "डायरी नोंद जतन केली!",
+  "pleaseSelectRating": "कृपया रेटिंग निवडा"
+}

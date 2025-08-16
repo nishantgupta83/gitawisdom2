@@ -11,7 +11,7 @@ import '../models/chapter.dart';
 import '../models/chapter_summary.dart';
 import '../models/scenario.dart';
 import '../models/verse.dart';
-import '../screens/daily_quote.dart';
+import '../models/daily_quote.dart';
 
 class SupabaseService {
   /// Shared Supabase client

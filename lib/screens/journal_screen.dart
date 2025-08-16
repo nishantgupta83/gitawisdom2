@@ -70,7 +70,6 @@ class _JournalScreenState extends State<JournalScreen> {
           ),
         ),
       ),
-        ),
       
       // Floating Action Button for adding new entries
       floatingActionButton: FloatingActionButton(
