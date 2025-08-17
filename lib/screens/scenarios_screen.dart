@@ -2,11 +2,13 @@
 
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/scenario.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 import '../services/scenario_service.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import 'scenario_detail_view.dart';
+import '../main.dart';
 import '../l10n/app_localizations.dart';
 
 class ScenariosScreen extends StatefulWidget {
@@ -19,7 +21,7 @@ class ScenariosScreen extends StatefulWidget {
 }
 
 class _ScenariosScreenState extends State<ScenariosScreen> {
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
   final ScenarioService _scenarioService = ScenarioService.instance;
   // final FavoritesService _favoritesService = FavoritesService.instance; // COMMENTED OUT: User-specific features disabled
   List<Scenario> _scenarios = [];
@@ -352,94 +354,123 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     }
   }
 
+  /// Fade-transition helper
+  void _fadePush(Widget page) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        transitionsBuilder: (_, anim, __, child) =>
+            FadeTransition(opacity: anim, child: child),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context);
     
     return Scaffold(
-      // Global background handled by main.dart
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refreshFromServer,
-          child: Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+      body: Stack(
+        children: [
+          // Background image with dark overlay for dark mode
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/app_bg.png',
+              fit: BoxFit.cover,
+              color: theme.brightness == Brightness.dark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              colorBlendMode: theme.brightness == Brightness.dark ? BlendMode.darken : null,
             ),
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                // Branding Card
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
-                    child: Card(
-                      // Use theme.cardTheme styling
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
-                        child: Column(
-                          children: [
-                            Text(
-                              _selectedChapter != null 
-                                  ? 'Chapter $_selectedChapter ${localizations?.scenarios ?? 'Scenarios'}'
-                                  : localizations?.scenarios ?? 'Scenarios',
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.3,
-                              ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              _selectedChapter != null
-                                  ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
-                                  : localizations?.realWorldSituations ?? 'Real-world situations guided by ancient wisdom',
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.6),
-                              ),
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            // Scenario count indicator
-                            const SizedBox(height: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.primary.withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                  color: theme.colorScheme.primary.withOpacity(0.3),
-                                  width: 1,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.inventory, 
-                                    color: theme.colorScheme.primary, 
-                                    size: 16
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    '$_totalScenarioCount scenarios available',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.primary,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
+          ),
+          
+          // Sticky header that stays fixed at top
+          SafeArea(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+              decoration: BoxDecoration(
+                // Semi-transparent background for glassmorphism effect
+                color: theme.colorScheme.surface.withOpacity(0.95),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                // Subtle border at bottom
+                border: Border(
+                  bottom: BorderSide(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    _selectedChapter != null 
+                        ? 'CHAPTER $_selectedChapter SCENARIOS'
+                        : 'LIFE SCENARIOS',
+                    style: GoogleFonts.poiretOne(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: 1.3,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  // Underline bar
+                  Container(
+                    width: 80,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.primary.withOpacity(0.6),
+                        ],
                       ),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-
-                  // Search Bar
+                  const SizedBox(height: 8),
+                  Text(
+                    _selectedChapter != null
+                        ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
+                        : localizations?.realWorldSituations ?? 'Real-world situations guided by ancient wisdom',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      letterSpacing: 0.8,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Scrollable content area that goes under the header
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: _refreshFromServer,
+              child: Container(
+                margin: const EdgeInsets.only(top: 140), // Space for sticky header
+                child: ListView(
+                  padding: EdgeInsets.only(
+                    left: 20,
+                    right: 20,
+                    top: 12,
+                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                  ),
+                  children: [
+                    // Search Bar
                   Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                     child: TextField(
@@ -551,7 +582,77 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
             ),
           ), // RefreshIndicator
         ), // SafeArea
-    );
+        
+        // Floating Back Button
+        Positioned(
+          top: 26,
+          right: 84,
+          child: Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amberAccent,
+                  blurRadius: 16,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 26,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 32,
+                  color: theme.colorScheme.primary,
+                ),
+                splashRadius: 32,
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Back',
+              ),
+            ),
+          ),
+        ),
+        
+        // Floating Home Button
+        Positioned(
+          top: 26,
+          right: 24,
+          child: Container(
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.amberAccent,
+                  blurRadius: 16,
+                  spreadRadius: 4,
+                ),
+              ],
+            ),
+            child: CircleAvatar(
+              radius: 26,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.home_filled,
+                  size: 32,
+                  color: theme.colorScheme.primary,
+                ),
+                splashRadius: 32,
+                onPressed: () {
+                  // Use proper tab navigation to sync bottom navigation state
+                  NavigationHelper.goToTab(0); // 0 = Home tab index
+                },
+                tooltip: 'Home',
+              ),
+            ),
+          ),
+        ),
+        
+        ], // Stack children
+      ), // Stack
+    ); // Scaffold
 
   }
 
@@ -611,13 +712,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     // Compact button to prevent overflow
                     TextButton(
                       onPressed: () {
-                        // Navigate normally to preserve bottom navigation
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ScenarioDetailView(scenario: scenario),
-                          ),
-                        );
+                        _fadePush(ScenarioDetailView(scenario: scenario));
                       },
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

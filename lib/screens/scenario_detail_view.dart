@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/scenario.dart';
 import '../models/journal_entry.dart';
 import '../screens/scenarios_screen.dart';
 import '../screens/new_journal_entry_dialog.dart';
+import '../screens/home_screen.dart';
 import '../services/journal_service.dart';
 import '../main.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
@@ -122,7 +124,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
 
   @override
   Widget build(BuildContext context) {
-    final t = Theme.of(context);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return WillPopScope(
       onWillPop: () async {
@@ -131,138 +134,209 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: SafeArea(
-        child: Stack(
+        body: Stack(
           children: [
-            // Scroll content
-            ListView(
-              controller: _ctrl,
-              padding: EdgeInsets.zero,
-              children: [
-                // Branding Header Card
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
-                      child: Column(
-                        children: [
-                          Text(
-                            'MODERN DAY SCENARIO',
-                            style: t.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: 1.3,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            'Bite-sized wisdom for modern challenges',
-                            textAlign: TextAlign.center,
-                            style: t.textTheme.bodyMedium?.copyWith(
-                              color: t.colorScheme.onSurface.withOpacity(0.6),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                
-                // Scenario Title Card with Heart
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-                  child: Card(
-                    elevation: 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.scenario.title,
-                              style: t.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                                color: t.colorScheme.primary,
-                              ),
-                              // Allow multiple lines for long titles but prevent overflow
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          // COMMENTED OUT: User-specific favorites feature disabled
-                          /*
-                          // Heart favorite button with fixed size to prevent layout shifts
-                          SizedBox(
-                            width: 48,
-                            height: 48,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 300),
-                              child: _favoriteLoading
-                                  ? Center(
-                                      child: SizedBox(
-                                        width: 24,
-                                        height: 24,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(t.colorScheme.primary),
-                                        ),
-                                      ),
-                                    )
-                                  : IconButton(
-                                      key: ValueKey(_isFavorited),
-                                      onPressed: _toggleFavorite,
-                                      icon: AnimatedSwitcher(
-                                        duration: const Duration(milliseconds: 200),
-                                        child: Icon(
-                                          _isFavorited ? Icons.favorite : Icons.favorite_border,
-                                          key: ValueKey(_isFavorited),
-                                          color: _isFavorited ? Colors.red : t.colorScheme.onSurface.withOpacity(0.6),
-                                          size: 28,
-                                        ),
-                                      ),
-                                      tooltip: _isFavorited ? 'Remove from favorites' : 'Add to favorites',
-                                    ),
-                            ),
-                          ),
-                          */
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                
-                _card('Description', widget.scenario.description, t),
-                _buildHeartSection(t),
-                _buildDutySection(t),
-                
-                // Strategy 2 SHOW WISDOM Button
-                if (!_showActions) _buildShowWisdomButton(t),
-                
-                if (widget.scenario.tags?.isNotEmpty ?? false) _tagCard(t),
-                _card('Gita Wisdom', widget.scenario.gitaWisdom, t),
-                if (_showActions) _actionStepsCard(t),
-                
-                // Bottom padding for floating elements and bottom navigation bar
-                SizedBox(height: 120 + MediaQuery.of(context).padding.bottom),
-              ],
+            // Background image with dark overlay for dark mode
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/app_bg.png',
+                fit: BoxFit.cover,
+                color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+                colorBlendMode: isDark ? BlendMode.darken : null,
+              ),
             ),
             
-            // Floating navigation buttons with higher z-index
+            // Sticky header that stays fixed at top
+            SafeArea(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+                decoration: BoxDecoration(
+                  // Semi-transparent background for glassmorphism effect
+                  color: theme.colorScheme.surface.withOpacity(0.95),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  // Subtle border at bottom
+                  border: Border(
+                    bottom: BorderSide(
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      'MODERN DAY SCENARIO',
+                      style: GoogleFonts.poiretOne(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface,
+                        letterSpacing: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    // Underline bar
+                    Container(
+                      width: 80,
+                      height: 3,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            theme.colorScheme.primary,
+                            theme.colorScheme.primary.withOpacity(0.6),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Bite-sized wisdom for modern challenges',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        letterSpacing: 0.8,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Scrollable content area that goes under the header
+            SafeArea(
+              child: Container(
+                margin: const EdgeInsets.only(top: 140), // Space for sticky header
+                child: ListView(
+                  controller: _ctrl,
+                  padding: EdgeInsets.zero,
+                  children: [
+                    // Scenario Title Card with Heart
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+                      child: Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        color: theme.colorScheme.surface,
+                        shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  widget.scenario.title,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.primary,
+                                  ),
+                                  // Allow multiple lines for long titles but prevent overflow
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              // COMMENTED OUT: User-specific favorites feature disabled
+                              /*
+                              // Heart favorite button with fixed size to prevent layout shifts
+                              SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 300),
+                                  child: _favoriteLoading
+                                      ? Center(
+                                          child: SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor: AlwaysStoppedAnimation<Color>(theme.colorScheme.primary),
+                                            ),
+                                          ),
+                                        )
+                                      : IconButton(
+                                          key: ValueKey(_isFavorited),
+                                          onPressed: _toggleFavorite,
+                                          icon: AnimatedSwitcher(
+                                            duration: const Duration(milliseconds: 200),
+                                            child: Icon(
+                                              _isFavorited ? Icons.favorite : Icons.favorite_border,
+                                              key: ValueKey(_isFavorited),
+                                              color: _isFavorited ? Colors.red : theme.colorScheme.onSurface.withOpacity(0.6),
+                                              size: 28,
+                                            ),
+                                          ),
+                                          tooltip: _isFavorited ? 'Remove from favorites' : 'Add to favorites',
+                                        ),
+                                ),
+                              ),
+                              */
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    
+                    _card('Description', widget.scenario.description, theme),
+                    _buildHeartSection(theme),
+                    _buildDutySection(theme),
+                    
+                    // Strategy 2 SHOW WISDOM Button
+                    if (!_showActions) _buildShowWisdomButton(theme),
+                    
+                    if (widget.scenario.tags?.isNotEmpty ?? false) _tagCard(theme),
+                    _card('Gita Wisdom', widget.scenario.gitaWisdom, theme),
+                    if (_showActions) _actionStepsCard(theme),
+                    
+                    // Bottom padding for floating elements and bottom navigation bar
+                    SizedBox(height: 120 + MediaQuery.of(context).padding.bottom),
+                  ],
+                ),
+              ),
+            ),
+            
+            // Floating Back Button
             Positioned(
               top: 26,
-              right: 84, // Moved to where journal button was to close the gap
-              child: Material(
-                elevation: 12,
-                shape: CircleBorder(),
-                color: Colors.transparent,
-                child: _glowingNavButton(
-                  icon: Icons.arrow_back,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
+              right: 84,
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amberAccent,
+                      blurRadius: 16,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundColor: theme.colorScheme.surface,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.arrow_back,
+                      size: 32,
+                      color: theme.colorScheme.primary,
+                    ),
+                    splashRadius: 32,
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Back',
+                  ),
                 ),
               ),
             ),
@@ -280,24 +354,42 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
               ),
             ),
             */
+            
+            // Floating Home Button
             Positioned(
               top: 26,
               right: 24,
-              child: Material(
-                elevation: 12,
-                shape: CircleBorder(),
-                color: Colors.transparent,
-                child: _glowingNavButton(
-                  icon: Icons.home,
-                  onTap: () {
-                    // Return to existing root without creating new navigation stack
-                    Navigator.of(context).popUntil((route) => route.isFirst);
-                  },
+              child: Container(
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.amberAccent,
+                      blurRadius: 16,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundColor: theme.colorScheme.surface,
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.home_filled,
+                      size: 32,
+                      color: theme.colorScheme.primary,
+                    ),
+                    splashRadius: 32,
+                    onPressed: () {
+                      // Use proper tab navigation to sync bottom navigation state
+                      NavigationHelper.goToTab(0); // 0 = Home tab index
+                    },
+                    tooltip: 'Home',
+                  ),
                 ),
               ),
             ),
           ],
-        ),
         ),
       ),
     );
@@ -308,119 +400,199 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
       style: t.textTheme.headlineMedium
   );
 
-  Widget _card(String title, String body, ThemeData t) => Padding(
-    padding: const EdgeInsets.symmetric(vertical: 8),
+  Widget _card(String title, String body, ThemeData theme) => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
     child: Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
+      color: theme.colorScheme.surface,
+      shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
       child: Padding(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
-            style: t.textTheme.titleMedium
+            style: GoogleFonts.poppins(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: theme.colorScheme.onSurface,
+            ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
           Text(body,
-            style: t.textTheme.bodyMedium
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              color: theme.colorScheme.onSurface.withOpacity(0.8),
+              height: 1.5,
+            ),
           ),
         ]),
       ),
     ),
   );
 
-  Widget _buildHeartSection(ThemeData t) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.cloud, size: 24),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Heart Says',
-                      style: t.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text(widget.scenario.heartResponse,
-                      style: t.textTheme.bodyMedium,
-                      // Allow flexible text length for heart response
-                      overflow: TextOverflow.visible),
-                ],
+  Widget _buildHeartSection(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        color: theme.colorScheme.surface,
+        shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.pink.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.favorite, size: 24, color: Colors.pink),
               ),
-            ),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Heart Says',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 8),
+                    Text(widget.scenario.heartResponse,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          height: 1.5,
+                        ),
+                        // Allow flexible text length for heart response
+                        overflow: TextOverflow.visible),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildDutySection(ThemeData t) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Icon(Icons.balance, size: 24),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Duty Says',
-                      style: t.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis),
-                  const SizedBox(height: 4),
-                  Text(widget.scenario.dutyResponse,
-                      style: t.textTheme.bodyMedium,
-                      // Allow flexible text length for duty response
-                      overflow: TextOverflow.visible),
-                ],
+  Widget _buildDutySection(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+        ),
+        color: theme.colorScheme.surface,
+        shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.balance, size: 24, color: Colors.blue),
               ),
-            ),
-          ],
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Duty Says',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis),
+                    const SizedBox(height: 8),
+                    Text(widget.scenario.dutyResponse,
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          height: 1.5,
+                        ),
+                        // Allow flexible text length for duty response
+                        overflow: TextOverflow.visible),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _tagCard(ThemeData t) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Wrap(
-        spacing: 8,
-        runSpacing: 4,
-        children: widget.scenario.tags!
-            .map((tag) => ActionChip(
-              label: Text(tag),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ScenariosScreen(filterTag: tag),
+  Widget _tagCard(ThemeData theme) => Padding(
+    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+    child: Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
+      color: theme.colorScheme.surface,
+      shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: widget.scenario.tags!
+              .map((tag) => ActionChip(
+                label: Text(
+                  tag,
+                  style: GoogleFonts.poppins(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
                   ),
-                );
-              },
-            ))
-            .toList(),
+                ),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (_, __, ___) => ScenariosScreen(filterTag: tag),
+                      transitionsBuilder: (_, anim, __, child) =>
+                          FadeTransition(opacity: anim, child: child),
+                    ),
+                  );
+                },
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                side: BorderSide(
+                  color: theme.colorScheme.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ))
+              .toList(),
+        ),
       ),
     ),
   );
 
-  Widget _actionStepsCard(ThemeData t) => Builder(
+  Widget _actionStepsCard(ThemeData theme) => Builder(
     builder: (context) {
       // Get device width for responsive design
       final deviceWidth = MediaQuery.of(context).size.width;
       final isTablet = deviceWidth > 600;
-      final horizontalPadding = isTablet ? deviceWidth * 0.1 : 16.0;
+      final horizontalPadding = isTablet ? deviceWidth * 0.1 : 20.0;
       
       return Container(
         key: _actionsKey,
@@ -477,8 +649,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           child: Container(
             margin: const EdgeInsets.all(3), // Creates enhanced border effect
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(15),
-              color: t.colorScheme.surface,
+              borderRadius: BorderRadius.circular(22),
+              color: theme.colorScheme.surface,
               border: Border.all(
                 color: Colors.amber.withOpacity(0.2),
                 width: 1,
@@ -522,10 +694,10 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         Expanded(
                           child: Text(
                             'Wisdom Steps',
-                            style: t.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: t.colorScheme.primary,
+                            style: GoogleFonts.poppins(
                               fontSize: isTablet ? 20 : 18,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.primary,
                             ),
                           ),
                         ),
@@ -559,7 +731,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                             child: Center(
                               child: Text(
                                 '${entry.key + 1}',
-                                style: TextStyle(
+                                style: GoogleFonts.poppins(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                   fontSize: isTablet ? 14 : 12,
@@ -570,9 +742,10 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                           Expanded(
                             child: Text(
                               entry.value,
-                              style: t.textTheme.bodyMedium?.copyWith(
-                                height: 1.4,
+                              style: GoogleFonts.poppins(
                                 fontSize: isTablet ? 16 : 14,
+                                color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                height: 1.5,
                               ),
                             ),
                           ),
@@ -589,8 +762,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
     },
   );
 
-  // Same glowing nav button as home screen
-  Widget _buildShowWisdomButton(ThemeData t) {
+  // Same glowing show wisdom button with consistent styling
+  Widget _buildShowWisdomButton(ThemeData theme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
@@ -633,7 +806,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 const SizedBox(width: 12),
                 Text(
                   '🔮 SHOW WISDOM',
-                  style: TextStyle(
+                  style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -650,31 +823,6 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
     );
   }
 
-  Widget _glowingNavButton({
-    required IconData icon,
-    required VoidCallback onTap,
-  }) =>
-      Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.amberAccent.withOpacity(0.5),
-              blurRadius: 16,
-              spreadRadius: 4,
-            ),
-          ],
-        ),
-        child: CircleAvatar(
-          radius: 26,
-          backgroundColor: Theme.of(context).colorScheme.surface,
-          child: IconButton(
-            splashRadius: 32,
-            icon: Icon(icon, size: 32, color: Theme.of(context).colorScheme.primary),
-            onPressed: onTap,
-          ),
-        ),
-      );
 
   // COMMENTED OUT: User-specific journal features disabled
   /*

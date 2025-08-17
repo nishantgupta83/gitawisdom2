@@ -711,7 +711,21 @@ flutter test test/integration_test.dart
 
 ## 🔧 Recent Bug Fixes & Improvements
 
-### ✅ Latest Updates (January 2025)
+### ✅ Latest Updates (August 2025)
+
+#### 🧭 Navigation State Synchronization Fix - v1.2.1 (August 17, 2025 - 23:45 UTC)
+- **Critical Fix**: Resolved navigation state desynchronization issue where floating home buttons bypassed tab management
+- **Problem Solved**: Floating home button from scenario detail view now properly syncs with bottom navigation state
+- **Technical Details**: 
+  - Fixed 7 screens with floating home buttons (`scenario_detail_view.dart`, `chapters_screen.dart`, `scenarios_screen.dart`, `more_screen.dart`, `about_screen.dart`, `references_screen.dart`, `verse_list_view.dart`)
+  - Replaced direct `Navigator.pushAndRemoveUntil()` calls with proper `NavigationHelper.goToTab(0)` API
+  - Added public `NavigationHelper.goToTab()` method to expose private tab management functionality
+  - Maintained backward compatibility with all existing navigation workflows
+- **User Experience**: Bottom navigation now correctly shows "Home" as active when using floating home buttons
+- **Deployment Status**: ✅ iOS Release Build (40.8MB) | ✅ Android APK (72.3MB) | ✅ Android App Bundle (62.8MB)
+- **Compilation Status**: Clean builds with no critical errors, ready for production deployment
+
+### ✅ Previous Updates (January 2025)
 - **Bulletproof Filtering System** - Comprehensive scenario filtering with 5 major categories (Life Stages, Relationships, Career & Work, Personal Growth, Modern Life)
 - **Advanced Search Capabilities** - Compound search queries ("parenting stress", "work life balance") with intelligent matching
 - **Smart Category Mapping** - Automatic tag-to-category mapping using extensive keyword libraries for 699+ scenarios

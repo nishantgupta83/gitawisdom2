@@ -1,152 +1,13 @@
 // lib/screens/verse_list_view.dart
-// WORKING AUG-1-2025 BEFORE UX CHANGES
-
-/*
-import 'package:flutter/material.dart';
-import '../services/supabase_service.dart';
-import '../models/chapter.dart';
-import '../models/verse.dart'; // ← import your Verse model
-
-class VersesListView extends StatefulWidget {
-  final int chapterId;
-
-  const VersesListView({Key? key, required this.chapterId}) : super(key: key);
-
-  @override
-  _VersesListViewState createState() => _VersesListViewState();
-}
-
-class _VersesListViewState extends State<VersesListView> {
-  late Future<Chapter?> _chapterFuture;
-  late Future<List<Verse>> _versesFuture;
-  final SupabaseService _service = SupabaseService();
-
-  @override
-  void initState() {
-    super.initState();
-    _chapterFuture = _service.fetchChapterById(widget.chapterId);
-    _versesFuture  = _service.fetchVersesByChapter(widget.chapterId);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Verses'),
-        backgroundColor: theme.colorScheme.surface,
-        iconTheme: IconThemeData(color: theme.colorScheme.onSurface),
-      ),
-      backgroundColor: theme.colorScheme.surface,
-      body: FutureBuilder<Chapter?>(
-        future: _chapterFuture,
-        builder: (context, chapSnap) {
-          if (chapSnap.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (chapSnap.hasError || chapSnap.data == null) {
-            return const Center(child: Text('Error loading chapter info'));
-          }
-          final chapter = chapSnap.data!;
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Chapter header
-              Card(
-                margin: const EdgeInsets.all(16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Chapter ${widget.chapterId}: ${chapter.title}',
-                        style: theme.textTheme.titleLarge,
-                      ),
-                      if (chapter.subtitle != null) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          chapter.subtitle!,
-                          style: theme.textTheme.titleMedium,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ),
-
-              // Verses list
-              Expanded(
-                child: FutureBuilder<List<Verse>>(
-                  future: _versesFuture,
-                  builder: (context, vsSnap) {
-                    if (vsSnap.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (vsSnap.hasError) {
-                      return Center(
-                          child:
-                              Text('Error loading verses: ${vsSnap.error}'));
-                    }
-                    final verses = vsSnap.data!;
-                    if (verses.isEmpty) {
-                      return const Center(child: Text('No verses found.'));
-                    }
-                    return ListView.builder(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      itemCount: verses.length,
-                      itemBuilder: (context, index) {
-                        final v = verses[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Verse ${v.verseId}',
-                                  style: theme.textTheme.titleMedium,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  v.description,
-                                  style: theme.textTheme.bodyMedium,
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
-}
-*/
-
-// lib/screens/verse_list_view.dart
-// Updated AUG-02-2025: Mirror Home screen UX with branding header and nav buttons
+// Updated with consistent UI patterns and branding header
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../models/chapter.dart';
 import '../models/verse.dart';
-import '../services/supabase_service.dart';
-import '../screens/home_screen.dart';
+import '../services/service_locator.dart';
+import '../main.dart';
 import '../widgets/expandable_text.dart';
 
 class VerseListView extends StatefulWidget {
@@ -160,7 +21,7 @@ class VerseListView extends StatefulWidget {
 }
 
 class _VerseListViewState extends State<VerseListView> {
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
 
   Chapter? _chapter;
   List<Verse> _verses = [];
@@ -197,190 +58,221 @@ class _VerseListViewState extends State<VerseListView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-
-          // Main scrollable content
-          SafeArea(
-            child: ListView(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-              ),
-              children: [
-                // Chapter header
-                if (_chapter != null) ...[
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
-                    child: Container(
+          // Background image with dark overlay for dark mode
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/app_bg.png',
+              fit: BoxFit.cover,
+              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              colorBlendMode: isDark ? BlendMode.darken : null,
+            ),
+          ),
+          
+          // Sticky header that stays fixed at top
+          if (_chapter != null)
+            SafeArea(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+                decoration: BoxDecoration(
+                  // Semi-transparent background for glassmorphism effect
+                  color: theme.colorScheme.surface.withOpacity(0.95),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 0,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                  // Subtle border at bottom
+                  border: Border(
+                    bottom: BorderSide(
+                      color: theme.colorScheme.primary.withOpacity(0.1),
+                      width: 1,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      _chapter!.title ?? 'CHAPTER VERSES',
+                      style: GoogleFonts.poiretOne(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onSurface,
+                        letterSpacing: 1.3,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 12),
+                    // Underline bar
+                    Container(
+                      width: 80,
+                      height: 3,
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(18),
                         gradient: LinearGradient(
                           colors: [
-                            Colors.amber.shade400.withOpacity(0.4),
-                            Colors.orange.shade500.withOpacity(0.4),
-                            Colors.deepOrange.shade400.withOpacity(0.4),
-                            Colors.amber.shade300.withOpacity(0.3),
+                            theme.colorScheme.primary,
+                            theme.colorScheme.primary.withOpacity(0.6),
                           ],
-                          stops: const [0.0, 0.3, 0.7, 1.0],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
                         ),
-                        boxShadow: [
-                          // Outermost glow - strongest and largest
-                          BoxShadow(
-                            color: Colors.amber.withOpacity(0.6),
-                            blurRadius: 25,
-                            spreadRadius: 6,
-                            offset: const Offset(0, 8),
-                          ),
-                          // Middle glow - medium intensity
-                          BoxShadow(
-                            color: Colors.orange.withOpacity(0.4),
-                            blurRadius: 18,
-                            spreadRadius: 3,
-                            offset: const Offset(0, 4),
-                          ),
-                          // Inner glow - subtle and close
-                          BoxShadow(
-                            color: Colors.deepOrange.withOpacity(0.3),
-                            blurRadius: 12,
-                            spreadRadius: 1,
-                            offset: const Offset(0, 2),
-                          ),
-                          // Accent glow - golden shimmer
-                          BoxShadow(
-                            color: Colors.amberAccent.withOpacity(0.5),
-                            blurRadius: 30,
-                            spreadRadius: 8,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                      child: Container(
-                        margin: const EdgeInsets.all(3), // Creates enhanced border effect
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: theme.colorScheme.surface,
-                          border: Border.all(
-                            color: Colors.amber.withOpacity(0.2),
-                            width: 1,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Chapter ${widget.chapterId} verses from Bhagavad Gita',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        letterSpacing: 0.8,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          
+          // Scrollable content area that goes under the header
+          SafeArea(
+            child: Container(
+              margin: EdgeInsets.only(top: _chapter != null ? 140 : 20), // Space for sticky header
+              child: ListView(
+                padding: EdgeInsets.only(
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                ),
+                children: [
+                  // Header is now sticky, content starts here
+
+                  // Verse list or status
+                  if (_isLoading) ...[
+                    const Padding(
+                      padding: EdgeInsets.all(40),
+                      child: Center(child: CircularProgressIndicator()),
+                    ),
+                  ] else if (_errorMessage != null) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(40),
+                      child: Center(
+                        child: Text(
+                          _errorMessage!,
+                          style: GoogleFonts.poppins(
+                            color: theme.colorScheme.error,
+                            fontSize: 16,
                           ),
+                          textAlign: TextAlign.center,
                         ),
+                      ),
+                    ),
+                  ] else if (_verses.isEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.all(40),
+                      child: Center(
+                        child: Text(
+                          'No verses available.',
+                          style: GoogleFonts.poppins(
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    )
+                  ] else ...[
+                    for (var verse in _verses)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
                         child: Card(
-                          margin: EdgeInsets.zero,
-                          elevation: 0,
-                          color: Colors.transparent,
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(22),
+                          ),
+                          color: theme.colorScheme.surface,
+                          shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 28.0, horizontal: 16),
-                            child: Column(
+                            padding: const EdgeInsets.all(20),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  _chapter!.title ?? '',
-                                  style: theme.textTheme.headlineMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    letterSpacing: 1.3,
+                                // Verse number badge
+                                Container(
+                                  width: 56,
+                                  height: 56,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    gradient: LinearGradient(
+                                      colors: [
+                                        theme.colorScheme.primary,
+                                        theme.colorScheme.primary.withOpacity(0.8),
+                                      ],
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: theme.colorScheme.primary.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        spreadRadius: 1,
+                                      ),
+                                    ],
                                   ),
-                                  textAlign: TextAlign.center,
+                                  child: Center(
+                                    child: Text(
+                                      '${verse.verseId}',
+                                      style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  _chapter!.summary ?? '',
-                                  textAlign: TextAlign.center,
-                                  style: theme.textTheme.bodyMedium,
+                                const SizedBox(width: 16),
+                                // Verse text
+                                Expanded(
+                                  child: DefaultTextStyle(
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 15,
+                                      color: theme.colorScheme.onSurface.withOpacity(0.9),
+                                      height: 1.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                    child: ExpandableText(verse.description),
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-
-                // Verse list or status
-                if (_isLoading) ...[
-                  const Center(child: CircularProgressIndicator()),
-                ] else if (_errorMessage != null) ...[
-                  Center(
-                    child: Text(
-                      _errorMessage!,
-                      style: theme.textTheme.bodyMedium
-                          ?.copyWith(color: theme.colorScheme.error),
-                    ),
-                  ),
-                ] else if (_verses.isEmpty) ...[
-                  Center(
-                    child: Text(
-                      'No verses available.',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  )
-                ] else ...[
-                  for (var verse in _verses)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Verse number badge
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: theme.colorScheme.primaryContainer,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '${verse.verseId}',
-                                    style: theme.textTheme.labelMedium?.copyWith(
-                                      color: theme.colorScheme.onPrimaryContainer,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 18,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              // Verse text
-                              Expanded(
-                                child: DefaultTextStyle(
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ) ?? const TextStyle(),
-                                  child: ExpandableText(verse.description),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                ],
+                  ],
 
                 const SizedBox(height: 16),
               ],
             ),
           ),
+          ),
 
-          // Back button
+          // Floating Back Button
           Positioned(
             top: 26,
             right: 84,
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: Colors.amberAccent,
                     blurRadius: 16,
                     spreadRadius: 4,
                   ),
@@ -396,23 +288,23 @@ class _VerseListViewState extends State<VerseListView> {
                     color: theme.colorScheme.primary,
                   ),
                   splashRadius: 32,
-                  onPressed: () => Navigator.of(context).pop(),
+                  onPressed: () => Navigator.pop(context),
                   tooltip: 'Back',
                 ),
               ),
             ),
           ),
-
-          // Home button
+          
+          // Floating Home Button
           Positioned(
             top: 26,
             right: 24,
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: Colors.amberAccent,
                     blurRadius: 16,
                     spreadRadius: 4,
                   ),
@@ -429,14 +321,8 @@ class _VerseListViewState extends State<VerseListView> {
                   ),
                   splashRadius: 32,
                   onPressed: () {
-                    Navigator.of(context).pushAndRemoveUntil(
-                      PageRouteBuilder(
-                        pageBuilder: (_, __, ___) => const HomeScreen(),
-                        transitionsBuilder: (_, anim, __, child) =>
-                            FadeTransition(opacity: anim, child: child),
-                      ),
-                      (route) => false,
-                    );
+                    // Use proper tab navigation to sync bottom navigation state
+                    NavigationHelper.goToTab(0); // 0 = Home tab index
                   },
                   tooltip: 'Home',
                 ),

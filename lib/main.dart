@@ -236,6 +236,7 @@ class WisdomGuideApp extends StatelessWidget {
 class WisdomGuideApp extends StatelessWidget {
   const WisdomGuideApp({super.key});
 
+
  @override
   Widget build(BuildContext context) {
     // 2. Listen to changes in your settings Hive box
@@ -555,18 +556,18 @@ import 'services/favorites_service.dart';
 import 'models/chapter.dart';
 import 'models/journal_entry.dart';
 import 'models/user_favorite.dart';
+import 'models/supported_language.dart';
+import 'models/daily_quote.dart';
 import '../widgets/custom_nav_bar.dart';
 import '../services/settings_service.dart';
 import 'services/audio_service.dart';
+import 'services/service_locator.dart';
 import 'config/environment.dart'; // 👈 Import our environment config
 
 import 'screens/home_screen.dart';
 import 'screens/chapters_screen.dart';
 import 'screens/scenarios_screen.dart';
-import 'screens/journal_screen.dart';
 import 'screens/more_screen.dart';
-
-import 'package:flutter_svg/flutter_svg.dart';
 // lib/main.dart
 
 
@@ -631,6 +632,12 @@ Future<void> _initializeAppServices() async {
     if (!Hive.isAdapterRegistered(6)) {
       Hive.registerAdapter(UserFavoriteAdapter()); // typeId: 6
     }
+    if (!Hive.isAdapterRegistered(10)) {
+      Hive.registerAdapter(SupportedLanguageAdapter()); // typeId: 10
+    }
+    if (!Hive.isAdapterRegistered(11)) {
+      Hive.registerAdapter(DailyQuoteAdapter()); // typeId: 11
+    }
 
     // Open boxes with error handling
     if (!Hive.isBoxOpen('chapters')) {
@@ -657,6 +664,9 @@ Future<void> _initializeAppServices() async {
     
     // Open favorites service box
     await FavoritesService.instance.initialize();
+
+    // Initialize Enhanced Supabase Service via Service Locator
+    await ServiceLocator.instance.initialize();
 
     // Initialize audio service (non-blocking)
     AudioService.instance.loadEnabled().then((musicEnabled) {
@@ -870,14 +880,38 @@ class WisdomGuideApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           
-          // Localization setup
-          locale: Locale(languageCode),
+          // Localization setup - use English for UI when Material doesn't support content language
+          locale: () {
+            const materialSupportedCodes = ['en', 'es', 'hi', 'de', 'fr', 'it'];
+            return materialSupportedCodes.contains(languageCode) 
+                ? Locale(languageCode) 
+                : const Locale('en', '');
+          }(),
           localizationsDelegates: const [
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          localeResolutionCallback: (locale, supportedLocales) {
+            // For unsupported Material locales, fallback to English UI but keep content language separate
+            const materialSupportedCodes = ['en', 'es', 'hi', 'de', 'fr', 'it'];
+            
+            if (locale != null) {
+              // Check if Material/Cupertino supports this locale
+              if (materialSupportedCodes.contains(locale.languageCode)) {
+                // Use the requested locale if Material supports it
+                for (final supportedLocale in supportedLocales) {
+                  if (supportedLocale.languageCode == locale.languageCode) {
+                    return supportedLocale;
+                  }
+                }
+              }
+            }
+            // Fallback to English for UI components (Material/Cupertino)
+            // Content language is handled separately by EnhancedSupabaseService
+            return const Locale('en', '');
+          },
           supportedLocales: const [
             Locale('en', ''), // English
             Locale('es', ''), // Spanish  
@@ -1040,6 +1074,10 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 class NavigationHelper {
   static void goToScenariosWithChapter(int chapterId) {
     _RootScaffoldState.goToScenariosWithChapter(chapterId);
+  }
+  
+  static void goToTab(int index) {
+    _RootScaffoldState.goToTab(index);
   }
 }
 

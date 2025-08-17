@@ -293,15 +293,19 @@ void _showWebsiteQr() {
 */
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:intl/intl.dart';
 
+import '../screens/home_screen.dart';
+import '../main.dart';
+
 import '../services/settings_service.dart';
 import '../services/cache_service.dart';
-import '../services/enhanced_supabase_service.dart';
+import '../services/service_locator.dart';
 import '../screens/about_screen.dart';
 import '../screens/references_screen.dart';
 import '../services/audio_service.dart';
@@ -326,7 +330,7 @@ class _MoreScreenState extends State<MoreScreen> {
   Map<String, double> _cacheSizes = {};
   String _currentLanguage = 'en';
   List<SupportedLanguage> _supportedLanguages = [];
-  EnhancedSupabaseService? _supabaseService;
+  late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
 
   // Helper functions for font size mapping
   String _getFontSizeString(double value) {
@@ -384,11 +388,8 @@ class _MoreScreenState extends State<MoreScreen> {
 
   Future<void> _initializeLanguageSupport() async {
     try {
-      _supabaseService = EnhancedSupabaseService();
-      await _supabaseService!.initializeLanguages();
-      
       setState(() {
-        _supportedLanguages = _supabaseService!.supportedLanguages;
+        _supportedLanguages = _supabaseService.supportedLanguages;
       });
       
       debugPrint('🌐 Language support initialized with ${_supportedLanguages.length} languages');
@@ -423,10 +424,8 @@ class _MoreScreenState extends State<MoreScreen> {
       settingsService.setAppLanguage(newLanguage);
       _toggleSetting(SettingsService.langKey, newLanguage);
       
-      // Update supabase service if available
-      if (_supabaseService != null) {
-        await _supabaseService!.setCurrentLanguage(newLanguage);
-      }
+      // Update supabase service language
+      await _supabaseService.setCurrentLanguage(newLanguage);
       
       debugPrint('🌐 Language changed to: $newLanguage');
       
@@ -598,28 +597,102 @@ class _MoreScreenState extends State<MoreScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB (10,100,10,10),
-          child: ListView(
-            children: [
-              // Made with love section - moved to top and made bigger
-              const SizedBox(height: 20),
-              Center(
-                child: Text(
-                  'Made with ❤️ for spiritual seekers everywhere',
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.primary,
+      backgroundColor: Colors.transparent,
+      body: Stack(
+        children: [
+          // Background image with dark overlay for dark mode
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/app_bg.png',
+              fit: BoxFit.cover,
+              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              colorBlendMode: isDark ? BlendMode.darken : null,
+            ),
+          ),
+          
+          // Sticky header that stays fixed at top
+          SafeArea(
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+              decoration: BoxDecoration(
+                // Semi-transparent background for glassmorphism effect
+                color: theme.colorScheme.surface.withOpacity(0.95),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
                   ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
+                ],
+                // Subtle border at bottom
+                border: Border(
+                  bottom: BorderSide(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    width: 1,
+                  ),
                 ),
               ),
-              const SizedBox(height: 30),
+              child: Column(
+                children: [
+                  Text(
+                    'Made with ❤️ for spiritual seekers everywhere',
+                    style: GoogleFonts.poiretOne(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: 1.3,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  // Underline bar
+                  Container(
+                    width: 80,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.primary.withOpacity(0.6),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Settings and Preferences',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      letterSpacing: 0.8,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Scrollable content area that goes under the header
+          SafeArea(
+            child: Container(
+              margin: const EdgeInsets.only(top: 140), // Space for sticky header
+              child: ListView(
+                padding: EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  top: 10,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                ),
+                children: [
               
               _sectionTitle(localizations!.appearance),
               _settingTile(
@@ -721,9 +794,9 @@ class _MoreScreenState extends State<MoreScreen> {
               ),
               
               // Language Coverage Information
-              if (_supportedLanguages.isNotEmpty && _supabaseService != null)
+              if (_supportedLanguages.isNotEmpty)
                 FutureBuilder<Map<String, dynamic>>(
-                  future: _supabaseService!.getTranslationCoverage(_currentLanguage),
+                  future: _supabaseService.getTranslationCoverage(_currentLanguage),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                       final coverage = snapshot.data!;
@@ -942,17 +1015,87 @@ class _MoreScreenState extends State<MoreScreen> {
               Center(
                 child: Text(
                   'App Version 1.0.0',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                    fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
               const SizedBox(height: 30),
-            ],
+                ],
+              ),
+            ),
           ),
-        ),
+          
+          // Floating Back Button
+          Positioned(
+            top: 26,
+            right: 84,
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.amberAccent,
+                    blurRadius: 16,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 26,
+                backgroundColor: theme.colorScheme.surface,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: 32,
+                    color: theme.colorScheme.primary,
+                  ),
+                  splashRadius: 32,
+                  onPressed: () => Navigator.pop(context),
+                  tooltip: 'Back',
+                ),
+              ),
+            ),
+          ),
+          
+          // Floating Home Button
+          Positioned(
+            top: 26,
+            right: 24,
+            child: Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.amberAccent,
+                    blurRadius: 16,
+                    spreadRadius: 4,
+                  ),
+                ],
+              ),
+              child: CircleAvatar(
+                radius: 26,
+                backgroundColor: theme.colorScheme.surface,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.home_filled,
+                    size: 32,
+                    color: theme.colorScheme.primary,
+                  ),
+                  splashRadius: 32,
+                  onPressed: () {
+                    // Use proper tab navigation to sync bottom navigation state
+                    NavigationHelper.goToTab(0); // 0 = Home tab index
+                  },
+                  tooltip: 'Home',
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
