@@ -153,7 +153,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get italian => 'Italiano';
 
   @override
-  String get gitaChapters => 'गीता अध्याय';
+  String get gitaChapters => 'गीता के अध्याय';
 
   @override
   String get immerseInKnowledge => 'ज्ञान के सागर में डूब जाइए';
@@ -237,6 +237,40 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get readMore => 'और पढ़ें';
+
+  @override
+  String get readLess => 'कम पढ़ें';
+
+  @override
+  String get heartSays => 'हृदय कहता है';
+
+  @override
+  String get dutySays => 'कर्तव्य कहता है';
+
+  @override
+  String get wisdomSteps => 'ज्ञान के चरण';
+
+  @override
+  String get modernScenario => 'आधुनिक दिन की स्थिति';
+
+  @override
+  String get overview => 'सिंहावलोकन';
+
+  @override
+  String get immersiveKnowledge => 'ज्ञान के सागर में डूब जाएं';
+
+  @override
+  String get lifeScenarios => 'जीवन की स्थितियां';
+
+  @override
+  String get applyGitaWisdom =>
+      'वास्तविक जीवन की स्थितियों में गीता का ज्ञान लागू करें';
+
+  @override
+  String get back => 'वापस';
+
+  @override
+  String get home => 'होम';
 
   @override
   String get failedToSaveEntry => 'डायरी प्रविष्टि सहेजने में विफल';

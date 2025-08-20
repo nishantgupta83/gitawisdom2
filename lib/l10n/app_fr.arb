@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "Échec de la suppression de l'entrée",
   
   "journalEntrySaved": "Entrée de journal sauvegardée!",
-  "pleaseSelectRating": "Veuillez sélectionner une évaluation"
+  "pleaseSelectRating": "Veuillez sélectionner une évaluation",
+
+  "readLess": "Lire moins",
+  "heartSays": "Le Cœur Dit",
+  "dutySays": "Le Devoir Dit", 
+  "wisdomSteps": "Étapes de Sagesse",
+  "modernScenario": "SCÉNARIO MODERNE",
+  "overview": "Aperçu",
+  "showFewerScenarios": "Afficher moins de scénarios",
+  "gitaChapters": "CHAPITRES DE LA GITA", 
+  "immersiveKnowledge": "Plongez dans l'océan de la connaissance",
+  "lifeScenarios": "SCÉNARIOS DE VIE",
+  "applyGitaWisdom": "Appliquez la sagesse de la Gita aux situations réelles",
+  "back": "Retour",
+  "home": "Accueil"
 }

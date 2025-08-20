@@ -400,7 +400,7 @@ abstract class AppLocalizations {
   /// **'Italiano'**
   String get italian;
 
-  /// Main title for chapters screen
+  /// Header title for chapters screen
   ///
   /// In en, this message translates to:
   /// **'GITA CHAPTERS'**
@@ -561,6 +561,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Read More'**
   String get readMore;
+
+  /// Button text to collapse expanded text
+  ///
+  /// In en, this message translates to:
+  /// **'Read less'**
+  String get readLess;
+
+  /// Heart response section title in scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Heart Says'**
+  String get heartSays;
+
+  /// Duty response section title in scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Duty Says'**
+  String get dutySays;
+
+  /// Action steps section title in scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Wisdom Steps'**
+  String get wisdomSteps;
+
+  /// Header title for scenario detail view
+  ///
+  /// In en, this message translates to:
+  /// **'MODERN DAY SCENARIO'**
+  String get modernScenario;
+
+  /// Overview section title
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get overview;
+
+  /// Subtitle for chapters screen
+  ///
+  /// In en, this message translates to:
+  /// **'Immerse into the ocean of knowledge'**
+  String get immersiveKnowledge;
+
+  /// Header title for scenarios screen
+  ///
+  /// In en, this message translates to:
+  /// **'LIFE SCENARIOS'**
+  String get lifeScenarios;
+
+  /// Subtitle for scenarios screen
+  ///
+  /// In en, this message translates to:
+  /// **'Apply Gita wisdom to real-world situations'**
+  String get applyGitaWisdom;
+
+  /// Back button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// Home button tooltip
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get home;
 
   /// Error message when saving journal entry fails
   ///

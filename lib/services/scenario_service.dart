@@ -2,26 +2,32 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 import '../models/scenario.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 
 class ScenarioService {
   static final ScenarioService instance = ScenarioService._();
   ScenarioService._();
 
-  final SupabaseService _supabaseService = SupabaseService();
+  late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
   Box<Scenario>? _box;
   
   static const String boxName = 'scenarios';
   static const String lastSyncKey = 'last_sync_timestamp';
   
-  // Cache scenarios for 6 hours before background refresh (faster content updates)
-  static const Duration cacheValidityDuration = Duration(hours: 6);
+  // Cache scenarios for 30 days before background refresh (monthly content updates)
+  static const Duration cacheValidityDuration = Duration(days: 30);
   
   List<Scenario> _cachedScenarios = [];
   DateTime? _lastLocalFetch;
+  bool _isInitialized = false; // Prevent multiple initializations
 
   /// Initialize the service and open Hive box
   Future<void> initialize() async {
+    if (_isInitialized) {
+      debugPrint('📚 ScenarioService already initialized (${_cachedScenarios.length} scenarios)');
+      return;
+    }
+    
     try {
       if (!Hive.isBoxOpen(boxName)) {
         _box = await Hive.openBox<Scenario>(boxName);
@@ -29,9 +35,14 @@ class ScenarioService {
         _box = Hive.box<Scenario>(boxName);
       }
       
-      // Load cached scenarios into memory for fast search
-      await _loadCachedScenarios();
+      // Load cached scenarios into memory for fast search (without recursive call)
+      if (_box != null && _box!.isNotEmpty) {
+        _cachedScenarios = _box!.values.toList();
+        _lastLocalFetch = DateTime.now();
+        debugPrint('📚 Loaded ${_cachedScenarios.length} scenarios from cache');
+      }
       
+      _isInitialized = true;
       debugPrint('✅ ScenarioService initialized with ${_cachedScenarios.length} scenarios');
     } catch (e) {
       debugPrint('❌ Error initializing ScenarioService: $e');
@@ -41,7 +52,6 @@ class ScenarioService {
   /// Load cached scenarios into memory
   Future<void> _loadCachedScenarios() async {
     try {
-      await _ensureInitialized();
       if (_box != null && _box!.isNotEmpty) {
         _cachedScenarios = _box!.values.toList();
         _lastLocalFetch = DateTime.now();
@@ -184,7 +194,7 @@ class ScenarioService {
   }
 
   /// Get scenarios by specific categories in random order
-  List<Scenario> getScenariosByCategories(List<String> categories, {int? limit}) {
+  List<Scenario> fetchScenariosByCategories(List<String> categories, {int? limit}) {
     final filteredScenarios = _cachedScenarios.where((scenario) {
       return categories.contains(scenario.category.toLowerCase());
     }).toList();
@@ -277,25 +287,35 @@ class ScenarioService {
     return timeSinceLastFetch < cacheValidityDuration;
   }
 
-  /// Check if we should refresh from server
+  /// Check if we should refresh from server (monthly sync)
   bool _shouldRefreshFromServer() {
     // If no cached data, definitely refresh
     if (_cachedScenarios.isEmpty) return true;
     
-    // Check last sync time from settings
+    // Check last sync time from settings (30-day validity)
     try {
       final settingsBox = Hive.box('settings');
       final lastSyncString = settingsBox.get(lastSyncKey) as String?;
       
-      if (lastSyncString == null) return true;
+      if (lastSyncString == null) {
+        debugPrint('📅 No sync record found, refreshing scenarios');
+        return true;
+      }
       
       final lastSync = DateTime.parse(lastSyncString);
       final now = DateTime.now();
       final timeSinceLastSync = now.difference(lastSync);
+      final isExpired = timeSinceLastSync > cacheValidityDuration;
       
-      return timeSinceLastSync > cacheValidityDuration;
+      if (isExpired) {
+        debugPrint('📅 Cache expired (${timeSinceLastSync.inDays} days old), refreshing scenarios');
+      } else {
+        debugPrint('📅 Cache valid (${timeSinceLastSync.inDays} days old, expires in ${cacheValidityDuration.inDays - timeSinceLastSync.inDays} days)');
+      }
+      
+      return isExpired;
     } catch (e) {
-      debugPrint('Error checking sync time: $e');
+      debugPrint('❌ Error checking sync time: $e');
       return true; // Refresh if we can't determine last sync time
     }
   }
@@ -350,7 +370,7 @@ class ScenarioService {
 
   /// Ensure the service is initialized
   Future<void> _ensureInitialized() async {
-    if (_box == null) {
+    if (!_isInitialized) {
       await initialize();
     }
   }

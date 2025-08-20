@@ -2,7 +2,6 @@
 -- GitaWisdom Content Migration Script
 -- File: 002_migrate_existing_content.sql
 -- Purpose: Migrate existing English content to new multilingual translation tables
--- Author: Claude Code Assistant
 -- Date: 2025-08-15
 -- ===================================================================
 

@@ -12,12 +12,22 @@ class JournalEntryDetailView extends StatelessWidget {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context)!;
     final formattedDate = entry.dateCreated.toLocal().toIso8601String().split('T').first;
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      // Global background handled by main.dart
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
+          // Background image with dark overlay for dark mode
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/app_bg.png',
+              fit: BoxFit.cover,
+              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              colorBlendMode: isDark ? BlendMode.darken : null,
+            ),
+          ),
+          
           // Main scrollable content
           SafeArea(
             child: Padding(

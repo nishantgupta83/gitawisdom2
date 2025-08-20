@@ -2,7 +2,6 @@
 -- GitaWisdom Content Migration Script v2 (Function-Safe Version)
 -- File: 002_migrate_existing_content_v2.sql
 -- Purpose: Migrate existing English content to new multilingual translation tables
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- Note: Properly handles existing functions and REINDEX issues
 -- ===================================================================

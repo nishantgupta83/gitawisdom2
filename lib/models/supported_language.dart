@@ -1,7 +1,8 @@
 // lib/models/supported_language.dart
 
+/* MULTILANG_TODO: Restore entire SupportedLanguage model for multilingual support
+
 import 'package:hive/hive.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 part 'supported_language.g.dart';
@@ -430,4 +431,32 @@ class LanguageCodes {
   static const List<String> european = [
     english, spanish, french, german, portuguese, italian, russian,
   ];
+}
+
+END OF MULTILANG_TODO COMMENT BLOCK */
+
+/// MVP: Empty SupportedLanguage placeholder for English-only release
+/// This prevents compilation errors while maintaining clean structure
+class SupportedLanguage {
+  // Minimal implementation for compilation compatibility
+  final String langCode;
+  const SupportedLanguage({required this.langCode});
+  
+  // Static method to prevent errors in existing code
+  static List<SupportedLanguage> get defaultLanguages => [
+    const SupportedLanguage(langCode: 'en')
+  ];
+  
+  // Compatibility methods to prevent errors
+  bool get isActive => true;
+  String displayName({bool useNative = true}) => 'English';
+  String displayNameWithFlag({bool useNative = true}) => '🇺🇸 English';
+}
+
+/// MVP: Empty adapter for compatibility - no Hive functionality
+class SupportedLanguageAdapter {
+  // Empty implementation for Hive compatibility
+  int get typeId => 10;
+  SupportedLanguage read(dynamic reader) => const SupportedLanguage(langCode: 'en');
+  void write(dynamic writer, SupportedLanguage obj) {}
 }

@@ -243,6 +243,40 @@ class AppLocalizationsEs extends AppLocalizations {
   String get readMore => 'Leer Más';
 
   @override
+  String get readLess => 'Leer menos';
+
+  @override
+  String get heartSays => 'El Corazón Dice';
+
+  @override
+  String get dutySays => 'El Deber Dice';
+
+  @override
+  String get wisdomSteps => 'Pasos de Sabiduría';
+
+  @override
+  String get modernScenario => 'ESCENARIO MODERNO';
+
+  @override
+  String get overview => 'Visión General';
+
+  @override
+  String get immersiveKnowledge => 'Sumérgete en el océano del conocimiento';
+
+  @override
+  String get lifeScenarios => 'ESCENARIOS DE VIDA';
+
+  @override
+  String get applyGitaWisdom =>
+      'Aplica la sabiduría del Gita a situaciones del mundo real';
+
+  @override
+  String get back => 'Atrás';
+
+  @override
+  String get home => 'Inicio';
+
+  @override
   String get failedToSaveEntry => 'Error al guardar entrada del diario';
 
   @override

@@ -278,12 +278,12 @@ void _showWebsiteQr() {
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: const Text('Privacy Policy'),
-            onTap: () => _launchUrl('https://hub4apps.com/#privacy'),
+            onTap: () => _launchUrl('https://hub4apps.com/privacy.html'),
           ),
           ListTile(
             leading: const Icon(Icons.article_outlined),
             title: const Text('Terms of Service'),
-            onTap: () => _launchUrl('https://hub4apps.com/#terms'),
+            onTap: () => _launchUrl('https://hub4apps.com/terms.html'),
           ),
         ],
       ),
@@ -309,7 +309,7 @@ import '../services/service_locator.dart';
 import '../screens/about_screen.dart';
 import '../screens/references_screen.dart';
 import '../services/audio_service.dart';
-import '../models/supported_language.dart';
+/* MULTILANG_TODO: import '../models/supported_language.dart'; */
 import '../l10n/app_localizations.dart';
 
 class MoreScreen extends StatefulWidget {
@@ -321,15 +321,17 @@ class MoreScreen extends StatefulWidget {
 
 class _MoreScreenState extends State<MoreScreen> {
   bool _darkMode = false;
-  bool _musicOn = false;
+  bool _musicOn = true;
   String _fontSize = 'small';
   double _fontSizeValue = 1.0; // 0.0 = small, 1.0 = medium, 2.0 = large
   bool _textShadow = true;
   double _backgroundOpacity = 0.3;
   String _cacheSize = 'Calculating...';
   Map<String, double> _cacheSizes = {};
+  /* MULTILANG_TODO: Language support variables
   String _currentLanguage = 'en';
   List<SupportedLanguage> _supportedLanguages = [];
+  */
   late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
 
   // Helper functions for font size mapping
@@ -360,13 +362,13 @@ class _MoreScreenState extends State<MoreScreen> {
     final box = Hive.box(SettingsService.boxName);
     _darkMode = box.get(SettingsService.darkKey, defaultValue: false);
     _musicOn = box.get(SettingsService.musicKey, defaultValue: true);
-    _fontSize = box.get(SettingsService.fontKey, defaultValue: 'small');
+    _fontSize = box.get(SettingsService.fontKey, defaultValue: 'medium');
     _fontSizeValue = _getFontSizeValue(_fontSize);
     _textShadow = box.get(SettingsService.shadowKey, defaultValue: true);
     _backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3);
-    _currentLanguage = box.get(SettingsService.langKey, defaultValue: 'en');
+    /* MULTILANG_TODO: _currentLanguage = box.get(SettingsService.langKey, defaultValue: 'en'); */
     
-    _initializeLanguageSupport();
+    /* MULTILANG_TODO: _initializeLanguageSupport(); */
     _loadCacheInfo();
   }
 
@@ -386,6 +388,7 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
+  /* MULTILANG_TODO: Language initialization
   Future<void> _initializeLanguageSupport() async {
     try {
       setState(() {
@@ -401,6 +404,21 @@ class _MoreScreenState extends State<MoreScreen> {
       });
     }
   }
+  */
+
+  // Launch URL in external browser
+  Future<void> _launchUrl(String url) async {
+    final uri = Uri.parse(url);
+    try {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Could not open link: $url')),
+        );
+      }
+    }
+  }
 
   void _toggleSetting(String key, dynamic value) {
     Hive.box(SettingsService.boxName).put(key, value);
@@ -413,10 +431,11 @@ class _MoreScreenState extends State<MoreScreen> {
       }
       if (key == SettingsService.shadowKey) _textShadow = value;
       if (key == SettingsService.opacityKey) _backgroundOpacity = value;
-      if (key == SettingsService.langKey) _currentLanguage = value;
+      /* MULTILANG_TODO: if (key == SettingsService.langKey) _currentLanguage = value; */
     });
   }
 
+  /* MULTILANG_TODO: Language changing
   Future<void> _changeLanguage(String newLanguage) async {
     try {
       // Update settings
@@ -452,7 +471,9 @@ class _MoreScreenState extends State<MoreScreen> {
       }
     }
   }
+  */
 
+  /* MULTILANG_TODO: Language display name
   String _getLanguageDisplayName(String languageCode) {
     // First try to get from supported languages
     final supportedLang = _supportedLanguages
@@ -478,6 +499,7 @@ class _MoreScreenState extends State<MoreScreen> {
         return languageCode;
     }
   }
+  */
 
   void _updateFontSize(double value) {
     final newFontSize = _getFontSizeString(value);
@@ -751,7 +773,8 @@ class _MoreScreenState extends State<MoreScreen> {
                   ),
                 ),
               ),
-
+              
+              /* MULTILANG_TODO: Language Section with Enhanced Multilingual Support
               // Language Section with Enhanced Multilingual Support
               _sectionTitle(localizations.language),
               ValueListenableBuilder<Box>(
@@ -792,7 +815,9 @@ class _MoreScreenState extends State<MoreScreen> {
                   );
                 },
               ),
+              */
               
+              /* MULTILANG_TODO: Language Coverage Information
               // Language Coverage Information
               if (_supportedLanguages.isNotEmpty)
                 FutureBuilder<Map<String, dynamic>>(
@@ -878,7 +903,7 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
 
               _sectionTitle(localizations.storageAndCache),
-              
+             */
               // Simplified Cache Management - Single Button Approach
               // User requested: Simple one-button cache clearing while preserving detailed functionality
               _settingTile(
@@ -1008,8 +1033,16 @@ class _MoreScreenState extends State<MoreScreen> {
                     }
                   }
               ),
-              _settingTile(title: localizations.privacyPolicy),
-              _settingTile(title: localizations.termsAndConditions),
+              _settingTile(
+                title: 'Privacy Policy',
+                leading: const Icon(Icons.privacy_tip_outlined),
+                onTap: () => _launchUrl('https://hub4apps.com/privacy.html'),
+              ),
+              _settingTile(
+                title: 'Terms of Service', 
+                leading: const Icon(Icons.article_outlined),
+                onTap: () => _launchUrl('https://hub4apps.com/terms.html'),
+              ),
 
               const SizedBox(height: 40),
               Center(

@@ -244,6 +244,40 @@ class AppLocalizationsIt extends AppLocalizations {
   String get readMore => 'Leggi di Più';
 
   @override
+  String get readLess => 'Leggi di meno';
+
+  @override
+  String get heartSays => 'Il Cuore Dice';
+
+  @override
+  String get dutySays => 'Il Dovere Dice';
+
+  @override
+  String get wisdomSteps => 'Passi di Saggezza';
+
+  @override
+  String get modernScenario => 'SCENARIO MODERNO';
+
+  @override
+  String get overview => 'Panoramica';
+
+  @override
+  String get immersiveKnowledge => 'Immergiti nell\'oceano della conoscenza';
+
+  @override
+  String get lifeScenarios => 'SCENARI DI VITA';
+
+  @override
+  String get applyGitaWisdom =>
+      'Applica la saggezza della Gita alle situazioni reali';
+
+  @override
+  String get back => 'Indietro';
+
+  @override
+  String get home => 'Casa';
+
+  @override
   String get failedToSaveEntry => 'Salvataggio della voce del diario fallito';
 
   @override

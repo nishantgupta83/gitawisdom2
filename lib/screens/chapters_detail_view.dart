@@ -1,13 +1,16 @@
 
 
-/* WORKING CHAPTER_DETAIL_VIEW - 29-JUKY BEFORE SAME AS HOME SCREEN
+/* WORKING CHAPTER_DETAIL_VIEW - Updated with consistent UI patterns
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../models/chapter.dart';
 import '../models/scenario.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 import '../screens/scenario_detail_view.dart';
 import '../screens/verse_list_view.dart';
+import '../screens/home_screen.dart';
+import '../l10n/app_localizations.dart';
 
 class ChapterDetailView extends StatefulWidget {
   final int chapterId;
@@ -19,7 +22,7 @@ class ChapterDetailView extends StatefulWidget {
 }
 
 class _ChapterDetailViewState extends State<ChapterDetailView> {
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
   Chapter? _chapter;
   List<Scenario> _scenarios = [];
   bool _isLoading = true;
@@ -67,48 +70,100 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
     }
 
     return Scaffold(
-      // Global background handled by main.dart
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Main scrollable content
+          // Background image with dark overlay for dark mode
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/app_bg.png',
+              fit: BoxFit.cover,
+              color: theme.brightness == Brightness.dark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              colorBlendMode: theme.brightness == Brightness.dark ? BlendMode.darken : null,
+            ),
+          ),
+          
+          // Sticky header that stays fixed at top
           SafeArea(
-            child: Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+              decoration: BoxDecoration(
+                // Semi-transparent background for glassmorphism effect
+                color: theme.colorScheme.surface.withOpacity(0.95),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    blurRadius: 10,
+                    spreadRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+                // Subtle border at bottom
+                border: Border(
+                  bottom: BorderSide(
+                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    width: 1,
+                  ),
+                ),
               ),
-              child: ListView(
-                padding: EdgeInsets.zero,
+              child: Column(
                 children: [
-                  // Branding Card with Chapter Title
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 60, 20, 14),
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
-                        child: Column(
-                          children: [
-                            Text(
-                              _chapter!.title,
-                              style: theme.textTheme.headlineMedium?.copyWith(
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: 1.3,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              'CHAPTER ${widget.chapterId}',
-                              textAlign: TextAlign.center,
-                              style: theme.textTheme.bodyMedium?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.6),
-                              ),
-                            ),
-                          ],
-                        ),
+                  Text(
+                    _chapter!.title,
+                    style: GoogleFonts.poiretOne(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: theme.colorScheme.onSurface,
+                      letterSpacing: 1.3,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 12),
+                  // Underline bar
+                  Container(
+                    width: 80,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.primary.withOpacity(0.6),
+                        ],
                       ),
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Chapter ${widget.chapterId} of the Bhagavad Gita',
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      letterSpacing: 0.8,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Scrollable content area that goes under the header
+          SafeArea(
+            child: Container(
+              margin: const EdgeInsets.only(top: 140), // Space for sticky header
+              child: ListView(
+                padding: EdgeInsets.only(
+                  left: 20,
+                  right: 20,
+                  top: 12,
+                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                ),
+                children: [
+                  // Original branding card content removed since it's now in sticky header"}, {"old_string": "                  // Overview Card\n                  Padding(\n                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 120),", "new_string": "                  // Overview Card\n                  Padding(\n                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 120),"}, {"old_string": "        ],\n      ),\n    );", "new_string": "          // Floating Back Button\n          Positioned(\n            top: 26,\n            right: 84,\n            child: Container(\n              decoration: const BoxDecoration(\n                shape: BoxShape.circle,\n                boxShadow: [\n                  BoxShadow(\n                    color: Colors.amberAccent,\n                    blurRadius: 16,\n                    spreadRadius: 4,\n                  ),\n                ],\n              ),\n              child: CircleAvatar(\n                radius: 26,\n                backgroundColor: theme.colorScheme.surface,\n                child: IconButton(\n                  icon: Icon(\n                    Icons.arrow_back,\n                    size: 32,\n                    color: theme.colorScheme.primary,\n                  ),\n                  splashRadius: 32,\n                  onPressed: () => Navigator.pop(context),\n                  tooltip: 'Back',\n                ),\n              ),\n            ),\n          ),\n          \n          // Floating Home Button\n          Positioned(\n            top: 26,\n            right: 24,\n            child: Container(\n              decoration: const BoxDecoration(\n                shape: BoxShape.circle,\n                boxShadow: [\n                  BoxShadow(\n                    color: Colors.amberAccent,\n                    blurRadius: 16,\n                    spreadRadius: 4,\n                  ),\n                ],\n              ),\n              child: CircleAvatar(\n                radius: 26,\n                backgroundColor: theme.colorScheme.surface,\n                child: IconButton(\n                  icon: Icon(\n                    Icons.home_filled,\n                    size: 32,\n                    color: theme.colorScheme.primary,\n                  ),\n                  splashRadius: 32,\n                  onPressed: () {\n                    Navigator.of(context).pushAndRemoveUntil(\n                      PageRouteBuilder(\n                        pageBuilder: (_, __, ___) => const HomeScreen(),\n                        transitionsBuilder: (_, anim, __, child) =>\n                            FadeTransition(opacity: anim, child: child),\n                      ),\n                      (route) => false,\n                    );\n                  },\n                  tooltip: 'Home',\n                ),\n              ),\n            ),\n          ),\n        ],\n      ),\n    );"}]
 
                   // Overview Card
                   Padding(
@@ -272,7 +327,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Related Scenarios',
+                      AppLocalizations.of(context)!.relatedScenarios,
                       style: theme.textTheme.titleMedium?.copyWith(color: onSurface),
                     ),
                     const SizedBox(height: 12),
@@ -318,12 +373,12 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
 import 'package:flutter/material.dart';
 import '../models/chapter.dart';
 import '../models/scenario.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 import '../services/scenario_service.dart';
 import '../screens/scenario_detail_view.dart';
 import '../screens/verse_list_view.dart';
-import '../screens/scenarios_screen.dart';
 import '../main.dart';
+import '../l10n/app_localizations.dart';
 
 class ChapterDetailView extends StatefulWidget {
   final int chapterId;
@@ -335,7 +390,7 @@ class ChapterDetailView extends StatefulWidget {
 }
 
 class _ChapterDetailViewState extends State<ChapterDetailView> {
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
   Chapter? _chapter;
   List<Scenario> _scenarios = [];
   bool _isLoading = true;
@@ -409,31 +464,97 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                   : SingleChildScrollView(
                 child: Column(
                   children: [
-                    // Text-only header (no hero banner image)
+                    // Enhanced header with amber glow effect (matches Key Teachings style)
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
-                      child: Column(
-                        children: [
-                          Text(
-                         _chapter!.title,
-                            style: theme.textTheme.displayMedium?.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: theme.colorScheme.onSurface,
-                              letterSpacing: 1.3,
-                            ),
-                            textAlign: TextAlign.center,
-                         ),
-                          const SizedBox(height: 8),
-                          Text(
-                           'CHAPTER ${widget.chapterId}',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-                              fontWeight: FontWeight.w500,
-                            ),
-                            textAlign: TextAlign.center,
+                      margin: const EdgeInsets.fromLTRB(20, 40, 20, 30),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.amberAccent.withOpacity(0.15),
+                            Colors.amber.withOpacity(0.1),
+                            Colors.orangeAccent.withOpacity(0.05),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.amberAccent.withOpacity(0.3),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 4),
+                          ),
+                          BoxShadow(
+                            color: Colors.amber.withOpacity(0.1),
+                            blurRadius: 20,
+                            spreadRadius: 4,
+                            offset: const Offset(0, 8),
                           ),
                         ],
+                        border: Border.all(
+                          color: Colors.amberAccent.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surface.withOpacity(0.9),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                             _chapter!.title,
+                              style: theme.textTheme.displayMedium?.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: theme.colorScheme.onSurface,
+                                letterSpacing: 1.3,
+                                shadows: [
+                                  Shadow(
+                                    color: Colors.amberAccent.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              textAlign: TextAlign.center,
+                             ),
+                            const SizedBox(height: 12),
+                            Container(
+                              width: 80,
+                              height: 3,
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.amberAccent,
+                                    Colors.amber.withOpacity(0.8),
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.amberAccent.withOpacity(0.5),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                             'CHAPTER ${widget.chapterId}',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 1.2,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
 
@@ -448,7 +569,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Overview',
+                                  AppLocalizations.of(context)!.overview,
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w600,
                                     color: theme.colorScheme.onSurface,
@@ -519,52 +640,183 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                         ),
                       ),
 
-                    // Key Teachings Card (if available)
+                    // Key Teachings Card (if available) - Enhanced with glow effect
                     if (_chapter!.keyTeachings != null && _chapter!.keyTeachings!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
-                        child: Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Key Teachings',
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: theme.colorScheme.primary,
+                      Builder(
+                        builder: (context) {
+                          // Get device width for responsive design
+                          final deviceWidth = MediaQuery.of(context).size.width;
+                          final isTablet = deviceWidth > 600;
+                          final horizontalPadding = isTablet ? deviceWidth * 0.1 : 20.0;
+                          
+                          return Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            margin: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                            child: AnimatedContainer(
+                              duration: const Duration(seconds: 2),
+                              curve: Curves.easeInOut,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(18),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.blue.shade400.withOpacity(0.25),
+                                    Colors.indigo.shade500.withOpacity(0.25),
+                                    Colors.lightBlue.shade400.withOpacity(0.25),
+                                    Colors.blue.shade300.withOpacity(0.18),
+                                  ],
+                                  stops: const [0.0, 0.3, 0.7, 1.0],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: [
+                                  // Outermost glow - reduced intensity
+                                  BoxShadow(
+                                    color: Colors.blue.withOpacity(0.35),
+                                    blurRadius: 15,
+                                    spreadRadius: 4,
+                                    offset: const Offset(0, 5),
+                                  ),
+                                  // Middle glow - medium intensity
+                                  BoxShadow(
+                                    color: Colors.indigo.withOpacity(0.25),
+                                    blurRadius: 11,
+                                    spreadRadius: 2,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                  // Inner glow - subtle and close
+                                  BoxShadow(
+                                    color: Colors.lightBlue.withOpacity(0.18),
+                                    blurRadius: 7,
+                                    spreadRadius: 1,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                  // Accent glow - blue shimmer
+                                  BoxShadow(
+                                    color: Colors.blueAccent.withOpacity(0.3),
+                                    blurRadius: 18,
+                                    spreadRadius: 5,
+                                    offset: const Offset(0, 6),
+                                  ),
+                                ],
+                              ),
+                              child: Container(
+                                margin: const EdgeInsets.all(3), // Creates enhanced border effect
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(22),
+                                  color: theme.colorScheme.surface,
+                                  border: Border.all(
+                                    color: Colors.blue.withOpacity(0.2),
+                                    width: 1,
                                   ),
                                 ),
-                                const SizedBox(height: 14),
-                                ..._chapter!.keyTeachings!.map(
-                                      (teaching) => Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 6),
-                                    child: Row(
+                                child: Card(
+                                  margin: EdgeInsets.zero,
+                                  elevation: 0,
+                                  color: Colors.transparent,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+                                    child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Icon(
-                                          Icons.lightbulb_outline,
-                                          size: 20,
-                                          color: theme.colorScheme.primary,
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Text(
-                                            teaching,
-                                            style: theme.textTheme.bodyMedium?.copyWith(
-                                              color: theme.colorScheme.onSurface,
+                                        Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Colors.blue.shade300, Colors.indigo.shade400],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                borderRadius: BorderRadius.circular(8),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.blue.withOpacity(0.3),
+                                                    blurRadius: 8,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ],
+                                              ),
+                                              child: Icon(
+                                                Icons.lightbulb_outline,
+                                                color: Colors.white,
+                                                size: isTablet ? 24 : 20,
+                                              ),
                                             ),
-                                          ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Text(
+                                                AppLocalizations.of(context)!.keyTeachings,
+                                                style: theme.textTheme.titleMedium?.copyWith(
+                                                  fontSize: isTablet ? 20 : 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: theme.colorScheme.primary,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
+                                        const SizedBox(height: 16),
+                                        ..._chapter!.keyTeachings!.asMap().entries.map((entry) => Container(
+                                          margin: const EdgeInsets.only(bottom: 8),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width: 24,
+                                                height: 24,
+                                                margin: const EdgeInsets.only(right: 12, top: 2),
+                                                decoration: BoxDecoration(
+                                                  gradient: LinearGradient(
+                                                    colors: [Colors.blue.shade400, Colors.indigo.shade500],
+                                                    begin: Alignment.topLeft,
+                                                    end: Alignment.bottomRight,
+                                                  ),
+                                                  borderRadius: BorderRadius.circular(12),
+                                                  boxShadow: [
+                                                    BoxShadow(
+                                                      color: Colors.blue.withOpacity(0.3),
+                                                      blurRadius: 6,
+                                                      spreadRadius: 1,
+                                                    ),
+                                                  ],
+                                                ),
+                                                child: Center(
+                                                  child: Text(
+                                                    '${entry.key + 1}',
+                                                    style: theme.textTheme.bodySmall?.copyWith(
+                                                      color: Colors.white,
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: isTablet ? 14 : 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                child: Text(
+                                                  entry.value,
+                                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                                    fontSize: isTablet ? 16 : 14,
+                                                    color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                                    height: 1.5,
+                                                  ),
+                                                  maxLines: 3,
+                                                  overflow: TextOverflow.ellipsis,
+                                                  softWrap: true,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )),
                                       ],
                                     ),
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
 
                     // Action Buttons Card
@@ -577,7 +829,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Explore This Chapter',
+                                AppLocalizations.of(context)!.exploreChapter,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.onSurface,
@@ -667,7 +919,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Related Scenarios',
+                                  AppLocalizations.of(context)!.relatedScenarios,
                                   style: theme.textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.bold,
                                     color: theme.colorScheme.primary,
@@ -881,7 +1133,7 @@ Widget _floatingButtons(BuildContext c) => IgnorePointer(
 import 'package:flutter/material.dart';
 import '../models/chapter.dart';
 import '../models/scenario.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 import 'scenario_detail_view.dart';
 import 'verse_list_view.dart';
 
@@ -919,7 +1171,7 @@ class _ExpandableTextState extends State<ExpandableText> {
             GestureDetector(
               onTap: () => setState(() => _expanded = !_expanded),
               child: Text(
-                _expanded ? 'Read less' : 'Read more',
+                _expanded ? AppLocalizations.of(context)!.readLess : AppLocalizations.of(context)!.readMore,
                 style: theme?.copyWith(color: Theme.of(context).colorScheme.primary),
               ),
             )
@@ -939,7 +1191,7 @@ class ChapterDetailView extends StatefulWidget {
 }
 
 class _ChapterDetailViewState extends State<ChapterDetailView> {
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
   Chapter? _chapter;
   List<Scenario> _scenarios = [];
   bool _isLoading = true;
@@ -1083,7 +1335,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                       style: theme.textTheme.bodyMedium),
                 ]),
                 const SizedBox(height: 16),
-                Text('Overview', style: theme.textTheme.titleMedium),
+                Text(AppLocalizations.of(context)!.overview, style: theme.textTheme.titleMedium),
                 const SizedBox(height: 8),
                 ExpandableText(_chapter!.ch_summary),
               ]),
@@ -1100,7 +1352,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Related Scenarios', style: theme.textTheme.titleMedium?.copyWith(color: onSurface)),
+                  Text(AppLocalizations.of(context)!.relatedScenarios, style: theme.textTheme.titleMedium?.copyWith(color: onSurface)),
                   const SizedBox(height: 12),
                   ...visible.map((s) => Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
@@ -1213,7 +1465,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/chapter.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 import 'scenario_detail_view.dart';
 
 /// Detailed view for a single chapter (no Hive caching)
@@ -1232,7 +1484,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
   bool _isLoadingRelated = false;
   String? _error;
 
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
 
   @override
   void initState() {
@@ -1312,7 +1564,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                           // Related Scenarios
                           const SizedBox(height: 24),
                           Text(
-                            'Related Scenarios',
+                            AppLocalizations.of(context)!.relatedScenarios,
                             style: theme.textTheme.titleMedium,
                           ),
                           const SizedBox(height: 12),
@@ -1390,7 +1642,7 @@ class _ExpandableTextState extends State<ExpandableText> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4.0),
                   child: Text(
-                    _expanded ? 'Read less' : 'Read more',
+                    _expanded ? AppLocalizations.of(context)!.readLess : AppLocalizations.of(context)!.readMore,
                     style: textStyle?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,
@@ -1413,7 +1665,7 @@ class _ExpandableTextState extends State<ExpandableText> {
 
 class _ChapterDetailViewState extends State<ChapterDetailView> {
   Chapter? _chapter;
-  final SupabaseService _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
   bool _isLoading = false;
   String? _error;
 
@@ -1525,7 +1777,7 @@ class _ExpandableTextState extends State<ExpandableText> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 4.0),
                   child: Text(
-                    _expanded ? 'Read less' : 'Read more',
+                    _expanded ? AppLocalizations.of(context)!.readLess : AppLocalizations.of(context)!.readMore,
                     style: textStyle?.copyWith(
                       color: Theme.of(context).colorScheme.primary,
                       fontWeight: FontWeight.w600,

@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "এন্ট্রি মুছতে ব্যর্থ",
   
   "journalEntrySaved": "ডায়েরি এন্ট্রি সংরক্ষিত হয়েছে!",
-  "pleaseSelectRating": "অনুগ্রহ করে একটি রেটিং নির্বাচন করুন"
+  "pleaseSelectRating": "অনুগ্রহ করে একটি রেটিং নির্বাচন করুন",
+
+  "readLess": "কম পড়ুন",
+  "heartSays": "হৃদয় বলে",
+  "dutySays": "কর্তব্য বলে", 
+  "wisdomSteps": "প্রজ্ঞার ধাপ",
+  "modernScenario": "আধুনিক দিনের পরিস্থিতি",
+  "overview": "সংক্ষিপ্ত বিবরণ",
+  "showFewerScenarios": "কম পরিস্থিতি দেখান",
+  "gitaChapters": "গীতার অধ্যায়", 
+  "immersiveKnowledge": "জ্ঞানের সমুদ্রে নিমজ্জিত হন",
+  "lifeScenarios": "জীবনের পরিস্থিতি",
+  "applyGitaWisdom": "বাস্তব জীবনের পরিস্থিতিতে গীতার প্রজ্ঞা প্রয়োগ করুন",
+  "back": "পিছনে",
+  "home": "হোম"
 }

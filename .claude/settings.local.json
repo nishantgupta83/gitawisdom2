@@ -21,7 +21,20 @@
       "Bash(flutter clean:*)",
       "WebFetch(domain:hub4apps.com)",
       "Bash(flutter:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(find:*)",
+      "Bash(psql:*)",
+      "Bash(chmod:*)",
+      "Bash(./run_fix_chapter_functions.sh:*)",
+      "Bash(cp:*)",
+      "Bash(for lang in ta te gu mr kn)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Bash(brew:*)",
+      "Bash(export:*)",
+      "Bash(ping:*)",
+      "Bash(nslookup:*)"
     ],
     "deny": []
   }

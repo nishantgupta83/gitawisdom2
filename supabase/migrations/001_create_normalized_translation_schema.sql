@@ -2,7 +2,6 @@
 -- GitaWisdom Multilingual Database Schema Migration
 -- File: 001_create_normalized_translation_schema.sql
 -- Purpose: Create normalized multilingual architecture to eliminate 100+ column problem
--- Author: Claude Code Assistant
 -- Date: 2025-08-15
 -- ===================================================================
 

@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "नोंद हटवण्यात अपयश",
   
   "journalEntrySaved": "डायरी नोंद जतन केली!",
-  "pleaseSelectRating": "कृपया रेटिंग निवडा"
+  "pleaseSelectRating": "कृपया रेटिंग निवडा",
+
+  "readLess": "कमी वाचा",
+  "heartSays": "हृदय म्हणते",
+  "dutySays": "कर्तव्य म्हणते", 
+  "wisdomSteps": "ज्ञानाची पायरी",
+  "modernScenario": "आधुनिक दिवसाची परिस्थिती",
+  "overview": "विहंगावलोकन",
+  "showFewerScenarios": "कमी परिस्थिती दाखवा",
+  "gitaChapters": "गीता अध्याय", 
+  "immersiveKnowledge": "ज्ञानाच्या समुद्रात बुडी मारा",
+  "lifeScenarios": "जीवनातील परिस्थिती",
+  "applyGitaWisdom": "वास्तविक जीवनातील परिस्थितींमध्ये गीतेचे ज्ञान लागू करा",
+  "back": "मागे",
+  "home": "होम"
 }

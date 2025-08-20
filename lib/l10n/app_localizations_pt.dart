@@ -243,6 +243,40 @@ class AppLocalizationsPt extends AppLocalizations {
   String get readMore => 'Ler Mais';
 
   @override
+  String get readLess => 'Ler menos';
+
+  @override
+  String get heartSays => 'O Coração Diz';
+
+  @override
+  String get dutySays => 'O Dever Diz';
+
+  @override
+  String get wisdomSteps => 'Passos de Sabedoria';
+
+  @override
+  String get modernScenario => 'CENÁRIO MODERNO';
+
+  @override
+  String get overview => 'Visão Geral';
+
+  @override
+  String get immersiveKnowledge => 'Mergulhe no oceano do conhecimento';
+
+  @override
+  String get lifeScenarios => 'CENÁRIOS DA VIDA';
+
+  @override
+  String get applyGitaWisdom =>
+      'Aplique a sabedoria do Gita às situações da vida real';
+
+  @override
+  String get back => 'Voltar';
+
+  @override
+  String get home => 'Início';
+
+  @override
   String get failedToSaveEntry => 'Falha ao salvar entrada do diário';
 
   @override

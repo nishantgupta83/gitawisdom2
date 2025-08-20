@@ -243,6 +243,40 @@ class AppLocalizationsTe extends AppLocalizations {
   String get readMore => 'మరింత చదవండి';
 
   @override
+  String get readLess => 'తక్కువ చదవండి';
+
+  @override
+  String get heartSays => 'హృదయం చెబుతోంది';
+
+  @override
+  String get dutySays => 'కర్తవ్యం చెబుతోంది';
+
+  @override
+  String get wisdomSteps => 'జ్ఞాన దశలు';
+
+  @override
+  String get modernScenario => 'ఆధునిక దినచర్య పరిస్థితి';
+
+  @override
+  String get overview => 'అవలోకనం';
+
+  @override
+  String get immersiveKnowledge => 'జ్ఞాన సముద్రంలో మునిగిపోండి';
+
+  @override
+  String get lifeScenarios => 'జీవిత పరిస్థితులు';
+
+  @override
+  String get applyGitaWisdom =>
+      'వాస్తవ జీవిత పరిస్థితులలో గీత జ్ఞానాన్ని వర్తింపజేయండి';
+
+  @override
+  String get back => 'వెనుకకు';
+
+  @override
+  String get home => 'హోమ్';
+
+  @override
   String get failedToSaveEntry => 'డైరీ ఎంట్రీని సేవ్ చేయడంలో విఫలమైంది';
 
   @override

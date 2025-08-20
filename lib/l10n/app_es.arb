@@ -125,5 +125,19 @@
   "failedToDeleteEntry": "No se pudo eliminar la entrada",
   
   "journalEntrySaved": "¡Entrada de diario guardada!",
-  "pleaseSelectRating": "Por favor selecciona una calificación"
+  "pleaseSelectRating": "Por favor selecciona una calificación",
+
+  "readLess": "Leer menos",
+  "heartSays": "El Corazón Dice",
+  "dutySays": "El Deber Dice", 
+  "wisdomSteps": "Pasos de Sabiduría",
+  "modernScenario": "ESCENARIO MODERNO",
+  "overview": "Visión General",
+  "showFewerScenarios": "Mostrar menos escenarios",
+  "gitaChapters": "CAPÍTULOS DEL GITA", 
+  "immersiveKnowledge": "Sumérgete en el océano del conocimiento",
+  "lifeScenarios": "ESCENARIOS DE VIDA",
+  "applyGitaWisdom": "Aplica la sabiduría del Gita a situaciones del mundo real",
+  "back": "Atrás",
+  "home": "Inicio"
 }

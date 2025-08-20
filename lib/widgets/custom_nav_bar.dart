@@ -72,14 +72,14 @@ class _PillNavBar extends StatelessWidget {
     final isTablet = media.size.width > 600;
     final isLandscape = media.orientation == Orientation.landscape;
 
-    // Responsive sizing
+    // Responsive sizing - reduced heights
     final double barHeight = isLandscape
-        ? (media.size.height < 400 ? 60 : 66)
-        : (isTablet ? 80 : 72);
+        ? (media.size.height < 400 ? 54 : 60)
+        : (isTablet ? 70 : 64);
     final double horizontalPad = isLandscape ? 60 : (isTablet ? 40 : 20);
 
     final Color backgroundColor =
-    theme.colorScheme.surface.withOpacity(0.95);
+    theme.colorScheme.surface.withOpacity(0.85);
     final Color selectedColor = theme.colorScheme.surface;
     final Color iconColor = theme.colorScheme.onSurface;
 
@@ -88,8 +88,8 @@ class _PillNavBar extends StatelessWidget {
         padding: EdgeInsets.only(
           left: horizontalPad,
           right: horizontalPad,
-          bottom: media.padding.bottom + 8,
-          top: 8,
+          bottom: math.max(media.padding.bottom, 4), // Reduced padding to minimize wasted space
+          top: 4, // Reduced from 8 to 4
         ),
         child: Container(
           height: barHeight,
@@ -197,13 +197,13 @@ class _DevToNavBar extends StatelessWidget {
     final isTablet   = media.size.width > 600;
     final isLandscape = media.orientation == Orientation.landscape;
 
-    // Match Pill’s responsive sizing
+    // Match Pill's responsive sizing - reduced heights
     final double barHeight = isLandscape
-        ? (media.size.height < 400 ? 60 : 66)
-        : (isTablet ? 80 : 72);
+        ? (media.size.height < 400 ? 54 : 60)
+        : (isTablet ? 70 : 64);
     final double horizontalPad = isLandscape ? 60 : (isTablet ? 40 : 20);
 
-    final Color backgroundColor   = theme.colorScheme.surface.withOpacity(0.95);
+    final Color backgroundColor   = theme.colorScheme.surface.withOpacity(0.85);
     final Color selectedColor     = theme.colorScheme.primary;
     final Color unselectedColor   = theme.colorScheme.onSurface.withOpacity(0.6);
 
@@ -212,8 +212,8 @@ class _DevToNavBar extends StatelessWidget {
         padding: EdgeInsets.only(
           left: horizontalPad,
           right: horizontalPad,
-          bottom: media.padding.bottom + 8,
-          top: 8,
+          bottom: math.max(media.padding.bottom, 4), // Reduced padding to minimize wasted space
+          top: 4, // Reduced from 8 to 4
         ),
         child: Container(
           height: barHeight,
@@ -305,11 +305,11 @@ class _FloatingNavBar extends StatelessWidget {
     final isLandscape = media.orientation == Orientation.landscape;
 
     final double barHeight = isLandscape
-        ? (media.size.height < 400 ? 60 : 66)
-        : (isTablet ? 80 : 72);
+        ? (media.size.height < 400 ? 54 : 60)
+        : (isTablet ? 70 : 64);
     final double horizontalPad = isLandscape ? 60 : (isTablet ? 40 : 20);
 
-    final Color backgroundColor = theme.colorScheme.surface.withOpacity(0.95);
+    final Color backgroundColor = theme.colorScheme.surface.withOpacity(0.85);
     final Color selectedColor   = theme.colorScheme.primary;
     final Color shadowColor     = Colors.black.withOpacity(0.15);
 
@@ -318,8 +318,8 @@ class _FloatingNavBar extends StatelessWidget {
         padding: EdgeInsets.only(
           left: horizontalPad,
           right: horizontalPad,
-          bottom: media.padding.bottom + 8,
-          top: 8,
+          bottom: math.max(media.padding.bottom, 4), // Reduced padding to minimize wasted space
+          top: 4, // Reduced from 8 to 4
         ),
         child: Container(
           height: barHeight,

@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "Löschen des Eintrags fehlgeschlagen",
   
   "journalEntrySaved": "Tagebucheintrag gespeichert!",
-  "pleaseSelectRating": "Bitte wählen Sie eine Bewertung"
+  "pleaseSelectRating": "Bitte wählen Sie eine Bewertung",
+
+  "readLess": "Weniger lesen",
+  "heartSays": "Das Herz sagt",
+  "dutySays": "Die Pflicht sagt", 
+  "wisdomSteps": "Weisheitsschritte",
+  "modernScenario": "MODERNES SZENARIO",
+  "overview": "Überblick",
+  "showFewerScenarios": "Weniger Szenarien anzeigen",
+  "gitaChapters": "GITA KAPITEL", 
+  "immersiveKnowledge": "Tauchen Sie ein in den Ozean des Wissens",
+  "lifeScenarios": "LEBENSSZENARIOS",
+  "applyGitaWisdom": "Wenden Sie die Gita-Weisheit auf reale Situationen an",
+  "back": "Zurück",
+  "home": "Startseite"
 }

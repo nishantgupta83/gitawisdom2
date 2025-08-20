@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "ನಮೂದನ್ನು ಅಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ",
   
   "journalEntrySaved": "ಡೈರಿ ನಮೂದನ್ನು ಉಳಿಸಲಾಗಿದೆ!",
-  "pleaseSelectRating": "ದಯವಿಟ್ಟು ರೇಟಿಂಗ್ ಆಯ್ಕೆಮಾಡಿ"
+  "pleaseSelectRating": "ದಯವಿಟ್ಟು ರೇಟಿಂಗ್ ಆಯ್ಕೆಮಾಡಿ",
+
+  "readLess": "ಕಡಿಮೆ ಓದಿ",
+  "heartSays": "ಹೃದಯ ಹೇಳುತ್ತದೆ",
+  "dutySays": "ಕರ್ತವ್ಯ ಹೇಳುತ್ತದೆ", 
+  "wisdomSteps": "ಜ್ಞಾನದ ಹಂತಗಳು",
+  "modernScenario": "ಆಧುನಿಕ ದಿನದ ಸನ್ನಿವೇಶ",
+  "overview": "ಅವಲೋಕನ",
+  "showFewerScenarios": "ಕಡಿಮೆ ಸನ್ನಿವೇಶಗಳನ್ನು ತೋರಿಸಿ",
+  "gitaChapters": "ಗೀತಾ ಅಧ್ಯಾಯಗಳು", 
+  "immersiveKnowledge": "ಜ್ಞಾನದ ಸಾಗರದಲ್ಲಿ ಮುಳುಗಿ",
+  "lifeScenarios": "ಜೀವನದ ಸನ್ನಿವೇಶಗಳು",
+  "applyGitaWisdom": "ನೈಜ ಜೀವನದ ಸನ್ನಿವೇಶಗಳಲ್ಲಿ ಗೀತಾ ಜ್ಞಾನವನ್ನು ಅನ್ವಯಿಸಿ",
+  "back": "ಹಿಂದೆ",
+  "home": "ಮನೆ"
 }

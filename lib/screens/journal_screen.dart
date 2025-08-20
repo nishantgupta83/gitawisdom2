@@ -44,31 +44,46 @@ class _JournalScreenState extends State<JournalScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context)!;
+    final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      // Global background handled by main.dart
       backgroundColor: Colors.transparent,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            await _service.refreshFromServer();
-            await _reload();
-          },
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Padding(
-                padding: EdgeInsets.only(
-                  bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                ),
-                child: ListView.builder(
-                  padding: EdgeInsets.zero,
-                  itemCount: _getListItemCount(),
-                  itemBuilder: (context, index) => _buildListItem(index, constraints),
-                ),
-              );
-            },
+      body: Stack(
+        children: [
+          // Background image with dark overlay for dark mode
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/app_bg.png',
+              fit: BoxFit.cover,
+              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              colorBlendMode: isDark ? BlendMode.darken : null,
+            ),
           ),
-        ),
+          
+          // Main content
+          SafeArea(
+            child: RefreshIndicator(
+              onRefresh: () async {
+                await _service.refreshFromServer();
+                await _reload();
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                    ),
+                    child: ListView.builder(
+                      padding: EdgeInsets.zero,
+                      itemCount: _getListItemCount(),
+                      itemBuilder: (context, index) => _buildListItem(index, constraints),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
       
       // Floating Action Button for adding new entries

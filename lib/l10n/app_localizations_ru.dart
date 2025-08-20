@@ -242,6 +242,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get readMore => 'Читать далее';
 
   @override
+  String get readLess => 'Читать меньше';
+
+  @override
+  String get heartSays => 'Сердце Говорит';
+
+  @override
+  String get dutySays => 'Долг Говорит';
+
+  @override
+  String get wisdomSteps => 'Шаги Мудрости';
+
+  @override
+  String get modernScenario => 'СОВРЕМЕННЫЙ СЦЕНАРИЙ';
+
+  @override
+  String get overview => 'Обзор';
+
+  @override
+  String get immersiveKnowledge => 'Погрузитесь в океан знаний';
+
+  @override
+  String get lifeScenarios => 'ЖИЗНЕННЫЕ СЦЕНАРИИ';
+
+  @override
+  String get applyGitaWisdom => 'Применяйте мудрость Гиты к реальным ситуациям';
+
+  @override
+  String get back => 'Назад';
+
+  @override
+  String get home => 'Главная';
+
+  @override
   String get failedToSaveEntry => 'Не удалось сохранить запись дневника';
 
   @override

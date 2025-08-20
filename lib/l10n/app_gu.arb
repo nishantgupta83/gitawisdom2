@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "એન્ટ્રી ડિલીટ કરવામાં નિષ્ફળ",
   
   "journalEntrySaved": "ડાયરી એન્ટ્રી સેવ થઈ!",
-  "pleaseSelectRating": "કૃપા કરીને રેટિંગ પસંદ કરો"
+  "pleaseSelectRating": "કૃપા કરીને રેટિંગ પસંદ કરો",
+
+  "readLess": "ઓછું વાંચો",
+  "heartSays": "હૃદય કહે છે",
+  "dutySays": "કર્તવ્ય કહે છે", 
+  "wisdomSteps": "જ્ઞાનના પગલાં",
+  "modernScenario": "આધુનિક દિવસની પરિસ્થિતિ",
+  "overview": "વિહંગાવલોકન",
+  "showFewerScenarios": "ઓછી પરિસ્થિતિઓ બતાવો",
+  "gitaChapters": "ગીતાના પ્રકરણો", 
+  "immersiveKnowledge": "જ્ઞાનના સમુદ્રમાં ડૂબકી મારો",
+  "lifeScenarios": "જીવનની પરિસ્થિતિઓ",
+  "applyGitaWisdom": "વાસ્તવિક જીવનની પરિસ્થિતિઓમાં ગીતાનું જ્ઞાન લાગુ કરો",
+  "back": "પાછળ",
+  "home": "હોમ"
 }

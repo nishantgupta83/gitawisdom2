@@ -89,18 +89,21 @@ class _MainNavigationState extends State<MainNavigation> {
           body: Center(
             child: _pages.elementAt(_selectedIndex),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Chapters'),
-              BottomNavigationBarItem(icon: Icon(Icons.filter_list), label: 'Scenarios'),
-              BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Journal'),
-              BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.brown,
-            onTap: _onItemTapped,
+          bottomNavigationBar: Container(
+            margin: const EdgeInsets.only(bottom: 10), // Push navigation bar down
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Chapters'),
+                BottomNavigationBarItem(icon: Icon(Icons.filter_list), label: 'Scenarios'),
+                BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Journal'),
+                BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.brown,
+              onTap: _onItemTapped,
+            ),
           ),
         ),
       ],
@@ -309,17 +312,20 @@ class _RootScaffoldState extends State<RootScaffold> {
     final pages = _getPages();
     return Scaffold(
       body: pages[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: (i) => setState(() => _currentIndex = i),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Chapters'),
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Scenarios'),
-          BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Journal'),
-          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
-          
-        ],
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(bottom: 10), // Push navigation bar down
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (i) => setState(() => _currentIndex = i),
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Chapters'),
+            BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Scenarios'),
+            BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Journal'),
+            BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+            
+          ],
+        ),
       ),
     );
   }
@@ -469,18 +475,21 @@ class _MainNavigationState extends State<MainNavigation> {
           body: Center(
             child: _pages.elementAt(_selectedIndex),
           ),
-          bottomNavigationBar: BottomNavigationBar(
-            type: BottomNavigationBarType.fixed,
-            items: const <BottomNavigationBarItem>[
-              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-              BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Chapters'),
-              BottomNavigationBarItem(icon: Icon(Icons.filter_list), label: 'Scenarios'),
-            //  BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Journal'),
-              BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.brown,
-            onTap: _onItemTapped,
+          bottomNavigationBar: Container(
+            margin: const EdgeInsets.only(bottom: 10), // Push navigation bar down
+            child: BottomNavigationBar(
+              type: BottomNavigationBarType.fixed,
+              items: const <BottomNavigationBarItem>[
+                BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+                BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Chapters'),
+                BottomNavigationBarItem(icon: Icon(Icons.filter_list), label: 'Scenarios'),
+              //  BottomNavigationBarItem(icon: Icon(Icons.edit), label: 'Journal'),
+                BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+              ],
+              currentIndex: _selectedIndex,
+              selectedItemColor: Colors.brown,
+              onTap: _onItemTapped,
+            ),
           ),
         ),
       ],
@@ -501,15 +510,18 @@ class _MainNavigationState extends State<MainNavigation> {
                 currentIndex: safeIndex,
         children: _pages,
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: safeIndex,
-        items: _navItems,
-        onTap: (i) {
-          setState(() {
-            // if someone taps the same tab, you could pop to root, etc.
-            _currentIndex = i.clamp(0, _pages.length - 1);
-          });
-        },
+      bottomNavigationBar: Container(
+        margin: const EdgeInsets.only(bottom: 10), // Push navigation bar down
+        child: BottomNavigationBar(
+          currentIndex: safeIndex,
+          items: _navItems,
+          onTap: (i) {
+            setState(() {
+              // if someone taps the same tab, you could pop to root, etc.
+              _currentIndex = i.clamp(0, _pages.length - 1);
+            });
+          },
+        ),
       ),
     );
   }
@@ -556,10 +568,10 @@ import 'services/favorites_service.dart';
 import 'models/chapter.dart';
 import 'models/journal_entry.dart';
 import 'models/user_favorite.dart';
-import 'models/supported_language.dart';
+/* MULTILANG_TODO: import 'models/supported_language.dart'; */
 import 'models/daily_quote.dart';
-import '../widgets/custom_nav_bar.dart';
-import '../services/settings_service.dart';
+import 'widgets/custom_nav_bar.dart';
+import 'services/settings_service.dart';
 import 'services/audio_service.dart';
 import 'services/service_locator.dart';
 import 'config/environment.dart'; // 👈 Import our environment config
@@ -632,9 +644,11 @@ Future<void> _initializeAppServices() async {
     if (!Hive.isAdapterRegistered(6)) {
       Hive.registerAdapter(UserFavoriteAdapter()); // typeId: 6
     }
+    /* MULTILANG_TODO: SupportedLanguage adapter
     if (!Hive.isAdapterRegistered(10)) {
       Hive.registerAdapter(SupportedLanguageAdapter()); // typeId: 10
     }
+    */
     if (!Hive.isAdapterRegistered(11)) {
       Hive.registerAdapter(DailyQuoteAdapter()); // typeId: 11
     }
@@ -659,6 +673,11 @@ Future<void> _initializeAppServices() async {
     // Open scenario service box
     await ScenarioService.instance.initialize();
     
+    // Pre-load scenarios during app initialization to avoid empty state on first load
+    ScenarioService.instance.getAllScenarios().catchError((e) {
+      debugPrint('Background scenario pre-loading failed: $e');
+    });
+    
     // Open journal service box
     await JournalService.instance.initialize();
     
@@ -668,14 +687,17 @@ Future<void> _initializeAppServices() async {
     // Initialize Enhanced Supabase Service via Service Locator
     await ServiceLocator.instance.initialize();
 
-    // Initialize audio service (non-blocking)
-    AudioService.instance.loadEnabled().then((musicEnabled) {
+    // Initialize audio service - ensure music is enabled by default
+    try {
+      final musicEnabled = await AudioService.instance.loadEnabled();
+      debugPrint('🎵 Music enabled setting: $musicEnabled');
       if (musicEnabled) {
-        AudioService.instance.start().catchError((e) {
-          debugPrint('Audio initialization failed: $e');
-        });
+        await AudioService.instance.start();
+        debugPrint('🎵 Audio service started successfully');
       }
-    });
+    } catch (e) {
+      debugPrint('❌ Audio initialization failed: $e');
+    }
 
     debugPrint('✅ App services initialized');
   } catch (e) {
@@ -868,7 +890,7 @@ class WisdomGuideApp extends StatelessWidget {
         final fontPref = box.get(SettingsService.fontKey, defaultValue: 'medium') as String;
         final shadowEnabled = box.get(SettingsService.shadowKey, defaultValue: false) as bool;
         final backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 1.0) as double;
-        final languageCode = box.get(SettingsService.langKey, defaultValue: 'en') as String;
+        /* MULTILANG_TODO: final languageCode = box.get(SettingsService.langKey, defaultValue: 'en') as String; */
         
         double textScale;
         switch (fontPref) {
@@ -880,6 +902,7 @@ class WisdomGuideApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           
+          /* MULTILANG_TODO: Complex localization setup
           // Localization setup - use English for UI when Material doesn't support content language
           locale: () {
             const materialSupportedCodes = ['en', 'es', 'hi', 'de', 'fr', 'it'];
@@ -928,6 +951,19 @@ class WisdomGuideApp extends StatelessWidget {
             Locale('pt', ''), // Portuguese
             Locale('ru', ''), // Russian
             Locale('kn', ''), // Kannada
+          ],
+          */
+          
+          // MVP: English-only localization
+          locale: const Locale('en', ''),
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en', ''), // English only for MVP
           ],
           
           theme: ThemeData.light().copyWith(
@@ -1103,7 +1139,7 @@ class _RootScaffoldState extends State<RootScaffold> {
   void initState() {
     super.initState();
     _instance = this;
-    _navigatorKeys = List.generate(5, (_) => GlobalKey<NavigatorState>());
+    _navigatorKeys = List.generate(4, (_) => GlobalKey<NavigatorState>());
     _initializePages();
   }
 
@@ -1190,11 +1226,26 @@ class _RootScaffoldState extends State<RootScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
         body: Stack(
-          children: List.generate(_pages.length, (i) => _buildOffstageNavigator(i, _pages[i])),
+          children: [
+            // Background image for main scaffold
+            Positioned.fill(
+              child: Image.asset(
+                'assets/images/app_bg.png',
+                fit: BoxFit.cover,
+                color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+                colorBlendMode: isDark ? BlendMode.darken : null,
+              ),
+            ),
+            // Pages stack
+            ...List.generate(_pages.length, (i) => _buildOffstageNavigator(i, _pages[i])),
+          ],
         ),
         bottomNavigationBar: CustomNavBar(
           currentIndex: _currentIndex,

@@ -1,4 +1,7 @@
 // test/models/supported_language_test.dart
+// TEMPORARILY DISABLED FOR ENGLISH-ONLY MVP RELEASE
+
+/* MULTILANG_TODO: Re-enable when multilingual support is restored
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
@@ -441,5 +444,22 @@ void main() {
       expect(LanguageCodes.european, contains('fr'));
       expect(LanguageCodes.european, isNot(contains('hi')));
     });
+  });
+}
+
+END OF MULTILANG_TODO COMMENT BLOCK */
+
+// Placeholder test for MVP
+import 'package:flutter_test/flutter_test.dart';
+import '../../lib/models/supported_language.dart';
+
+void main() {
+  test('SupportedLanguage MVP placeholder', () {
+    // Testing the simplified SupportedLanguage for English-only MVP
+    const lang = SupportedLanguage(langCode: 'en');
+    expect(lang.langCode, 'en');
+    expect(lang.isActive, isTrue);
+    expect(lang.displayName(), 'English');
+    expect(SupportedLanguage.defaultLanguages.length, 1);
   });
 }

@@ -67,7 +67,7 @@ class AppLocalizationsTa extends AppLocalizations {
   }
 
   @override
-  String get showFewerScenarios => 'குறைவான சூழ்நிலைகளைக் காட்டு';
+  String get showFewerScenarios => 'குறைவான சித்திரன்களைக் காட்டுக';
 
   @override
   String get loading => 'ஏற்றுகிறது...';
@@ -243,6 +243,40 @@ class AppLocalizationsTa extends AppLocalizations {
 
   @override
   String get readMore => 'மேலும் படிக்கவும்';
+
+  @override
+  String get readLess => 'குறைவாக படிக்கவும்';
+
+  @override
+  String get heartSays => 'இதயம் சொல்கிறது';
+
+  @override
+  String get dutySays => 'கடமை சொல்கிறது';
+
+  @override
+  String get wisdomSteps => 'ஜ்ஞான படிகள்';
+
+  @override
+  String get modernScenario => 'நவீன நாள் சித்திரன்';
+
+  @override
+  String get overview => 'தொத்தகப்பார்வை';
+
+  @override
+  String get immersiveKnowledge => 'அறிவின் கடலில் முழ்குங்கள்';
+
+  @override
+  String get lifeScenarios => 'வாழ்க்கை சித்திரன்கள்';
+
+  @override
+  String get applyGitaWisdom =>
+      'உண்மையான வாழ்க்கை சித்திரன்களில் கீதை ஜ்ஞானத்தை பயன்படுத்தவும்';
+
+  @override
+  String get back => 'விலகு';
+
+  @override
+  String get home => 'வீடு';
 
   @override
   String get failedToSaveEntry => 'நாட்குறிப்பு உள்ளீட்டைச் சேமிப்பதில் தோல்வி';

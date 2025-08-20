@@ -4,13 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 import '../models/user_favorite.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 
 class FavoritesService {
   static final FavoritesService instance = FavoritesService._();
   FavoritesService._();
 
-  final SupabaseService _supabaseService = SupabaseService();
+  late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
   Box<UserFavorite>? _box;
   
   static const String boxName = 'user_favorites';

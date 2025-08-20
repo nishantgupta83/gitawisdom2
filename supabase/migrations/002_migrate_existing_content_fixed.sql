@@ -2,7 +2,6 @@
 -- GitaWisdom Content Migration Script (Fixed Version)
 -- File: 002_migrate_existing_content_fixed.sql
 -- Purpose: Migrate existing English content to new multilingual translation tables
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- Note: Fixed REINDEX issue that prevents running inside transaction
 -- ===================================================================

@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "प्रविष्टेः मोचने असफलता",
   
   "journalEntrySaved": "दैनन्दिनी प्रविष्टिः संरक्षिता!",
-  "pleaseSelectRating": "कृपया मूल्याङ्कनं चिनुतु"
+  "pleaseSelectRating": "कृपया मूल्याङ्कनं चिनुतु",
+
+  "readLess": "न्यूनं पठतु",
+  "heartSays": "हृदयं वदति",
+  "dutySays": "कर्तव्यं वदति", 
+  "wisdomSteps": "ज्ञान चरणाः",
+  "modernScenario": "आधुनिक दिन स्थितिः",
+  "overview": "समीक्षा",
+  "showFewerScenarios": "न्यूनान् स्थितीन् दर्शयतु",
+  "gitaChapters": "गीता अध्यायाः", 
+  "immersiveKnowledge": "ज्ञान सागरे निमज्जतु",
+  "lifeScenarios": "जीवन स्थितयः",
+  "applyGitaWisdom": "वास्तविक जीवन स्थितिषु गीता ज्ञानम् प्रयुञ्जतु",
+  "back": "पुनः",
+  "home": "गृहम्"
 }

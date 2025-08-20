@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive/hive.dart';
 
 import '../models/chapter.dart';
 import '../models/verse.dart';
@@ -40,8 +41,50 @@ class _VerseListViewState extends State<VerseListView> {
       _errorMessage = null;
     });
     try {
-      final verses = await _service.fetchVersesByChapter(widget.chapterId);
-      final chapter = await _service.fetchChapterById(widget.chapterId);
+      // Permanent caching for verses since they never change
+      final versesBoxName = 'verses_chapter_${widget.chapterId}';
+      final chapterBoxName = 'chapter_${widget.chapterId}';
+      
+      // Open cache boxes for permanent storage
+      if (!Hive.isBoxOpen(versesBoxName)) {
+        await Hive.openBox<Verse>(versesBoxName);
+      }
+      if (!Hive.isBoxOpen(chapterBoxName)) {
+        await Hive.openBox<Chapter>(chapterBoxName);
+      }
+      
+      final versesCache = Hive.box<Verse>(versesBoxName);
+      final chapterCache = Hive.box<Chapter>(chapterBoxName);
+      
+      // Check permanent cache first
+      List<Verse> verses;
+      Chapter? chapter;
+      
+      if (versesCache.isNotEmpty && chapterCache.isNotEmpty) {
+        verses = versesCache.values.toList();
+        chapter = chapterCache.values.first;
+        debugPrint('📖 Using permanently cached verses for chapter ${widget.chapterId} (${verses.length} verses)');
+      } else {
+        debugPrint('🎯 Fetching fresh verses for chapter ${widget.chapterId} for permanent cache');
+        
+        // Fetch fresh data
+        verses = await _service.fetchVersesByChapter(widget.chapterId);
+        chapter = await _service.fetchChapterById(widget.chapterId);
+        
+        // Permanently cache the results
+        await versesCache.clear();
+        for (int i = 0; i < verses.length; i++) {
+          await versesCache.put(i, verses[i]);
+        }
+        
+        if (chapter != null) {
+          await chapterCache.clear();
+          await chapterCache.put(0, chapter);
+        }
+        
+        debugPrint('✅ Permanently cached ${verses.length} verses for chapter ${widget.chapterId}');
+      }
+      
       setState(() {
         _verses = verses;
         _chapter = chapter;
@@ -74,85 +117,73 @@ class _VerseListViewState extends State<VerseListView> {
             ),
           ),
           
-          // Sticky header that stays fixed at top
-          if (_chapter != null)
-            SafeArea(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
-                decoration: BoxDecoration(
-                  // Semi-transparent background for glassmorphism effect
-                  color: theme.colorScheme.surface.withOpacity(0.95),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                  // Subtle border at bottom
-                  border: Border(
-                    bottom: BorderSide(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      _chapter!.title ?? 'CHAPTER VERSES',
-                      style: GoogleFonts.poiretOne(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: theme.colorScheme.onSurface,
-                        letterSpacing: 1.3,
-                      ),
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 12),
-                    // Underline bar
-                    Container(
-                      width: 80,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.primary.withOpacity(0.6),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Chapter ${widget.chapterId} verses from Bhagavad Gita',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
-                        letterSpacing: 0.8,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
           
           // Scrollable content area that goes under the header
           SafeArea(
             child: Container(
-              margin: EdgeInsets.only(top: _chapter != null ? 140 : 20), // Space for sticky header
+              margin: const EdgeInsets.only(top: 20),
               child: ListView(
                 padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
                 children: [
-                  // Header is now sticky, content starts here
+                  // Floating header card
+                  if (_chapter != null)
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            _chapter!.title ?? 'CHAPTER VERSES',
+                            style: GoogleFonts.poiretOne(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: theme.colorScheme.onSurface,
+                              letterSpacing: 1.3,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: 80,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  theme.colorScheme.primary,
+                                  theme.colorScheme.primary.withOpacity(0.6),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Chapter ${widget.chapterId} verses from Bhagavad Gita',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              letterSpacing: 0.8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
 
                   // Verse list or status
                   if (_isLoading) ...[

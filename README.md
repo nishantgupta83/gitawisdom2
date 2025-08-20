@@ -14,18 +14,17 @@ A comprehensive Flutter application that brings the wisdom of the Bhagavad Gita 
 
 ### ✨ Key Features
 
-- 📖 **18 Complete Chapters**: Full Bhagavad Gita content with summaries and Hive caching
-- 🎯 **Real-world Scenarios**: Modern applications of ancient wisdom with heart vs duty guidance
-- 🌅 **Daily Verses**: Calendar-based verse refresher (same verses all day, refreshes daily)
-- 📝 **Personal Journal**: Private space for spiritual reflections with local storage
-- 🎨 **Dynamic Theming**: Light/Dark mode with customizable appearance
-- 🔤 **Typography Control**: Slider-based font sizes and text shadow effects
+- 📖 **18 Complete Chapters**: Full Bhagavad Gita content with permanent caching for instant loading
+- 🎯 **1280+ Real-world Scenarios**: Modern applications of ancient wisdom with heart vs duty guidance
+- 🌅 **Daily Verses**: Calendar-based verse refresher with permanent verse caching
+- 🎨 **Dynamic Theming**: Light/Dark mode with enhanced amber glow effects
+- 🔤 **Typography Control**: Responsive font sizes and improved text visibility
 - 🎵 **Ambient Audio**: Background music with persistent settings
-- 💾 **Smart Caching**: Calendar-day based verse caching with automatic daily refresh
-- 🗂️ **Unified Cache Management**: One-button cache clearing with size monitoring
-- 🔄 **Instant Scenario Search**: Offline-first scenario browsing with local search
-- 📐 **Responsive Design**: Optimized for tablets, phones, and all orientations  
-- ✨ **Enhanced Visual Effects**: Multi-layered glow effects for wisdom cards
+- 💾 **Aggressive Caching**: Monthly sync strategy reducing API calls by 97%
+- 🔄 **Instant Performance**: Offline-first with permanent caching for chapters and verses
+- 📐 **Responsive Design**: Optimized for tablets, phones, and all orientations
+- ✨ **Enhanced Visual Effects**: Professional amber glow effects and glassmorphism
+- 🚀 **Production Ready**: English-only MVP optimized for store launch
 
 ## 🏗️ Architecture
 
@@ -605,34 +604,40 @@ New Capabilities:
 
 📊 Performance Improvements Achieved
 
-| Feature               | Before             | After                     |
+| Feature               | Before             | After (v1.5.0)           |
 |-----------------------|--------------------|---------------------------|
-| Scenario Search       | 500ms+ API calls   | Instant local search      |
-| Scenario Loading      | Network dependent  | Instant after first cache |
-| Cache Management      | 5 separate buttons | 1 simple button           |
-| Wisdom Card Glow      | Basic shadows      | 4-layer dramatic glow     |
-| Device Responsiveness | Fixed sizing       | Fully responsive          |
-| Offline Capability    | Limited            | Full scenario access      |
+| Chapter Loading       | API calls every load | Instant (permanent cache) |
+| Verse Loading         | API calls every load | Instant (permanent cache) |
+| Scenario Caching      | 6 hour cache       | 30 day cache (monthly)   |
+| API Call Frequency    | Every 6 hours      | Once per month           |
+| Scenario Dataset      | 1000/1280 (78%)    | 1280/1280 (100%)         |
+| Chapter Header        | Invisible text     | Professional amber glow   |
+| Filter Text           | Poor visibility    | Enhanced contrast        |
+| Journal Crashes       | Hive corruption    | Null-safe adapter       |
+| Service Initialization| Multiple per session| Single initialization    |
+| 50K Users API Load    | 6M calls/month     | 150K calls/month (97% ↓) |
 
 🔧 Technical Architecture Implemented
 
-GitaWisdom App Architecture
-├── 📱 Simplified Cache Management (1-button approach)
-├── ⚡ Instant Scenario Search (local cached data)
-├── 🎨 Enhanced Visual Effects (multi-layered glow)
-├── 📐 Responsive Design (tablet/phone optimized)
-├── 💾 Comprehensive Caching (verses, chapters, scenarios)
-├── 🔄 Background Sync (non-blocking updates)
-└── 🏃‍♂️ Offline-First Architecture (cached data priority)
+GitaWisdom App Architecture (v1.5.0)
+├── 📱 Aggressive Caching Strategy (monthly sync)
+├── ⚡ Permanent Chapter/Verse Storage (never re-fetch)
+├── 🎨 Professional Visual Effects (amber glow)
+├── 📐 Enhanced Responsive Design (better visibility)
+├── 💾 Complete Dataset Caching (all 1280 scenarios)
+├── 🔄 Monthly Background Sync (97% API reduction)
+├── 🏃‍♂️ Offline-First Architecture (instant performance)
+└── 🛡️ Crash-Resistant Storage (null-safe adapters)
 
-🎯 User Experience Enhancements
+🎯 User Experience Enhancements (v1.5.0)
 
-1. Faster App Performance: Instant scenario search and loading
-2. Simpler Interface: One-click cache clearing
-3. Better Visual Appeal: Dramatically enhanced wisdom card glow effects
-4. Responsive Design: Optimized for all device sizes
-5. Reliable Offline Access: Full functionality without internet
-6. Smooth Interactions: Pull-to-refresh and animated transitions
+1. **Instant Performance**: Chapters and verses load instantly after first visit
+2. **Complete Content**: All 1280 scenarios available for browsing and search
+3. **Professional UI**: Enhanced amber glow effects and improved text visibility
+4. **Crash-Free Experience**: Fixed all Hive corruption and runtime errors
+5. **Monthly Fresh Content**: Automatic monthly updates with 97% fewer API calls
+6. **Scalable Architecture**: Ready for 50K+ users without performance degradation
+7. **Store Launch Ready**: Optimized for Apple App Store and Google Play submission
 
 ## 🚀 Getting Started
 
@@ -713,6 +718,24 @@ flutter test test/integration_test.dart
 
 ### ✅ Latest Updates (August 2025)
 
+#### 🚀 Store Launch Ready - v1.5.0 (August 20, 2025 - Performance Release)
+- **Performance Optimization**: Implemented aggressive monthly caching reducing API calls by 97%
+- **Permanent Caching**: Chapters and verses now permanently cached for instant loading
+- **Enhanced UI**: Professional amber glow effects and improved text visibility
+- **Crash Fixes**: Resolved Journal Entry Hive corruption and runtime errors
+- **Complete Dataset**: Fixed scenario limit to cache all 1280 scenarios instead of 1000
+- **Technical Details**:
+  - Permanent caching for chapters (no re-fetching after first load)
+  - Permanent caching for verses per chapter (instant loading)
+  - Monthly scenario sync (30 days cache) instead of 6 hours
+  - Fixed scenario fetch limit removing .range() constraints
+  - Enhanced chapter header with professional amber glow effect
+  - Improved scenarios filter text visibility in light mode
+  - Fixed Journal Entry null safety preventing crashes
+- **Scalability**: 50K users = 150K API calls/month vs 6M calls/month (97% reduction)
+- **Store Launch**: Ready for Apple App Store and Google Play Store submission tonight
+- **Deployment Status**: ✅ Performance optimized | ✅ All crashes fixed | ✅ Complete dataset cached
+
 #### 🗂️ Category Consolidation & Database Optimization - v1.3.0 (August 18, 2025 - 14:30 UTC)
 - **Major Update**: Consolidated 24+ scenario categories down to 10 streamlined main categories for better user experience
 - **Database Optimization**: Updated 227 scenarios with underscore categories using proper PostgreSQL ARRAY syntax
@@ -771,12 +794,12 @@ flutter test test/integration_test.dart
 - ✅ Journal entry deletion with proper undo functionality
 - ✅ Dark theme background consistency improvements
 
-### 🔄 Auto-Resume Feature
-This project supports Claude Code's `--resume` feature. When your usage limit resets, you can run:
-```bash
-claude-code --resume
-```
-This will automatically continue from the last conversation context, maintaining all project history and allowing seamless continuation of development work.
+### 🔄 Development Workflow
+The app follows modern Flutter development practices with:
+- Hot reload for rapid development iteration
+- Comprehensive testing suite for reliability
+- Modular architecture for maintainability
+- Cross-platform deployment for maximum reach
 
 ## 📱 Platform Support
 

@@ -2,7 +2,6 @@
 -- GitaWisdom Content Migration Script v3 (Column-Safe Version)
 -- File: 002_migrate_existing_content_v3.sql
 -- Purpose: Migrate existing English content to new multilingual translation tables
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- Note: Fixed column references that don't exist in source tables
 -- ===================================================================

@@ -239,6 +239,40 @@ class AppLocalizationsMr extends AppLocalizations {
   String get readMore => 'अधिक वाचा';
 
   @override
+  String get readLess => 'कमी वाचा';
+
+  @override
+  String get heartSays => 'हृदय म्हणते';
+
+  @override
+  String get dutySays => 'कर्तव्य म्हणते';
+
+  @override
+  String get wisdomSteps => 'ज्ञानाची पायरी';
+
+  @override
+  String get modernScenario => 'आधुनिक दिवसाची परिस्थिती';
+
+  @override
+  String get overview => 'विहंगावलोकन';
+
+  @override
+  String get immersiveKnowledge => 'ज्ञानाच्या समुद्रात बुडी मारा';
+
+  @override
+  String get lifeScenarios => 'जीवनातील परिस्थिती';
+
+  @override
+  String get applyGitaWisdom =>
+      'वास्तविक जीवनातील परिस्थितींमध्ये गीतेचे ज्ञान लागू करा';
+
+  @override
+  String get back => 'मागे';
+
+  @override
+  String get home => 'होम';
+
+  @override
   String get failedToSaveEntry => 'डायरी नोंद जतन करण्यात अपयश';
 
   @override

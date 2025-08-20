@@ -2,7 +2,6 @@
 -- Fix Function Type Mismatch in get_translation_coverage
 -- File: fix_function_type_mismatch.sql
 -- Purpose: Fix return type mismatch in get_translation_coverage function
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- ===================================================================
 

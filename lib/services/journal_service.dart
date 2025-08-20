@@ -3,13 +3,13 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 import '../models/journal_entry.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 
 class JournalService {
   static final JournalService instance = JournalService._();
   JournalService._();
 
-  final SupabaseService _supabaseService = SupabaseService();
+  late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
   Box<JournalEntry>? _box;
   
   static const String boxName = 'journal_entries';

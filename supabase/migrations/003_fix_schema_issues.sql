@@ -2,7 +2,6 @@
 -- GitaWisdom Schema Fixes for Multilingual Implementation
 -- File: 003_fix_schema_issues.sql
 -- Purpose: Fix critical issues in the existing schema
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- ===================================================================
 

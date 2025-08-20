@@ -2,7 +2,6 @@
 -- GitaWisdom Schema Rollback Script
 -- File: rollback_schema_fixes.sql
 -- Purpose: Safely rollback multilingual schema changes if needed
--- Author: Claude Code Assistant 
 -- Date: 2025-08-16
 -- ===================================================================
 

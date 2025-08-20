@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "Не удалось удалить запись",
   
   "journalEntrySaved": "Запись дневника сохранена!",
-  "pleaseSelectRating": "Пожалуйста, выберите оценку"
+  "pleaseSelectRating": "Пожалуйста, выберите оценку",
+
+  "readLess": "Читать меньше",
+  "heartSays": "Сердце Говорит",
+  "dutySays": "Долг Говорит", 
+  "wisdomSteps": "Шаги Мудрости",
+  "modernScenario": "СОВРЕМЕННЫЙ СЦЕНАРИЙ",
+  "overview": "Обзор",
+  "showFewerScenarios": "Показать меньше сценариев",
+  "gitaChapters": "ГЛАВЫ ГИТЫ", 
+  "immersiveKnowledge": "Погрузитесь в океан знаний",
+  "lifeScenarios": "ЖИЗНЕННЫЕ СЦЕНАРИИ",
+  "applyGitaWisdom": "Применяйте мудрость Гиты к реальным ситуациям",
+  "back": "Назад",
+  "home": "Главная"
 }

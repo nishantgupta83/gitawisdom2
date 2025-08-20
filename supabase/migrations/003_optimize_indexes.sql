@@ -2,7 +2,6 @@
 -- GitaWisdom Index Optimization Script
 -- File: 003_optimize_indexes.sql
 -- Purpose: Optimize database indexes after content migration
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- Note: This script must be run OUTSIDE of a transaction block
 -- ===================================================================

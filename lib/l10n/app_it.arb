@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "Eliminazione della voce fallita",
   
   "journalEntrySaved": "Voce del diario salvata!",
-  "pleaseSelectRating": "Seleziona una valutazione per favore"
+  "pleaseSelectRating": "Seleziona una valutazione per favore",
+
+  "readLess": "Leggi di meno",
+  "heartSays": "Il Cuore Dice",
+  "dutySays": "Il Dovere Dice", 
+  "wisdomSteps": "Passi di Saggezza",
+  "modernScenario": "SCENARIO MODERNO",
+  "overview": "Panoramica",
+  "showFewerScenarios": "Mostra meno scenari",
+  "gitaChapters": "CAPITOLI DELLA GITA", 
+  "immersiveKnowledge": "Immergiti nell'oceano della conoscenza",
+  "lifeScenarios": "SCENARI DI VITA",
+  "applyGitaWisdom": "Applica la saggezza della Gita alle situazioni reali",
+  "back": "Indietro",
+  "home": "Casa"
 }

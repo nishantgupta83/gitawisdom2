@@ -13,19 +13,20 @@ import '../models/chapter_summary.dart';
 import '../models/scenario.dart';
 import '../models/verse.dart';
 import '../models/daily_quote.dart';
-import '../models/supported_language.dart';
+/* MULTILANG_TODO: import '../models/supported_language.dart'; */
 
 /// ---------------------------------------------
-/// ENHANCED SUPABASE SERVICE WITH MULTILINGUAL SUPPORT
+/// ENHANCED SUPABASE SERVICE - ENGLISH ONLY (MVP)
 /// ---------------------------------------------
-/// This service provides multilingual content support with automatic fallback
-/// to English when translations are not available. It uses the new normalized
-/// translation schema while maintaining backward compatibility.
+/// Simplified service for English-only MVP release.
+/// MULTILANG_TODO: Restore multilingual support after MVP
+/// All multilingual code is commented out with MULTILANG_TODO prefix.
 
 class EnhancedSupabaseService {
   /// Shared Supabase client
   final SupabaseClient client = Supabase.instance.client;
 
+  /* MULTILANG_TODO: Restore language support
   /// Currently selected language code
   String _currentLanguage = 'en';
 
@@ -38,15 +39,19 @@ class EnhancedSupabaseService {
   /// Getters
   String get currentLanguage => _currentLanguage;
   List<SupportedLanguage> get supportedLanguages => _supportedLanguages;
+  */
 
+  /* MULTILANG_TODO: Restore language initialization
   /// Initialize language support - call this once at app startup
   Future<void> initializeLanguages() async {
     try {
       debugPrint('🌐 Initializing multilingual support...');
+      debugPrint('🏗️ Platform: Connected');
       
       // Open cache box for offline support
       if (!Hive.isBoxOpen(_languageCacheBox)) {
         await Hive.openBox(_languageCacheBox);
+        debugPrint('📦 Opened language cache box');
       }
       
       // Load supported languages from Supabase
@@ -58,13 +63,55 @@ class EnhancedSupabaseService {
       debugPrint('✅ Multilingual support initialized. Current: $_currentLanguage');
       debugPrint('📋 Supported languages: ${_supportedLanguages.length}');
       
+      // Test connection on Android
+      await _testConnection();
+      
     } catch (e) {
       debugPrint('❌ Error initializing languages: $e');
       // Fallback to default languages if network fails
       _supportedLanguages = SupportedLanguage.defaultLanguages;
+      /* MULTILANG_TODO: _currentLanguage = 'en'; */
+      debugPrint('🔧 Using fallback configuration');
+    }
+  }
+  */
+
+  /// MVP: Simplified initialization for English-only
+  Future<void> initializeLanguages() async {
+    try {
+      // Debug output disabled for production release
+      await _testConnection();
+      // Service initialized successfully
+    } catch (e) {
+      // Error initializing service: will rethrow for handling
+      rethrow;
     }
   }
 
+  /// Test database connection and schema compatibility
+  Future<void> _testConnection() async {
+    try {
+      // Testing database connection...
+      
+      // Test basic chapter query
+      final testResponse = await client
+          .from('chapters')
+          .select('ch_chapter_id, ch_title')
+          .limit(1);
+      
+      if (testResponse.isNotEmpty) {
+        // Database connection test successful
+      } else {
+        // Database connection test returned empty result
+      }
+      
+    } catch (e) {
+      // Database connection test failed
+      rethrow;
+    }
+  }
+
+  /* MULTILANG_TODO: Restore language loading
   /// Load supported languages from Supabase with caching
   Future<void> _loadSupportedLanguages() async {
     try {
@@ -105,29 +152,57 @@ class EnhancedSupabaseService {
       }
     }
   }
+  */
 
   /// Load current language from settings
   Future<void> _loadCurrentLanguageFromSettings() async {
     try {
       // This will be integrated with SettingsService
       // For now, default to English
-      _currentLanguage = 'en';
+      /* MULTILANG_TODO: _currentLanguage = 'en'; */
     } catch (e) {
       debugPrint('⚠️ Error loading language setting: $e');
-      _currentLanguage = 'en';
+      /* MULTILANG_TODO: _currentLanguage = 'en'; */
     }
   }
 
   /// Change the current language
   Future<void> setCurrentLanguage(String langCode) async {
-    if (_supportedLanguages.any((lang) => lang.langCode == langCode)) {
-      _currentLanguage = langCode;
-      debugPrint('🔄 Language changed to: $langCode');
+    /* MULTILANG_TODO: if (_supportedLanguages.any((lang) => lang.langCode == langCode)) { */
+    if (langCode == 'en') { // MVP: Only support English
+      /* MULTILANG_TODO: final oldLanguage = _currentLanguage; */
+      /* MULTILANG_TODO: _currentLanguage = langCode; */
+      final oldLanguage = 'en';
+      debugPrint('🔄 Language changed from $oldLanguage to: $langCode');
+      
+      // Clear any cached data that might be language-specific
+      await _clearLanguageCache();
       
       // Save to settings - to be integrated with SettingsService
       // await _settingsService.setLanguage(langCode);
+      
+      debugPrint('✅ Language switch completed successfully');
     } else {
       debugPrint('❌ Unsupported language: $langCode');
+    }
+  }
+
+  /// Clear language-specific cache when switching languages
+  Future<void> _clearLanguageCache() async {
+    try {
+      // Clear Hive cache if needed
+      /* MULTILANG_TODO: if (Hive.isBoxOpen(_languageCacheBox)) { */
+      /* MULTILANG_TODO: final cacheBox = Hive.box(_languageCacheBox); */
+      if (false) { // MVP: No cache to clear
+        /* MULTILANG_TODO: await cacheBox.clear(); */
+        debugPrint('🧹 Cleared language cache');
+      }
+      
+      // Force refresh of materialized views if they exist
+      await refreshTranslationViews();
+      
+    } catch (e) {
+      debugPrint('⚠️ Error clearing language cache: $e');
     }
   }
 
@@ -135,31 +210,86 @@ class EnhancedSupabaseService {
   /// MULTILINGUAL CHAPTER METHODS
   /// ========================================================================
 
+  /* MULTILANG_TODO: Restore multilingual chapter summaries
   /// Fetch all chapter summaries with multilingual support
   Future<List<ChapterSummary>> fetchChapterSummaries([String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
-      // Use materialized view for better performance
-      final response = await client
-          .from('chapter_summary_multilingual')
-          .select('ch_chapter_id, title, subtitle, ch_verse_count, scenario_count')
-          .eq('lang_code', language)
-          .order('ch_chapter_id', ascending: true);
-      
-      final data = response as List;
-      return data.map((e) {
-        return ChapterSummary(
-          chapterId: e['ch_chapter_id'] as int,
-          title: e['title'] as String,
-          subtitle: e['subtitle'] as String?,
-          verseCount: (e['ch_verse_count'] as int?) ?? 0,
-          scenarioCount: (e['scenario_count'] as int?) ?? 0,
-        );
-      }).toList();
+      // Try materialized view first, then fallback to direct queries
+      try {
+        final response = await client
+            .from('chapter_summary_multilingual')
+            .select('ch_chapter_id, title, subtitle, ch_verse_count, scenario_count')
+            .eq('lang_code', language)
+            .order('ch_chapter_id', ascending: true);
+        
+        final data = response as List;
+        return data.map((e) {
+          return ChapterSummary(
+            chapterId: e['ch_chapter_id'] as int,
+            title: e['title'] as String,
+            subtitle: e['subtitle'] as String?,
+            verseCount: (e['ch_verse_count'] as int?) ?? 0,
+            scenarioCount: (e['scenario_count'] as int?) ?? 0,
+          );
+        }).toList();
+      } catch (viewError) {
+        debugPrint('⚠️ Materialized view error, using direct query fallback: $viewError');
+        
+        // Fallback: Direct query from chapters table with manual translation lookup
+        final chaptersResponse = await client
+            .from('chapters')
+            .select('ch_chapter_id, ch_title, ch_subtitle, ch_verse_count')
+            .order('ch_chapter_id', ascending: true);
+        
+        final List<ChapterSummary> summaries = [];
+        
+        for (final chapter in chaptersResponse) {
+          String title = chapter['ch_title'] as String;
+          String? subtitle = chapter['ch_subtitle'] as String?;
+          
+          // Try to get translation if not English
+          if (language != 'en') {
+            try {
+              final translationResponse = await client
+                  .from('chapter_translations')
+                  .select('title, subtitle')
+                  .eq('chapter_id', chapter['ch_chapter_id'])
+                  .eq('lang_code', language)
+                  .maybeSingle();
+              
+              if (translationResponse != null) {
+                title = translationResponse['title'] ?? title;
+                subtitle = translationResponse['subtitle'] ?? subtitle;
+              }
+            } catch (translationError) {
+              debugPrint('⚠️ Translation not found for chapter ${chapter['ch_chapter_id']} in $language');
+            }
+          }
+          
+          // Get scenario count
+          final scenarioCountResponse = await client
+              .from('scenarios')
+              .select('scenario_id')
+              .eq('sc_chapter', chapter['ch_chapter_id'])
+              .count();
+          
+          summaries.add(ChapterSummary(
+            chapterId: chapter['ch_chapter_id'] as int,
+            title: title,
+            subtitle: subtitle,
+            verseCount: (chapter['ch_verse_count'] as int?) ?? 0,
+            scenarioCount: scenarioCountResponse.count,
+          ));
+        }
+        
+        return summaries;
+      }
       
     } catch (e) {
-      debugPrint('❌ Error fetching chapter summaries for $language: $e');
+      // Error fetching chapter summaries
       
       // Fallback to English if current language fails
       if (language != 'en') {
@@ -170,23 +300,126 @@ class EnhancedSupabaseService {
       return [];
     }
   }
+  */
+
+  /// MVP: Permanently cached chapter summaries (FIXES SLOW LOADING)
+  Future<List<ChapterSummary>> fetchChapterSummaries([String? langCode]) async {
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    try {
+      // Open cache box for permanent storage
+      if (!Hive.isBoxOpen('chapter_summaries_permanent')) {
+        await Hive.openBox<ChapterSummary>('chapter_summaries_permanent');
+      }
+      final cacheBox = Hive.box<ChapterSummary>('chapter_summaries_permanent');
+      
+      // Check permanent cache first
+      if (cacheBox.isNotEmpty) {
+        final cachedSummaries = cacheBox.values.toList();
+        // Using permanently cached chapter summaries
+        return cachedSummaries;
+      }
+      
+      // Fetching fresh chapter summaries for permanent cache
+      
+      // Direct query from chapters table - reliable and simple
+      final chaptersResponse = await client
+          .from('chapters')
+          .select('ch_chapter_id, ch_title, ch_subtitle, ch_verse_count')
+          .order('ch_chapter_id', ascending: true);
+      
+      debugPrint('📊 Found ${chaptersResponse.length} chapters');
+      
+      final List<ChapterSummary> summaries = [];
+      
+      for (final chapter in chaptersResponse) {
+        // Get real-time scenario count from scenarios table
+        final scenarioCountResponse = await client
+            .from('scenarios')
+            .select('scenario_id')
+            .eq('sc_chapter', chapter['ch_chapter_id'])
+            .count();
+        
+        final summary = ChapterSummary(
+          chapterId: chapter['ch_chapter_id'] as int,
+          title: chapter['ch_title'] as String,
+          subtitle: chapter['ch_subtitle'] as String?,
+          verseCount: (chapter['ch_verse_count'] as int?) ?? 0,
+          scenarioCount: scenarioCountResponse.count,
+        );
+        
+        summaries.add(summary);
+        debugPrint('✅ Chapter ${summary.chapterId}: ${summary.scenarioCount} scenarios');
+      }
+      
+      // Permanently cache the results
+      await cacheBox.clear();
+      for (int i = 0; i < summaries.length; i++) {
+        await cacheBox.put(summaries[i].chapterId, summaries[i]);
+      }
+      
+      // Successfully loaded and permanently cached chapter summaries
+      return summaries;
+      
+    } catch (e) {
+      // Error fetching chapter summaries
+      return [];
+    }
+  }
 
   /// Fetch a single chapter with multilingual support and fallback
   Future<Chapter?> fetchChapterById(int chapterId, [String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
-      // Use RPC function for automatic fallback
+      // Direct query approach - more reliable than RPC
       final response = await client
-          .rpc('get_chapter_with_fallback', params: {
-            'p_chapter_id': chapterId,
-            'p_lang_code': language,
-          });
+          .from('chapters')
+          .select('''
+            ch_chapter_id,
+            ch_title,
+            ch_subtitle,
+            ch_summary,
+            ch_verse_count,
+            ch_theme,
+            ch_key_teachings,
+            created_at
+          ''')
+          .eq('ch_chapter_id', chapterId)
+          .single();
       
-      if (response.isEmpty) return null;
+      if (response != null) {
+        // Try to get translation for this chapter
+        if (language != 'en') {
+          try {
+            final translationResponse = await client
+                .from('chapter_translations')
+                .select('*')
+                .eq('chapter_id', chapterId)
+                .eq('lang_code', language)
+                .maybeSingle();
+            
+            if (translationResponse != null) {
+              // Apply translations
+              final data = Map<String, dynamic>.from(response);
+              if (translationResponse['title'] != null) data['ch_title'] = translationResponse['title'];
+              if (translationResponse['subtitle'] != null) data['ch_subtitle'] = translationResponse['subtitle'];
+              if (translationResponse['summary'] != null) data['ch_summary'] = translationResponse['summary'];
+              if (translationResponse['theme'] != null) data['ch_theme'] = translationResponse['theme'];
+              if (translationResponse['key_teachings'] != null) data['ch_key_teachings'] = translationResponse['key_teachings'];
+              
+              return Chapter.fromJson(data);
+            }
+          } catch (translationError) {
+            debugPrint('⚠️ Translation not found for chapter $chapterId in $language, using English');
+          }
+        }
+        
+        // Use English version (original data)
+        return Chapter.fromJson(response);
+      }
       
-      final data = response[0] as Map<String, dynamic>;
-      return ChapterMultilingualExtensions.fromMultilingualJson(data);
+      return null;
       
     } catch (e) {
       debugPrint('❌ Error fetching chapter $chapterId for $language: $e');
@@ -198,7 +431,8 @@ class EnhancedSupabaseService {
 
   /// Fetch all chapters with multilingual support
   Future<List<Chapter>> fetchAllChapters([String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
       final List<Chapter> chapters = [];
@@ -223,32 +457,81 @@ class EnhancedSupabaseService {
   /// MULTILINGUAL SCENARIO METHODS
   /// ========================================================================
 
+  /* MULTILANG_TODO: Restore multilingual scenarios
   /// Fetch scenarios with multilingual support
   Future<List<Scenario>> fetchScenariosByChapter(int chapterId, [String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
-      // Use materialized view or direct query with joins
+      // Direct query to get full scenario data including heart, duty, gita wisdom, and action steps
       final response = await client
-          .from('scenario_summary_multilingual')
-          .select('scenario_id, sc_chapter, title, description, category, created_at')
+          .from('scenarios')
+          .select('''
+            scenario_id,
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
           .eq('sc_chapter', chapterId)
-          .eq('lang_code', language)
           .order('created_at', ascending: false);
       
-      final data = response as List;
-      return data.map((e) {
-        return Scenario(
-          title: e['title'] as String,
-          description: e['description'] as String,
-          category: e['category'] as String,
-          chapter: e['sc_chapter'] as int,
-          heartResponse: '', // Will be loaded separately if needed
-          dutyResponse: '', // Will be loaded separately if needed
-          gitaWisdom: '', // Will be loaded separately if needed
-          createdAt: DateTime.parse(e['created_at'] as String),
+      if (response.isEmpty) return [];
+      
+      // Convert to scenarios with potential translations
+      final List<Scenario> scenarios = [];
+      
+      for (final item in response) {
+        Map<String, dynamic> scenarioData = Map<String, dynamic>.from(item);
+        
+        // Try to get translations if not English
+        if (language != 'en') {
+          try {
+            final translationResponse = await client
+                .from('scenario_translations')
+                .select('*')
+                .eq('scenario_id', item['scenario_id'])
+                .eq('lang_code', language)
+                .maybeSingle();
+            
+            if (translationResponse != null) {
+              // Apply translations
+              if (translationResponse['title'] != null) scenarioData['sc_title'] = translationResponse['title'];
+              if (translationResponse['description'] != null) scenarioData['sc_description'] = translationResponse['description'];
+              if (translationResponse['category'] != null) scenarioData['sc_category'] = translationResponse['category'];
+              if (translationResponse['heart_response'] != null) scenarioData['sc_heart_response'] = translationResponse['heart_response'];
+              if (translationResponse['duty_response'] != null) scenarioData['sc_duty_response'] = translationResponse['duty_response'];
+              if (translationResponse['gita_wisdom'] != null) scenarioData['sc_gita_wisdom'] = translationResponse['gita_wisdom'];
+              if (translationResponse['action_steps'] != null) scenarioData['sc_action_steps'] = translationResponse['action_steps'];
+            }
+          } catch (translationError) {
+            debugPrint('⚠️ Translation not found for scenario ${item['scenario_id']} in $language, using English');
+          }
+        }
+        
+        // Create scenario with all data
+        final scenario = Scenario(
+          title: scenarioData['sc_title'] as String? ?? '',
+          description: scenarioData['sc_description'] as String? ?? '',
+          category: scenarioData['sc_category'] as String? ?? '',
+          chapter: scenarioData['sc_chapter'] as int? ?? chapterId,
+          heartResponse: scenarioData['sc_heart_response'] as String? ?? '',
+          dutyResponse: scenarioData['sc_duty_response'] as String? ?? '',
+          gitaWisdom: scenarioData['sc_gita_wisdom'] as String? ?? '',
+          actionSteps: (scenarioData['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+          createdAt: DateTime.parse(scenarioData['created_at'] as String),
         );
-      }).toList();
+        
+        scenarios.add(scenario);
+      }
+      
+      return scenarios;
       
     } catch (e) {
       debugPrint('❌ Error fetching scenarios for chapter $chapterId, language $language: $e');
@@ -261,23 +544,127 @@ class EnhancedSupabaseService {
       return _fallbackFetchScenariosByChapter(chapterId);
     }
   }
+  */
+
+  /// MVP: Simplified English-only scenario fetching (FIXES COUNT ISSUE)
+  Future<List<Scenario>> fetchScenariosByChapter(int chapterId, [String? langCode]) async {
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    try {
+      debugPrint('🎯 Fetching scenarios for chapter $chapterId (English-only)');
+      
+      // Simple direct query to scenarios table - no translation complexity
+      final response = await client
+          .from('scenarios')
+          .select('''
+            scenario_id,
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
+          .eq('sc_chapter', chapterId)
+          .order('created_at', ascending: false);
+      
+      debugPrint('📊 Found ${response.length} scenarios for chapter $chapterId');
+      
+      if (response.isEmpty) return [];
+      
+      // Direct conversion without translation logic - much more reliable
+      final List<Scenario> scenarios = response.map((item) {
+        return Scenario(
+          title: item['sc_title'] as String? ?? '',
+          description: item['sc_description'] as String? ?? '',
+          category: item['sc_category'] as String? ?? '',
+          chapter: item['sc_chapter'] as int? ?? chapterId,
+          heartResponse: item['sc_heart_response'] as String? ?? '',
+          dutyResponse: item['sc_duty_response'] as String? ?? '',
+          gitaWisdom: item['sc_gita_wisdom'] as String? ?? '',
+          actionSteps: (item['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+          createdAt: DateTime.parse(item['created_at'] as String),
+        );
+      }).toList();
+      
+      debugPrint('✅ Successfully converted ${scenarios.length} scenarios');
+      return scenarios;
+      
+    } catch (e) {
+      debugPrint('❌ Error fetching scenarios for chapter $chapterId: $e');
+      return _fallbackFetchScenariosByChapter(chapterId);
+    }
+  }
 
   /// Fetch a single scenario with full details and multilingual support
   Future<Scenario?> fetchScenarioById(int scenarioId, [String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
-      // Use RPC function for automatic fallback
+      // Direct query to get complete scenario data
       final response = await client
-          .rpc('get_scenario_with_fallback', params: {
-            'p_scenario_id': scenarioId,
-            'p_lang_code': language,
-          });
+          .from('scenarios')
+          .select('''
+            scenario_id,
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
+          .eq('scenario_id', scenarioId)
+          .single();
       
-      if (response.isEmpty) return null;
+      if (response != null) {
+        Map<String, dynamic> scenarioData = Map<String, dynamic>.from(response);
+        
+        // Try to get translations if not English
+        if (language != 'en') {
+          try {
+            final translationResponse = await client
+                .from('scenario_translations')
+                .select('*')
+                .eq('scenario_id', scenarioId)
+                .eq('lang_code', language)
+                .maybeSingle();
+            
+            if (translationResponse != null) {
+              // Apply translations
+              if (translationResponse['title'] != null) scenarioData['sc_title'] = translationResponse['title'];
+              if (translationResponse['description'] != null) scenarioData['sc_description'] = translationResponse['description'];
+              if (translationResponse['category'] != null) scenarioData['sc_category'] = translationResponse['category'];
+              if (translationResponse['heart_response'] != null) scenarioData['sc_heart_response'] = translationResponse['heart_response'];
+              if (translationResponse['duty_response'] != null) scenarioData['sc_duty_response'] = translationResponse['duty_response'];
+              if (translationResponse['gita_wisdom'] != null) scenarioData['sc_gita_wisdom'] = translationResponse['gita_wisdom'];
+              if (translationResponse['action_steps'] != null) scenarioData['sc_action_steps'] = translationResponse['action_steps'];
+            }
+          } catch (translationError) {
+            debugPrint('⚠️ Translation not found for scenario $scenarioId in $language, using English');
+          }
+        }
+        
+        // Create scenario with all data
+        return Scenario(
+          title: scenarioData['sc_title'] as String? ?? '',
+          description: scenarioData['sc_description'] as String? ?? '',
+          category: scenarioData['sc_category'] as String? ?? '',
+          chapter: scenarioData['sc_chapter'] as int? ?? 1,
+          heartResponse: scenarioData['sc_heart_response'] as String? ?? '',
+          dutyResponse: scenarioData['sc_duty_response'] as String? ?? '',
+          gitaWisdom: scenarioData['sc_gita_wisdom'] as String? ?? '',
+          actionSteps: (scenarioData['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+          createdAt: DateTime.parse(scenarioData['created_at'] as String),
+        );
+      }
       
-      final data = response[0] as Map<String, dynamic>;
-      return ScenarioMultilingualExtensions.fromMultilingualJson(data);
+      return null;
       
     } catch (e) {
       debugPrint('❌ Error fetching scenario $scenarioId for $language: $e');
@@ -289,7 +676,8 @@ class EnhancedSupabaseService {
 
   /// Search scenarios with multilingual support
   Future<List<Scenario>> searchScenarios(String query, [String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     if (query.trim().isEmpty) {
       return fetchScenarios(langCode: language);
@@ -354,33 +742,80 @@ class EnhancedSupabaseService {
 
   /// Fetch paginated scenarios with multilingual support
   Future<List<Scenario>> fetchScenarios({
-    int limit = 20,
+    int limit = 2000,
     int offset = 0,
     String? langCode,
   }) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
+      // Get full scenario data from scenarios table
       final response = await client
-          .from('scenario_summary_multilingual')
-          .select('scenario_id, sc_chapter, title, description, category, created_at')
-          .eq('lang_code', language)
+          .from('scenarios')
+          .select('''
+            scenario_id,
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
           .order('created_at', ascending: false)
-          .range(offset, offset + limit - 1);
+          .limit(limit);
       
-      final data = response as List;
-      return data.map((e) {
-        return Scenario(
-          title: e['title'] as String,
-          description: e['description'] as String,
-          category: e['category'] as String,
-          chapter: e['sc_chapter'] as int,
-          heartResponse: '', // Summary view - full details loaded separately
-          dutyResponse: '',
-          gitaWisdom: '',
-          createdAt: DateTime.parse(e['created_at'] as String),
+      if (response.isEmpty) return [];
+      
+      final List<Scenario> scenarios = [];
+      
+      for (final item in response) {
+        Map<String, dynamic> scenarioData = Map<String, dynamic>.from(item);
+        
+        // Try to get translations if not English
+        if (language != 'en') {
+          try {
+            final translationResponse = await client
+                .from('scenario_translations')
+                .select('*')
+                .eq('scenario_id', item['scenario_id'])
+                .eq('lang_code', language)
+                .maybeSingle();
+            
+            if (translationResponse != null) {
+              // Apply translations
+              if (translationResponse['title'] != null) scenarioData['sc_title'] = translationResponse['title'];
+              if (translationResponse['description'] != null) scenarioData['sc_description'] = translationResponse['description'];
+              if (translationResponse['category'] != null) scenarioData['sc_category'] = translationResponse['category'];
+              if (translationResponse['heart_response'] != null) scenarioData['sc_heart_response'] = translationResponse['heart_response'];
+              if (translationResponse['duty_response'] != null) scenarioData['sc_duty_response'] = translationResponse['duty_response'];
+              if (translationResponse['gita_wisdom'] != null) scenarioData['sc_gita_wisdom'] = translationResponse['gita_wisdom'];
+              if (translationResponse['action_steps'] != null) scenarioData['sc_action_steps'] = translationResponse['action_steps'];
+            }
+          } catch (translationError) {
+            debugPrint('⚠️ Translation not found for scenario ${item['scenario_id']} in $language, using English');
+          }
+        }
+        
+        final scenario = Scenario(
+          title: scenarioData['sc_title'] as String? ?? '',
+          description: scenarioData['sc_description'] as String? ?? '',
+          category: scenarioData['sc_category'] as String? ?? '',
+          chapter: scenarioData['sc_chapter'] as int? ?? 1,
+          heartResponse: scenarioData['sc_heart_response'] as String? ?? '',
+          dutyResponse: scenarioData['sc_duty_response'] as String? ?? '',
+          gitaWisdom: scenarioData['sc_gita_wisdom'] as String? ?? '',
+          actionSteps: (scenarioData['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+          createdAt: DateTime.parse(scenarioData['created_at'] as String),
         );
-      }).toList();
+        
+        scenarios.add(scenario);
+      }
+      
+      return scenarios;
       
     } catch (e) {
       debugPrint('❌ Error fetching paginated scenarios for $language: $e');
@@ -399,7 +834,8 @@ class EnhancedSupabaseService {
 
   /// Fetch verses with multilingual support
   Future<List<Verse>> fetchVersesByChapter(int chapterId, [String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
       // Use RPC function for automatic fallback
@@ -428,7 +864,8 @@ class EnhancedSupabaseService {
 
   /// Fetch random verse with multilingual support
   Future<Verse> fetchRandomVerseByChapter(int chapterId, [String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
       final verses = await fetchVersesByChapter(chapterId, language);
@@ -450,7 +887,8 @@ class EnhancedSupabaseService {
 
   /// Fetch daily quote with multilingual support
   Future<DailyQuote> fetchRandomDailyQuote([String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
       // Get all quote IDs first
@@ -565,7 +1003,7 @@ class EnhancedSupabaseService {
           .from('scenarios')
           .select()
           .order('created_at', ascending: false)
-          .range(offset, offset + limit - 1);
+          .limit(limit);
       final data = response as List;
       return data
           .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
@@ -774,7 +1212,8 @@ class EnhancedSupabaseService {
 
   /// Get translation coverage statistics
   Future<Map<String, dynamic>> getTranslationCoverage([String? langCode]) async {
-    final language = langCode ?? _currentLanguage;
+    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
+    final language = 'en'; // MVP: English-only
     
     try {
       final response = await client
@@ -821,6 +1260,7 @@ class EnhancedSupabaseService {
     }
   }
 
+  /* MULTILANG_TODO: Language support methods
   /// Check if a language is supported
   bool isLanguageSupported(String langCode) {
     return _supportedLanguages.any((lang) => lang.langCode == langCode && lang.isActive);
@@ -833,6 +1273,11 @@ class EnhancedSupabaseService {
         .firstOrNull;
     return lang?.displayName(useNative: useNative) ?? langCode;
   }
+  */
+
+  /// MVP: Simplified language support methods
+  bool isLanguageSupported(String langCode) => langCode == 'en';
+  String getLanguageDisplayName(String langCode, {bool useNative = true}) => 'English';
 
   /// Dispose resources
   void dispose() {

@@ -4,13 +4,13 @@ import 'dart:math' as math;
 
 import '../models/daily_verse_set.dart';
 import '../models/verse.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 
 class DailyVerseService {
   static final DailyVerseService instance = DailyVerseService._();
   DailyVerseService._();
 
-  final SupabaseService _supabaseService = SupabaseService();
+  late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
   Box<DailyVerseSet>? _box;
   
   static const String boxName = 'daily_verses';

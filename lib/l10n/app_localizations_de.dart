@@ -154,7 +154,7 @@ class AppLocalizationsDe extends AppLocalizations {
   String get italian => 'Italiano';
 
   @override
-  String get gitaChapters => 'GITA-KAPITEL';
+  String get gitaChapters => 'GITA KAPITEL';
 
   @override
   String get immerseInKnowledge => 'Tauche in den Ozean des Wissens ein';
@@ -241,6 +241,40 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get readMore => 'Mehr lesen';
+
+  @override
+  String get readLess => 'Weniger lesen';
+
+  @override
+  String get heartSays => 'Das Herz sagt';
+
+  @override
+  String get dutySays => 'Die Pflicht sagt';
+
+  @override
+  String get wisdomSteps => 'Weisheitsschritte';
+
+  @override
+  String get modernScenario => 'MODERNES SZENARIO';
+
+  @override
+  String get overview => 'Überblick';
+
+  @override
+  String get immersiveKnowledge => 'Tauchen Sie ein in den Ozean des Wissens';
+
+  @override
+  String get lifeScenarios => 'LEBENSSZENARIOS';
+
+  @override
+  String get applyGitaWisdom =>
+      'Wenden Sie die Gita-Weisheit auf reale Situationen an';
+
+  @override
+  String get back => 'Zurück';
+
+  @override
+  String get home => 'Startseite';
 
   @override
   String get failedToSaveEntry =>

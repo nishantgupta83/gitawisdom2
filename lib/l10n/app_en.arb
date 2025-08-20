@@ -384,6 +384,71 @@
     "description": "Button text to view full journal entry"
   },
 
+  "readLess": "Read less",
+  "@readLess": {
+    "description": "Button text to collapse expanded text"
+  },
+
+  "heartSays": "Heart Says",
+  "@heartSays": {
+    "description": "Heart response section title in scenarios"
+  },
+
+  "dutySays": "Duty Says", 
+  "@dutySays": {
+    "description": "Duty response section title in scenarios"
+  },
+
+  "wisdomSteps": "Wisdom Steps",
+  "@wisdomSteps": {
+    "description": "Action steps section title in scenarios"
+  },
+
+  "modernScenario": "MODERN DAY SCENARIO",
+  "@modernScenario": {
+    "description": "Header title for scenario detail view"
+  },
+
+  "overview": "Overview",
+  "@overview": {
+    "description": "Overview section title"
+  },
+
+  "showFewerScenarios": "Show fewer scenarios",
+  "@showFewerScenarios": {
+    "description": "Button text to collapse scenario list"
+  },
+
+  "gitaChapters": "GITA CHAPTERS", 
+  "@gitaChapters": {
+    "description": "Header title for chapters screen"
+  },
+
+  "immersiveKnowledge": "Immerse into the ocean of knowledge",
+  "@immersiveKnowledge": {
+    "description": "Subtitle for chapters screen"
+  },
+
+  "lifeScenarios": "LIFE SCENARIOS",
+  "@lifeScenarios": {
+    "description": "Header title for scenarios screen"
+  },
+
+  "applyGitaWisdom": "Apply Gita wisdom to real-world situations",
+  "@applyGitaWisdom": {
+    "description": "Subtitle for scenarios screen"
+  },
+
+  "back": "Back",
+  "@back": {
+    "description": "Back button tooltip"
+  },
+
+  "home": "Home",
+  "@home": {
+    "description": "Home button tooltip"
+  },
+
   "failedToSaveEntry": "Failed to save journal entry",
   "@failedToSaveEntry": {
     "description": "Error message when saving journal entry fails"

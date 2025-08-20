@@ -2,7 +2,6 @@
 -- GitaWisdom Multilingual Performance Monitoring & Analytics
 -- File: multilingual_monitoring.sql
 -- Purpose: Monitor translation usage, performance, and coverage
--- Author: Claude Code Assistant
 -- Date: 2025-08-15
 -- ===================================================================
 

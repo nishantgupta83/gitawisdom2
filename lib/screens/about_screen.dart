@@ -203,7 +203,7 @@ class AboutScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                           
                           Text(
-                            AppLocalizations.of(context)?.aboutDescription ?? 'GitaWisdom brings ancient wisdom to modern life. Navigate daily challenges with timeless teachings from the Bhagavad Gita.',
+                            AppLocalizations.of(context)?.aboutDescription ?? 'GitaWisdom brings timeless wisdom to modern life. Navigate daily challenges with timeless teachings from the Bhagavad Gita.',
                             style: GoogleFonts.poppins(
                               fontSize: isTablet ? 16 : 15,
                               color: theme.colorScheme.onSurface,
@@ -270,34 +270,94 @@ class AboutScreen extends StatelessWidget {
                   
                   const SizedBox(height: 20),
                   
-                  // Enhanced version card
+                  // Scenario Disclaimer Card
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
                     color: theme.colorScheme.surface,
-                    shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
-                    child: Padding(
-                      padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.info_outline,
-                            color: theme.colorScheme.primary,
-                            size: isTablet ? 24 : 20,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            AppLocalizations.of(context)?.appVersion ?? 'Version 1.0.0',
-                            style: GoogleFonts.poppins(
-                              fontSize: isTablet ? 16 : 14,
-                              color: theme.colorScheme.onSurface.withOpacity(0.8),
-                              fontWeight: FontWeight.w600,
+                    shadowColor: Colors.orange.withAlpha((0.15 * 255).toInt()),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.orange.shade50.withOpacity(0.3),
+                            theme.colorScheme.surface,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(
+                          color: Colors.orange.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.info_outline,
+                                    color: Colors.orange.shade700,
+                                    size: isTablet ? 24 : 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Important Note',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: isTablet ? 18 : 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Text(
+                              'These scenarios are NOT based on:',
+                              style: GoogleFonts.poppins(
+                                fontSize: isTablet ? 16 : 14,
+                                fontWeight: FontWeight.w600,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildDisclaimerItem(
+                              '• Specific Research Studies',
+                              'Not from particular academic papers',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildDisclaimerItem(
+                              '• Survey Data',
+                              'Not from user surveys or interviews',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildDisclaimerItem(
+                              '• Clinical Case Studies',
+                              'Not from therapy or counseling cases',
+                              theme,
+                              isTablet,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -374,6 +434,34 @@ class AboutScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildDisclaimerItem(String title, String subtitle, ThemeData theme, bool isTablet) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.poppins(
+            fontSize: isTablet ? 15 : 13,
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: Text(
+            subtitle,
+            style: GoogleFonts.poppins(
+              fontSize: isTablet ? 13 : 12,
+              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -29,8 +29,6 @@ The limited information we collect is used solely to:
 
 ## Your Personal Data Storage
 
-- **Journal Entries**: Stored locally on your device only. We never access or store your personal journal entries.
-- **Favorites**: Saved locally on your device. Your favorite scenarios remain private.
 - **App Settings**: Stored locally on your device (theme preferences, font sizes, etc.)
 
 ## Third-Party Services
@@ -39,7 +37,7 @@ We use Supabase for content delivery, which may process limited technical data a
 
 ## Data Security
 
-- All personal data (journal entries, favorites) remains on your device
+- All personal data remains on your device
 - Content delivery uses secure, encrypted connections
 - We do not maintain user accounts or profiles
 

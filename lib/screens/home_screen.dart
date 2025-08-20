@@ -5,7 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import '../models/verse.dart';
-import '../services/supabase_service.dart';
+import '../services/service_locator.dart';
 import '../services/daily_verse_service.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final _service = SupabaseService();
+  late final _service = ServiceLocator.instance.enhancedSupabaseService;
   late final int _chapterId;
   late final Future<Verse> _verseFuture;
 
@@ -39,10 +39,12 @@ class _HomeScreenState extends State<HomeScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // full‐screen scroll background
+          // Background image with dark overlay for dark mode
           Image.asset(
-            'assets/images/divine_scroll_bg.png',
+            'assets/images/app_bg.png',
             fit: BoxFit.cover,
+            color: theme.brightness == Brightness.dark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+            colorBlendMode: theme.brightness == Brightness.dark ? BlendMode.darken : null,
           ),
 
           // centered card
@@ -1255,7 +1257,7 @@ class _HomeScreenState extends State<HomeScreen> {
       await _scenarioService.initialize();
       
       // Get 5 random scenarios from the specified categories
-      final scenarios = _scenarioService.getScenariosByCategories(
+      final scenarios = _scenarioService.fetchScenariosByCategories(
         _modernDilemmaCategories,
         limit: 5,
       );
@@ -1546,128 +1548,141 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return Column(
-      children: [
-        // Modern Dilemma Section Title
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-          child: Row(
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+      child: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface.withOpacity(0.9),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
             children: [
-              Expanded(
-                child: Text(
-                  (AppLocalizations.of(context)?.modernDilemma ?? 'Modern Dilemma').toUpperCase(),
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                    letterSpacing: 0.8,
+              // Modern Dilemma Section Title
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      (AppLocalizations.of(context)?.modernDilemma ?? 'Modern Dilemma').toUpperCase(),
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary,
+                        letterSpacing: 0.8,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: _isLoadingScenarios ? null : _refreshModernDilemmaScenarios,
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        child: Icon(
+                          Icons.refresh,
+                          size: 20,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16), // Spacing between title and carousel
+              
+              // Modern Dilemma Carousel
+              SizedBox(
+                height: 200,
+                child: PageView.builder(
+                  controller: _scenarioPageController,
+                  itemCount: _modernDilemmaScenarios.length,
+                  onPageChanged: (idx) => setState(() => _currentScenarioPage = idx),
+                  itemBuilder: (ctx, i) {
+                    final scenario = _modernDilemmaScenarios[i];
+                    return Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      child: Card(
+                        elevation: i == _currentScenarioPage ? 8 : 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Category Badge
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: theme.colorScheme.primary.withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Text(
+                                  scenario.category.toUpperCase(),
+                                  style: theme.textTheme.labelSmall?.copyWith(
+                                    color: theme.colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              // Scenario Title
+                              Text(
+                                scenario.title,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 12),
+                              
+                              const Spacer(),
+                              
+                              // Show Wisdom Button
+                              _buildCompactShowWisdomButton(scenario, theme),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 ),
               ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(20),
-                  onTap: _isLoadingScenarios ? null : _refreshModernDilemmaScenarios,
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    child: Icon(
-                      Icons.refresh,
-                      size: 20,
-                      color: theme.colorScheme.primary,
-                    ),
+              
+              // Page indicator for Modern Dilemma carousel
+              Padding(
+                padding: const EdgeInsets.only(top: 12),
+                child: SmoothPageIndicator(
+                  controller: _scenarioPageController,
+                  count: _modernDilemmaScenarios.length,
+                  effect: WormEffect(
+                    dotWidth: 12,
+                    dotHeight: 12,
+                    activeDotColor: theme.colorScheme.primary,
+                    dotColor: theme.colorScheme.onSurface.withOpacity(0.3),
                   ),
                 ),
               ),
             ],
           ),
         ),
-        
-        // Modern Dilemma Carousel
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-          child: SizedBox(
-            height: 200,
-            child: PageView.builder(
-              controller: _scenarioPageController,
-              itemCount: _modernDilemmaScenarios.length,
-              onPageChanged: (idx) => setState(() => _currentScenarioPage = idx),
-              itemBuilder: (ctx, i) {
-                final scenario = _modernDilemmaScenarios[i];
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Card(
-                    elevation: i == _currentScenarioPage ? 8 : 4,
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Category Badge
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.primaryContainer.withOpacity(0.3),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(
-                                color: theme.colorScheme.primary.withOpacity(0.2),
-                                width: 1,
-                              ),
-                            ),
-                            child: Text(
-                              scenario.category.toUpperCase(),
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          
-                          // Scenario Title
-                          Text(
-                            scenario.title,
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 12),
-                          
-                          const Spacer(),
-                          
-                          // Show Wisdom Button
-                          _buildCompactShowWisdomButton(scenario, theme),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        
-        // Page indicator for Modern Dilemma carousel
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.only(top: 8, bottom: 20),
-            child: SmoothPageIndicator(
-              controller: _scenarioPageController,
-              count: _modernDilemmaScenarios.length,
-              effect: WormEffect(
-                dotWidth: 12,
-                dotHeight: 12,
-                activeDotColor: theme.colorScheme.primary,
-                dotColor: theme.colorScheme.onSurface.withOpacity(0.3),
-              ),
-            ),
-          ),
-        ),
-      ],
+      ),
     );
   }
 

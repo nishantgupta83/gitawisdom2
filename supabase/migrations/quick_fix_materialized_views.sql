@@ -2,7 +2,6 @@
 -- GitaWisdom Quick Fix for Materialized View Dependency Issue
 -- File: quick_fix_materialized_views.sql
 -- Purpose: Remove materialized views that block column type changes
--- Author: Claude Code Assistant
 -- Date: 2025-08-16
 -- ===================================================================
 

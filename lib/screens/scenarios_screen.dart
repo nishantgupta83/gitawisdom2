@@ -10,6 +10,89 @@ import '../services/scenario_service.dart';
 import 'scenario_detail_view.dart';
 import '../main.dart';
 import '../l10n/app_localizations.dart';
+// import 'sub_category_mapper.dart'; // TODO: Implement sub-category filtering UI
+
+/// Utility function to format counts in human-readable format
+String formatCount(int count) {
+  if (count >= 1000) {
+    double value = count / 1000.0;
+    return '${value.toStringAsFixed(1)}k+';
+  }
+  return count.toString();
+}
+
+/// Sub-tag model with visual elements
+class SubTag {
+  final String name;
+  final IconData icon;
+  final Color color;
+  final List<String> keywords; // Keywords to match this sub-tag
+
+  const SubTag({
+    required this.name,
+    required this.icon,
+    required this.color,
+    required this.keywords,
+  });
+}
+
+/// Enhanced category filter with visual elements and dynamic counts
+class CategoryFilter {
+  final String id;
+  final String nameKey; // Localization key
+  final IconData icon;
+  final Color color;
+  final bool isDynamic; // Whether to calculate count dynamically
+
+  const CategoryFilter({
+    required this.id,
+    required this.nameKey,
+    required this.icon,
+    required this.color,
+    this.isDynamic = false,
+  });
+
+  /// Get localized name for this category
+  String getLocalizedName(BuildContext context) {
+    // final localizations = AppLocalizations.of(context)!; // TODO: Use when adding localization keys
+    switch (nameKey) {
+      case 'all':
+        return 'All';
+      case 'work_career':
+        return 'Work & Career';
+      case 'relationships':
+        return 'Relationships';
+      case 'parenting_family':
+        return 'Parenting & Family';
+      case 'personal_growth':
+        return 'Personal Growth';
+      case 'life_transitions':
+        return 'Life Transitions';
+      case 'social_community':
+        return 'Social & Community';
+      case 'health_wellness':
+        return 'Health & Wellness';
+      case 'financial':
+        return 'Financial';
+      case 'education_learning':
+        return 'Education & Learning';
+      case 'modern_living':
+        return 'Modern Living';
+      default:
+        return nameKey.replaceAll('_', ' ').split(' ').map((word) => word[0].toUpperCase() + word.substring(1)).join(' ');
+    }
+  }
+
+  /// Calculate scenario count for this category
+  int getScenarioCount(List<Scenario> scenarios, _ScenariosScreenState? state) {
+    if (id == 'All') {
+      return scenarios.length;
+    }
+    
+    // Use direct category matching for backend categories
+    return scenarios.where((s) => s.category == id).length;
+  }
+}
 
 class ScenariosScreen extends StatefulWidget {
   final String? filterTag;
@@ -28,6 +111,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   List<Scenario> _allScenarios = []; // Cache all scenarios for instant filtering
   String _search = '';
   String _selectedFilter = 'All'; // Top-level filter: All, Favorite, Teenager, Parents
+  String? _selectedSubCategory; // Sub-category filter for enhanced filtering
   int? _selectedChapter; // Add chapter filter state
   bool _isLoading = true;
   bool _hasNewContent = false;
@@ -57,21 +141,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         createdAt: DateTime.now(),
       );
       
-      // Use helper methods to determine best category match
-      if (_matchesLifeStages(testScenario)) {
-        _selectedFilter = 'Life Stages';
-      } else if (_matchesRelationships(testScenario)) {
-        _selectedFilter = 'Relationships';
-      } else if (_matchesCareerWork(testScenario)) {
-        _selectedFilter = 'Career & Work';
-      } else if (_matchesPersonalGrowth(testScenario)) {
-        _selectedFilter = 'Personal Growth';
-      } else if (_matchesModernLife(testScenario)) {
-        _selectedFilter = 'Modern Life';
-      } else {
-        // For unmatched tags, use custom filter approach
-        _selectedFilter = 'Tag:${widget.filterTag}'; // Custom tag filter
-      }
+      // For tag-based filtering, set to 'All' and let search handle it
+      _selectedFilter = 'All';
+      _search = widget.filterTag!; // Use search to filter by tag
     }
     
     _loadScenarios();
@@ -105,11 +177,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
           _totalScenarioCount = allScenarios.length;
         });
         
-        // Start background sync if needed (non-blocking)
+        // Start background sync if needed (non-blocking) - monthly check only
         _scenarioService.backgroundSync();
-        
-        // Check for new content availability (non-blocking)
-        _checkForNewContent();
       }
       
     } catch (e) {
@@ -149,34 +218,17 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       
       // STEP 3: Apply category/tag filters to search results (or all scenarios if no search)
       switch (_selectedFilter) {
-        case 'Life Stages':
-          filtered = filtered.where((s) =>
-            _matchesLifeStages(s) || _matchesCategory(s, ['new parents', 'parenting', 'pregnancy', 'education'])
-          ).toList();
-          break;
-          
+        case 'Work & Career':
         case 'Relationships':
-          filtered = filtered.where((s) => 
-            _matchesRelationships(s) || _matchesCategory(s, ['relationships', 'family', 'friendships'])
-          ).toList();
-          break;
-          
-        case 'Career & Work':
-          filtered = filtered.where((s) =>
-            _matchesCareerWork(s) || _matchesCategory(s, ['career', 'business', 'work', 'workplace', 'finances'])
-          ).toList();
-          break;
-          
+        case 'Parenting & Family':
         case 'Personal Growth':
-          filtered = filtered.where((s) =>
-            _matchesPersonalGrowth(s) || _matchesCategory(s, ['personal', 'spiritual', 'life direction', 'ethics', 'mental health', 'mentalHealth'])
-          ).toList();
-          break;
-          
-        case 'Modern Life':
-          filtered = filtered.where((s) =>
-            _matchesModernLife(s) || _matchesCategory(s, ['social', 'social pressure', 'digital', 'modern life', 'lifestyle', 'living situation'])
-          ).toList();
+        case 'Life Transitions':
+        case 'Social & Community':
+        case 'Health & Wellness':
+        case 'Financial':
+        case 'Education & Learning':
+        case 'Modern Living':
+          filtered = filtered.where((s) => s.category == _selectedFilter).toList();
           break;
           
         case 'All':
@@ -191,14 +243,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
               s.tags?.any((tag) => tag.toLowerCase().contains(tagName.toLowerCase())) ?? false
             ).toList();
           }
-          // STEP 5: Handle legacy filter names for backward compatibility
-          else if (_selectedFilter == 'Parenting') {
-            filtered = filtered.where((s) => _matchesLifeStages(s)).toList();
-          }
-          else if (_selectedFilter == 'Family') {
-            filtered = filtered.where((s) => _matchesRelationships(s)).toList();
-          }
-          // STEP 6: Handle any other unknown filter types
+          // STEP 5: Handle any other unknown filter types
           else if (_selectedFilter != 'All') {
             filtered = filtered.where((s) => 
               s.tags?.any((tag) => tag.toLowerCase().contains(_selectedFilter.toLowerCase())) ?? false ||
@@ -209,100 +254,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       }
     }
     
+    // Sub-tag filtering removed - sub-categories are now informational only
+    
     return filtered;
-  }
-  
-  /// Helper method to check if scenario matches life stages categories
-  bool _matchesLifeStages(Scenario s) {
-    final lifeStageKeywords = [
-      // Parenting & Children
-      'parenting', 'parent', 'parents', 'child', 'children', 'kids', 'baby', 'toddler', 'teenager', 'teens',
-      'pregnancy', 'pregnant', 'new parents', 'first-time parent', 'twins', 'siblings', 'newborn',
-      'daycare', 'education', 'school', 'student', 'learning', 'feeding', 'sleep', 'development',
-      // Life stages
-      'newly_married', 'joint family', 'empty nest', 'birth', 'breastfeeding', 'postpartum'
-    ];
-    
-    return s.tags?.any((tag) => lifeStageKeywords.any((keyword) => 
-      tag.toLowerCase().contains(keyword.toLowerCase())
-    )) ?? false;
-  }
-  
-  /// Helper method to check if scenario matches relationships categories
-  bool _matchesRelationships(Scenario s) {
-    final relationshipKeywords = [
-      // Relationships
-      'relationships', 'relationship', 'relation', 'dating', 'romance', 'love', 'partner', 'couple',
-      'marriage', 'married', 'spouse', 'wedding', 'engagement', 'breakup', 'ex-partner', 'cheating',
-      // Family
-      'family', 'relatives', 'in-laws', 'mother-in-law', 'father-in-law', 'sister-in-law', 'brother-in-law',
-      'grandparents', 'extended family', 'traditions', 'household', 'home', 'domestic',
-      // Friendships
-      'friendship', 'friends', 'social', 'connection', 'intimacy', 'communication', 'trust'
-    ];
-    
-    return s.tags?.any((tag) => relationshipKeywords.any((keyword) => 
-      tag.toLowerCase().contains(keyword.toLowerCase())
-    )) ?? false;
-  }
-  
-  /// Helper method to check if scenario matches career & work categories
-  bool _matchesCareerWork(Scenario s) {
-    final careerKeywords = [
-      // Career & Work
-      'career', 'job', 'work', 'workplace', 'professional', 'business', 'entrepreneurship', 'startup',
-      'employment', 'office', 'colleague', 'boss', 'authority', 'leadership', 'performance',
-      // Finance
-      'money', 'financial', 'finances', 'budget', 'salary', 'income', 'debt', 'loans', 'expenses',
-      'investment', 'saving', 'spending', 'housing', 'rent', 'mortgage', 'insurance'
-    ];
-    
-    return s.tags?.any((tag) => careerKeywords.any((keyword) => 
-      tag.toLowerCase().contains(keyword.toLowerCase())
-    )) ?? false;
-  }
-  
-  /// Helper method to check if scenario matches personal growth categories
-  bool _matchesPersonalGrowth(Scenario s) {
-    final growthKeywords = [
-      // Personal Development
-      'personal', 'growth', 'purpose', 'identity', 'self-care', 'confidence', 'self-doubt', 'self-worth',
-      'values', 'authenticity', 'boundaries', 'balance', 'change', 'transformation', 'goals',
-      // Mental Health
-      'mental health', 'anxiety', 'depression', 'stress', 'therapy', 'emotional', 'emotions',
-      'burnout', 'exhaustion', 'wellness', 'mindfulness', 'healing',
-      // Spiritual
-      'spiritual', 'spirituality', 'meditation', 'wisdom', 'enlightenment', 'consciousness',
-      'detachment', 'dharma', 'karma', 'service', 'duty', 'ethics', 'morals'
-    ];
-    
-    return s.tags?.any((tag) => growthKeywords.any((keyword) => 
-      tag.toLowerCase().contains(keyword.toLowerCase())
-    )) ?? false;
-  }
-  
-  /// Helper method to check if scenario matches modern life categories
-  bool _matchesModernLife(Scenario s) {
-    final modernKeywords = [
-      // Technology & Digital
-      'technology', 'digital', 'social media', 'internet', 'online', 'apps', 'screen time',
-      'comparison', 'fomo', 'influencers', 'networking',
-      // Modern Challenges
-      'modern', 'contemporary', 'lifestyle', 'urban', 'climate', 'environment', 'sustainability',
-      'travel', 'vacation', 'experiences', 'adventure', 'hobbies', 'entertainment',
-      // Social Pressure
-      'pressure', 'expectations', 'judgment', 'criticism', 'peer pressure', 'status', 'image',
-      'celebration', 'events', 'parties', 'gifts', 'holidays', 'traditions'
-    ];
-    
-    return s.tags?.any((tag) => modernKeywords.any((keyword) => 
-      tag.toLowerCase().contains(keyword.toLowerCase())
-    )) ?? false;
-  }
-  
-  /// Helper method to check if scenario matches specific categories
-  bool _matchesCategory(Scenario s, List<String> categories) {
-    return categories.contains(s.category.toLowerCase());
   }
 
   void _onSearchChanged(String query) {
@@ -372,6 +326,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     
     return Scaffold(
       backgroundColor: Colors.transparent,
+      resizeToAvoidBottomInset: false, // Prevent automatic resizing for keyboard
       body: Stack(
         children: [
           // Background image with dark overlay for dark mode
@@ -384,95 +339,89 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
             ),
           ),
           
-          // Sticky header that stays fixed at top
+          
+          // Scrollable content area
           SafeArea(
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
-              decoration: BoxDecoration(
-                // Semi-transparent background for glassmorphism effect
-                color: theme.colorScheme.surface.withOpacity(0.95),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-                // Subtle border at bottom
-                border: Border(
-                  bottom: BorderSide(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    _selectedChapter != null 
-                        ? 'CHAPTER $_selectedChapter SCENARIOS'
-                        : 'LIFE SCENARIOS',
-                    style: GoogleFonts.poiretOne(
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      color: theme.colorScheme.onSurface,
-                      letterSpacing: 1.3,
+            child: GestureDetector(
+              onTap: () {
+                // Dismiss keyboard when tapping outside search field
+                FocusScope.of(context).unfocus();
+              },
+              child: RefreshIndicator(
+                onRefresh: _refreshFromServer,
+                child: Container(
+                  margin: const EdgeInsets.only(top: 20),
+                  child: ListView(
+                    padding: const EdgeInsets.only(
+                      left: 20,
+                      right: 20,
+                      top: 20,
+                      bottom: 24,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 12),
-                  // Underline bar
-                  Container(
-                    width: 80,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.primary.withOpacity(0.6),
+                  children: [
+                    // Floating header card
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(2),
+                      child: Column(
+                        children: [
+                          Text(
+                            _selectedChapter != null 
+                                ? 'CHAPTER $_selectedChapter SCENARIOS'
+                                : AppLocalizations.of(context)!.lifeScenarios,
+                            style: GoogleFonts.poiretOne(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: theme.colorScheme.onSurface,
+                              letterSpacing: 1.3,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: 80,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  theme.colorScheme.primary,
+                                  theme.colorScheme.primary.withOpacity(0.6),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _selectedChapter != null
+                                ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
+                                : AppLocalizations.of(context)!.applyGitaWisdom,
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              letterSpacing: 0.8,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _selectedChapter != null
-                        ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
-                        : localizations?.realWorldSituations ?? 'Real-world situations guided by ancient wisdom',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
-                      letterSpacing: 0.8,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Scrollable content area that goes under the header
-          SafeArea(
-            child: RefreshIndicator(
-              onRefresh: _refreshFromServer,
-              child: Container(
-                margin: const EdgeInsets.only(top: 140), // Space for sticky header
-                child: ListView(
-                  padding: EdgeInsets.only(
-                    left: 20,
-                    right: 20,
-                    top: 12,
-                    bottom: MediaQuery.of(context).viewInsets.bottom + 24,
-                  ),
-                  children: [
                     // Search Bar
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+                    padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
                     child: TextField(
                       controller: _searchController,
                       onChanged: _onSearchChanged,
@@ -492,7 +441,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         )
                             : null,
                         filled: true,
-                        fillColor: theme.colorScheme.surface.withOpacity(.95),
+                        fillColor: theme.colorScheme.surface.withOpacity(.85),
                         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -535,11 +484,14 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               _loadScenarios(); // Reload all scenarios
                             },
                             child: Text(
-                              'Show All',
+                              'Clear Filter',
                               style: TextStyle(
                                 color: theme.colorScheme.secondary,
                                 fontSize: 12,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: true,
                             ),
                           ),
                         ],
@@ -549,6 +501,10 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                   // Filter Buttons Row (hidden when chapter filter or custom tag filter is active)
                   if (_selectedChapter == null && !_selectedFilter.startsWith('Tag:'))
                     _buildFilterButtons(),
+
+                  // Sub-tag Row (appears when a main category is selected)
+                  if (_selectedChapter == null && !_selectedFilter.startsWith('Tag:'))
+                    _buildSubTags(),
 
                   // Scenario List
                   Padding(
@@ -581,7 +537,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
               ),
             ),
           ), // RefreshIndicator
-        ), // SafeArea
+        ), // GestureDetector
+      ), // SafeArea
         
         // Floating Back Button
         Positioned(
@@ -608,8 +565,15 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                   color: theme.colorScheme.primary,
                 ),
                 splashRadius: 32,
-                onPressed: () => Navigator.pop(context),
-                tooltip: 'Back',
+                onPressed: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    // Navigate to home tab instead of trying to pop empty stack
+                    NavigationHelper.goToTab(0);
+                  }
+                },
+                tooltip: AppLocalizations.of(context)!.back,
               ),
             ),
           ),
@@ -644,7 +608,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                   // Use proper tab navigation to sync bottom navigation state
                   NavigationHelper.goToTab(0); // 0 = Home tab index
                 },
-                tooltip: 'Home',
+                tooltip: AppLocalizations.of(context)!.home,
               ),
             ),
           ),
@@ -719,13 +683,14 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         minimumSize: const Size(60, 30), // Fixed minimum size
                       ),
                       child: Text(
-                        'Read More',
+                        AppLocalizations.of(context)!.readMore,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.primary,
                           fontSize: 12, // Slightly smaller font
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
+                        softWrap: true,
                       ),
                     ),
                   ],
@@ -739,43 +704,284 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   }
 
 
+  /// Enhanced categories with icons, colors, and dynamic counts
+  List<CategoryFilter> get _enhancedCategories => [
+    CategoryFilter(
+      id: 'All',
+      nameKey: 'all',
+      icon: Icons.apps,
+      color: Colors.blue.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Work & Career',
+      nameKey: 'work_career',
+      icon: Icons.work,
+      color: Colors.indigo.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Relationships',
+      nameKey: 'relationships',
+      icon: Icons.people,
+      color: Colors.pink.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Parenting & Family',
+      nameKey: 'parenting_family',
+      icon: Icons.family_restroom,
+      color: Colors.orange.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Personal Growth',
+      nameKey: 'personal_growth',
+      icon: Icons.spa,
+      color: Colors.teal.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Life Transitions',
+      nameKey: 'life_transitions',
+      icon: Icons.timeline,
+      color: Colors.purple.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Social & Community',
+      nameKey: 'social_community',
+      icon: Icons.groups,
+      color: Colors.cyan.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Health & Wellness',
+      nameKey: 'health_wellness',
+      icon: Icons.health_and_safety,
+      color: Colors.green.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Financial',
+      nameKey: 'financial',
+      icon: Icons.attach_money,
+      color: Colors.amber.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Education & Learning',
+      nameKey: 'education_learning',
+      icon: Icons.school,
+      color: Colors.deepPurple.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Modern Living',
+      nameKey: 'modern_living',
+      icon: Icons.phone_android,
+      color: Colors.blueGrey.shade600,
+      isDynamic: true,
+    ),
+  ];
+
+  /// Sub-category descriptions for main categories
+  Map<String, String> get _categoryDescriptions => {
+    'Work & Career': 'Professional growth, job security, academic pressure, business, side hustles, work-life balance',
+    'Relationships': 'Dating, marriage, family dynamics, friendship, romantic partnerships, communication',
+    'Parenting & Family': 'Child development, new parents, pregnancy, family planning, caregiving, elder care',
+    'Personal Growth': 'Self-discovery, habits, identity, mental wellness, meditation, values, mindfulness',
+    'Life Transitions': 'Major milestones, big decisions, divorce, academic changes, life planning',
+    'Social & Community': 'Urban loneliness, social pressure, community building, belonging, connection',
+    'Health & Wellness': 'Body confidence, digital wellness, climate anxiety, physical health, mental wellbeing',
+    'Financial': 'Budget management, debt, savings, investment decisions, economic security, planning',
+    'Education & Learning': 'Academic success, skill development, learning goals, educational planning',
+    'Modern Living': 'Technology balance, contemporary challenges, lifestyle choices, digital life',
+  };
+
   Widget _buildFilterButtons() {
     final theme = Theme.of(context);
-    final filters = ['All', 'Life Stages', 'Relationships', 'Career & Work', 'Personal Growth', 'Modern Life']; // Comprehensive category groupings
     
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.fromLTRB(20, 8, 18, 8), // Reduced right padding to fix overflow
+      padding: const EdgeInsets.fromLTRB(20, 8, 18, 8),
       child: Row(
-        children: filters.map((filter) {
-          final isSelected = _selectedFilter == filter;
-          // Removed favorite-specific UI since user-specific features are disabled
+        children: _enhancedCategories.map((category) {
+          final isSelected = _selectedFilter == category.id;
+          final count = category.getScenarioCount(_allScenarios, null);
           
           return Padding(
             padding: const EdgeInsets.only(right: 12),
-            child: FilterChip(
-              label: Text(
-                filter,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: isSelected 
-                    ? theme.colorScheme.onPrimary 
-                    : theme.colorScheme.onSurface,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            child: Material(
+              elevation: isSelected ? 6 : 2,
+              borderRadius: BorderRadius.circular(20),
+              shadowColor: category.color.withOpacity(0.3),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: isSelected 
+                    ? LinearGradient(
+                        colors: [
+                          category.color.withOpacity(0.8),
+                          category.color.withOpacity(0.6),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                  color: isSelected ? null : theme.colorScheme.surface.withOpacity(0.8),
+                  border: Border.all(
+                    color: category.color.withOpacity(isSelected ? 0.8 : 0.3),
+                    width: isSelected ? 2 : 1,
+                  ),
+                ),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(20),
+                  onTap: () => _onFilterChanged(category.id),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          category.icon,
+                          size: 18,
+                          color: isSelected 
+                            ? Colors.white 
+                            : category.color,
+                        ),
+                        const SizedBox(width: 8),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              category.getLocalizedName(context),
+                              style: theme.textTheme.labelMedium?.copyWith(
+                                color: isSelected 
+                                  ? Colors.white 
+                                  : theme.colorScheme.onSurface,
+                                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                                fontSize: 12,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              formatCount(count),
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: isSelected 
+                                  ? Colors.white.withOpacity(0.9) 
+                                  : category.color.withOpacity(0.8),
+                                fontSize: 10,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-              selected: isSelected,
-              onSelected: (_) => _onFilterChanged(filter),
-              selectedColor: theme.colorScheme.primary,
-              backgroundColor: theme.colorScheme.surface.withOpacity(0.7),
-              checkmarkColor: theme.colorScheme.onPrimary,
-              elevation: isSelected ? 4 : 1,
-              shadowColor: theme.colorScheme.primary.withOpacity(0.3),
             ),
           );
         }).toList(),
       ),
     );
   }
+
+  /// Build sub-category information row that appears when a main category is selected
+  Widget _buildSubTags() {
+    if (_selectedFilter == 'All' || !_categoryDescriptions.containsKey(_selectedFilter)) {
+      return const SizedBox.shrink();
+    }
+
+    final description = _categoryDescriptions[_selectedFilter]!;
+    final theme = Theme.of(context);
+    
+    // Get main category color
+    final mainCategory = _enhancedCategories.firstWhere((cat) => cat.id == _selectedFilter);
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          // Enhanced background opacity for much better visibility and contrast
+          color: theme.brightness == Brightness.light 
+              ? mainCategory.color.withOpacity(0.2) // Increased from 0.15 for better contrast
+              : mainCategory.color.withOpacity(0.12), // Increased from 0.08 for better contrast
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: mainCategory.color.withOpacity(0.4), // Increased from 0.3 for better visibility
+            width: 1.5,
+          ),
+          // Enhanced shadow for better contrast
+          boxShadow: [
+            BoxShadow(
+              color: mainCategory.color.withOpacity(0.15), // Increased shadow opacity
+              blurRadius: 6, // Increased blur for better visibility
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.category_outlined,
+              size: 16,
+              color: mainCategory.color,
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: RichText(
+                text: TextSpan(
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    // Improved text contrast and readability
+                    color: theme.brightness == Brightness.light
+                        ? theme.colorScheme.onSurface.withOpacity(0.95)
+                        : theme.colorScheme.onSurface.withOpacity(0.9),
+                    fontSize: 13, // Increased from 12 for better readability
+                    fontWeight: FontWeight.w600, // Increased from w500 for better visibility
+                    height: 1.4, // Added line height for better text spacing
+                  ),
+                  children: [
+                    TextSpan(
+                      text: 'Includes: ',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700, // Bold for "Includes:" label
+                        color: theme.brightness == Brightness.light
+                            ? mainCategory.color.withOpacity(0.95)
+                            : mainCategory.color.withOpacity(0.9),
+                      ),
+                    ),
+                    TextSpan(
+                      text: description,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600, // Increased weight for description
+                        color: theme.brightness == Brightness.light
+                            ? theme.colorScheme.onSurface.withOpacity(0.9)
+                            : theme.colorScheme.onSurface.withOpacity(0.85),
+                      ),
+                    ),
+                  ],
+                ),
+                maxLines: 3,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Sub-tag selection removed - sub-categories are now informational only
 
 }
 

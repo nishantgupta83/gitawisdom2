@@ -1,4 +1,8 @@
 // test/integration/multilingual_flow_test.dart
+// TEMPORARILY DISABLED FOR ENGLISH-ONLY MVP RELEASE
+// This test file will be restored when multilingual support is re-enabled
+
+/* MULTILANG_TODO: Re-enable this entire test file when multilingual support is restored
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -412,5 +416,18 @@ void main() {
         }
       });
     });
+  });
+}
+
+END OF MULTILANG_TODO COMMENT BLOCK */
+
+// Placeholder test to prevent empty test file issues
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('Multilingual tests disabled for MVP', () {
+    // This placeholder test prevents test runner issues
+    // Actual multilingual tests are commented out above
+    expect(true, isTrue);
   });
 }

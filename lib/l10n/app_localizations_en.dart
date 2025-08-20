@@ -241,6 +241,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get readMore => 'Read More';
 
   @override
+  String get readLess => 'Read less';
+
+  @override
+  String get heartSays => 'Heart Says';
+
+  @override
+  String get dutySays => 'Duty Says';
+
+  @override
+  String get wisdomSteps => 'Wisdom Steps';
+
+  @override
+  String get modernScenario => 'MODERN DAY SCENARIO';
+
+  @override
+  String get overview => 'Overview';
+
+  @override
+  String get immersiveKnowledge => 'Immerse into the ocean of knowledge';
+
+  @override
+  String get lifeScenarios => 'LIFE SCENARIOS';
+
+  @override
+  String get applyGitaWisdom => 'Apply Gita wisdom to real-world situations';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get home => 'Home';
+
+  @override
   String get failedToSaveEntry => 'Failed to save journal entry';
 
   @override

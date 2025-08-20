@@ -146,80 +146,72 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
               ),
             ),
             
-            // Sticky header that stays fixed at top
+            // Scrollable content area
             SafeArea(
               child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
-                decoration: BoxDecoration(
-                  // Semi-transparent background for glassmorphism effect
-                  color: theme.colorScheme.surface.withOpacity(0.95),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      spreadRadius: 0,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                  // Subtle border at bottom
-                  border: Border(
-                    bottom: BorderSide(
-                      color: theme.colorScheme.primary.withOpacity(0.1),
-                      width: 1,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Text(
-                      'MODERN DAY SCENARIO',
-                      style: GoogleFonts.poiretOne(
-                        fontSize: 26,
-                        fontWeight: FontWeight.w800,
-                        color: theme.colorScheme.onSurface,
-                        letterSpacing: 1.3,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 12),
-                    // Underline bar
-                    Container(
-                      width: 80,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            theme.colorScheme.primary,
-                            theme.colorScheme.primary.withOpacity(0.6),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Bite-sized wisdom for modern challenges',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
-                        letterSpacing: 0.8,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Scrollable content area that goes under the header
-            SafeArea(
-              child: Container(
-                margin: const EdgeInsets.only(top: 140), // Space for sticky header
+                margin: const EdgeInsets.only(top: 20),
                 child: ListView(
                   controller: _ctrl,
                   padding: EdgeInsets.zero,
                   children: [
+                    // Floating header card
+                    Container(
+                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surface.withOpacity(0.85),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            AppLocalizations.of(context)!.modernScenario,
+                            style: GoogleFonts.poiretOne(
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              color: theme.colorScheme.onSurface,
+                              letterSpacing: 1.3,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 12),
+                          Container(
+                            width: 80,
+                            height: 3,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  theme.colorScheme.primary,
+                                  theme.colorScheme.primary.withOpacity(0.6),
+                                ],
+                              ),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Bite-sized wisdom for modern challenges',
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              letterSpacing: 0.8,
+                            ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
                     // Scenario Title Card with Heart
                     Padding(
                       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
@@ -335,7 +327,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     ),
                     splashRadius: 32,
                     onPressed: () => Navigator.pop(context),
-                    tooltip: 'Back',
+                    tooltip: AppLocalizations.of(context)!.back,
                   ),
                 ),
               ),
@@ -384,7 +376,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                       // Use proper tab navigation to sync bottom navigation state
                       NavigationHelper.goToTab(0); // 0 = Home tab index
                     },
-                    tooltip: 'Home',
+                    tooltip: AppLocalizations.of(context)!.home,
                   ),
                 ),
               ),
@@ -460,7 +452,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Heart Says',
+                    Text(AppLocalizations.of(context)!.heartSays,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -515,7 +507,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Duty Says',
+                    Text(AppLocalizations.of(context)!.dutySays,
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -693,7 +685,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Wisdom Steps',
+                            AppLocalizations.of(context)!.wisdomSteps,
                             style: GoogleFonts.poppins(
                               fontSize: isTablet ? 20 : 18,
                               fontWeight: FontWeight.w600,
@@ -812,6 +804,9 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     color: Colors.white,
                     letterSpacing: 1.2,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                 ),
                 const SizedBox(width: 12),
                 const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white70),

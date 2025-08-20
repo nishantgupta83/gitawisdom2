@@ -67,7 +67,7 @@ class AppLocalizationsKn extends AppLocalizations {
   }
 
   @override
-  String get showFewerScenarios => 'ಕಡಿಮೆ ಪರಿಸ್ಥಿತಿಗಳನ್ನು ತೋರಿಸಿ';
+  String get showFewerScenarios => 'ಕಡಿಮೆ ಸನ್ನಿವೇಶಗಳನ್ನು ತೋರಿಸಿ';
 
   @override
   String get loading => 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...';
@@ -241,6 +241,40 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get readMore => 'ಇನ್ನಷ್ಟು ಓದಿ';
+
+  @override
+  String get readLess => 'ಕಡಿಮೆ ಓದಿ';
+
+  @override
+  String get heartSays => 'ಹೃದಯ ಹೇಳುತ್ತದೆ';
+
+  @override
+  String get dutySays => 'ಕರ್ತವ್ಯ ಹೇಳುತ್ತದೆ';
+
+  @override
+  String get wisdomSteps => 'ಜ್ಞಾನದ ಹಂತಗಳು';
+
+  @override
+  String get modernScenario => 'ಆಧುನಿಕ ದಿನದ ಸನ್ನಿವೇಶ';
+
+  @override
+  String get overview => 'ಅವಲೋಕನ';
+
+  @override
+  String get immersiveKnowledge => 'ಜ್ಞಾನದ ಸಾಗರದಲ್ಲಿ ಮುಳುಗಿ';
+
+  @override
+  String get lifeScenarios => 'ಜೀವನದ ಸನ್ನಿವೇಶಗಳು';
+
+  @override
+  String get applyGitaWisdom =>
+      'ನೈಜ ಜೀವನದ ಸನ್ನಿವೇಶಗಳಲ್ಲಿ ಗೀತಾ ಜ್ಞಾನವನ್ನು ಅನ್ವಯಿಸಿ';
+
+  @override
+  String get back => 'ಹಿಂದೆ';
+
+  @override
+  String get home => 'ಮನೆ';
 
   @override
   String get failedToSaveEntry => 'ಡೈರಿ ನಮೂದನ್ನು ಉಳಿಸುವಲ್ಲಿ ವಿಫಲವಾಗಿದೆ';

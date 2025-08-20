@@ -78,76 +78,10 @@ class _ChapterScreenState extends State<ChapterScreen> {
             ),
           ),
           
-          // Sticky header that stays fixed at top
+          // Scrollable content area
           SafeArea(
             child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
-              decoration: BoxDecoration(
-                // Semi-transparent background for glassmorphism effect
-                color: theme.colorScheme.surface.withOpacity(0.95),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    spreadRadius: 0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-                // Subtle border at bottom
-                border: Border(
-                  bottom: BorderSide(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
-                    width: 1,
-                  ),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    'GITA CHAPTERS',
-                    style: GoogleFonts.poiretOne(
-                      fontSize: 30,
-                      fontWeight: FontWeight.w800,
-                      color: theme.colorScheme.onSurface,
-                      letterSpacing: 1.3,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 12),
-                  // Underline bar
-                  Container(
-                    width: 80,
-                    height: 3,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          theme.colorScheme.primary,
-                          theme.colorScheme.primary.withOpacity(0.6),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Ancient wisdom for modern life',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
-                      letterSpacing: 0.8,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          // Scrollable content area that goes under the header
-          SafeArea(
-            child: Container(
-              margin: const EdgeInsets.only(top: 140), // Space for sticky header
+              margin: const EdgeInsets.only(top: 20),
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _errorMessage != null
@@ -175,137 +109,194 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                 style: GoogleFonts.poppins(color: theme.colorScheme.onSurface),
                               ),
                             )
-                          : ListView.separated(
+                          : ListView(
                               // Preserve bottom inset + extra padding
                               padding: EdgeInsets.only(
                                 left: 20,
                                 right: 20,
-                                top: 12,
+                                top: 20,
                                 bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                               ),
-                              separatorBuilder: (_, __) => const SizedBox(height: 14),
-                              itemCount: _chapters.length,
-                              itemBuilder: (context, i) {
-                                final ch = _chapters[i];
-                                return Card(
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(22),
+                              children: [
+                                // Floating header card
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 20),
+                                  padding: const EdgeInsets.all(24),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.surface.withOpacity(0.85),
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
                                   ),
-                                  color: theme.colorScheme.surface,
-                                  shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
-                                  child: InkWell(
-                                    borderRadius: BorderRadius.circular(22),
-                                    onTap: () {
-                                      _fadePush(ChapterDetailView(chapterId: ch.chapterId));
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(20),
-                                      child: Column(
-                                        children: [
-                                          // Top row with chapter number circle, title, and chevron
-                                          Row(
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(context)!.gitaChapters,
+                                        style: GoogleFonts.poiretOne(
+                                          fontSize: 30,
+                                          fontWeight: FontWeight.w800,
+                                          color: theme.colorScheme.onSurface,
+                                          letterSpacing: 1.3,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Container(
+                                        width: 80,
+                                        height: 3,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              theme.colorScheme.primary,
+                                              theme.colorScheme.primary.withOpacity(0.6),
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(2),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        AppLocalizations.of(context)!.immersiveKnowledge,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                          letterSpacing: 0.8,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                // Chapters list
+                                ..._chapters.map((ch) => Container(
+                                    margin: const EdgeInsets.only(bottom: 14),
+                                    child: Card(
+                                      elevation: 4,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(22),
+                                      ),
+                                      color: theme.colorScheme.surface,
+                                      shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(22),
+                                        onTap: () {
+                                          _fadePush(ChapterDetailView(chapterId: ch.chapterId));
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(20),
+                                          child: Column(
                                             children: [
-                                              // Chapter number circle
-                                              Container(
-                                                width: 48,
-                                                height: 48,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      theme.colorScheme.primary,
-                                                      theme.colorScheme.primary.withOpacity(0.8),
-                                                    ],
-                                                    begin: Alignment.topLeft,
-                                                    end: Alignment.bottomRight,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: theme.colorScheme.primary.withOpacity(0.3),
-                                                      blurRadius: 8,
-                                                      spreadRadius: 1,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: Center(
-                                                  child: Text(
-                                                    '${ch.chapterId}',
-                                                    style: GoogleFonts.poppins(
-                                                      fontSize: 16,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(width: 16),
-                                              
-                                              // Title and subtitle
-                                              Expanded(
-                                                child: Column(
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      ch.title,
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 16,
-                                                        fontWeight: FontWeight.w600,
-                                                        color: theme.colorScheme.onSurface,
+                                              Row(
+                                                children: [
+                                                  Container(
+                                                    width: 48,
+                                                    height: 48,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          theme.colorScheme.primary,
+                                                          theme.colorScheme.primary.withOpacity(0.8),
+                                                        ],
+                                                        begin: Alignment.topLeft,
+                                                        end: Alignment.bottomRight,
                                                       ),
-                                                      maxLines: 2,
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                    if (ch.subtitle != null && ch.subtitle!.isNotEmpty) ...[
-                                                      const SizedBox(height: 4),
-                                                      Text(
-                                                        ch.subtitle!,
-                                                        style: GoogleFonts.poppins(
-                                                          fontSize: 13,
-                                                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: theme.colorScheme.primary.withOpacity(0.3),
+                                                          blurRadius: 8,
+                                                          spreadRadius: 1,
                                                         ),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
+                                                      ],
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        '${ch.chapterId}',
+                                                        style: GoogleFonts.poppins(
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.bold,
+                                                          color: Colors.white,
+                                                        ),
                                                       ),
-                                                    ],
-                                                  ],
-                                                ),
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  
+                                                  // Title and subtitle
+                                                  Expanded(
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Text(
+                                                          ch.title,
+                                                          style: GoogleFonts.poppins(
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w600,
+                                                            color: theme.colorScheme.onSurface,
+                                                          ),
+                                                          maxLines: 2,
+                                                          overflow: TextOverflow.ellipsis,
+                                                        ),
+                                                        if (ch.subtitle != null && ch.subtitle!.isNotEmpty) ...[
+                                                          const SizedBox(height: 4),
+                                                          Text(
+                                                            ch.subtitle!,
+                                                            style: GoogleFonts.poppins(
+                                                              fontSize: 13,
+                                                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                            ),
+                                                            maxLines: 2,
+                                                            overflow: TextOverflow.ellipsis,
+                                                          ),
+                                                        ],
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  
+                                                  // Chevron icon
+                                                  Icon(
+                                                    Icons.chevron_right,
+                                                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                                    size: 24,
+                                                  ),
+                                                ],
                                               ),
                                               
-                                              // Chevron icon
-                                              Icon(
-                                                Icons.chevron_right,
-                                                color: theme.colorScheme.onSurface.withOpacity(0.5),
-                                                size: 24,
+                                              const SizedBox(height: 16),
+                                              
+                                              // Bottom row with verse and scenario counts
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
+                                                children: [
+                                                  _buildCountChip(
+                                                    '${ch.verseCount} verses',
+                                                    Icons.book_outlined,
+                                                    theme,
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  _buildCountChip(
+                                                    '${ch.scenarioCount} scenarios',
+                                                    Icons.lightbulb_outline,
+                                                    theme,
+                                                  ),
+                                                ],
                                               ),
                                             ],
                                           ),
-                                          
-                                          const SizedBox(height: 16),
-                                          
-                                          // Bottom row with verse and scenario counts
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.end,
-                                            children: [
-                                              _buildCountChip(
-                                                '${ch.verseCount} verses',
-                                                Icons.book_outlined,
-                                                theme,
-                                              ),
-                                              const SizedBox(width: 8),
-                                              _buildCountChip(
-                                                '${ch.scenarioCount} scenarios',
-                                                Icons.lightbulb_outline,
-                                                theme,
-                                              ),
-                                            ],
-                                          ),
-                                        ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              },
+                                  )).toList(),
+                              ],
                             ),
             ),
           ),
@@ -335,8 +326,15 @@ class _ChapterScreenState extends State<ChapterScreen> {
                     color: theme.colorScheme.primary,
                   ),
                   splashRadius: 32,
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Back',
+                  onPressed: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    } else {
+                      // Navigate to home tab instead of trying to pop empty stack
+                      NavigationHelper.goToTab(0);
+                    }
+                  },
+                  tooltip: AppLocalizations.of(context)!.back,
                 ),
               ),
             ),

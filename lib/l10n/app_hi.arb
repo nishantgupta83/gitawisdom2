@@ -125,5 +125,19 @@
   "failedToDeleteEntry": "प्रविष्टि हटाने में असफल",
   
   "journalEntrySaved": "डायरी प्रविष्टि सहेजी गई!",
-  "pleaseSelectRating": "कृपया एक रेटिंग चुनें"
+  "pleaseSelectRating": "कृपया एक रेटिंग चुनें",
+
+  "readLess": "कम पढ़ें",
+  "heartSays": "हृदय कहता है",
+  "dutySays": "कर्तव्य कहता है", 
+  "wisdomSteps": "ज्ञान के चरण",
+  "modernScenario": "आधुनिक दिन की स्थिति",
+  "overview": "सिंहावलोकन",
+  "showFewerScenarios": "कम स्थितियां दिखाएं",
+  "gitaChapters": "गीता के अध्याय", 
+  "immersiveKnowledge": "ज्ञान के सागर में डूब जाएं",
+  "lifeScenarios": "जीवन की स्थितियां",
+  "applyGitaWisdom": "वास्तविक जीवन की स्थितियों में गीता का ज्ञान लागू करें",
+  "back": "वापस",
+  "home": "होम"
 }

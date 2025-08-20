@@ -66,7 +66,7 @@ class AppLocalizationsSa extends AppLocalizations {
   }
 
   @override
-  String get showFewerScenarios => 'न्यूनाः स्थितीः दर्शयतु';
+  String get showFewerScenarios => 'न्यूनान् स्थितीन् दर्शयतु';
 
   @override
   String get loading => 'लोड् भवति...';
@@ -236,6 +236,40 @@ class AppLocalizationsSa extends AppLocalizations {
 
   @override
   String get readMore => 'अधिकं पठतु';
+
+  @override
+  String get readLess => 'न्यूनं पठतु';
+
+  @override
+  String get heartSays => 'हृदयं वदति';
+
+  @override
+  String get dutySays => 'कर्तव्यं वदति';
+
+  @override
+  String get wisdomSteps => 'ज्ञान चरणाः';
+
+  @override
+  String get modernScenario => 'आधुनिक दिन स्थितिः';
+
+  @override
+  String get overview => 'समीक्षा';
+
+  @override
+  String get immersiveKnowledge => 'ज्ञान सागरे निमज्जतु';
+
+  @override
+  String get lifeScenarios => 'जीवन स्थितयः';
+
+  @override
+  String get applyGitaWisdom =>
+      'वास्तविक जीवन स्थितिषु गीता ज्ञानम् प्रयुञ्जतु';
+
+  @override
+  String get back => 'पुनः';
+
+  @override
+  String get home => 'गृहम्';
 
   @override
   String get failedToSaveEntry => 'दैनन्दिनी प्रविष्टेः संरक्षणे असफलता';

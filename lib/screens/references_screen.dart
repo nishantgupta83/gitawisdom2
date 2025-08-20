@@ -106,48 +106,150 @@ class ReferencesScreen extends StatelessWidget {
                   bottom: MediaQuery.of(context).viewInsets.bottom + 24,
                 ),
                 children: [
+                  // Primary Sources Section
+                  _buildSectionCard(
+                    context,
+                    'Primary Sources',
+                    Icons.book,
+                    theme.colorScheme.primary,
+                    [
+                      {
+                        'title': 'Bhagavad Gita Translations and Commentaries:',
+                        'content': '',
+                        'isHeader': true,
+                      },
+                      {
+                        'title': '',
+                        'content': 'Prabhupada, A.C. Bhaktivedanta Swami. (1972). Bhagavad-gita As It Is. The Bhaktivedanta Book Trust. Available online at: https://vedabase.io/en/library/bg/',
+                        'isHeader': false,
+                      },
+                      {
+                        'title': '',
+                        'content': 'Easwaran, Eknath. (2007). The Bhagavad Gita. 2nd Edition. Nilgiri Press.',
+                        'isHeader': false,
+                      },
+                    ],
+                    theme,
+                    isTablet,
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Digital Resources Section
+                  _buildSectionCard(
+                    context,
+                    'Digital Resources',
+                    Icons.language,
+                    Colors.blue,
+                    [
+                      {
+                        'title': '',
+                        'content': 'Sacred-Texts.com. The Bhagavad Gita. Internet Sacred Text Archive. Available at: https://sacred-texts.com/hin/gita/',
+                        'isHeader': false,
+                      },
+                    ],
+                    theme,
+                    isTablet,
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // About the Sources Section
+                  _buildSectionCard(
+                    context,
+                    'About the Sources',
+                    Icons.info_outline,
+                    Colors.green,
+                    [
+                      {
+                        'title': '',
+                        'content': 'Bhagavad-gita As It Is provides word-for-word Sanskrit translations, transliterations, and detailed purports (commentaries) explaining the spiritual and practical significance of each verse.',
+                        'isHeader': false,
+                      },
+                      {
+                        'title': '',
+                        'content': 'Easwaran\'s translation offers contemporary English interpretations that make ancient wisdom accessible to modern readers while maintaining philosophical authenticity.',
+                        'isHeader': false,
+                      },
+                      {
+                        'title': '',
+                        'content': 'Sacred-Texts.com serves as a digital repository for multiple translations, allowing for comparative study and verification of verse interpretations.',
+                        'isHeader': false,
+                      },
+                    ],
+                    theme,
+                    isTablet,
+                  ),
+                  
+                  const SizedBox(height: 16),
+                  
+                  // Note Section
                   Card(
                     elevation: 4,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
                     ),
                     color: theme.colorScheme.surface,
-                    shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
-                    child: Padding(
-                      padding: EdgeInsets.all(isTablet ? 32.0 : 20.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            AppLocalizations.of(context)?.reference1 ?? 'Bhagavad-gītā As It Is by A.C. Bhaktivedanta Swami Prabhupāda',
-                            style: GoogleFonts.poppins(
-                              fontSize: isTablet ? 16 : 15,
-                              color: theme.colorScheme.onSurface,
-                              height: 1.5,
-                              fontWeight: FontWeight.w500,
+                    shadowColor: Colors.orange.withAlpha((0.15 * 255).toInt()),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.orange.shade50.withOpacity(0.2),
+                            theme.colorScheme.surface,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(
+                          color: Colors.orange.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.lightbulb_outline,
+                                    color: Colors.orange.shade700,
+                                    size: isTablet ? 24 : 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Note',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: isTablet ? 18 : 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            AppLocalizations.of(context)?.reference2 ?? 'The Bhagavad Gita translated by Eknath Easwaran',
-                            style: GoogleFonts.poppins(
-                              fontSize: isTablet ? 16 : 15,
-                              color: theme.colorScheme.onSurface,
-                              height: 1.5,
-                              fontWeight: FontWeight.w500,
+                            const SizedBox(height: 16),
+                            Text(
+                              'All scenarios in this application apply timeless Bhagavad Gita wisdom to contemporary life situations. The ancient teachings remain relevant for addressing modern challenges in relationships, career, family life, and personal growth.',
+                              style: GoogleFonts.poppins(
+                                fontSize: isTablet ? 15 : 14,
+                                color: theme.colorScheme.onSurface,
+                                height: 1.5,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            AppLocalizations.of(context)?.reference3 ?? 'The Bhagavad Gita translated by Barbara Stoler Miller',
-                            style: GoogleFonts.poppins(
-                              fontSize: isTablet ? 16 : 15,
-                              color: theme.colorScheme.onSurface,
-                              height: 1.5,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -223,6 +325,91 @@ class ReferencesScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildSectionCard(
+    BuildContext context,
+    String title,
+    IconData icon,
+    Color iconColor,
+    List<Map<String, dynamic>> items,
+    ThemeData theme,
+    bool isTablet,
+  ) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(22),
+      ),
+      color: theme.colorScheme.surface,
+      shadowColor: iconColor.withAlpha((0.12 * 255).toInt()),
+      child: Padding(
+        padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Section header
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: iconColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: iconColor,
+                    size: isTablet ? 24 : 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: GoogleFonts.poppins(
+                      fontSize: isTablet ? 18 : 16,
+                      fontWeight: FontWeight.bold,
+                      color: iconColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            
+            // Section content
+            ...items.map((item) {
+              if (item['isHeader'] == true && item['content'].isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Text(
+                    item['title'],
+                    style: GoogleFonts.poppins(
+                      fontSize: isTablet ? 16 : 14,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onSurface,
+                    ),
+                  ),
+                );
+              } else {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12.0),
+                  child: Text(
+                    item['content'],
+                    style: GoogleFonts.poppins(
+                      fontSize: isTablet ? 15 : 13,
+                      color: theme.colorScheme.onSurface.withOpacity(0.9),
+                      height: 1.5,
+                    ),
+                  ),
+                );
+              }
+            }).toList(),
+          ],
+        ),
       ),
     );
   }

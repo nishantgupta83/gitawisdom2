@@ -134,5 +134,19 @@
   "failedToDeleteEntry": "ఎంట్రీని తొలగించడంలో విఫలమైంది",
   
   "journalEntrySaved": "డైరీ ఎంట్రీ సేవ్ అయింది!",
-  "pleaseSelectRating": "దయచేసి రేటింగ్‌ను ఎంచుకోండి"
+  "pleaseSelectRating": "దయచేసి రేటింగ్‌ను ఎంచుకోండి",
+
+  "readLess": "తక్కువ చదవండి",
+  "heartSays": "హృదయం చెబుతోంది",
+  "dutySays": "కర్తవ్యం చెబుతోంది", 
+  "wisdomSteps": "జ్ఞాన దశలు",
+  "modernScenario": "ఆధునిక దినచర్య పరిస్థితి",
+  "overview": "అవలోకనం",
+  "showFewerScenarios": "తక్కువ పరిస్థితులను చూపించు",
+  "gitaChapters": "గీత అధ్యాయాలు", 
+  "immersiveKnowledge": "జ్ఞాన సముద్రంలో మునిగిపోండి",
+  "lifeScenarios": "జీవిత పరిస్థితులు",
+  "applyGitaWisdom": "వాస్తవ జీవిత పరిస్థితులలో గీత జ్ఞానాన్ని వర్తింపజేయండి",
+  "back": "వెనుకకు",
+  "home": "హోమ్"
 }
