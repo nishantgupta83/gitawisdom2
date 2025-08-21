@@ -13,10 +13,6 @@ import '../services/supabase_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(
-  url: 'https://wlfwdtdtiedlcczfoslt.supabase.co',
-  anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZndkdGR0aWVkbGNjemZvc2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4NjQ5MDAsImV4cCI6MjA2NzQ0MDkwMH0.OiWhZled2trJ7eTd8lpQ658B4p-IVsRp2HXHcgAUoFU',
-  );
   
 // Compatibility layer for packages still using the old TextTheme names
 extension TextThemeCompatibility on TextTheme {
@@ -686,6 +682,16 @@ Future<void> _initializeAppServices() async {
 
     // Initialize Enhanced Supabase Service via Service Locator
     await ServiceLocator.instance.initialize();
+    
+    // Test Supabase connection
+    try {
+      final isConnected = await ServiceLocator.instance.enhancedSupabaseService.testConnection();
+      if (!isConnected) {
+        debugPrint('⚠️ Warning: Supabase connection failed - app may not load content properly');
+      }
+    } catch (e) {
+      debugPrint('❌ Supabase connection test failed: $e');
+    }
 
     // Initialize audio service - ensure music is enabled by default
     try {

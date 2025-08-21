@@ -7,6 +7,7 @@ import '../screens/scenarios_screen.dart';
 import '../screens/new_journal_entry_dialog.dart';
 import '../screens/home_screen.dart';
 import '../services/journal_service.dart';
+import '../services/app_sharing_service.dart';
 import '../main.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import '../l10n/app_localizations.dart';
@@ -241,6 +242,28 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                                 ),
                               ),
                               const SizedBox(width: 12),
+                              // Share button
+                              SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: IconButton(
+                                  onPressed: () async {
+                                    await AppSharingService().shareScenario(
+                                      widget.scenario.title,
+                                      widget.scenario.heartResponse,
+                                      widget.scenario.dutyResponse,
+                                      widget.scenario.gitaWisdom,
+                                      actionSteps: widget.scenario.actionSteps,
+                                    );
+                                  },
+                                  icon: Icon(
+                                    Icons.share,
+                                    color: theme.colorScheme.primary,
+                                    size: 28,
+                                  ),
+                                  tooltip: 'Share this wisdom',
+                                ),
+                              ),
                               // COMMENTED OUT: User-specific favorites feature disabled
                               /*
                               // Heart favorite button with fixed size to prevent layout shifts
