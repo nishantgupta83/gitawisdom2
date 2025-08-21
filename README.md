@@ -55,18 +55,18 @@ lib/
 │   ├── scenarios_screen.dart # Life scenarios listing
 │   ├── scenario_detail_view.dart # Scenario details with guidance
 │   ├── verse_list_view.dart # Chapter verses display
-│   ├── journal_screen.dart # Personal journal interface
+│   ├── journal_screen.dart # Personal journal interface - Phase-2
 │   ├── more_screen.dart    # Settings and app info
 │   └── about_screen.dart   # App information
 ├── services/               # Business logic layer
 │   ├── supabase_service.dart # Database operations
 │   ├── settings_service.dart # User preferences (Hive)
-│   ├── journal_service.dart  # Journal management
+│   ├── journal_service.dart  # Journal management -Phase-2
 │   ├── audio_service.dart   # Background music
 │   ├── daily_verse_service.dart # Calendar-based verse caching
 │   ├── scenario_service.dart # Scenario caching and search
 │   ├── cache_service.dart   # Unified cache management
-│   └── analytics_service.dart # Usage tracking
+│   └── analytics_service.dart # Usage tracking - Phase-3
 ├── widgets/               # Reusable UI components
 │   ├── custom_nav_bar.dart # Enhanced bottom navigation (pill/dev/floating styles)
 │   └── expandable_text.dart # Text with read more/less functionality
@@ -839,6 +839,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Email**: support@hub4apps.com
 - **Website**: [https://hub4apps.com/](https://hub4apps.com/)  
 - **Issues**: [GitHub Issues](https://github.com/your-username/GitaWisdom/issues)
+
+## 📄 License & Copyright
+
+**© 2024 Nishant Gupta. All Rights Reserved.**
+
+This is proprietary software. No part of this software may be used, copied, modified, or distributed without explicit written permission from the copyright holder.
+
+For licensing inquiries, contact: nishantgupta83@gmail.com
 
 ---
 
