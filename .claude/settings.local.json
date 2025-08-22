@@ -34,7 +34,9 @@
       "Bash(brew:*)",
       "Bash(export:*)",
       "Bash(ping:*)",
-      "Bash(nslookup:*)"
+      "Bash(nslookup:*)",
+      "Bash(xcodebuild:*)",
+      "WebSearch"
     ],
     "deny": []
   }

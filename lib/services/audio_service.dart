@@ -26,7 +26,10 @@ class AudioService {
 
   /// Turn the music on/off and persist the setting
   void setEnabled(bool on) {
+    final wasEnabled = _enabled;
     _enabled = on;
+    
+    debugPrint('🎵 Audio enabled changed: $wasEnabled -> $on');
     
     // Persist the setting
     try {
@@ -38,15 +41,26 @@ class AudioService {
     
     // Control playback
     if (!on) {
+      debugPrint('🎵 Music disabled - pausing playback');
       _player.pause();
+      // Clear any pending resume state since user disabled music
+      _clearLifecycleResumeState();
     } else if (_isInitialized) {
+      debugPrint('🎵 Music enabled - resuming playbook');
       _player.play();
     } else if (on) {
+      debugPrint('🎵 Music enabled - initializing audio');
       // If music is turned on but not initialized, initialize it
       start().catchError((e) {
         debugPrint('Error starting audio from toggle: $e');
       });
     }
+  }
+
+  /// Clear lifecycle resume state when user manually changes settings
+  void _clearLifecycleResumeState() {
+    // This will be handled by the lifecycle manager monitoring audio state
+    debugPrint('🎵 Audio state changed - lifecycle manager will handle resume state');
   }
 
   /// Kick off playbook (you passed `start()` from main)

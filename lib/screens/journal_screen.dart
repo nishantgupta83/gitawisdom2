@@ -25,6 +25,8 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Future<void> _reload() async {
+    if (!mounted) return;
+    
     setState(() => _loading = true);
     try {
       _entries = await _service.fetchEntries();

@@ -26,6 +26,19 @@ class EnhancedSupabaseService {
   /// Shared Supabase client
   final SupabaseClient client = Supabase.instance.client;
 
+  /// Test Supabase connection
+  Future<bool> testConnection() async {
+    try {
+      debugPrint('🧪 Testing Supabase connection...');
+      final response = await client.from('chapters').select('ch_chapter_id').limit(1);
+      debugPrint('✅ Supabase connection successful! Found ${response.length} chapters');
+      return true;
+    } catch (e) {
+      debugPrint('❌ Supabase connection failed: $e');
+      return false;
+    }
+  }
+
   /* MULTILANG_TODO: Restore language support
   /// Currently selected language code
   String _currentLanguage = 'en';

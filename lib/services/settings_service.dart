@@ -46,7 +46,7 @@ class SettingsService extends ChangeNotifier {
     }
   }
 
-  String get fontSize => _box.get(fontKey, defaultValue: 'medium') as String;
+  String get fontSize => _box.get(fontKey, defaultValue: 'small') as String;
  // set fontSize(String v) => _box.put(fontKey, v);
     set fontSize(String v) {
         _box.put(fontKey, v);

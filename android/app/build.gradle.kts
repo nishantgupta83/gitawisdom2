@@ -16,6 +16,15 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    signingConfigs {
+        create("release") {
+            keyAlias = "gitawisdom-alias"
+            keyPassword = "Entertain@2025"
+            storeFile = file("/Users/nishantgupta/Documents/GitaGyan/OldWisdom/gitawisdom-key.jks")
+            storePassword = "Entertain@2025"
+        }
+    }
+
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
     }
@@ -29,16 +38,30 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
-
+        
+        // Enable multidex for better compatibility
+        multiDexEnabled = true
+        
+        // Add comprehensive ABI filters for maximum device support
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a", "x86_64", "x86")
+        }
     }
 
     buildTypes {
-        release {
-            // Signing will be handled by Google Play
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            isShrinkResources = false
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Multidex support for better compatibility
+    implementation("androidx.multidex:multidex:2.0.1")
 }

@@ -157,25 +157,31 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   }
 
   Future<void> _loadScenarios() async {
+    if (!mounted) return;
+    
     setState(() => _isLoading = true);
     try {
       // If a specific chapter is requested, fetch scenarios directly from Supabase for that chapter
       if (_selectedChapter != null) {
         final chapterScenarios = await _service.fetchScenariosByChapter(_selectedChapter!);
         
-        setState(() {
-          _allScenarios = chapterScenarios;
-          _scenarios = chapterScenarios; // No additional filtering needed for chapter-specific load
-        });
+        if (mounted) {
+          setState(() {
+            _allScenarios = chapterScenarios;
+            _scenarios = chapterScenarios; // No additional filtering needed for chapter-specific load
+          });
+        }
       } else {
         // Load all scenarios from cache (instant after first load)
         final allScenarios = await _scenarioService.getAllScenarios();
         
-        setState(() {
-          _allScenarios = allScenarios;
-          _scenarios = _filterScenarios(allScenarios);
-          _totalScenarioCount = allScenarios.length;
-        });
+        if (mounted) {
+          setState(() {
+            _allScenarios = allScenarios;
+            _scenarios = _filterScenarios(allScenarios);
+            _totalScenarioCount = allScenarios.length;
+          });
+        }
         
         // Start background sync if needed (non-blocking) - monthly check only
         _scenarioService.backgroundSync();
@@ -260,6 +266,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   }
 
   void _onSearchChanged(String query) {
+    if (!mounted) return;
+    
     setState(() {
       _search = query;
       // Update filtered scenarios instantly - no debouncing needed for local search!
@@ -268,6 +276,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   }
 
   void _onFilterChanged(String filter) {
+    if (!mounted) return;
+    
     setState(() {
       _selectedFilter = filter;
       _scenarios = _filterScenarios(_allScenarios);
@@ -291,11 +301,15 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
   /// Force refresh from server
   Future<void> _refreshFromServer() async {
+    if (!mounted) return;
+    
     setState(() => _isLoading = true);
     try {
       await _scenarioService.refreshFromServer();
       await _loadScenarios(); // Reload with fresh data
-      setState(() => _hasNewContent = false); // Reset new content indicator
+      if (mounted) {
+        setState(() => _hasNewContent = false); // Reset new content indicator
+      }
     } catch (e) {
       debugPrint('Error refreshing scenarios: $e');
       if (mounted) {
@@ -477,10 +491,12 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           ),
                           TextButton(
                             onPressed: () {
-                              setState(() {
-                                _selectedChapter = null;
-                                _selectedFilter = 'All';
-                              });
+                              if (mounted) {
+                                setState(() {
+                                  _selectedChapter = null;
+                                  _selectedFilter = 'All';
+                                });
+                              }
                               _loadScenarios(); // Reload all scenarios
                             },
                             child: Text(

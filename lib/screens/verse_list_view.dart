@@ -36,6 +36,8 @@ class _VerseListViewState extends State<VerseListView> {
   }
 
   Future<void> _loadVersesAndChapter() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -85,16 +87,20 @@ class _VerseListViewState extends State<VerseListView> {
         debugPrint('✅ Permanently cached ${verses.length} verses for chapter ${widget.chapterId}');
       }
       
-      setState(() {
-        _verses = verses;
-        _chapter = chapter;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _verses = verses;
+          _chapter = chapter;
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to load verses.';
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Failed to load verses.';
+          _isLoading = false;
+        });
+      }
     }
   }
 

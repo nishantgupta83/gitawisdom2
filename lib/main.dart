@@ -133,7 +133,7 @@ import 'package:path_provider/path_provider.dart';
 //import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-import 'dart:io';
+import 'dart:io' show Platform;
 
 import '../screens/home_screen.dart';
 import '../screens/chapters_screen.dart';
@@ -541,6 +541,7 @@ class PlaceholderScreen extends StatelessWidget {
 
 // lib/main.dart
 
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -569,6 +570,7 @@ import 'models/daily_quote.dart';
 import 'widgets/custom_nav_bar.dart';
 import 'services/settings_service.dart';
 import 'services/audio_service.dart';
+import 'services/app_lifecycle_manager.dart';
 import 'services/service_locator.dart';
 import 'config/environment.dart'; // 👈 Import our environment config
 
@@ -583,13 +585,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Set full-screen app layout - ensure app uses full device size
+  // Modern edge-to-edge handling compatible with Android 15
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    statusBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarDividerColor: Colors.transparent,
-  ));
+  
+  // Only set SystemUiOverlayStyle on platforms where it's still effective (not Android 15+)
+  // Android 15+ handles this through styles.xml configuration
+  if (Platform.isIOS || Platform.isMacOS) {
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarDividerColor: Colors.transparent,
+    ));
+  }
 
   try {
     // ✅ Critical initialization only - everything else will be lazy loaded
@@ -672,6 +680,7 @@ Future<void> _initializeAppServices() async {
     // Pre-load scenarios during app initialization to avoid empty state on first load
     ScenarioService.instance.getAllScenarios().catchError((e) {
       debugPrint('Background scenario pre-loading failed: $e');
+      return <Scenario>[]; // Return empty list on error
     });
     
     // Open journal service box
@@ -703,6 +712,14 @@ Future<void> _initializeAppServices() async {
       }
     } catch (e) {
       debugPrint('❌ Audio initialization failed: $e');
+    }
+
+    // Initialize app lifecycle manager for background music control
+    try {
+      AppLifecycleManager.instance.initialize();
+      debugPrint('🎵 App lifecycle manager initialized successfully');
+    } catch (e) {
+      debugPrint('❌ App lifecycle manager initialization failed: $e');
     }
 
     debugPrint('✅ App services initialized');
@@ -804,30 +821,56 @@ class WisdomGuideApp extends StatelessWidget {
   const WisdomGuideApp({Key? key}) : super(key: key);
 
   TextTheme _buildTextThemeWithShadows(TextTheme baseTheme, bool shadowEnabled) {
-    final shadows = shadowEnabled ? [
-      const Shadow(
-        color: Colors.black45,
-        offset: Offset(1.0, 1.0),
-        blurRadius: 2.0,
+    if (!shadowEnabled) return baseTheme;
+    
+    // Create different shadow intensities for different text styles
+    final headerShadows = [
+      Shadow(
+        color: Platform.isIOS ? Colors.black.withOpacity(0.6) : Colors.black45, // Stronger for headers on iOS
+        offset: Platform.isIOS ? const Offset(1.5, 1.5) : const Offset(1.0, 1.0),
+        blurRadius: Platform.isIOS ? 3.0 : 2.0,
       ),
-    ] : <Shadow>[];
+    ];
+    
+    final bodyShadows = [
+      Shadow(
+        color: Platform.isIOS ? Colors.black.withOpacity(0.5) : Colors.black38, // Lighter for body text on iOS
+        offset: Platform.isIOS ? const Offset(1.0, 1.0) : const Offset(0.8, 0.8),
+        blurRadius: Platform.isIOS ? 2.0 : 1.5,
+      ),
+    ];
+    
+    final labelShadows = [
+      Shadow(
+        color: Platform.isIOS ? Colors.black45 : Colors.black.withOpacity(0.3), // Subtle for labels on iOS
+        offset: Platform.isIOS ? const Offset(0.8, 0.8) : const Offset(0.5, 0.5),
+        blurRadius: Platform.isIOS ? 1.5 : 1.0,
+      ),
+    ];
 
     return baseTheme.copyWith(
-      displayLarge: baseTheme.displayLarge?.copyWith(shadows: shadows),
-      displayMedium: baseTheme.displayMedium?.copyWith(shadows: shadows),
-      displaySmall: baseTheme.displaySmall?.copyWith(shadows: shadows),
-      headlineLarge: baseTheme.headlineLarge?.copyWith(shadows: shadows),
-      headlineMedium: baseTheme.headlineMedium?.copyWith(shadows: shadows),
-      headlineSmall: baseTheme.headlineSmall?.copyWith(shadows: shadows),
-      titleLarge: baseTheme.titleLarge?.copyWith(shadows: shadows),
-      titleMedium: baseTheme.titleMedium?.copyWith(shadows: shadows),
-      titleSmall: baseTheme.titleSmall?.copyWith(shadows: shadows),
-      bodyLarge: baseTheme.bodyLarge?.copyWith(shadows: shadows),
-      bodyMedium: baseTheme.bodyMedium?.copyWith(shadows: shadows),
-      bodySmall: baseTheme.bodySmall?.copyWith(shadows: shadows),
-      labelLarge: baseTheme.labelLarge?.copyWith(shadows: shadows),
-      labelMedium: baseTheme.labelMedium?.copyWith(shadows: shadows),
-      labelSmall: baseTheme.labelSmall?.copyWith(shadows: shadows),
+      // Headers - strongest shadow
+      displayLarge: baseTheme.displayLarge?.copyWith(shadows: headerShadows),
+      displayMedium: baseTheme.displayMedium?.copyWith(shadows: headerShadows),
+      displaySmall: baseTheme.displaySmall?.copyWith(shadows: headerShadows),
+      headlineLarge: baseTheme.headlineLarge?.copyWith(shadows: headerShadows),
+      headlineMedium: baseTheme.headlineMedium?.copyWith(shadows: headerShadows),
+      headlineSmall: baseTheme.headlineSmall?.copyWith(shadows: headerShadows),
+      
+      // Titles - medium shadow
+      titleLarge: baseTheme.titleLarge?.copyWith(shadows: bodyShadows),
+      titleMedium: baseTheme.titleMedium?.copyWith(shadows: bodyShadows),
+      titleSmall: baseTheme.titleSmall?.copyWith(shadows: bodyShadows),
+      
+      // Body text - medium shadow
+      bodyLarge: baseTheme.bodyLarge?.copyWith(shadows: bodyShadows),
+      bodyMedium: baseTheme.bodyMedium?.copyWith(shadows: bodyShadows),
+      bodySmall: baseTheme.bodySmall?.copyWith(shadows: bodyShadows),
+      
+      // Labels - subtle shadow
+      labelLarge: baseTheme.labelLarge?.copyWith(shadows: labelShadows),
+      labelMedium: baseTheme.labelMedium?.copyWith(shadows: labelShadows),
+      labelSmall: baseTheme.labelSmall?.copyWith(shadows: labelShadows),
     );
   }
 
@@ -1052,12 +1095,21 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    // Create platform-aware SystemUiOverlayStyle
+    // On Android 15+, these values are handled by styles.xml
+    final systemUiOverlayStyle = Platform.isIOS || Platform.isMacOS 
+        ? const SystemUiOverlayStyle(
+            statusBarColor: Colors.transparent,
+            statusBarIconBrightness: Brightness.light,
+            systemNavigationBarColor: Colors.transparent,
+          )
+        : SystemUiOverlayStyle.light.copyWith(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: Colors.transparent,
+          );
+    
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.transparent,
-      ),
+      value: systemUiOverlayStyle,
       child: Scaffold(
         extendBodyBehindAppBar: true,
         extendBody: true,

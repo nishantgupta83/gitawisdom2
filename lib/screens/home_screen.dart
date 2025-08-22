@@ -286,7 +286,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: PageView.builder(
                   controller: _pageController,
                   itemCount: _verseFutures.length,
-                  onPageChanged: (idx) => setState(() => _currentPage = idx),
+                  onPageChanged: (idx) {
+                    if (mounted) setState(() => _currentPage = idx);
+                  },
                   itemBuilder: (context, i) {
                     return FutureBuilder<Verse>(
                       future: _verseFutures[i],
@@ -622,7 +624,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: PageView.builder(
                       controller: _pageController,
                       itemCount: verses.length,
-                      onPageChanged: (idx) => setState(() => _currentPage = idx),
+                      onPageChanged: (idx) {
+                        if (mounted) setState(() => _currentPage = idx);
+                      },
                       itemBuilder: (ctx, i) {
                         final v = verses[i];
                         return Padding(
@@ -1250,6 +1254,8 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _loadModernDilemmaScenarios() async {
+    if (!mounted) return;
+    
     try {
       setState(() => _isLoadingScenarios = true);
       
@@ -1367,7 +1373,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           return PageView.builder(
                             controller: _pageController,
                             itemCount: verses.length,
-                            onPageChanged: (idx) => setState(() => _currentPage = idx),
+                            onPageChanged: (idx) {
+                              if (mounted) setState(() => _currentPage = idx);
+                            },
                             itemBuilder: (ctx, i) {
                               final v = verses[i];
                               // Use chapter ID from the verse model
@@ -1607,7 +1615,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: PageView.builder(
                   controller: _scenarioPageController,
                   itemCount: _modernDilemmaScenarios.length,
-                  onPageChanged: (idx) => setState(() => _currentScenarioPage = idx),
+                  onPageChanged: (idx) {
+                    if (mounted) setState(() => _currentScenarioPage = idx);
+                  },
                   itemBuilder: (ctx, i) {
                     final scenario = _modernDilemmaScenarios[i];
                     return Container(

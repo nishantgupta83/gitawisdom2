@@ -67,24 +67,31 @@ class ScenarioService {
     try {
       await _ensureInitialized();
       
-      // Return cached scenarios immediately if available and fresh
-      if (_cachedScenarios.isNotEmpty && _isCacheValid()) {
-        debugPrint('📚 Using cached scenarios (${_cachedScenarios.length} items)');
+      // PERFORMANCE OPTIMIZATION: Return cached scenarios immediately if available
+      // This eliminates the loading delay users experience on scenarios screen
+      if (_cachedScenarios.isNotEmpty) {
+        debugPrint('⚡ Instant cache return: ${_cachedScenarios.length} scenarios');
+        
+        // Start background refresh if needed (non-blocking)
+        if (_shouldRefreshFromServer()) {
+          _refreshFromServer().catchError((e) {
+            debugPrint('Background refresh failed: $e');
+          });
+        }
+        
         return _cachedScenarios;
       }
       
-      // Check if we need to refresh from server
+      // First-time load: fetch from server
       if (_shouldRefreshFromServer()) {
-        debugPrint('🔄 Refreshing scenarios from server...');
+        debugPrint('🔄 Initial load from server...');
         await _refreshFromServer();
       }
       
-      // Return cached scenarios (may be empty if first run)
       return _cachedScenarios;
       
     } catch (e) {
       debugPrint('❌ Error getting scenarios: $e');
-      // Fallback to cached data if available
       return _cachedScenarios.isNotEmpty ? _cachedScenarios : [];
     }
   }

@@ -30,6 +30,8 @@ class _ChapterScreenState extends State<ChapterScreen> {
   }
 
   Future<void> _loadChapters() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -37,11 +39,15 @@ class _ChapterScreenState extends State<ChapterScreen> {
 
     try {
       final data = await _service.fetchChapterSummaries();
-      setState(() {
-        _chapters = data;
-      });
+      if (mounted) {
+        setState(() {
+          _chapters = data;
+        });
+      }
     } catch (e) {
-      setState(() => _errorMessage = 'Failed to load chapters: $e');
+      if (mounted) {
+        setState(() => _errorMessage = 'Failed to load chapters: $e');
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }

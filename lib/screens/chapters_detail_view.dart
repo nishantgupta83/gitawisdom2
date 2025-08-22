@@ -1500,7 +1500,9 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
     });
     try {
       final fetched = await _service.fetchChapterById(widget.chapterId);
-      setState(() => _chapter = fetched);
+      if (mounted) {
+        setState(() => _chapter = fetched);
+      }
     } catch (e) {
       setState(() => _error = 'Failed to load chapter details.');
     } finally {
@@ -1682,7 +1684,9 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
     });
     try {
       final fetched = await _service.fetchChapterById(widget.chapterId);
-      setState(() => _chapter = fetched);
+      if (mounted) {
+        setState(() => _chapter = fetched);
+      }
     } catch (e) {
       setState(() => _error = 'Failed to load chapter details.');
     } finally {

@@ -193,9 +193,7 @@ void _showWebsiteQr() {
           ListTile(
             leading: const Icon(Icons.share),
             title: const Text('Share This App'),
-            onTap: () => Share.share(
-              'Check out Gitawisdom: Bhagavad Gita Guide on the store: https://your.app.link',
-            ),
+            onTap: () async => await AppSharingService().shareApp(),
           ),
         ListTile(
           leading: const Icon(Icons.qr_code),
@@ -296,9 +294,11 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../services/app_sharing_service.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:intl/intl.dart';
+import 'dart:async';
 
 import '../screens/home_screen.dart';
 import '../main.dart';
@@ -323,11 +323,19 @@ class _MoreScreenState extends State<MoreScreen> {
   bool _darkMode = false;
   bool _musicOn = true;
   String _fontSize = 'small';
-  double _fontSizeValue = 1.0; // 0.0 = small, 1.0 = medium, 2.0 = large
+  double _fontSizeValue = 0.0; // 0.0 = small, 1.0 = medium, 2.0 = large
   bool _textShadow = true;
   double _backgroundOpacity = 0.3;
   String _cacheSize = 'Calculating...';
   Map<String, double> _cacheSizes = {};
+  
+  // Personalization expansion state
+  bool _isPersonalizationExpanded = false;
+  
+  // Debouncing for sliders and settings
+  Timer? _fontSizeDebounceTimer;
+  Timer? _opacityDebounceTimer;
+  Timer? _settingsDebounceTimer;
   /* MULTILANG_TODO: Language support variables
   String _currentLanguage = 'en';
   List<SupportedLanguage> _supportedLanguages = [];
@@ -362,14 +370,28 @@ class _MoreScreenState extends State<MoreScreen> {
     final box = Hive.box(SettingsService.boxName);
     _darkMode = box.get(SettingsService.darkKey, defaultValue: false);
     _musicOn = box.get(SettingsService.musicKey, defaultValue: true);
-    _fontSize = box.get(SettingsService.fontKey, defaultValue: 'medium');
+    _fontSize = box.get(SettingsService.fontKey, defaultValue: 'small');
     _fontSizeValue = _getFontSizeValue(_fontSize);
-    _textShadow = box.get(SettingsService.shadowKey, defaultValue: true);
+    _textShadow = box.get(SettingsService.shadowKey, defaultValue: false);
     _backgroundOpacity = box.get(SettingsService.opacityKey, defaultValue: 0.3);
     /* MULTILANG_TODO: _currentLanguage = box.get(SettingsService.langKey, defaultValue: 'en'); */
     
+    // Sync UI state with actual audio service state
+    _syncAudioState();
+    
     /* MULTILANG_TODO: _initializeLanguageSupport(); */
     _loadCacheInfo();
+  }
+
+  /// Synchronize UI state with actual audio service state
+  void _syncAudioState() {
+    final actualAudioEnabled = AudioService.instance.isEnabled;
+    if (_musicOn != actualAudioEnabled) {
+      debugPrint('🎵 Syncing UI state: $_musicOn -> $actualAudioEnabled');
+      setState(() {
+        _musicOn = actualAudioEnabled;
+      });
+    }
   }
 
   Future<void> _loadCacheInfo() async {
@@ -420,19 +442,56 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
-  void _toggleSetting(String key, dynamic value) {
-    Hive.box(SettingsService.boxName).put(key, value);
-    setState(() {
-      if (key == SettingsService.darkKey) _darkMode = value;
-      if (key == SettingsService.musicKey) _musicOn = value;
-      if (key == SettingsService.fontKey) {
-        _fontSize = value;
-        _fontSizeValue = _getFontSizeValue(value);
+  Future<void> _toggleSetting(String key, dynamic value) async {
+    // PERFORMANCE OPTIMIZATION: Debounce theme-critical changes
+    if (key == SettingsService.darkKey || key == SettingsService.shadowKey) {
+      _settingsDebounceTimer?.cancel();
+      
+      // Update UI immediately for responsive feel
+      if (mounted) {
+        setState(() {
+          if (key == SettingsService.darkKey) _darkMode = value;
+          if (key == SettingsService.shadowKey) _textShadow = value;
+        });
       }
-      if (key == SettingsService.shadowKey) _textShadow = value;
-      if (key == SettingsService.opacityKey) _backgroundOpacity = value;
-      /* MULTILANG_TODO: if (key == SettingsService.langKey) _currentLanguage = value; */
-    });
+      
+      // Debounce the actual storage and theme update
+      _settingsDebounceTimer = Timer(const Duration(milliseconds: 150), () {
+        _performSettingUpdate(key, value);
+      });
+    } else {
+      // Non-theme settings: immediate update
+      await _performSettingUpdate(key, value);
+    }
+  }
+  
+  Future<void> _performSettingUpdate(String key, dynamic value) async {
+    try {
+      // Update Hive storage asynchronously
+      await Hive.box(SettingsService.boxName).put(key, value);
+      
+      // Update UI state only if widget is still mounted
+      if (!mounted) return;
+      
+      setState(() {
+        if (key == SettingsService.darkKey) _darkMode = value;
+        if (key == SettingsService.musicKey) _musicOn = value;
+        if (key == SettingsService.fontKey) {
+          _fontSize = value;
+          _fontSizeValue = _getFontSizeValue(value);
+        }
+        if (key == SettingsService.shadowKey) _textShadow = value;
+        if (key == SettingsService.opacityKey) _backgroundOpacity = value;
+        /* MULTILANG_TODO: if (key == SettingsService.langKey) _currentLanguage = value; */
+      });
+    } catch (e) {
+      debugPrint('❌ Error updating setting $key: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error updating setting: $e')),
+        );
+      }
+    }
   }
 
   /* MULTILANG_TODO: Language changing
@@ -502,8 +561,34 @@ class _MoreScreenState extends State<MoreScreen> {
   */
 
   void _updateFontSize(double value) {
-    final newFontSize = _getFontSizeString(value);
-    _toggleSetting(SettingsService.fontKey, newFontSize);
+    // Cancel previous timer
+    _fontSizeDebounceTimer?.cancel();
+    
+    // Update UI immediately for smooth slider interaction
+    setState(() {
+      _fontSizeValue = value;
+    });
+    
+    // Debounce the actual setting update
+    _fontSizeDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      final newFontSize = _getFontSizeString(value);
+      _toggleSetting(SettingsService.fontKey, newFontSize);
+    });
+  }
+  
+  void _updateOpacity(double value) {
+    // Cancel previous timer
+    _opacityDebounceTimer?.cancel();
+    
+    // Update UI immediately for smooth slider interaction
+    setState(() {
+      _backgroundOpacity = value;
+    });
+    
+    // Debounce the actual setting update
+    _opacityDebounceTimer = Timer(const Duration(milliseconds: 300), () {
+      _toggleSetting(SettingsService.opacityKey, value);
+    });
   }
 
   Future<void> _clearAllCache() async {
@@ -616,6 +701,14 @@ class _MoreScreenState extends State<MoreScreen> {
   }
 
   @override
+  void dispose() {
+    _fontSizeDebounceTimer?.cancel();
+    _opacityDebounceTimer?.cancel();
+    _settingsDebounceTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context);
@@ -716,61 +809,100 @@ class _MoreScreenState extends State<MoreScreen> {
                 ),
                 children: [
               
-              _sectionTitle(localizations!.appearance),
-              _settingTile(
-                title: localizations.darkMode,
-                trailing: Switch(
-                  value: _darkMode,
-                  onChanged: (val) => _toggleSetting(SettingsService.darkKey, val),
-                ),
-              ),
-              _settingTile(
-                title: localizations.backgroundMusic,
-                trailing: Switch(
-                  value: _musicOn,
-                  onChanged: (val) {
-                    _toggleSetting(SettingsService.musicKey, val);
-                    AudioService.instance.setEnabled(val);
+              // Personalization expandable section
+              Card(
+                margin: const EdgeInsets.symmetric(vertical: 6),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                child: ExpansionTile(
+                  title: Text(
+                    'Personalization',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.9),
+                    ),
+                  ),
+                  subtitle: Text(
+                    _isPersonalizationExpanded ? 'Collapse settings' : 'Tap to customize appearance',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                    ),
+                  ),
+                  initiallyExpanded: _isPersonalizationExpanded,
+                  onExpansionChanged: (expanded) {
+                    if (mounted) {
+                      setState(() {
+                        _isPersonalizationExpanded = expanded;
+                      });
+                    }
                   },
-                ),
-              ),
-              _settingTile(
-                title: localizations.fontSize,
-                subtitle: '${_getFontSizeLabel(_fontSizeValue)} - Adjust text size throughout the app',
-                trailing: SizedBox(
-                  width: 150,
-                  child: Slider(
-                    value: _fontSizeValue,
-                    min: 0.0,
-                    max: 2.0,
-                    divisions: 2,
-                    onChanged: (val) {
-                      setState(() => _fontSizeValue = val);
-                      _updateFontSize(val);
-                    },
-                  ),
-                ),
-              ),
-              _settingTile(
-                title: localizations.textShadow,
-                subtitle: 'Add shadow effect to text',
-                trailing: Switch(
-                  value: _textShadow,
-                  onChanged: (val) => _toggleSetting(SettingsService.shadowKey, val),
-                ),
-              ),
-              _settingTile(
-                title: localizations.backgroundOpacity,
-                subtitle: '${(_backgroundOpacity * 100).round()}% - Adjust background transparency',
-                trailing: SizedBox(
-                  width: 150,
-                  child: Slider(
-                    value: _backgroundOpacity,
-                    min: 0.1,
-                    max: 1.0,
-                    divisions: 9,
-                    onChanged: (val) => _toggleSetting(SettingsService.opacityKey, val),
-                  ),
+                  children: [
+                    _settingTile(
+                      title: localizations!.darkMode,
+                      trailing: Switch(
+                        value: _darkMode,
+                        onChanged: (val) => _toggleSetting(SettingsService.darkKey, val),
+                      ),
+                    ),
+                    _settingTile(
+                      title: localizations.backgroundMusic,
+                      trailing: Switch(
+                        value: _musicOn,
+                        onChanged: (val) async {
+                          debugPrint('🎵 User toggled music: $_musicOn -> $val');
+                          await _toggleSetting(SettingsService.musicKey, val);
+                          AudioService.instance.setEnabled(val);
+                          
+                          // Update UI state immediately
+                          if (mounted) {
+                            setState(() {
+                              _musicOn = val;
+                            });
+                          }
+                          
+                          // Clear any pending resume state when user manually changes setting
+                          if (!val) {
+                            debugPrint('🎵 User disabled music - clearing resume state');
+                          }
+                        },
+                      ),
+                    ),
+                    _settingTile(
+                      title: localizations.fontSize,
+                      subtitle: '${_getFontSizeLabel(_fontSizeValue)} - Adjust text size throughout the app',
+                      trailing: SizedBox(
+                        width: 150,
+                        child: Slider(
+                          value: _fontSizeValue,
+                          min: 0.0,
+                          max: 2.0,
+                          divisions: 2,
+                          onChanged: _updateFontSize,
+                        ),
+                      ),
+                    ),
+                    _settingTile(
+                      title: localizations.textShadow,
+                      subtitle: 'Add shadow effect to text',
+                      trailing: Switch(
+                        value: _textShadow,
+                        onChanged: (val) => _toggleSetting(SettingsService.shadowKey, val),
+                      ),
+                    ),
+                    _settingTile(
+                      title: localizations.backgroundOpacity,
+                      subtitle: '${(_backgroundOpacity * 100).round()}% - Adjust background transparency',
+                      trailing: SizedBox(
+                        width: 150,
+                        child: Slider(
+                          value: _backgroundOpacity,
+                          min: 0.1,
+                          max: 1.0,
+                          divisions: 9,
+                          onChanged: _updateOpacity,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               
@@ -983,11 +1115,8 @@ class _MoreScreenState extends State<MoreScreen> {
               _sectionTitle(localizations.extras),
               _settingTile(
                 title: localizations.shareThisApp,
-                onTap: () {
-                  Share.share(
-                    'Check out GitaWisdom on the App Store or Play Store!',
-                    subject: 'GitaWisdom – Your Daily Spiritual Guide',
-                  );
+                onTap: () async {
+                  await AppSharingService().shareApp();
                 },
               ),
 

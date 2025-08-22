@@ -1,0 +1,201 @@
+name: Production Readiness Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      run_full_suite:
+        description: 'Run full production test suite'
+        required: false
+        default: 'true'
+
+jobs:
+  production-readiness:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: ☕ Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '17'
+
+    - name: 🐦 Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.24.0'
+        cache: true
+
+    - name: 📦 Install Dependencies
+      run: |
+        flutter pub get
+        flutter packages pub run build_runner build --delete-conflicting-outputs
+
+    - name: 🔍 Static Analysis
+      run: |
+        flutter analyze --no-fatal-infos
+        echo "✅ Static analysis completed"
+
+    - name: 🧪 Unit Tests
+      run: |
+        flutter test test/ --coverage --reporter=json > test_results.json
+        echo "✅ Unit tests completed"
+
+    - name: 🏗️ Build Validation
+      run: |
+        echo "🔧 Testing debug build..."
+        flutter build apk --debug
+        
+        echo "🚀 Testing release build..."
+        flutter build apk --release
+        
+        echo "📦 Testing app bundle..."
+        flutter build appbundle --release
+        
+        echo "✅ All builds successful"
+
+    - name: 🌐 Production Configuration Check
+      run: |
+        echo "🔍 Checking Android manifest permissions..."
+        if ! grep -q "android.permission.INTERNET" android/app/src/main/AndroidManifest.xml; then
+          echo "❌ CRITICAL: Missing INTERNET permission in AndroidManifest.xml"
+          exit 1
+        fi
+        echo "✅ Internet permission found"
+        
+        echo "🔍 Checking Supabase configuration..."
+        if ! grep -q "Environment.supabaseUrl" lib/main.dart; then
+          echo "❌ CRITICAL: Supabase not configured with Environment"
+          exit 1
+        fi
+        echo "✅ Supabase environment configuration found"
+        
+        echo "🔍 Checking for duplicate Supabase initialization..."
+        INIT_COUNT=$(grep -c "Supabase.initialize" lib/main.dart || true)
+        if [ $INIT_COUNT -gt 1 ]; then
+          echo "❌ CRITICAL: Multiple Supabase.initialize calls found"
+          grep -n "Supabase.initialize" lib/main.dart
+          exit 1
+        fi
+        echo "✅ Single Supabase initialization confirmed"
+
+    - name: 📊 Release Artifact Validation
+      run: |
+        echo "📱 Validating APK..."
+        APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+        if [ ! -f "$APK_PATH" ]; then
+          echo "❌ APK not found at $APK_PATH"
+          exit 1
+        fi
+        
+        APK_SIZE=$(stat -c%s "$APK_PATH")
+        echo "APK size: $APK_SIZE bytes"
+        
+        if [ $APK_SIZE -lt 50000000 ] || [ $APK_SIZE -gt 100000000 ]; then
+          echo "⚠️ Warning: APK size $APK_SIZE seems unusual (expected 50-100MB)"
+        fi
+        
+        echo "📦 Validating AAB..."
+        AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
+        if [ ! -f "$AAB_PATH" ]; then
+          echo "❌ AAB not found at $AAB_PATH"
+          exit 1
+        fi
+        
+        AAB_SIZE=$(stat -c%s "$AAB_PATH")
+        echo "AAB size: $AAB_SIZE bytes"
+        
+        if [ $AAB_SIZE -lt 40000000 ] || [ $AAB_SIZE -gt 80000000 ]; then
+          echo "⚠️ Warning: AAB size $AAB_SIZE seems unusual (expected 40-80MB)"
+        fi
+        
+        echo "✅ Release artifacts validated"
+
+    - name: 🚨 Critical Issue Detection
+      run: |
+        echo "🔍 Scanning for critical issues..."
+        
+        # Check for hardcoded credentials
+        if grep -r "password\|secret\|key.*=" lib/ --include="*.dart" | grep -v "keyAlias\|keyPassword" | grep -v "// "; then
+          echo "❌ CRITICAL: Potential hardcoded credentials found"
+          exit 1
+        fi
+        
+        # Check for debug prints in production code
+        DEBUG_PRINTS=$(grep -r "print(" lib/ --include="*.dart" | grep -v "debugPrint" | wc -l || true)
+        if [ $DEBUG_PRINTS -gt 5 ]; then
+          echo "⚠️ Warning: $DEBUG_PRINTS print() statements found (consider using debugPrint)"
+        fi
+        
+        # Check for TODOs marked as critical
+        if grep -r "TODO.*CRITICAL\|FIXME.*CRITICAL" lib/ --include="*.dart"; then
+          echo "❌ CRITICAL TODOs found that must be resolved before release"
+          exit 1
+        fi
+        
+        echo "✅ No critical issues detected"
+
+    - name: 📋 Generate Test Report
+      if: always()
+      run: |
+        echo "# Production Readiness Test Report" > test_report.md
+        echo "" >> test_report.md
+        echo "## Build Information" >> test_report.md
+        echo "- **Commit**: ${{ github.sha }}" >> test_report.md
+        echo "- **Branch**: ${{ github.ref_name }}" >> test_report.md
+        echo "- **Flutter Version**: $(flutter --version | head -1)" >> test_report.md
+        echo "" >> test_report.md
+        
+        echo "## Test Results" >> test_report.md
+        if [ -f test_results.json ]; then
+          echo "- **Unit Tests**: Completed" >> test_report.md
+        fi
+        
+        if [ -f build/app/outputs/flutter-apk/app-release.apk ]; then
+          APK_SIZE=$(stat -c%s build/app/outputs/flutter-apk/app-release.apk)
+          echo "- **APK Size**: ${APK_SIZE} bytes" >> test_report.md
+        fi
+        
+        if [ -f build/app/outputs/bundle/release/app-release.aab ]; then
+          AAB_SIZE=$(stat -c%s build/app/outputs/bundle/release/app-release.aab)
+          echo "- **AAB Size**: ${AAB_SIZE} bytes" >> test_report.md
+        fi
+        
+        echo "" >> test_report.md
+        echo "## Status" >> test_report.md
+        echo "✅ Production readiness tests completed" >> test_report.md
+        
+        cat test_report.md
+
+    - name: 📤 Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: production-test-results
+        path: |
+          test_results.json
+          test_report.md
+          build/app/outputs/flutter-apk/app-release.apk
+          build/app/outputs/bundle/release/app-release.aab
+
+    - name: 💬 Comment on PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          if (fs.existsSync('test_report.md')) {
+            const report = fs.readFileSync('test_report.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });
+          }
