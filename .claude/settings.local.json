@@ -36,8 +36,14 @@
       "Bash(ping:*)",
       "Bash(nslookup:*)",
       "Bash(xcodebuild:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(security find-identity:*)",
+      "Bash(keytool:*)",
+      "Bash(openssl req:*)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/Users/nishantgupta/Desktop/iOS_Certificates"
+    ]
   }
 }

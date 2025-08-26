@@ -51,7 +51,7 @@
     "description": "Button text to view scenario wisdom"
   },
   
-  "applyGitaTeaching": "Apply Gita Teaching to Modern Day Situations",
+  "applyGitaTeaching": "Find Wisdom for Any Life Challenge",
   "@applyGitaTeaching": {
     "description": "Subtitle text describing app purpose"
   },
@@ -424,7 +424,7 @@
     "description": "Header title for chapters screen"
   },
 
-  "immersiveKnowledge": "Immerse into the ocean of knowledge",
+  "immersiveKnowledge": "Discover Wisdom for Any Life Challenge",
   "@immersiveKnowledge": {
     "description": "Subtitle for chapters screen"
   },
@@ -434,7 +434,7 @@
     "description": "Header title for scenarios screen"
   },
 
-  "applyGitaWisdom": "Apply Gita wisdom to real-world situations",
+  "applyGitaWisdom": "Find Wisdom for Any Life Challenge",
   "@applyGitaWisdom": {
     "description": "Subtitle for scenarios screen"
   },
@@ -589,5 +589,75 @@
   "pleaseSelectRating": "Please select a rating",
   "@pleaseSelectRating": {
     "description": "Validation message when no rating is selected"
+  },
+
+  "chapterScenarios": "CHAPTER {chapter} SCENARIOS",
+  "@chapterScenarios": {
+    "description": "Title for chapter-specific scenarios screen",
+    "placeholders": {
+      "chapter": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+
+  "chapterScenariosSubtitle": "Scenarios from Bhagavad Gita Chapter {chapter}",
+  "@chapterScenariosSubtitle": {
+    "description": "Subtitle for chapter-specific scenarios",
+    "placeholders": {
+      "chapter": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+
+  "showingScenariosForChapter": "Showing scenarios for Chapter {chapter}",
+  "@showingScenariosForChapter": {
+    "description": "Filter status message for chapter scenarios",
+    "placeholders": {
+      "chapter": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+
+  "showingScenariosTaggedWith": "Showing scenarios tagged with \"{tag}\"",
+  "@showingScenariosTaggedWith": {
+    "description": "Filter status message for tag-filtered scenarios",
+    "placeholders": {
+      "tag": {
+        "type": "String",
+        "example": "meditation"
+      }
+    }
+  },
+
+  "clearFilter": "Clear Filter",
+  "@clearFilter": {
+    "description": "Button text to clear active filters"
+  },
+
+  "includes": "Includes: ",
+  "@includes": {
+    "description": "Label prefix for category descriptions"
+  },
+
+  "chapter": "Chapter {number}",
+  "@chapter": {
+    "description": "Chapter label with number",
+    "placeholders": {
+      "number": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+
+  "retry": "Retry",
+  "@retry": {
+    "description": "Retry button text for failed operations"
   }
 }

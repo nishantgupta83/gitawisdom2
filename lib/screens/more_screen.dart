@@ -455,8 +455,8 @@ class _MoreScreenState extends State<MoreScreen> {
         });
       }
       
-      // Debounce the actual storage and theme update
-      _settingsDebounceTimer = Timer(const Duration(milliseconds: 150), () {
+      // Minimal debounce to prevent crashes from rapid taps, but keep responsive
+      _settingsDebounceTimer = Timer(const Duration(milliseconds: 50), () {
         _performSettingUpdate(key, value);
       });
     } else {
@@ -467,25 +467,18 @@ class _MoreScreenState extends State<MoreScreen> {
   
   Future<void> _performSettingUpdate(String key, dynamic value) async {
     try {
-      // Update Hive storage asynchronously
-      await Hive.box(SettingsService.boxName).put(key, value);
-      
-      // Update UI state only if widget is still mounted
-      if (!mounted) return;
-      
-      setState(() {
-        if (key == SettingsService.darkKey) _darkMode = value;
-        if (key == SettingsService.musicKey) _musicOn = value;
-        if (key == SettingsService.fontKey) {
-          _fontSize = value;
-          _fontSizeValue = _getFontSizeValue(value);
+      // Fire-and-forget Hive storage (non-blocking for UI responsiveness)
+      // UI was already updated in _toggleSetting(), no need for redundant setState
+      Hive.box(SettingsService.boxName).put(key, value).catchError((e) {
+        debugPrint('❌ Error updating setting $key: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error saving setting: $e')),
+          );
         }
-        if (key == SettingsService.shadowKey) _textShadow = value;
-        if (key == SettingsService.opacityKey) _backgroundOpacity = value;
-        /* MULTILANG_TODO: if (key == SettingsService.langKey) _currentLanguage = value; */
       });
     } catch (e) {
-      debugPrint('❌ Error updating setting $key: $e');
+      debugPrint('❌ Error accessing settings: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error updating setting: $e')),
@@ -880,14 +873,15 @@ class _MoreScreenState extends State<MoreScreen> {
                         ),
                       ),
                     ),
-                    _settingTile(
-                      title: localizations.textShadow,
-                      subtitle: 'Add shadow effect to text',
-                      trailing: Switch(
-                        value: _textShadow,
-                        onChanged: (val) => _toggleSetting(SettingsService.shadowKey, val),
-                      ),
-                    ),
+                    // Text Shadow Setting - TEMPORARILY DISABLED (code preserved for future use)
+                    // _settingTile(
+                    //   title: localizations.textShadow,
+                    //   subtitle: 'Add shadow effect to text',
+                    //   trailing: Switch(
+                    //     value: _textShadow,
+                    //     onChanged: (val) => _toggleSetting(SettingsService.shadowKey, val),
+                    //   ),
+                    // ),
                     _settingTile(
                       title: localizations.backgroundOpacity,
                       subtitle: '${(_backgroundOpacity * 100).round()}% - Adjust background transparency',
@@ -1191,72 +1185,6 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
           ),
           
-          // Floating Back Button
-          Positioned(
-            top: 26,
-            right: 84,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 32,
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Back',
-                ),
-              ),
-            ),
-          ),
-          
-          // Floating Home Button
-          Positioned(
-            top: 26,
-            right: 24,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.home_filled,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 32,
-                  onPressed: () {
-                    // Use proper tab navigation to sync bottom navigation state
-                    NavigationHelper.goToTab(0); // 0 = Home tab index
-                  },
-                  tooltip: 'Home',
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

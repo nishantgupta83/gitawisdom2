@@ -358,8 +358,13 @@ class _VerseListViewState extends State<VerseListView> {
                   ),
                   splashRadius: 32,
                   onPressed: () {
-                    // Use proper tab navigation to sync bottom navigation state
-                    NavigationHelper.goToTab(0); // 0 = Home tab index
+                    try {
+                      // Use proper tab navigation to sync bottom navigation state
+                      NavigationHelper.goToTab(0); // 0 = Home tab index
+                    } catch (e) {
+                      // Fallback navigation if NavigationHelper fails
+                      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
+                    }
                   },
                   tooltip: 'Home',
                 ),

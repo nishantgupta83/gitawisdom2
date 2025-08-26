@@ -8,7 +8,7 @@
 	<true/>
 	<key>com.apple.developer.applesignin</key>
 	<array>
-		<string></string>
+		<string>Default</string>
 	</array>
 	<key>com.apple.security.network.client</key>
 	<true/>

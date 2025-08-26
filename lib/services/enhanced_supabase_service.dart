@@ -12,7 +12,7 @@ import '../models/chapter.dart';
 import '../models/chapter_summary.dart';
 import '../models/scenario.dart';
 import '../models/verse.dart';
-import '../models/daily_quote.dart';
+/* MOVED TO UNUSED: import '../models/daily_quote.dart'; */
 /* MULTILANG_TODO: import '../models/supported_language.dart'; */
 
 /// ---------------------------------------------
@@ -898,6 +898,7 @@ class EnhancedSupabaseService {
   /// MULTILINGUAL DAILY QUOTE METHODS
   /// ========================================================================
 
+  /* MOVED TO UNUSED: DailyQuote functionality
   /// Fetch daily quote with multilingual support
   Future<DailyQuote> fetchRandomDailyQuote([String? langCode]) async {
     /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
@@ -944,6 +945,7 @@ class EnhancedSupabaseService {
       rethrow;
     }
   }
+  */
 
   /// ========================================================================
   /// FALLBACK METHODS (ORIGINAL IMPLEMENTATION)

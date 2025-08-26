@@ -512,13 +512,6 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                 fontWeight: FontWeight.w900,
                                 color: theme.colorScheme.onSurface,
                                 letterSpacing: 1.3,
-                                shadows: [
-                                  Shadow(
-                                    color: Colors.amberAccent.withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 2),
-                                  ),
-                                ],
                               ),
                               textAlign: TextAlign.center,
                              ),

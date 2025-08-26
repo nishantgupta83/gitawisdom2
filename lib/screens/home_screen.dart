@@ -546,13 +546,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         textStyle: theme.textTheme.headlineMedium?.copyWith(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          shadows: [
-                            Shadow(
-                                color: Colors.black.withAlpha((3 * 255).round()),
-                                offset: Offset(0, 2),
-                                blurRadius: 12
-                            ),
-                          ],
                         ),
                       ),
                     ),
@@ -562,19 +555,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     left: 16,
                     bottom: 8,
                     child: Text(
-                      'Apply Gita Teaching to Modern Day Situations',
+                      'Find Wisdom for Any Life Challenge',
                       textAlign: TextAlign.center,
                       style: GoogleFonts.caveatBrush (
                       textStyle: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        shadows: [
-                          Shadow(
-                              color: Colors.black.withAlpha((3 * 255).round()),
-                              offset: Offset(0, 1),
-                              blurRadius: 6
-                          ),
-                        ],
                       ),
                     ),
                     ),
@@ -645,13 +631,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                           : theme.colorScheme.onSurface
                                     ),
                                       fontWeight: FontWeight.bold,
-                                      shadows: [
-                                        Shadow(
-                                            color: Colors.black.withAlpha((3 * 255).round()),
-                                            offset: Offset(0, 1),
-                                            blurRadius: 2
-                                        ),
-                                      ],
                                     ),
                                    ),
                                 const SizedBox(height: 8),
@@ -942,7 +921,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               SizedBox(height: isTablet ? 10 : 6),
                               Text(
-                                'Apply Gita Teaching to Modern Day Situations',
+                                'Find Wisdom for Any Life Challenge',
                                 textAlign: TextAlign.center,
                                 style: GoogleFonts.poppins(
                                   fontSize: isTablet ? 16 : 14.5,
@@ -1338,7 +1317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                             const SizedBox(height: 6),
                             Text(
-                              AppLocalizations.of(context)?.applyGitaTeaching ?? 'Apply Gita teaching to real-life situations',
+                              AppLocalizations.of(context)?.applyGitaTeaching ?? 'Find Wisdom for Any Life Challenge',
                               textAlign: TextAlign.center,
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.onSurface.withOpacity(0.6),
@@ -1547,7 +1526,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(height: 16),
                 ElevatedButton(
                   onPressed: _refreshModernDilemmaScenarios,
-                  child: const Text('Retry'),
+                  child: Text(AppLocalizations.of(context)!.retry),
                 ),
               ],
             ),

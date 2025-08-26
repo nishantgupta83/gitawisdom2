@@ -559,14 +559,14 @@ import 'models/scenario.dart';
 import 'services/daily_verse_service.dart';
 import 'services/scenario_service.dart';
 import 'services/journal_service.dart';
-import 'services/favorites_service.dart';
+/* MOVED TO UNUSED: import 'services/favorites_service.dart'; */
 
 
 import 'models/chapter.dart';
 import 'models/journal_entry.dart';
-import 'models/user_favorite.dart';
+/* MOVED TO UNUSED: import 'models/user_favorite.dart'; */
 /* MULTILANG_TODO: import 'models/supported_language.dart'; */
-import 'models/daily_quote.dart';
+/* MOVED TO UNUSED: import 'models/daily_quote.dart'; */
 import 'widgets/custom_nav_bar.dart';
 import 'services/settings_service.dart';
 import 'services/audio_service.dart';
@@ -645,17 +645,21 @@ Future<void> _initializeAppServices() async {
     if (!Hive.isAdapterRegistered(5)) {
       Hive.registerAdapter(ScenarioAdapter()); // typeId: 5
     }
+    /* MOVED TO UNUSED: UserFavoriteAdapter
     if (!Hive.isAdapterRegistered(6)) {
       Hive.registerAdapter(UserFavoriteAdapter()); // typeId: 6
     }
+    */
     /* MULTILANG_TODO: SupportedLanguage adapter
     if (!Hive.isAdapterRegistered(10)) {
       Hive.registerAdapter(SupportedLanguageAdapter()); // typeId: 10
     }
     */
+    /* MOVED TO UNUSED: DailyQuoteAdapter
     if (!Hive.isAdapterRegistered(11)) {
       Hive.registerAdapter(DailyQuoteAdapter()); // typeId: 11
     }
+    */
 
     // Open boxes with error handling
     if (!Hive.isBoxOpen('chapters')) {
@@ -686,8 +690,8 @@ Future<void> _initializeAppServices() async {
     // Open journal service box
     await JournalService.instance.initialize();
     
-    // Open favorites service box
-    await FavoritesService.instance.initialize();
+    // MOVED TO UNUSED: FavoritesService initialization
+    /* await FavoritesService.instance.initialize(); */
 
     // Initialize Enhanced Supabase Service via Service Locator
     await ServiceLocator.instance.initialize();
@@ -1140,13 +1144,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       style: Theme.of(context).textTheme.headlineLarge?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
-                        shadows: [
-                          const Shadow(
-                            offset: Offset(0, 2),
-                            blurRadius: 4,
-                            color: Colors.black54,
-                          ),
-                        ],
                       ),
                     ),
                     const SizedBox(height: 40),
@@ -1181,7 +1178,7 @@ class RootScaffold extends StatefulWidget {
   State<RootScaffold> createState() => _RootScaffoldState();
 }
 
-class _RootScaffoldState extends State<RootScaffold> {
+class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver {
   static _RootScaffoldState? _instance;
   int _currentIndex = 0;
   int? _pendingChapterFilter; // Store chapter filter to apply to scenarios tab
@@ -1197,89 +1194,69 @@ class _RootScaffoldState extends State<RootScaffold> {
   void initState() {
     super.initState();
     _instance = this;
-    _navigatorKeys = List.generate(4, (_) => GlobalKey<NavigatorState>());
     _initializePages();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    // Reset to home screen when app resumes from background or becomes active
+    if (state == AppLifecycleState.resumed && _currentIndex != 0) {
+      debugPrint('🏠 App resumed - resetting to home screen');
+      _selectTab(0);
+    }
   }
 
   void _initializePages() {
     _pages = [
       HomeScreen(onTabChange: _selectTab),
       ChapterScreen(),
-      ScenariosScreen(filterChapter: _pendingChapterFilter),
+      ScenariosScreen(
+        key: ValueKey('chapter_filter_${_pendingChapterFilter ?? 'all'}'),
+        filterChapter: _pendingChapterFilter,
+      ),
     //  JournalScreen(),
       MoreScreen(),
     ];
   }
+  
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _instance = null;
     super.dispose();
   }
 
   void _selectTab(int index) {
-    if (index == _currentIndex) {
-      // If tapping same tab, pop to root
-      _navigatorKeys[index].currentState?.popUntil((r) => r.isFirst);
-    } else {
-      // Reset navigator state when switching tabs to prevent stale state
-      _navigatorKeys[index] = GlobalKey<NavigatorState>();
-      setState(() => _currentIndex = index);
-    }
+    setState(() {
+      _currentIndex = index;
+    });
   }
   
   void _goToScenariosWithChapter(int chapterId) {
     debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: chapterId=$chapterId');
     _pendingChapterFilter = chapterId;
     
-    // Recreate scenarios screen with new filter
-    _pages[2] = ScenariosScreen(filterChapter: _pendingChapterFilter);
-    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Created new ScenariosScreen with filterChapter=$_pendingChapterFilter');
-    
-    // Create a new navigator key to force the Navigator to rebuild with the new screen
-    _navigatorKeys[2] = GlobalKey<NavigatorState>();
-    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Created new navigator key for scenarios tab');
-    
-    // Trigger a rebuild to use the new ScenariosScreen instance
+    // Update scenarios screen with new filter (use unique key to force rebuild)
     setState(() {
+      _pages[2] = ScenariosScreen(
+        key: ValueKey('chapter_filter_$_pendingChapterFilter'),
+        filterChapter: _pendingChapterFilter,
+      );
       _currentIndex = 2; // Switch to scenarios tab (index 2)
     });
-    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Switched to scenarios tab with setState');
-  }
-
-  late List<GlobalKey<NavigatorState>> _navigatorKeys;
-
-  Widget _buildOffstageNavigator(int idx, Widget screen) {
-    return Offstage(
-      offstage: _currentIndex != idx,
-      child: Navigator(
-        key: _navigatorKeys[idx],
-        onGenerateRoute: (_) => MaterialPageRoute(builder: (_) => screen),
-        // Add a unique key that changes when scenarios screen is updated
-        // This forces Navigator to rebuild when we change the scenarios screen
-      ),
-    );
+    debugPrint('🔧 NavigationHelper._goToScenariosWithChapter: Switched to scenarios tab with filter=$_pendingChapterFilter');
   }
 
   Future<bool> _onWillPop() async {
-    final navigatorState = _navigatorKeys[_currentIndex].currentState;
-    if (navigatorState == null) {
-      // If navigator state is null, just switch to home
-      if (_currentIndex != 0) {
-        setState(() => _currentIndex = 0);
-        return false;
-      }
-      return true;
+    // Simple back navigation - go to home tab if not already there
+    if (_currentIndex != 0) {
+      setState(() => _currentIndex = 0);
+      return false;
     }
-    
-    final isFirst = !await navigatorState.maybePop();
-    if (isFirst) {
-      if (_currentIndex != 0) {
-        setState(() => _currentIndex = 0);
-        return false;
-      }
-      return true;
-    }
-    return false;
+    return true;
   }
 
   @override
@@ -1297,12 +1274,15 @@ class _RootScaffoldState extends State<RootScaffold> {
               child: Image.asset(
                 'assets/images/app_bg.png',
                 fit: BoxFit.cover,
-                color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+                color: isDark ? Color.fromARGB((0.32 * 255).toInt(), 0, 0, 0) : null, // Using Color.fromARGB instead of withAlpha
                 colorBlendMode: isDark ? BlendMode.darken : null,
               ),
             ),
-            // Pages stack
-            ...List.generate(_pages.length, (i) => _buildOffstageNavigator(i, _pages[i])),
+            // Simple IndexedStack for tab navigation - eliminates Navigator issues
+            IndexedStack(
+              index: _currentIndex,
+              children: _pages,
+            ),
           ],
         ),
         bottomNavigationBar: CustomNavBar(

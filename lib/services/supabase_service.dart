@@ -11,7 +11,7 @@ import '../models/chapter.dart';
 import '../models/chapter_summary.dart';
 import '../models/scenario.dart';
 import '../models/verse.dart';
-import '../models/daily_quote.dart';
+/* MOVED TO UNUSED: import '../models/daily_quote.dart'; */
 
 class SupabaseService {
   /// Shared Supabase client
@@ -256,6 +256,7 @@ class SupabaseService {
     }
   }
   
+  /* MOVED TO UNUSED: DailyQuote functionality
   /// Fetch a random daily quote
   Future<DailyQuote> fetchRandomDailyQuote() async {
     try {
@@ -274,6 +275,7 @@ class SupabaseService {
       rethrow;
     }
   }
+  */
 
   /// Insert a journal entry to Supabase
   Future<void> insertJournalEntry(JournalEntry entry) async {

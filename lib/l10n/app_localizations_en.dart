@@ -39,8 +39,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get showWisdom => 'Show Wisdom';
 
   @override
-  String get applyGitaTeaching =>
-      'Apply Gita Teaching to Modern Day Situations';
+  String get applyGitaTeaching => 'Find Wisdom for Any Life Challenge';
 
   @override
   String viewScenarios(int count) {
@@ -259,13 +258,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get overview => 'Overview';
 
   @override
-  String get immersiveKnowledge => 'Immerse into the ocean of knowledge';
+  String get immersiveKnowledge => 'Discover Wisdom for Any Life Challenge';
 
   @override
   String get lifeScenarios => 'LIFE SCENARIOS';
 
   @override
-  String get applyGitaWisdom => 'Apply Gita wisdom to real-world situations';
+  String get applyGitaWisdom => 'Find Wisdom for Any Life Challenge';
 
   @override
   String get back => 'Back';
@@ -355,4 +354,38 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pleaseSelectRating => 'Please select a rating';
+
+  @override
+  String chapterScenarios(int chapter) {
+    return 'CHAPTER $chapter SCENARIOS';
+  }
+
+  @override
+  String chapterScenariosSubtitle(int chapter) {
+    return 'Scenarios from Bhagavad Gita Chapter $chapter';
+  }
+
+  @override
+  String showingScenariosForChapter(int chapter) {
+    return 'Showing scenarios for Chapter $chapter';
+  }
+
+  @override
+  String showingScenariosTaggedWith(String tag) {
+    return 'Showing scenarios tagged with \"$tag\"';
+  }
+
+  @override
+  String get clearFilter => 'Clear Filter';
+
+  @override
+  String get includes => 'Includes: ';
+
+  @override
+  String chapter(int number) {
+    return 'Chapter $number';
+  }
+
+  @override
+  String get retry => 'Retry';
 }

@@ -71,15 +71,22 @@ class _PillNavBar extends StatelessWidget {
     final theme = Theme.of(context);
     final isTablet = media.size.width > 600;
     final isLandscape = media.orientation == Orientation.landscape;
+    
+    // Get text scale factor for accessibility support
+    final textScaler = media.textScaler;
 
-    // Responsive sizing - reduced heights
+    // Responsive sizing - increased height for better visibility
     final double barHeight = isLandscape
-        ? (media.size.height < 400 ? 54 : 60)
-        : (isTablet ? 70 : 64);
+        ? (media.size.height < 400 ? 56 : 64) // Increased landscape heights
+        : (isTablet ? 70 : 66); // Increased portrait heights
     final double horizontalPad = isLandscape ? 60 : (isTablet ? 40 : 20);
 
-    final Color backgroundColor =
-    theme.colorScheme.surface.withOpacity(0.85);
+    final Color backgroundColor = Color.fromARGB(
+      (0.85 * 255).round(),
+      theme.colorScheme.surface.red,
+      theme.colorScheme.surface.green,
+      theme.colorScheme.surface.blue
+    );
     final Color selectedColor = theme.colorScheme.surface;
     final Color iconColor = theme.colorScheme.onSurface;
 
@@ -88,7 +95,7 @@ class _PillNavBar extends StatelessWidget {
         padding: EdgeInsets.only(
           left: horizontalPad,
           right: horizontalPad,
-          bottom: math.max(media.padding.bottom, 4), // Reduced padding to minimize wasted space
+          bottom: 8, // Fixed minimal padding - eliminates excessive safe area spacing
           top: 4, // Reduced from 8 to 4
         ),
         child: Container(
@@ -98,7 +105,7 @@ class _PillNavBar extends StatelessWidget {
             borderRadius: BorderRadius.circular(barHeight / 2),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.12),
+                color: Color.fromARGB((0.12 * 255).round(), 0, 0, 0),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -117,10 +124,10 @@ class _PillNavBar extends StatelessWidget {
                     constraints: BoxConstraints(
                       minWidth: selected ? (isTablet ? 100 : 80) : (isTablet ? 80 : 64),
                       minHeight: 44,
-                      maxHeight: barHeight - 8,
+                      maxHeight: barHeight - (isLandscape ? 4 : 8), // Less height reduction in landscape
                     ),
                     margin: EdgeInsets.symmetric(
-                      vertical: selected ? 4 : 8,
+                      vertical: selected ? (isLandscape ? 2 : 4) : (isLandscape ? 4 : 8), // Reduced in landscape
                       horizontal: selected ? 8 : 4,
                     ),
                     decoration: selected
@@ -129,7 +136,7 @@ class _PillNavBar extends StatelessWidget {
                       borderRadius: BorderRadius.circular(22),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.14),
+                          color: Color.fromARGB((0.14 * 255).round(), 0, 0, 0),
                           blurRadius: 12,
                           offset: const Offset(0, 2),
                         ),
@@ -144,23 +151,24 @@ class _PillNavBar extends StatelessWidget {
                           items[i].icon,
                           size: isTablet ? 30 : 28,
                           color: selected
-                              ? iconColor.withAlpha((0.98 * 255).round())
-                              : iconColor.withAlpha((0.62 * 255).round()),
+                              ? Color.fromARGB((0.98 * 255).round(), iconColor.red, iconColor.green, iconColor.blue)
+                              : Color.fromARGB((0.62 * 255).round(), iconColor.red, iconColor.green, iconColor.blue),
                         ),
-                        SizedBox(height: isTablet ? 3 : 1),
+                        SizedBox(height: isTablet ? 3 : (isLandscape ? 0 : 1)), // No spacing in landscape on phones
                         Flexible(
                           child: Text(
                             items[i].label,
                             style: TextStyle(
                               color: selected
-                                  ? iconColor.withAlpha((0.98 * 255).round())
-                                  : iconColor.withAlpha((0.57 * 255).round()),
+                                  ? Color.fromARGB((0.98 * 255).round(), iconColor.red, iconColor.green, iconColor.blue)
+                                  : Color.fromARGB((0.95 * 255).round(), iconColor.red, iconColor.green, iconColor.blue), // Increased opacity for better visibility
                               fontWeight: selected
-                                  ? FontWeight.w200
-                                  : FontWeight.bold,
-                              fontSize: isTablet ? 14 : 13,
+                                  ? FontWeight.w700  // Bolder for selected
+                                  : FontWeight.w600, // Bolder for unselected for better visibility
+                              fontSize: textScaler.scale(isTablet ? 14 : (isLandscape ? 12 : 13)), // Scale with accessibility settings
                             ),
                             overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
                       ],
@@ -196,23 +204,36 @@ class _DevToNavBar extends StatelessWidget {
     final theme      = Theme.of(context);
     final isTablet   = media.size.width > 600;
     final isLandscape = media.orientation == Orientation.landscape;
+    
+    // Get text scale factor for accessibility support
+    final textScaler = media.textScaler;
 
-    // Match Pill's responsive sizing - reduced heights
+    // Match Pill's responsive sizing - optimized for minimal height
     final double barHeight = isLandscape
-        ? (media.size.height < 400 ? 54 : 60)
-        : (isTablet ? 70 : 64);
+        ? (media.size.height < 400 ? 48 : 54)
+        : (isTablet ? 62 : 56);
     final double horizontalPad = isLandscape ? 60 : (isTablet ? 40 : 20);
 
-    final Color backgroundColor   = theme.colorScheme.surface.withOpacity(0.85);
+    final Color backgroundColor   = Color.fromARGB(
+      (0.85 * 255).round(),
+      theme.colorScheme.surface.red,
+      theme.colorScheme.surface.green,
+      theme.colorScheme.surface.blue
+    );
     final Color selectedColor     = theme.colorScheme.primary;
-    final Color unselectedColor   = theme.colorScheme.onSurface.withOpacity(0.6);
+    final Color unselectedColor   = Color.fromARGB(
+      (0.6 * 255).round(),
+      theme.colorScheme.onSurface.red,
+      theme.colorScheme.onSurface.green,
+      theme.colorScheme.onSurface.blue
+    );
 
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
           left: horizontalPad,
           right: horizontalPad,
-          bottom: math.max(media.padding.bottom, 4), // Reduced padding to minimize wasted space
+          bottom: 8, // Fixed minimal padding - eliminates excessive safe area spacing
           top: 4, // Reduced from 8 to 4
         ),
         child: Container(
@@ -220,7 +241,12 @@ class _DevToNavBar extends StatelessWidget {
           decoration: BoxDecoration(
             color: backgroundColor,
             border: Border(top: BorderSide(
-              color: theme.colorScheme.outline.withOpacity(0.2),
+              color: Color.fromARGB(
+                (0.2 * 255).round(),
+                theme.colorScheme.outline.red,
+                theme.colorScheme.outline.green,
+                theme.colorScheme.outline.blue
+              ),
               width: 0.5,
             )),
           ),
@@ -238,10 +264,15 @@ class _DevToNavBar extends StatelessWidget {
                       minWidth: selected ? (isTablet ? 100 : 80) : (isTablet ? 80 : 64),
                       minHeight: barHeight,
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    padding: EdgeInsets.symmetric(vertical: isLandscape ? 4 : 8), // Less vertical padding in landscape
                     margin: EdgeInsets.symmetric(horizontal: selected ? 8 : 4),
                     decoration: BoxDecoration(
-                      color: selected ? selectedColor.withOpacity(0.1) : Colors.transparent,
+                      color: selected ? Color.fromARGB(
+                        (0.1 * 255).round(),
+                        selectedColor.red,
+                        selectedColor.green,
+                        selectedColor.blue
+                      ) : Colors.transparent,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Column(
@@ -252,15 +283,23 @@ class _DevToNavBar extends StatelessWidget {
                           color: selected ? selectedColor : unselectedColor,
                           size: isTablet ? 26 : 24,
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: isLandscape ? 2 : 4), // Less spacing in landscape
                         Text(
                           items[i].label,
                           style: TextStyle(
-                            color: selected ? selectedColor : unselectedColor,
-                            fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-                            fontSize: isTablet ? 13 : 12,
+                            color: selected 
+                                ? selectedColor 
+                                : Color.fromARGB(
+                                    (0.9 * 255).round(), 
+                                    unselectedColor.red, 
+                                    unselectedColor.green, 
+                                    unselectedColor.blue
+                                  ), // Using Color.fromARGB instead of withOpacity
+                            fontWeight: selected ? FontWeight.w600 : FontWeight.w500, // Slightly bolder for unselected
+                            fontSize: textScaler.scale(isTablet ? 13 : (isLandscape ? 11 : 12)), // Scale with accessibility settings
                           ),
                           overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
                         const SizedBox(height: 2),
                         AnimatedContainer(
@@ -305,20 +344,25 @@ class _FloatingNavBar extends StatelessWidget {
     final isLandscape = media.orientation == Orientation.landscape;
 
     final double barHeight = isLandscape
-        ? (media.size.height < 400 ? 54 : 60)
-        : (isTablet ? 70 : 64);
+        ? (media.size.height < 400 ? 48 : 54)
+        : (isTablet ? 62 : 56);
     final double horizontalPad = isLandscape ? 60 : (isTablet ? 40 : 20);
 
-    final Color backgroundColor = theme.colorScheme.surface.withOpacity(0.85);
+    final Color backgroundColor = Color.fromARGB(
+      (0.85 * 255).round(), 
+      theme.colorScheme.surface.red, 
+      theme.colorScheme.surface.green, 
+      theme.colorScheme.surface.blue
+    );
     final Color selectedColor   = theme.colorScheme.primary;
-    final Color shadowColor     = Colors.black.withOpacity(0.15);
+    final Color shadowColor     = Color.fromARGB((0.15 * 255).round(), 0, 0, 0);
 
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
           left: horizontalPad,
           right: horizontalPad,
-          bottom: math.max(media.padding.bottom, 4), // Reduced padding to minimize wasted space
+          bottom: 8, // Fixed minimal padding - eliminates excessive safe area spacing
           top: 4, // Reduced from 8 to 4
         ),
         child: Container(
@@ -364,7 +408,12 @@ class _FloatingNavBar extends StatelessWidget {
                       items[i].icon,
                       color: selected
                           ? Colors.white
-                          : theme.colorScheme.onSurface.withOpacity(0.7),
+                          : Color.fromARGB(
+                              (0.7 * 255).round(),
+                              theme.colorScheme.onSurface.red,
+                              theme.colorScheme.onSurface.green,
+                              theme.colorScheme.onSurface.blue
+                            ),
                       size: isTablet ? 26 : 24,
                     ),
                   ),

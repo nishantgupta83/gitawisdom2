@@ -18,6 +18,18 @@ class SettingsService extends ChangeNotifier {
     if (!Hive.isBoxOpen(boxName)) {
       await Hive.openBox(boxName);
     }
+    
+    // Set default settings only on first app install (not every startup)
+    final box = Hive.box(boxName);
+    const firstRunKey = 'first_run_completed';
+    
+    if (!box.containsKey(firstRunKey)) {
+      // First time app is installed - set preferred defaults
+      await box.put(darkKey, false);  // Start in light mode
+      await box.put(musicKey, true);  // Start with music enabled
+      await box.put(firstRunKey, true);  // Mark first run as completed
+      debugPrint('🎯 First app install - set default: light mode, music enabled');
+    }
   }
 
   final Box _box = Hive.box(boxName);

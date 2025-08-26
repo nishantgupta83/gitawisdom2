@@ -5,21 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
-import 'app_localizations_bn.dart';
-import 'app_localizations_de.dart';
 import 'app_localizations_en.dart';
-import 'app_localizations_es.dart';
-import 'app_localizations_fr.dart';
-import 'app_localizations_gu.dart';
-import 'app_localizations_hi.dart';
-import 'app_localizations_it.dart';
-import 'app_localizations_kn.dart';
-import 'app_localizations_mr.dart';
-import 'app_localizations_pt.dart';
-import 'app_localizations_ru.dart';
-import 'app_localizations_sa.dart';
-import 'app_localizations_ta.dart';
-import 'app_localizations_te.dart';
 
 // ignore_for_file: type=lint
 
@@ -106,23 +92,7 @@ abstract class AppLocalizations {
   ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[
-    Locale('bn'),
-    Locale('de'),
-    Locale('en'),
-    Locale('es'),
-    Locale('fr'),
-    Locale('gu'),
-    Locale('hi'),
-    Locale('it'),
-    Locale('kn'),
-    Locale('mr'),
-    Locale('pt'),
-    Locale('ru'),
-    Locale('sa'),
-    Locale('ta'),
-    Locale('te')
-  ];
+  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
 
   /// The title of the application
   ///
@@ -187,7 +157,7 @@ abstract class AppLocalizations {
   /// Subtitle text describing app purpose
   ///
   /// In en, this message translates to:
-  /// **'Apply Gita Teaching to Modern Day Situations'**
+  /// **'Find Wisdom for Any Life Challenge'**
   String get applyGitaTeaching;
 
   /// Button text to view all scenarios with count
@@ -601,7 +571,7 @@ abstract class AppLocalizations {
   /// Subtitle for chapters screen
   ///
   /// In en, this message translates to:
-  /// **'Immerse into the ocean of knowledge'**
+  /// **'Discover Wisdom for Any Life Challenge'**
   String get immersiveKnowledge;
 
   /// Header title for scenarios screen
@@ -613,7 +583,7 @@ abstract class AppLocalizations {
   /// Subtitle for scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'Apply Gita wisdom to real-world situations'**
+  /// **'Find Wisdom for Any Life Challenge'**
   String get applyGitaWisdom;
 
   /// Back button tooltip
@@ -783,6 +753,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Please select a rating'**
   String get pleaseSelectRating;
+
+  /// Title for chapter-specific scenarios screen
+  ///
+  /// In en, this message translates to:
+  /// **'CHAPTER {chapter} SCENARIOS'**
+  String chapterScenarios(int chapter);
+
+  /// Subtitle for chapter-specific scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Scenarios from Bhagavad Gita Chapter {chapter}'**
+  String chapterScenariosSubtitle(int chapter);
+
+  /// Filter status message for chapter scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Showing scenarios for Chapter {chapter}'**
+  String showingScenariosForChapter(int chapter);
+
+  /// Filter status message for tag-filtered scenarios
+  ///
+  /// In en, this message translates to:
+  /// **'Showing scenarios tagged with \"{tag}\"'**
+  String showingScenariosTaggedWith(String tag);
+
+  /// Button text to clear active filters
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Filter'**
+  String get clearFilter;
+
+  /// Label prefix for category descriptions
+  ///
+  /// In en, this message translates to:
+  /// **'Includes: '**
+  String get includes;
+
+  /// Chapter label with number
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {number}'**
+  String chapter(int number);
+
+  /// Retry button text for failed operations
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
 }
 
 class _AppLocalizationsDelegate
@@ -795,23 +813,8 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) => <String>[
-        'bn',
-        'de',
-        'en',
-        'es',
-        'fr',
-        'gu',
-        'hi',
-        'it',
-        'kn',
-        'mr',
-        'pt',
-        'ru',
-        'sa',
-        'ta',
-        'te'
-      ].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -820,36 +823,8 @@ class _AppLocalizationsDelegate
 AppLocalizations lookupAppLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'bn':
-      return AppLocalizationsBn();
-    case 'de':
-      return AppLocalizationsDe();
     case 'en':
       return AppLocalizationsEn();
-    case 'es':
-      return AppLocalizationsEs();
-    case 'fr':
-      return AppLocalizationsFr();
-    case 'gu':
-      return AppLocalizationsGu();
-    case 'hi':
-      return AppLocalizationsHi();
-    case 'it':
-      return AppLocalizationsIt();
-    case 'kn':
-      return AppLocalizationsKn();
-    case 'mr':
-      return AppLocalizationsMr();
-    case 'pt':
-      return AppLocalizationsPt();
-    case 'ru':
-      return AppLocalizationsRu();
-    case 'sa':
-      return AppLocalizationsSa();
-    case 'ta':
-      return AppLocalizationsTa();
-    case 'te':
-      return AppLocalizationsTe();
   }
 
   throw FlutterError(

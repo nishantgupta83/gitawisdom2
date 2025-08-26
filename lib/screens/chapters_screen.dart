@@ -69,6 +69,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final localizations = AppLocalizations.of(context);
+    final textScaler = MediaQuery.of(context).textScaler;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -79,7 +80,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
             child: Image.asset(
               'assets/images/app_bg.png',
               fit: BoxFit.cover,
-              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
+              color: isDark ? Color.fromARGB((0.32 * 255).toInt(), 0, 0, 0) : null,
               colorBlendMode: isDark ? BlendMode.darken : null,
             ),
           ),
@@ -103,7 +104,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                               const SizedBox(height: 16),
                               ElevatedButton(
                                 onPressed: _loadChapters,
-                                child: const Text('Retry'),
+                                child: Text(AppLocalizations.of(context)!.retry),
                               ),
                             ],
                           ),
@@ -111,7 +112,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                       : _chapters.isEmpty
                           ? Center(
                               child: Text(
-                                'No chapters available.',
+                                AppLocalizations.of(context)!.noChaptersAvailable,
                                 style: GoogleFonts.poppins(color: theme.colorScheme.onSurface),
                               ),
                             )
@@ -144,7 +145,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                       Text(
                                         AppLocalizations.of(context)!.gitaChapters,
                                         style: GoogleFonts.poiretOne(
-                                          fontSize: 30,
+                                          fontSize: textScaler.scale(30),
                                           fontWeight: FontWeight.w800,
                                           color: theme.colorScheme.onSurface,
                                           letterSpacing: 1.3,
@@ -161,7 +162,12 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                           gradient: LinearGradient(
                                             colors: [
                                               theme.colorScheme.primary,
-                                              theme.colorScheme.primary.withOpacity(0.6),
+                                              Color.fromARGB(
+                                                (0.6 * 255).round(),
+                                                theme.colorScheme.primary.red,
+                                                theme.colorScheme.primary.green,
+                                                theme.colorScheme.primary.blue
+                                              ),
                                             ],
                                           ),
                                           borderRadius: BorderRadius.circular(2),
@@ -171,8 +177,13 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                       Text(
                                         AppLocalizations.of(context)!.immersiveKnowledge,
                                         style: GoogleFonts.poppins(
-                                          fontSize: 14,
-                                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                          fontSize: textScaler.scale(14),
+                                          color: Color.fromARGB(
+                                            (0.7 * 255).round(),
+                                            theme.colorScheme.onSurface.red,
+                                            theme.colorScheme.onSurface.green,
+                                            theme.colorScheme.onSurface.blue
+                                          ),
                                           letterSpacing: 0.8,
                                         ),
                                         textAlign: TextAlign.center,
@@ -191,7 +202,11 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                         borderRadius: BorderRadius.circular(22),
                                       ),
                                       color: theme.colorScheme.surface,
-                                      shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+                                      shadowColor: Color.fromARGB((0.12 * 255).toInt(), 
+                                        theme.colorScheme.primary.red,
+                                        theme.colorScheme.primary.green,
+                                        theme.colorScheme.primary.blue
+                                      ),
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(22),
                                         onTap: () {
@@ -228,7 +243,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                       child: Text(
                                                         '${ch.chapterId}',
                                                         style: GoogleFonts.poppins(
-                                                          fontSize: 16,
+                                                          fontSize: textScaler.scale(16),
                                                           fontWeight: FontWeight.bold,
                                                           color: Colors.white,
                                                         ),
@@ -245,7 +260,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                         Text(
                                                           ch.title,
                                                           style: GoogleFonts.poppins(
-                                                            fontSize: 16,
+                                                            fontSize: textScaler.scale(16),
                                                             fontWeight: FontWeight.w600,
                                                             color: theme.colorScheme.onSurface,
                                                           ),
@@ -257,8 +272,13 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                           Text(
                                                             ch.subtitle!,
                                                             style: GoogleFonts.poppins(
-                                                              fontSize: 13,
-                                                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                              fontSize: textScaler.scale(13),
+                                                              color: Color.fromARGB(
+                                                                (0.7 * 255).round(),
+                                                                theme.colorScheme.onSurface.red,
+                                                                theme.colorScheme.onSurface.green,
+                                                                theme.colorScheme.onSurface.blue
+                                                              ),
                                                             ),
                                                             maxLines: 2,
                                                             overflow: TextOverflow.ellipsis,
@@ -284,13 +304,13 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                 mainAxisAlignment: MainAxisAlignment.end,
                                                 children: [
                                                   _buildCountChip(
-                                                    '${ch.verseCount} verses',
+                                                    '${ch.verseCount} ${AppLocalizations.of(context)!.versesCount}',
                                                     Icons.book_outlined,
                                                     theme,
                                                   ),
                                                   const SizedBox(width: 8),
                                                   _buildCountChip(
-                                                    '${ch.scenarioCount} scenarios',
+                                                    '${ch.scenarioCount} ${AppLocalizations.of(context)!.scenariosCount}',
                                                     Icons.lightbulb_outline,
                                                     theme,
                                                   ),
@@ -375,7 +395,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                     // Use proper tab navigation to sync bottom navigation state
                     NavigationHelper.goToTab(0); // 0 = Home tab index
                   },
-                  tooltip: 'Home',
+                  tooltip: AppLocalizations.of(context)!.home,
                 ),
               ),
             ),
@@ -409,7 +429,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
           Text(
             text,
             style: GoogleFonts.poppins(
-              fontSize: 12,
+              fontSize: MediaQuery.of(context).textScaler.scale(12), // Using MediaQuery directly since textScaler isn't in scope here
               color: theme.colorScheme.primary,
               fontWeight: FontWeight.w500,
             ),

@@ -392,7 +392,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         children: [
                           Text(
                             _selectedChapter != null 
-                                ? 'CHAPTER $_selectedChapter SCENARIOS'
+                                ? AppLocalizations.of(context)!.chapterScenarios(_selectedChapter!)
                                 : AppLocalizations.of(context)!.lifeScenarios,
                             style: GoogleFonts.poiretOne(
                               fontSize: 26,
@@ -421,7 +421,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           const SizedBox(height: 8),
                           Text(
                             _selectedChapter != null
-                                ? 'Scenarios from Bhagavad Gita Chapter $_selectedChapter'
+                                ? AppLocalizations.of(context)!.chapterScenariosSubtitle(_selectedChapter!)
                                 : AppLocalizations.of(context)!.applyGitaWisdom,
                             style: GoogleFonts.poppins(
                               fontSize: 14,
@@ -479,9 +479,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           Expanded(
                             child: Text(
                               _selectedChapter != null
-                                  ? 'Showing scenarios for Chapter $_selectedChapter'
+                                  ? AppLocalizations.of(context)!.showingScenariosForChapter(_selectedChapter!)
                                   : _selectedFilter.startsWith('Tag:')
-                                      ? 'Showing scenarios tagged with "${_selectedFilter.substring(4)}"'
+                                      ? AppLocalizations.of(context)!.showingScenariosTaggedWith(_selectedFilter.substring(4))
                                       : 'Showing $_selectedFilter scenarios',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: theme.colorScheme.primary,
@@ -500,7 +500,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               _loadScenarios(); // Reload all scenarios
                             },
                             child: Text(
-                              'Clear Filter',
+                              AppLocalizations.of(context)!.clearFilter,
                               style: TextStyle(
                                 color: theme.colorScheme.secondary,
                                 fontSize: 12,
@@ -622,7 +622,16 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                 splashRadius: 32,
                 onPressed: () {
                   // Use proper tab navigation to sync bottom navigation state
-                  NavigationHelper.goToTab(0); // 0 = Home tab index
+                  try {
+                    NavigationHelper.goToTab(0); // 0 = Home tab index
+                  } catch (e) {
+                    debugPrint('Home button error: $e');
+                    // Fallback navigation
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const RootScaffold()),
+                      (route) => false,
+                    );
+                  }
                 },
                 tooltip: AppLocalizations.of(context)!.home,
               ),
@@ -681,7 +690,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     Flexible(
                       flex: 2,
                       child: Text(
-                        'Chapter ${scenario.chapter}',
+                        AppLocalizations.of(context)!.chapter(scenario.chapter),
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.7),
                         ),
@@ -730,6 +739,27 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       isDynamic: true,
     ),
     CategoryFilter(
+      id: 'Modern Living',
+      nameKey: 'modern_living',
+      icon: Icons.phone_android,
+      color: Colors.blueGrey.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Parenting & Family',
+      nameKey: 'parenting_family',
+      icon: Icons.family_restroom,
+      color: Colors.orange.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
+      id: 'Health & Wellness',
+      nameKey: 'health_wellness',
+      icon: Icons.health_and_safety,
+      color: Colors.green.shade600,
+      isDynamic: true,
+    ),
+    CategoryFilter(
       id: 'Work & Career',
       nameKey: 'work_career',
       icon: Icons.work,
@@ -741,13 +771,6 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       nameKey: 'relationships',
       icon: Icons.people,
       color: Colors.pink.shade600,
-      isDynamic: true,
-    ),
-    CategoryFilter(
-      id: 'Parenting & Family',
-      nameKey: 'parenting_family',
-      icon: Icons.family_restroom,
-      color: Colors.orange.shade600,
       isDynamic: true,
     ),
     CategoryFilter(
@@ -772,13 +795,6 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       isDynamic: true,
     ),
     CategoryFilter(
-      id: 'Health & Wellness',
-      nameKey: 'health_wellness',
-      icon: Icons.health_and_safety,
-      color: Colors.green.shade600,
-      isDynamic: true,
-    ),
-    CategoryFilter(
       id: 'Financial',
       nameKey: 'financial',
       icon: Icons.attach_money,
@@ -790,13 +806,6 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       nameKey: 'education_learning',
       icon: Icons.school,
       color: Colors.deepPurple.shade600,
-      isDynamic: true,
-    ),
-    CategoryFilter(
-      id: 'Modern Living',
-      nameKey: 'modern_living',
-      icon: Icons.phone_android,
-      color: Colors.blueGrey.shade600,
       isDynamic: true,
     ),
   ];
@@ -968,21 +977,17 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                   ),
                   children: [
                     TextSpan(
-                      text: 'Includes: ',
+                      text: AppLocalizations.of(context)!.includes,
                       style: TextStyle(
                         fontWeight: FontWeight.w700, // Bold for "Includes:" label
-                        color: theme.brightness == Brightness.light
-                            ? mainCategory.color.withOpacity(0.95)
-                            : mainCategory.color.withOpacity(0.9),
+                        color: Colors.white, // White as requested by user
                       ),
                     ),
                     TextSpan(
                       text: description,
                       style: TextStyle(
                         fontWeight: FontWeight.w600, // Increased weight for description
-                        color: theme.brightness == Brightness.light
-                            ? theme.colorScheme.onSurface.withOpacity(0.9)
-                            : theme.colorScheme.onSurface.withOpacity(0.85),
+                        color: Colors.white.withOpacity(0.9), // White with slight transparency
                       ),
                     ),
                   ],
