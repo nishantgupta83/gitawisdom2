@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/nishantgupta/Documents/GitaGyan/OldWisdom/**)",
+      "Bash(flutter doctor:*)",
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "Bash(flutter pub:*)",
+      "Bash(flutter analyze:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(flutter clean:*)",
+      "Bash(flutter build:*)",
+      "Bash(flutter run:*)",
+      "Bash(sed:*)",
+      "WebSearch",
+      "WebFetch(domain:play.google.com)",
+      "WebFetch(domain:bhagavadgita.io)",
+      "Read(//Users/nishantgupta/Desktop/**)",
+      "Bash(flutter:*)",
+      "Bash(killall:*)",
+      "Bash(nc localhost 57854)",
+      "Read(//Users/nishantgupta/Documents/GitaGyan/**)",
+      "Bash(grep:*)",
+      "Bash(git checkout:*)",
+      "Bash(pkill:*)",
+      "Bash(xcrun simctl boot:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

@@ -57,8 +57,8 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
 
   Future<void> _doSave() async {
     final text = _ctrl.text.trim();
-    if (text.isEmpty) return;
-    
+    if (text.isEmpty || _saving) return;
+
     // Rating is now defaulted to 3, so no validation needed
     // if (_rating == 0) {
     //   ScaffoldMessenger.of(context).showSnackBar(
@@ -66,7 +66,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
     //   );
     //   return;
     // }
-    
+
     setState(() => _saving = true);
 
     try {
@@ -180,25 +180,66 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
                       maxLines: 4,
                     ),
                     const SizedBox(height: 16),
-                    
-                    // Category Dropdown with spiritual context
-                    DropdownButtonFormField<String>(
-                      value: _selectedCategoryKey,
-                      decoration: InputDecoration(
-                        labelText: localizations.category,
-                        helperText: _getCategoryHint(_selectedCategoryKey),
-                        helperMaxLines: 2,
+
+                    // Category label
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        localizations.category,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
                       ),
-                      items: _categoryKeys.map((categoryKey) {
+                    ),
+                    const SizedBox(height: 8),
+
+                    // Category Capsule Buttons
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [
+                        'categoryPersonalGrowth',
+                        'categoryDailyReflection',
+                        'categoryMeditation',
+                        'categoryGeneral',
+                      ].map((categoryKey) {
+                        final isSelected = _selectedCategoryKey == categoryKey;
                         final categoryValue = _getCategoryValue(localizations, categoryKey);
-                        return DropdownMenuItem(
-                          value: categoryKey,
-                          child: Text(categoryValue),
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: _saving ? null : () {
+                              setState(() => _selectedCategoryKey = categoryKey);
+                            },
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.surfaceVariant,
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.outline.withOpacity(0.3),
+                                  width: 1.5,
+                                ),
+                              ),
+                              child: Text(
+                                categoryValue,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: isSelected
+                                      ? theme.colorScheme.onPrimary
+                                      : theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ),
                         );
                       }).toList(),
-                      onChanged: _saving ? null : (value) {
-                        setState(() => _selectedCategoryKey = value!);
-                      },
                     ),
                     const SizedBox(height: 16),
                     

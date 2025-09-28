@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
-import '../main.dart';
+import '../core/navigation/navigation_service.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -425,7 +425,7 @@ class AboutScreen extends StatelessWidget {
                   splashRadius: 32,
                   onPressed: () {
                     // Use proper tab navigation to sync bottom navigation state
-                    NavigationHelper.goToTab(0); // 0 = Home tab index
+                    NavigationService.instance.goToTab(0); // 0 = Home tab index
                   },
                   tooltip: 'Home',
                 ),

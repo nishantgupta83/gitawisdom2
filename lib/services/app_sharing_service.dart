@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/services.dart';
 
 /// Service for sharing the app with proper store links
 /// 
@@ -115,11 +116,11 @@ Download: $storeUrl''';
 
 ⚖️ Duty demands: $dutyResponse
 
-📖 Ancient wisdom: $wisdom''';
+''';
 
-    // Add wisdom steps if available
+    // Add guidance steps if available
     if (actionSteps != null && actionSteps.isNotEmpty) {
-      message += '\n\n🔮 Wisdom Steps:';
+      message += '\n\n🔮 Guidance Steps:';
       for (int i = 0; i < actionSteps.length; i++) {
         message += '\n${i + 1}. ${actionSteps[i]}';
       }
@@ -133,14 +134,141 @@ Download: $storeUrl''';
   /// Share a Gita verse
   Future<void> shareVerse(String verseText, String chapter, String verseNumber) async {
     final message = '''
-📜 Daily Wisdom from Bhagavad Gita
+📜 Daily Guidance from Bhagavad Gita
 
 Chapter $chapter, Verse $verseNumber:
 "$verseText"
 
 Find daily inspiration and 700+ verses with $_appName.''';
-    
+
     await shareFeature('Daily Verses', message);
+  }
+
+  /// Share content directly to WhatsApp
+  ///
+  /// [message] - The message to share on WhatsApp
+  /// [phoneNumber] - Optional phone number to send to specific contact
+  Future<bool> shareToWhatsApp(String message, {String? phoneNumber}) async {
+    try {
+      // Encode the message for URL
+      final encodedMessage = Uri.encodeComponent(message);
+
+      String whatsappUrl;
+      if (phoneNumber != null && phoneNumber.isNotEmpty) {
+        // Share to specific contact
+        final cleanPhone = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+        whatsappUrl = 'https://wa.me/$cleanPhone?text=$encodedMessage';
+      } else {
+        // Open WhatsApp with message (user can choose contact)
+        whatsappUrl = 'https://wa.me/?text=$encodedMessage';
+      }
+
+      final uri = Uri.parse(whatsappUrl);
+
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        debugPrint('📱 Shared to WhatsApp successfully');
+        return true;
+      } else {
+        debugPrint('❌ WhatsApp not installed or URL cannot be launched');
+        // Fallback to regular sharing
+        await Share.share(message, subject: '$_appName - Shared via WhatsApp');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('❌ Error sharing to WhatsApp: $e');
+      // Fallback to regular sharing
+      try {
+        await Share.share(message, subject: '$_appName - Shared via WhatsApp');
+        return false;
+      } catch (shareError) {
+        debugPrint('❌ Fallback sharing also failed: $shareError');
+        return false;
+      }
+    }
+  }
+
+  /// Share scenario to WhatsApp with formatted message
+  Future<bool> shareScenarioToWhatsApp(String scenarioTitle, String heartResponse, String dutyResponse, String wisdom, {List<String>? actionSteps}) async {
+    String message = '''🎭 *GitaWisdom Daily Dilemma*
+
+*Situation:* $scenarioTitle
+
+❤️ *Heart says:* $heartResponse
+
+⚖️ *Duty demands:* $dutyResponse
+
+🔮 *Ancient Wisdom:* $wisdom''';
+
+    // Add guidance steps if available
+    if (actionSteps != null && actionSteps.isNotEmpty) {
+      message += '\n\n*Guidance Steps:*';
+      for (int i = 0; i < actionSteps.length; i++) {
+        message += '\n${i + 1}. ${actionSteps[i]}';
+      }
+    }
+
+    message += '\n\n✨ _Find more wisdom for modern life with GitaWisdom app_';
+    message += '\n${_getStoreUrl()}';
+
+    return await shareToWhatsApp(message);
+  }
+
+  /// Share verse to WhatsApp with formatted message
+  Future<bool> shareVerseToWhatsApp(String verseText, String chapter, String verseNumber, {String? translation}) async {
+    String message = '''📜 *Daily Wisdom from Bhagavad Gita*
+
+*Chapter $chapter, Verse $verseNumber:*
+"$verseText"''';
+
+    if (translation != null && translation.isNotEmpty) {
+      message += '\n\n*Meaning:* $translation';
+    }
+
+    message += '\n\n✨ _Get daily inspiration with 700+ verses on GitaWisdom_';
+    message += '\n${_getStoreUrl()}';
+
+    return await shareToWhatsApp(message);
+  }
+
+  /// Share chapter summary to WhatsApp
+  Future<bool> shareChapterToWhatsApp(String chapterTitle, String summary, int chapterNumber) async {
+    String message = '''📖 *Bhagavad Gita Chapter $chapterNumber*
+
+*$chapterTitle*
+
+$summary
+
+✨ _Explore all 18 chapters with modern applications on GitaWisdom_
+${_getStoreUrl()}''';
+
+    return await shareToWhatsApp(message);
+  }
+
+  /// Check if WhatsApp is installed and available
+  Future<bool> isWhatsAppAvailable() async {
+    try {
+      final uri = Uri.parse('https://wa.me/');
+      return await canLaunchUrl(uri);
+    } catch (e) {
+      debugPrint('❌ Error checking WhatsApp availability: $e');
+      return false;
+    }
+  }
+
+  /// Show WhatsApp sharing options (contact picker would be implemented in UI)
+  /// This is a helper method that apps can use to show sharing options
+  Future<void> showWhatsAppShareDialog({
+    required String message,
+    required Function(bool success) onComplete,
+  }) async {
+    try {
+      final success = await shareToWhatsApp(message);
+      onComplete(success);
+    } catch (e) {
+      debugPrint('❌ WhatsApp share dialog error: $e');
+      onComplete(false);
+    }
   }
   
   /// Open store directly (fallback method)

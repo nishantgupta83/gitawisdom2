@@ -36,14 +36,19 @@
     "description": "Daily verse section title"
   },
   
-  "verseRefresher": "Verse Refresher",
+  "verseRefresher": "Mindful Verse",
   "@verseRefresher": {
-    "description": "Verse carousel section title"
+    "description": "Mindful verse carousel section title"
   },
   
-  "modernDilemma": "Modern Dilemma", 
+  "modernDilemma": "Real Life Dilemma", 
   "@modernDilemma": {
-    "description": "Modern scenarios section title"
+    "description": "Real life scenarios section title"
+  },
+  
+  "winBattleText": "Win battle of Emotions over Duty",
+  "@winBattleText": {
+    "description": "Subtitle text for Real Life Dilemma section in home screen"
   },
   
   "showWisdom": "Show Wisdom",
@@ -51,7 +56,7 @@
     "description": "Button text to view scenario wisdom"
   },
   
-  "applyGitaTeaching": "Find Wisdom for Any Life Challenge",
+  "applyGitaTeaching": "Win Daily Battle of life choices by bite sized guidance",
   "@applyGitaTeaching": {
     "description": "Subtitle text describing app purpose"
   },
@@ -404,7 +409,7 @@
     "description": "Action steps section title in scenarios"
   },
 
-  "modernScenario": "MODERN DAY SCENARIO",
+  "modernScenario": "LIFE DILEMMA",
   "@modernScenario": {
     "description": "Header title for scenario detail view"
   },
@@ -424,17 +429,17 @@
     "description": "Header title for chapters screen"
   },
 
-  "immersiveKnowledge": "Discover Wisdom for Any Life Challenge",
+  "immersiveKnowledge": "Explore Scripture, Word for Word",
   "@immersiveKnowledge": {
     "description": "Subtitle for chapters screen"
   },
 
-  "lifeScenarios": "LIFE SCENARIOS",
+  "lifeScenarios": "LIFE'S DAILY DILEMMA",
   "@lifeScenarios": {
     "description": "Header title for scenarios screen"
   },
 
-  "applyGitaWisdom": "Find Wisdom for Any Life Challenge",
+  "applyGitaWisdom": "Clarity for life's daily challenges",
   "@applyGitaWisdom": {
     "description": "Subtitle for scenarios screen"
   },
@@ -659,5 +664,25 @@
   "retry": "Retry",
   "@retry": {
     "description": "Retry button text for failed operations"
+  },
+
+  "getGuidance": "GET GUIDANCE",
+  "@getGuidance": {
+    "description": "Button text to reveal wisdom guidance (replaces 'Show Wisdom')"
+  },
+
+  "getGuidanceTooltip": "By tapping, I will receive helpful guidance",
+  "@getGuidanceTooltip": {
+    "description": "Tooltip text for the Get Guidance button"
+  },
+
+  "heartSaysExplanation": "What your emotions or desires tell you",
+  "@heartSaysExplanation": {
+    "description": "Explanation tooltip for the Heart Says section"
+  },
+
+  "dutySaysExplanation": "What your sense of duty or dharma recommends",
+  "@dutySaysExplanation": {
+    "description": "Explanation tooltip for the Duty Says section"
   }
 }

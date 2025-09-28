@@ -53,3 +53,67 @@
 -keep class androidx.** { *; }
 -keep interface androidx.** { *; }
 -dontwarn androidx.**
+
+# ============================================
+# Device-Specific Compatibility Rules
+# For OPPO, Vivo, OnePlus, Samsung, Xiaomi
+# ============================================
+
+# ColorOS (OPPO) specific - Prevents crashes on OPPO devices
+-dontwarn com.oppo.**
+-dontwarn com.color.**
+-keep class com.oppo.** { *; }
+-keep class com.color.** { *; }
+-keep class com.heytap.** { *; }
+
+# FuntouchOS (Vivo) specific - Ensures compatibility with Vivo ROMs
+-dontwarn com.vivo.**
+-dontwarn com.bbk.**
+-keep class com.vivo.** { *; }
+-keep class com.bbk.** { *; }
+-keep class com.iqoo.** { *; }
+
+# OxygenOS (OnePlus) specific - OnePlus optimizations
+-dontwarn com.oneplus.**
+-dontwarn net.oneplus.**
+-keep class com.oneplus.** { *; }
+-keep class net.oneplus.** { *; }
+-keep class com.oplus.** { *; }
+
+# MIUI (Xiaomi/Redmi) specific - Xiaomi/Redmi compatibility
+-dontwarn com.xiaomi.**
+-dontwarn com.miui.**
+-keep class com.xiaomi.** { *; }
+-keep class com.miui.** { *; }
+-keep class miui.** { *; }
+
+# Samsung OneUI specific - Samsung device support
+-dontwarn com.samsung.**
+-dontwarn com.sec.**
+-keep class com.samsung.** { *; }
+-keep class com.sec.** { *; }
+
+# Realme UI specific
+-dontwarn com.realme.**
+-keep class com.realme.** { *; }
+
+# ============================================
+# Performance Optimizations for Indian Market
+# ============================================
+
+# Multidex support for budget devices
+-keep class androidx.multidex.** { *; }
+-keep class com.android.support.multidex.** { *; }
+
+# Memory optimization for 4GB RAM devices
+-optimizationpasses 5
+-dontusemixedcaseclassnames
+-dontskipnonpubliclibraryclasses
+
+# Keep critical UI components for high refresh displays
+-keep class android.view.** { *; }
+-keep class android.widget.** { *; }
+
+# 5G network optimization
+-keep class android.net.** { *; }
+-keep class android.telephony.** { *; }

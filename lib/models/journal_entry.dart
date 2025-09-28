@@ -1,6 +1,7 @@
 // lib/models/journal_entry.dart
 
 import 'package:hive/hive.dart';
+import 'package:uuid/uuid.dart';
 
 part 'journal_entry.g.dart';
 
@@ -70,8 +71,9 @@ class JournalEntry extends HiveObject {
     int? scenarioId,
     String category = 'General',
   }) {
+    const uuid = Uuid();
     return JournalEntry(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: uuid.v4(), // Generate proper UUID instead of timestamp
       reflection: reflection,
       rating: rating,
       dateCreated: DateTime.now(),

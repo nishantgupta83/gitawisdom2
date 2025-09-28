@@ -1,5 +1,6 @@
 // lib/services/settings_service.dart
 
+import 'dart:async';
 import 'package:hive/hive.dart';
 import 'package:flutter/foundation.dart'; // for ChangeNotifier
 import 'package:flutter/material.dart';  // for ThemeMode
@@ -32,20 +33,63 @@ class SettingsService extends ChangeNotifier {
     }
   }
 
-  final Box _box = Hive.box(boxName);
+  Box? _box;
+  Box get box {
+    try {
+      return _box ??= Hive.box(boxName);
+    } catch (e) {
+      debugPrint('⚠️ Error accessing settings box: $e');
+      // Return emergency fallback - will cause getter methods to use defaults
+      rethrow;
+    }
+  }
 
- // bool get isDarkMode => _box.get(darkKey, defaultValue: false) as bool;
- // set isDarkMode(bool v) => _box.put(darkKey, v);
+  Timer? _saveTimer;
+  static const Duration _debounceDuration = Duration(milliseconds: 300);
 
-    bool get isDarkMode => _box.get(darkKey, defaultValue: false) as bool;
-    set isDarkMode(bool v) {
-        _box.put(darkKey, v);
-        notifyListeners();
-      }
+  // Cache for immediate UI updates
+  bool? _cachedDarkMode;
+  
+  @override
+  void dispose() {
+    _saveTimer?.cancel();
+    _shadowSaveTimer?.cancel();
+    super.dispose();
+  }
 
-  String get language => _box.get(langKey, defaultValue: 'en') as String;
+  bool get isDarkMode {
+    try {
+      _cachedDarkMode ??= box.get(darkKey, defaultValue: false) as bool;
+      return _cachedDarkMode!;
+    } catch (e) {
+      debugPrint('⚠️ Error reading isDarkMode: $e');
+      return false; // Safe fallback
+    }
+  }
+
+  set isDarkMode(bool v) {
+    // Immediate UI update
+    _cachedDarkMode = v;
+    notifyListeners();
+
+    // Debounced storage save
+    _saveTimer?.cancel();
+    _saveTimer = Timer(_debounceDuration, () {
+      box.put(darkKey, v);
+      debugPrint('💾 Dark mode saved: $v');
+    });
+  }
+
+  String get language {
+    try {
+      return box.get(langKey, defaultValue: 'en') as String;
+    } catch (e) {
+      debugPrint('⚠️ Error reading language: $e');
+      return 'en'; // Safe fallback
+    }
+  }
   set language(String v) {
-    _box.put(langKey, v);
+    box.put(langKey, v);
     notifyListeners();
   }
 
@@ -58,44 +102,73 @@ class SettingsService extends ChangeNotifier {
     }
   }
 
-  String get fontSize => _box.get(fontKey, defaultValue: 'small') as String;
- // set fontSize(String v) => _box.put(fontKey, v);
-    set fontSize(String v) {
-        _box.put(fontKey, v);
-        notifyListeners();
-      }
+  String get fontSize {
+    try {
+      return box.get(fontKey, defaultValue: 'small') as String;
+    } catch (e) {
+      debugPrint('⚠️ Error reading fontSize: $e');
+      return 'small'; // Safe fallback
+    }
+  }
+  set fontSize(String v) {
+    box.put(fontKey, v);
+    notifyListeners();
+  }
 
+  ThemeMode get themeMode => isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
+  void setTheme(ThemeMode mode) {
+    isDarkMode = (mode == ThemeMode.dark);
+  }
 
-    // ----------------------------------------------------------------------------
-    // Convenience getters/setters for theming & font (for your ChangeNotifierProvider)
-    // ----------------------------------------------------------------------------
+  void setFontSize(String size) {
+    fontSize = size;
+  }
 
-    /// Returns the app’s current ThemeMode.
-    ThemeMode get themeMode => isDarkMode ? ThemeMode.dark : ThemeMode.light;
+  bool get musicEnabled {
+    try {
+      return box.get(musicKey, defaultValue: true) as bool;
+    } catch (e) {
+      debugPrint('⚠️ Error reading musicEnabled: $e');
+      return true; // Safe fallback
+    }
+  }
+  set musicEnabled(bool v) {
+    box.put(musicKey, v);
+    notifyListeners();
+  }
 
-    /// Switch between light/dark.
-    void setTheme(ThemeMode mode) {
-        isDarkMode = (mode == ThemeMode.dark);
-        // notifyListeners() already called by the setter
-      }
+  bool? _cachedTextShadow;
+  Timer? _shadowSaveTimer;
 
-    /// Change the global font size setting.
-    void setFontSize(String size) {
-        fontSize = size;
-        // notifyListeners() already called by the setter
-      }
+  bool get textShadowEnabled {
+    try {
+      _cachedTextShadow ??= box.get(shadowKey, defaultValue: false) as bool;
+      return _cachedTextShadow!;
+    } catch (e) {
+      debugPrint('⚠️ Error reading textShadowEnabled: $e');
+      return false; // Safe fallback
+    }
+  }
 
-    /// Manage background music on/off.
-    bool get musicEnabled => _box.get(musicKey, defaultValue: true) as bool;
-    set musicEnabled(bool v) {
-        _box.put(musicKey, v);
-        notifyListeners();
-      }
+  set textShadowEnabled(bool v) {
+    _cachedTextShadow = v;
+    notifyListeners();
 
-  bool get textShadowEnabled => _box.get(shadowKey, defaultValue: false) as bool;
-  set textShadowEnabled(bool v) => _box.put(shadowKey, v);
+    _shadowSaveTimer?.cancel();
+    _shadowSaveTimer = Timer(_debounceDuration, () {
+      box.put(shadowKey, v);
+      debugPrint('💾 Text shadow saved: $v');
+    });
+  }
 
-  double get backgroundOpacity => _box.get(opacityKey, defaultValue: 1.0) as double;
-  set backgroundOpacity(double v) => _box.put(opacityKey, v);
+  double get backgroundOpacity {
+    try {
+      return box.get(opacityKey, defaultValue: 1.0) as double;
+    } catch (e) {
+      debugPrint('⚠️ Error reading backgroundOpacity: $e');
+      return 1.0; // Safe fallback
+    }
+  }
+  set backgroundOpacity(double v) => box.put(opacityKey, v);
 }

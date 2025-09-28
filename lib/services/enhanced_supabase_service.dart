@@ -611,6 +611,46 @@ class EnhancedSupabaseService {
     }
   }
 
+  /// Fallback method for fetching scenarios by chapter (basic implementation)
+  Future<List<Scenario>> _fallbackFetchScenariosByChapter(int chapterId) async {
+    try {
+      debugPrint('🔧 Using fallback method for chapter $chapterId scenarios');
+      
+      // Simple fallback query without translation complexity
+      final response = await client
+          .from('scenarios')
+          .select('''
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
+          .eq('sc_chapter', chapterId)
+          .limit(100); // Reasonable limit for fallback
+      
+      return response.map((item) => Scenario(
+        title: item['sc_title'] as String? ?? '',
+        description: item['sc_description'] as String? ?? '',
+        category: item['sc_category'] as String? ?? '',
+        chapter: item['sc_chapter'] as int? ?? chapterId,
+        heartResponse: item['sc_heart_response'] as String? ?? '',
+        dutyResponse: item['sc_duty_response'] as String? ?? '',
+        gitaWisdom: item['sc_gita_wisdom'] as String? ?? '',
+        actionSteps: (item['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+        createdAt: DateTime.parse(item['created_at'] as String),
+      )).toList();
+      
+    } catch (e) {
+      debugPrint('❌ Fallback method also failed: $e');
+      return [];
+    }
+  }
+
   /// Fetch a single scenario with full details and multilingual support
   Future<Scenario?> fetchScenarioById(int scenarioId, [String? langCode]) async {
     /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
@@ -684,6 +724,47 @@ class EnhancedSupabaseService {
       
       // Fallback to original method
       return _fallbackFetchScenarioById(scenarioId);
+    }
+  }
+
+  /// Fallback method for fetching scenario by ID
+  Future<Scenario?> _fallbackFetchScenarioById(int scenarioId) async {
+    try {
+      debugPrint('🔧 Using fallback method for scenario $scenarioId');
+      
+      final response = await client
+          .from('scenarios')
+          .select('''
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
+          .eq('scenario_id', scenarioId)
+          .maybeSingle();
+      
+      if (response == null) return null;
+      
+      return Scenario(
+        title: response['sc_title'] as String? ?? '',
+        description: response['sc_description'] as String? ?? '',
+        category: response['sc_category'] as String? ?? '',
+        chapter: response['sc_chapter'] as int? ?? 1,
+        heartResponse: response['sc_heart_response'] as String? ?? '',
+        dutyResponse: response['sc_duty_response'] as String? ?? '',
+        gitaWisdom: response['sc_gita_wisdom'] as String? ?? '',
+        actionSteps: (response['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+        createdAt: DateTime.parse(response['created_at'] as String),
+      );
+      
+    } catch (e) {
+      debugPrint('❌ Fallback scenario fetch failed: $e');
+      return null;
     }
   }
 
@@ -841,6 +922,66 @@ class EnhancedSupabaseService {
     }
   }
 
+  /// Fallback method for fetching scenarios
+  Future<List<Scenario>> _fallbackFetchScenarios({int limit = 2000, int offset = 0}) async {
+    try {
+      debugPrint('🔧 Using fallback method for scenarios (limit: $limit, offset: $offset)');
+      
+      final response = await client
+          .from('scenarios')
+          .select('''
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
+          .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1);
+      
+      return response.map((item) => Scenario(
+        title: item['sc_title'] as String? ?? '',
+        description: item['sc_description'] as String? ?? '',
+        category: item['sc_category'] as String? ?? '',
+        chapter: item['sc_chapter'] as int? ?? 1,
+        heartResponse: item['sc_heart_response'] as String? ?? '',
+        dutyResponse: item['sc_duty_response'] as String? ?? '',
+        gitaWisdom: item['sc_gita_wisdom'] as String? ?? '',
+        actionSteps: (item['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+        createdAt: DateTime.parse(item['created_at'] as String),
+      )).toList();
+      
+    } catch (e) {
+      debugPrint('❌ Fallback scenarios fetch failed: $e');
+      return [];
+    }
+  }
+
+  /// Get total scenario count from server (for checking new content)
+  Future<int> getScenarioCount() async {
+    try {
+      debugPrint('📊 Getting scenario count from server...');
+      
+      // Use count() method to get total count
+      final response = await client
+          .from('scenarios')
+          .select('scenario_id')
+          .count(CountOption.exact);
+      
+      final count = response.count ?? 0;
+      debugPrint('✅ Server has $count total scenarios');
+      return count;
+      
+    } catch (e) {
+      debugPrint('❌ Error getting scenario count: $e');
+      return 0;
+    }
+  }
+
   /// ========================================================================
   /// MULTILINGUAL VERSE METHODS
   /// ========================================================================
@@ -965,81 +1106,66 @@ class EnhancedSupabaseService {
     }
   }
 
-  Future<List<Scenario>> _fallbackFetchScenariosByChapter(int chapterId) async {
-    try {
-      final response = await client
-          .from('scenarios')
-          .select()
-          .eq('sc_chapter', chapterId);
-      final data = response as List;
-      return data
-          .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      debugPrint('❌ Fallback scenario fetch failed: $e');
-      return [];
-    }
-  }
-
-  Future<Scenario?> _fallbackFetchScenarioById(int id) async {
-    try {
-      final response = await client
-          .from('scenarios')
-          .select()
-          .eq('id', id)
-          .single();
-      return Scenario.fromJson(response);
-    } catch (e) {
-      debugPrint('❌ Fallback scenario by ID fetch failed: $e');
-      return null;
-    }
-  }
-
+  /// Fallback method for searching scenarios
   Future<List<Scenario>> _fallbackSearchScenarios(String query) async {
     try {
+      debugPrint('🔧 Using fallback search for query: $query');
+      
       final response = await client
           .from('scenarios')
-          .select()
+          .select('''
+            sc_title,
+            sc_description,
+            sc_category,
+            sc_chapter,
+            sc_heart_response,
+            sc_duty_response,
+            sc_gita_wisdom,
+            sc_action_steps,
+            created_at
+          ''')
           .or('sc_title.ilike.%$query%,sc_description.ilike.%$query%')
           .order('created_at', ascending: false);
-      final data = response as List;
-      return data
-          .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
-          .toList();
+      
+      return response.map((item) => Scenario(
+        title: item['sc_title'] as String? ?? '',
+        description: item['sc_description'] as String? ?? '',
+        category: item['sc_category'] as String? ?? '',
+        chapter: item['sc_chapter'] as int? ?? 1,
+        heartResponse: item['sc_heart_response'] as String? ?? '',
+        dutyResponse: item['sc_duty_response'] as String? ?? '',
+        gitaWisdom: item['sc_gita_wisdom'] as String? ?? '',
+        actionSteps: (item['sc_action_steps'] as List<dynamic>?)?.cast<String>(),
+        createdAt: DateTime.parse(item['created_at'] as String),
+      )).toList();
+      
     } catch (e) {
       debugPrint('❌ Fallback search failed: $e');
       return [];
     }
   }
 
-  Future<List<Scenario>> _fallbackFetchScenarios({int limit = 20, int offset = 0}) async {
-    try {
-      final response = await client
-          .from('scenarios')
-          .select()
-          .order('created_at', ascending: false)
-          .limit(limit);
-      final data = response as List;
-      return data
-          .map((e) => Scenario.fromJson(e as Map<String, dynamic>))
-          .toList();
-    } catch (e) {
-      debugPrint('❌ Fallback paginated scenarios failed: $e');
-      return [];
-    }
-  }
-
+  /// Fallback method for fetching verses by chapter
   Future<List<Verse>> _fallbackFetchVersesByChapter(int chapterId) async {
     try {
+      debugPrint('🔧 Using fallback method for verses in chapter $chapterId');
+      
       final response = await client
           .from('gita_verses')
-          .select()
+          .select('''
+            gv_verses_id,
+            gv_chapter_id,
+            gv_verses
+          ''')
           .eq('gv_chapter_id', chapterId)
           .order('gv_verses_id', ascending: true);
-      final data = response as List;
-      return data
-          .map((e) => Verse.fromJson(e as Map<String, dynamic>))
-          .toList();
+      
+      return response.map((item) => Verse(
+        verseId: item['gv_verses_id'] as int? ?? 0,
+        chapterId: item['gv_chapter_id'] as int? ?? chapterId,
+        description: item['gv_verses'] as String? ?? '',
+      )).toList();
+      
     } catch (e) {
       debugPrint('❌ Fallback verses fetch failed: $e');
       return [];
@@ -1049,26 +1175,6 @@ class EnhancedSupabaseService {
   /// ========================================================================
   /// NON-MULTILINGUAL METHODS (UNCHANGED)
   /// ========================================================================
-
-  /// Get total scenario count from server
-  Future<int> getScenarioCount() async {
-    try {
-      final response = await client
-          .from('scenarios')
-          .select('id')
-          .count();
-      return response.count;
-    } catch (e) {
-      debugPrint('❌ Error getting scenario count: $e');
-      try {
-        final scenarios = await _fallbackFetchScenarios(limit: 2000);
-        return scenarios.length;
-      } catch (e2) {
-        debugPrint('❌ Error with fallback scenario count: $e2');
-        return 0;
-      }
-    }
-  }
 
   /// Fetch a random scenario (using current language)
   Future<Scenario?> fetchRandomScenario() async {

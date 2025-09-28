@@ -1,0 +1,221 @@
+import 'package:flutter/foundation.dart';
+
+import '../models/scenario.dart';
+import 'keyword_search_service.dart';
+import 'semantic_search_service.dart';
+import 'progressive_scenario_service.dart';
+
+class IntelligentSearchResult {
+  final Scenario scenario;
+  final double score;
+  final List<String>? matchedTerms;
+  final String searchType;
+
+  IntelligentSearchResult({
+    required this.scenario,
+    required this.score,
+    this.matchedTerms,
+    required this.searchType,
+  });
+}
+
+class IntelligentScenarioSearch {
+  static final IntelligentScenarioSearch instance = IntelligentScenarioSearch._();
+  IntelligentScenarioSearch._();
+
+  final KeywordSearchService _keywordService = KeywordSearchService.instance;
+  final SemanticSearchService _semanticService = SemanticSearchService.instance;
+  final ProgressiveScenarioService _scenarioService = ProgressiveScenarioService.instance;
+
+  bool _isInitialized = false;
+  DateTime? _lastRefresh;
+
+  Future<void> initialize() async {
+    if (_isInitialized) {
+      debugPrint('🔍 Intelligent search already initialized');
+      return;
+    }
+
+    final stopwatch = Stopwatch()..start();
+    debugPrint('🔍 Initializing intelligent search system...');
+
+    try {
+      await _scenarioService.waitForCriticalScenarios();
+
+      final scenarios = await _getAllScenarios();
+      if (scenarios.isEmpty) {
+        debugPrint('⚠️ No scenarios available for indexing');
+        return;
+      }
+
+      await Future.wait([
+        _keywordService.indexScenarios(scenarios),
+        _semanticService.initialize(scenarios).catchError((e) {
+          debugPrint('⚠️ Semantic search unavailable (will use keyword-only): $e');
+        }),
+      ]);
+
+      _isInitialized = true;
+      _lastRefresh = DateTime.now();
+      stopwatch.stop();
+
+      debugPrint('✅ Intelligent search initialized in ${stopwatch.elapsedMilliseconds}ms');
+      debugPrint('📊 Index stats: ${scenarios.length} scenarios, keyword=${_keywordService.isIndexed}, semantic=${_semanticService.isInitialized}');
+    } catch (e) {
+      debugPrint('❌ Failed to initialize intelligent search: $e');
+    }
+  }
+
+  Future<List<IntelligentSearchResult>> search(String query, {int maxResults = 10}) async {
+    if (!_isInitialized) {
+      debugPrint('⚠️ Intelligent search not initialized yet');
+      await initialize();
+    }
+
+    if (query.trim().isEmpty) {
+      return [];
+    }
+
+    final stopwatch = Stopwatch()..start();
+
+    try {
+      final keywordResults = _keywordService.search(query, maxResults: maxResults * 2);
+
+      if (keywordResults.isNotEmpty && _hasHighQualityMatches(keywordResults)) {
+        stopwatch.stop();
+        debugPrint('✅ Fast keyword search: ${keywordResults.length} results in ${stopwatch.elapsedMilliseconds}ms');
+        return _convertKeywordResults(keywordResults, maxResults);
+      }
+
+      if (_semanticService.isInitialized) {
+        debugPrint('🧠 Falling back to semantic search...');
+        final semanticResults = await _semanticService.search(query, maxResults: maxResults);
+
+        if (semanticResults.isNotEmpty) {
+          final combined = _combineResults(keywordResults, semanticResults, maxResults);
+          stopwatch.stop();
+          debugPrint('✅ Hybrid search: ${combined.length} results in ${stopwatch.elapsedMilliseconds}ms');
+          return combined;
+        }
+      }
+
+      stopwatch.stop();
+      final keywordOnly = _convertKeywordResults(keywordResults, maxResults);
+      debugPrint('✅ Keyword-only search: ${keywordOnly.length} results in ${stopwatch.elapsedMilliseconds}ms');
+      return keywordOnly;
+
+    } catch (e) {
+      debugPrint('❌ Search failed: $e');
+      return [];
+    }
+  }
+
+  bool _hasHighQualityMatches(List<SearchResult> results) {
+    if (results.isEmpty) return false;
+    return results.first.score > 5.0 && results.length >= 5;
+  }
+
+  List<IntelligentSearchResult> _convertKeywordResults(
+    List<SearchResult> keywordResults,
+    int maxResults,
+  ) {
+    return keywordResults.take(maxResults).map((r) {
+      return IntelligentSearchResult(
+        scenario: r.scenario,
+        score: r.score,
+        matchedTerms: r.matchedTerms,
+        searchType: 'keyword',
+      );
+    }).toList();
+  }
+
+  List<IntelligentSearchResult> _combineResults(
+    List<SearchResult> keywordResults,
+    List<SemanticSearchResult> semanticResults,
+    int maxResults,
+  ) {
+    final combined = <String, IntelligentSearchResult>{};
+
+    for (final result in keywordResults) {
+      final id = _getScenarioId(result.scenario);
+      combined[id] = IntelligentSearchResult(
+        scenario: result.scenario,
+        score: result.score * 0.6,
+        matchedTerms: result.matchedTerms,
+        searchType: 'keyword',
+      );
+    }
+
+    for (final result in semanticResults) {
+      final id = _getScenarioId(result.scenario);
+      final semanticScore = result.similarity * 10.0;
+
+      if (combined.containsKey(id)) {
+        final existingScore = combined[id]!.score;
+        combined[id] = IntelligentSearchResult(
+          scenario: result.scenario,
+          score: existingScore + semanticScore * 0.4,
+          matchedTerms: combined[id]!.matchedTerms,
+          searchType: 'hybrid',
+        );
+      } else {
+        combined[id] = IntelligentSearchResult(
+          scenario: result.scenario,
+          score: semanticScore,
+          matchedTerms: null,
+          searchType: 'semantic',
+        );
+      }
+    }
+
+    final sortedResults = combined.values.toList()
+      ..sort((a, b) => b.score.compareTo(a.score));
+
+    return sortedResults.take(maxResults).toList();
+  }
+
+  Future<List<Scenario>> _getAllScenarios() async {
+    try {
+      return await _scenarioService.searchScenariosAsync('', maxResults: 2000);
+    } catch (e) {
+      debugPrint('❌ Failed to fetch scenarios: $e');
+      return [];
+    }
+  }
+
+  String _getScenarioId(Scenario scenario) {
+    return '${scenario.chapter}_${scenario.title}_${scenario.createdAt.millisecondsSinceEpoch}';
+  }
+
+  Future<void> refreshMonthly() async {
+    if (_lastRefresh != null) {
+      final daysSinceRefresh = DateTime.now().difference(_lastRefresh!).inDays;
+      if (daysSinceRefresh < 30) {
+        debugPrint('📅 Last refresh was $daysSinceRefresh days ago - skipping monthly refresh');
+        return;
+      }
+    }
+
+    debugPrint('🔄 Performing monthly scenario refresh...');
+
+    try {
+      await _scenarioService.refreshFromServer();
+
+      final scenarios = await _getAllScenarios();
+      await Future.wait([
+        _keywordService.indexScenarios(scenarios),
+        _semanticService.initialize(scenarios).catchError((e) {
+          debugPrint('⚠️ Semantic search refresh failed: $e');
+        }),
+      ]);
+
+      _lastRefresh = DateTime.now();
+      debugPrint('✅ Monthly refresh completed - ${scenarios.length} scenarios indexed');
+    } catch (e) {
+      debugPrint('❌ Monthly refresh failed: $e');
+    }
+  }
+
+  bool get isInitialized => _isInitialized;
+  DateTime? get lastRefresh => _lastRefresh;
+}

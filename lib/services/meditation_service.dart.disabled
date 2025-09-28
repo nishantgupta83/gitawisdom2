@@ -1,0 +1,505 @@
+// lib/services/meditation_service.dart
+
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import '../models/simple_meditation.dart';
+import '../models/verse.dart';
+import 'daily_verse_service.dart';
+import 'enhanced_audio_service.dart';
+import 'background_music_service.dart';
+
+/// Service for managing guided meditation sessions
+class MeditationService extends ChangeNotifier {
+  static const String sessionsBoxName = 'meditation_sessions';
+  static const String templatesBoxName = 'meditation_templates';
+  
+  static final MeditationService _instance = MeditationService._internal();
+  static MeditationService get instance => _instance;
+  
+  MeditationService._internal();
+  
+  // Box<MeditationSession>? _sessionsBox; // Simplified for Apple compliance
+  
+  bool _isInitialized = false;
+  bool get isInitialized => _isInitialized;
+  
+  // Current meditation state
+  MeditationSession? _currentSession;
+  MeditationSession? get currentSession => _currentSession;
+  
+  Timer? _meditationTimer;
+  int _remainingSeconds = 0;
+  int get remainingSeconds => _remainingSeconds;
+  
+  bool _isSessionActive = false;
+  bool get isSessionActive => _isSessionActive;
+  
+  bool _isPaused = false;
+  bool get isPaused => _isPaused;
+  
+  // Meditation statistics
+  int _totalMeditationMinutes = 0;
+  int get totalMeditationMinutes => _totalMeditationMinutes;
+  
+  int _totalSessions = 0;
+  int get totalSessions => _totalSessions;
+  
+  double _averageRating = 0.0;
+  double get averageRating => _averageRating;
+  
+  // Pre-defined meditation templates
+  final List<MeditationTemplate> meditationTemplates = [
+    MeditationTemplate(
+      id: 'morning_peace',
+      title: 'Morning Peace',
+      description: 'Start your day with inner peace and clarity',
+      durationMinutes: 10,
+      theme: 'peace',
+      musicTheme: MusicTheme.meditation,
+      guidanceSteps: [
+        'Find a comfortable seated position',
+        'Close your eyes and take three deep breaths',
+        'Focus on the natural rhythm of your breath',
+        'Let go of thoughts about the day ahead',
+        'Rest in the present moment',
+        'When your mind wanders, gently return to your breath',
+        'Feel gratitude for this moment of peace',
+        'Slowly open your eyes when ready',
+      ],
+    ),
+    MeditationTemplate(
+      id: 'stress_relief',
+      title: 'Stress Relief',
+      description: 'Release tension and find calm in chaos',
+      durationMinutes: 15,
+      theme: 'calm',
+      musicTheme: MusicTheme.nature,
+      guidanceSteps: [
+        'Sit or lie down comfortably',
+        'Notice any areas of tension in your body',
+        'Take a deep breath and release the tension',
+        'Scan your body from head to toe',
+        'Breathe into any areas of stress',
+        'Imagine stress melting away with each exhale',
+        'Rest in complete relaxation',
+        'Return when you feel refreshed',
+      ],
+    ),
+    MeditationTemplate(
+      id: 'gita_wisdom',
+      title: 'Gita Wisdom Meditation',
+      description: 'Meditate on the teachings of Bhagavad Gita',
+      durationMinutes: 20,
+      theme: 'wisdom',
+      musicTheme: MusicTheme.reading,
+      guidanceSteps: [
+        'Center yourself with deep breathing',
+        'Reflect on today\'s verse from the Gita',
+        'Let the wisdom sink into your consciousness',
+        'Contemplate how this applies to your life',
+        'Rest in the eternal truth',
+        'Feel connected to the divine wisdom',
+        'Allow insights to arise naturally',
+        'Carry this wisdom with you',
+      ],
+    ),
+    MeditationTemplate(
+      id: 'gratitude',
+      title: 'Gratitude Meditation',
+      description: 'Cultivate deep appreciation for life',
+      durationMinutes: 10,
+      theme: 'gratitude',
+      musicTheme: MusicTheme.meditation,
+      guidanceSteps: [
+        'Begin with three grateful breaths',
+        'Think of three things you\'re grateful for',
+        'Feel the gratitude in your heart',
+        'Expand this feeling throughout your body',
+        'Send gratitude to loved ones',
+        'Appreciate the gift of this moment',
+        'Rest in thankfulness',
+        'Carry gratitude into your day',
+      ],
+    ),
+    MeditationTemplate(
+      id: 'sleep_prep',
+      title: 'Sleep Preparation',
+      description: 'Peaceful transition to restful sleep',
+      durationMinutes: 15,
+      theme: 'sleep',
+      musicTheme: MusicTheme.nature,
+      guidanceSteps: [
+        'Lie down comfortably in bed',
+        'Release the events of the day',
+        'Relax each part of your body',
+        'Let your breath become slow and deep',
+        'Feel yourself sinking into peace',
+        'Release all thoughts and worries',
+        'Drift into peaceful rest',
+        'Sleep will come naturally',
+      ],
+    ),
+  ];
+  
+  /// Initialize the meditation service
+  Future<void> initialize() async {
+    if (_isInitialized) return;
+    
+    try {
+      // Open Hive box with defensive pattern and fallback error handling
+      try {
+        if (Hive.isBoxOpen(sessionsBoxName)) {
+          _sessionsBox = Hive.box(sessionsBoxName);
+        } else {
+          _sessionsBox = await Hive.openBox<MeditationSession>(sessionsBoxName);
+        }
+      } catch (e) {
+        debugPrint('❌ Failed to open sessions box, using fallback: $e');
+        if (Hive.isBoxOpen(sessionsBoxName)) {
+          _sessionsBox = Hive.box(sessionsBoxName);
+        } else {
+          _sessionsBox = await Hive.openBox(sessionsBoxName); // Fallback to untyped
+        }
+      }
+      
+      try {
+        await _loadStatistics();
+      } catch (e) {
+        debugPrint('❌ Failed to load meditation statistics: $e');
+        // Set default values
+        _totalMeditationMinutes = 0;
+        _totalSessions = 0;
+        _averageRating = 0.0;
+      }
+      
+      _isInitialized = true;
+      notifyListeners();
+      
+      debugPrint('✅ MeditationService initialized');
+    } catch (e) {
+      debugPrint('❌ MeditationService initialization failed: $e');
+      // Mark as initialized even if failed to prevent repeated attempts
+      _isInitialized = true;
+      _totalMeditationMinutes = 0;
+      _totalSessions = 0;
+      _averageRating = 0.0;
+      notifyListeners();
+    }
+  }
+  
+  /// Load meditation statistics
+  Future<void> _loadStatistics() async {
+    if (_sessionsBox == null) return;
+    
+    final sessions = _sessionsBox!.values.toList();
+    _totalSessions = sessions.where((s) => s.isCompleted).length;
+    
+    _totalMeditationMinutes = sessions.fold(0, (sum, session) {
+      return sum + (session.actualDurationSeconds ~/ 60);
+    });
+    
+    final ratedSessions = sessions.where((s) => s.userRating != null).toList();
+    if (ratedSessions.isNotEmpty) {
+      _averageRating = ratedSessions.fold(0.0, (sum, s) => sum + s.userRating!) / ratedSessions.length;
+    }
+  }
+  
+  /// Start a meditation session
+  Future<void> startMeditation({
+    required String templateId,
+    Verse? focusVerse,
+  }) async {
+    if (_isSessionActive) {
+      await stopMeditation();
+    }
+    
+    final template = meditationTemplates.firstWhere(
+      (t) => t.id == templateId,
+      orElse: () => meditationTemplates.first,
+    );
+    
+    debugPrint('🧘 Starting meditation: ${template.title} (${template.durationMinutes} minutes)');
+    
+    // Create new session
+    _currentSession = MeditationSession(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      title: template.title,
+      description: template.description,
+      durationMinutes: template.durationMinutes,
+      themeName: template.theme,
+      guidanceSteps: template.guidanceSteps,
+      backgroundMusic: template.musicTheme.toString(),
+      focusVerse: focusVerse?.reference,
+      startedAt: DateTime.now(),
+    );
+    
+    // Initialize timer state
+    _remainingSeconds = template.durationMinutes * 60;
+    _isSessionActive = true;
+    _isPaused = false;
+    
+    debugPrint('🧘 Timer initialized: ${_remainingSeconds} seconds (${getFormattedRemainingTime()})');
+    
+    // Start background music
+    await _startMeditationMusic(template.musicTheme);
+    
+    // Start timer
+    _startTimer();
+    
+    // Ensure UI updates immediately
+    notifyListeners();
+    
+    debugPrint('🧘 Meditation session started successfully');
+  }
+  
+  /// Start meditation timer
+  void _startTimer() {
+    _meditationTimer?.cancel();
+    
+    // Ensure timer starts with proper state
+    debugPrint('🧘 Starting meditation timer: ${_remainingSeconds}s remaining, paused: $_isPaused');
+    
+    _meditationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!_isPaused && _remainingSeconds > 0) {
+        _remainingSeconds--;
+        notifyListeners();
+        
+        // Debug every 10 seconds
+        if (_remainingSeconds % 10 == 0) {
+          debugPrint('🧘 Timer update: ${getFormattedRemainingTime()} remaining');
+        }
+        
+        // Check for guidance cues at specific intervals
+        _checkGuidanceCue();
+        
+        // Auto-complete when time is up
+        if (_remainingSeconds == 0) {
+          debugPrint('🧘 Meditation timer completed');
+          _completeMeditation();
+        }
+      } else if (_isPaused) {
+        debugPrint('🧘 Timer paused at ${getFormattedRemainingTime()}');
+      }
+    });
+  }
+  
+  /// Check if it's time for a guidance cue
+  void _checkGuidanceCue() {
+    if (_currentSession == null) return;
+    
+    final totalSeconds = _currentSession!.durationMinutes * 60;
+    final elapsedSeconds = totalSeconds - _remainingSeconds;
+    final progress = elapsedSeconds / totalSeconds;
+    
+    // Play guidance at specific progress points
+    final guidancePoints = [0.0, 0.25, 0.5, 0.75, 0.9];
+    for (final point in guidancePoints) {
+      if ((progress - point).abs() < 0.01) {
+        final stepIndex = (point * (_currentSession!.guidanceSteps.length - 1)).round();
+        if (stepIndex < _currentSession!.guidanceSteps.length) {
+          _playGuidance(_currentSession!.guidanceSteps[stepIndex]);
+        }
+      }
+    }
+  }
+  
+  /// Play guidance text using TTS
+  void _playGuidance(String text) {
+    // Use narration service for guidance
+    // For now, just log guidance - could be implemented with TTS later
+    debugPrint('🧘 Guidance: $text');
+  }
+  
+  /// Start meditation background music
+  Future<void> _startMeditationMusic(MusicTheme theme) async {
+    final audioService = EnhancedAudioService.instance;
+    await audioService.setMusicTheme(theme);
+    
+    // Check if background music is playing via status
+    final status = audioService.getStatus();
+    if (!(status['backgroundMusicPlaying'] as bool? ?? false)) {
+      await audioService.setBackgroundMusicEnabled(true);
+    }
+  }
+  
+  /// Pause meditation
+  void pauseMeditation() {
+    if (!_isSessionActive || _isPaused) {
+      debugPrint('🧘 Cannot pause - Session active: $_isSessionActive, Already paused: $_isPaused');
+      return;
+    }
+    
+    _isPaused = true;
+    debugPrint('🧘 Meditation paused at ${getFormattedRemainingTime()}');
+    notifyListeners();
+  }
+  
+  /// Resume meditation
+  void resumeMeditation() {
+    if (!_isSessionActive || !_isPaused) {
+      debugPrint('🧘 Cannot resume - Session active: $_isSessionActive, Is paused: $_isPaused');
+      return;
+    }
+    
+    _isPaused = false;
+    debugPrint('🧘 Meditation resumed at ${getFormattedRemainingTime()}');
+    notifyListeners();
+  }
+  
+  /// Complete meditation session
+  Future<void> _completeMeditation() async {
+    if (_currentSession == null) return;
+    
+    final totalSeconds = _currentSession!.durationMinutes * 60;
+    final actualSeconds = totalSeconds - _remainingSeconds;
+    
+    final completedSession = _currentSession!.complete(
+      completedAt: DateTime.now(),
+      actualDurationSeconds: actualSeconds,
+    );
+    
+    // Save session
+    await _sessionsBox!.put(completedSession.id, completedSession);
+    
+    // Stop timer and music
+    _meditationTimer?.cancel();
+    await EnhancedAudioService.instance.setBackgroundMusicEnabled(false);
+    
+    // Update statistics
+    await _loadStatistics();
+    
+    // Play completion sound
+    _playGuidance('Your meditation session is complete. Take a moment to return to your surroundings.');
+    
+    _isSessionActive = false;
+    _currentSession = completedSession;
+    notifyListeners();
+  }
+  
+  /// Stop meditation (cancel)
+  Future<void> stopMeditation() async {
+    if (!_isSessionActive) return;
+    
+    // Save partial session
+    if (_currentSession != null) {
+      final totalSeconds = _currentSession!.durationMinutes * 60;
+      final actualSeconds = totalSeconds - _remainingSeconds;
+      
+      if (actualSeconds > 60) {
+        // Only save if meditated for more than a minute
+        final partialSession = _currentSession!.complete(
+          completedAt: DateTime.now(),
+          actualDurationSeconds: actualSeconds,
+        );
+        await _sessionsBox!.put(partialSession.id, partialSession);
+      }
+    }
+    
+    // Clean up
+    _meditationTimer?.cancel();
+    await EnhancedAudioService.instance.setBackgroundMusicEnabled(false);
+    
+    _isSessionActive = false;
+    _isPaused = false;
+    _currentSession = null;
+    _remainingSeconds = 0;
+    
+    notifyListeners();
+  }
+  
+  /// Get formatted remaining time for display
+  String getFormattedRemainingTime() {
+    // Ensure we have a valid remaining time
+    if (_remainingSeconds < 0) {
+      debugPrint('⚠️ Negative remaining seconds detected: $_remainingSeconds');
+      _remainingSeconds = 0;
+    }
+    
+    final minutes = _remainingSeconds ~/ 60;
+    final seconds = _remainingSeconds % 60;
+    final formatted = '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    
+    return formatted;
+  }
+  
+  /// Get meditation progress as percentage (0.0 to 1.0)
+  double getMeditationProgress() {
+    if (_currentSession == null || !_isSessionActive) return 0.0;
+    final totalSeconds = _currentSession!.durationMinutes * 60;
+    if (totalSeconds == 0) return 0.0;
+    final elapsedSeconds = totalSeconds - _remainingSeconds;
+    return (elapsedSeconds / totalSeconds).clamp(0.0, 1.0);
+  }
+  
+  /// Rate a completed session
+  Future<void> rateSession(String sessionId, double rating, String? reflection) async {
+    final session = _sessionsBox!.get(sessionId);
+    if (session == null || !session.isCompleted) return;
+    
+    final updatedSession = session.complete(
+      completedAt: session.completedAt!,
+      actualDurationSeconds: session.actualDurationSeconds,
+      userRating: rating,
+      reflection: reflection,
+    );
+    
+    await _sessionsBox!.put(sessionId, updatedSession);
+    await _loadStatistics();
+    notifyListeners();
+  }
+  
+  /// Get meditation history
+  List<MeditationSession> getMeditationHistory({int limit = 10}) {
+    if (_sessionsBox == null) return [];
+    
+    final sessions = _sessionsBox!.values.toList()
+      ..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+    
+    return sessions.take(limit).toList();
+  }
+  
+  
+  /// Get recommended meditation based on time of day
+  MeditationTemplate getRecommendedMeditation() {
+    final hour = DateTime.now().hour;
+    
+    if (hour < 12) {
+      return meditationTemplates.firstWhere((t) => t.id == 'morning_peace');
+    } else if (hour < 18) {
+      return meditationTemplates.firstWhere((t) => t.id == 'stress_relief');
+    } else if (hour < 22) {
+      return meditationTemplates.firstWhere((t) => t.id == 'gratitude');
+    } else {
+      return meditationTemplates.firstWhere((t) => t.id == 'sleep_prep');
+    }
+  }
+  
+  @override
+  void dispose() {
+    _meditationTimer?.cancel();
+    _sessionsBox?.close();
+    super.dispose();
+  }
+}
+
+/// Meditation template for creating sessions
+class MeditationTemplate {
+  final String id;
+  final String title;
+  final String description;
+  final int durationMinutes;
+  final String theme;
+  final MusicTheme musicTheme;
+  final List<String> guidanceSteps;
+  
+  MeditationTemplate({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.durationMinutes,
+    required this.theme,
+    required this.musicTheme,
+    required this.guidanceSteps,
+  });
+}

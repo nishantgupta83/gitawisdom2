@@ -1,15 +1,18 @@
 // lib/screens/scenarios_screen.dart
 
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../models/scenario.dart';
 import '../services/service_locator.dart';
-import '../services/scenario_service.dart';
+import '../services/progressive_scenario_service.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import 'scenario_detail_view.dart';
-import '../main.dart';
+import '../core/navigation/navigation_service.dart';
+import '../screens/root_scaffold.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/share_card_widget.dart';
 // import 'sub_category_mapper.dart'; // TODO: Implement sub-category filtering UI
 
 /// Utility function to format counts in human-readable format
@@ -105,25 +108,36 @@ class ScenariosScreen extends StatefulWidget {
 
 class _ScenariosScreenState extends State<ScenariosScreen> {
   late final _service = ServiceLocator.instance.enhancedSupabaseService;
-  final ScenarioService _scenarioService = ScenarioService.instance;
+  final ScenarioServiceAdapter _scenarioService = ScenarioServiceAdapter.instance;
   // final FavoritesService _favoritesService = FavoritesService.instance; // COMMENTED OUT: User-specific features disabled
   List<Scenario> _scenarios = [];
   List<Scenario> _allScenarios = []; // Cache all scenarios for instant filtering
+  List<Scenario> _displayedScenarios = []; // Scenarios currently displayed with lazy loading
   String _search = '';
   String _selectedFilter = 'All'; // Top-level filter: All, Favorite, Teenager, Parents
   String? _selectedSubCategory; // Sub-category filter for enhanced filtering
   int? _selectedChapter; // Add chapter filter state
   bool _isLoading = true;
+  bool _isLoadingMore = false; // Loading more scenarios for pagination
   bool _hasNewContent = false;
   int _totalScenarioCount = 0;
   Timer? _debounceTimer;
+
   final TextEditingController _searchController = TextEditingController();
+
+  // Lazy loading configuration - Load 20 scenarios at a time for smooth UI performance
+  static const int _pageSize = 20;
+  int _currentPage = 0;
+  bool _hasMorePages = true;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
     _selectedChapter = widget.filterChapter;
     
+    // Initialize pagination scroll listener
+    _scrollController.addListener(_onScroll);
     
     // Set initial filter based on any existing tag
     if (widget.filterTag != null) {
@@ -153,44 +167,165 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   void dispose() {
     _debounceTimer?.cancel();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+  
+  /// Handle scroll events for pagination
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent * 0.8 &&
+        !_isLoadingMore &&
+        _hasMorePages &&
+        _search.isEmpty) {
+      // Load more scenarios when scrolling near bottom
+      if (_displayedScenarios.length < _scenarios.length) {
+        _loadMoreScenarios();
+      }
+    }
   }
 
   Future<void> _loadScenarios() async {
     if (!mounted) return;
-    
-    setState(() => _isLoading = true);
+
+    setState(() {
+      _isLoading = true;
+      _currentPage = 0;
+      _displayedScenarios.clear();
+    });
+
     try {
       // If a specific chapter is requested, fetch scenarios directly from Supabase for that chapter
       if (_selectedChapter != null) {
         final chapterScenarios = await _service.fetchScenariosByChapter(_selectedChapter!);
-        
+
         if (mounted) {
           setState(() {
             _allScenarios = chapterScenarios;
-            _scenarios = chapterScenarios; // No additional filtering needed for chapter-specific load
+            _scenarios = chapterScenarios;
+            _loadInitialPage();
           });
         }
       } else {
         // Load all scenarios from cache (instant after first load)
         final allScenarios = await _scenarioService.getAllScenarios();
-        
+
         if (mounted) {
           setState(() {
             _allScenarios = allScenarios;
             _scenarios = _filterScenarios(allScenarios);
             _totalScenarioCount = allScenarios.length;
+            _loadInitialPage();
           });
         }
-        
+
         // Start background sync if needed (non-blocking) - monthly check only
-        _scenarioService.backgroundSync();
+        // Pass callback to update UI when sync completes
+        _scenarioService.backgroundSync(onComplete: () {
+          if (mounted) {
+            debugPrint('🔄 Background sync completed - updating UI with full dataset');
+            setState(() {
+              // Force rebuild of category filters with updated counts
+              // _allScenarios already contains the full dataset from the sync
+              _totalScenarioCount = _allScenarios.length;
+            });
+          }
+        });
       }
-      
+
     } catch (e) {
-      // Keep existing scenarios on error
+      debugPrint('Error loading scenarios: $e');
+      if (mounted) {
+        setState(() {
+          // Show error message to user if no scenarios are loaded
+          if (_allScenarios.isEmpty) {
+            _scenarios = [];
+            _displayedScenarios = [];
+          }
+        });
+
+        // Show error snackbar
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.white),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    'Failed to load scenarios. Please check your connection.',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.shade700,
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: () => _loadScenarios(),
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  /// Load the first page of scenarios for display
+  void _loadInitialPage() {
+    final endIndex = (_pageSize).clamp(0, _scenarios.length);
+    _displayedScenarios = _scenarios.take(endIndex).toList();
+    _currentPage = 1;
+    _hasMorePages = endIndex < _scenarios.length;
+  }
+
+  /// Load more scenarios for pagination
+  Future<void> _loadMoreScenarios() async {
+    if (_isLoadingMore || !_hasMorePages) return;
+
+    setState(() => _isLoadingMore = true);
+
+    try {
+      // Simulate network delay for smooth UX
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      if (mounted) {
+        final startIndex = _currentPage * _pageSize;
+        final endIndex = (startIndex + _pageSize).clamp(0, _scenarios.length);
+
+        setState(() {
+          _displayedScenarios.addAll(_scenarios.sublist(startIndex, endIndex));
+          _currentPage++;
+          _hasMorePages = endIndex < _scenarios.length;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading more scenarios: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.warning, color: Colors.white),
+                const SizedBox(width: 8),
+                Text('Failed to load more scenarios'),
+              ],
+            ),
+            backgroundColor: Colors.orange.shade700,
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'Retry',
+              textColor: Colors.white,
+              onPressed: () => _loadScenarios(),
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoadingMore = false);
     }
   }
   
@@ -268,22 +403,78 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   void _onSearchChanged(String query) {
     if (!mounted) return;
     
+    // Cancel previous debounce timer
+    _debounceTimer?.cancel();
+    
+    // Update search query immediately for UI feedback
     setState(() {
       _search = query;
-      // Update filtered scenarios instantly - no debouncing needed for local search!
-      _scenarios = _filterScenarios(_allScenarios);
+    });
+    
+    // PERFORMANCE FIX: Add 300ms debouncing to prevent UI jank on rapid typing
+    // This prevents search execution on every keystroke which was causing frame drops
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        // UI_OPTIMIZATION: Execute search asynchronously to prevent UI thread blocking
+        _performAsyncSearch();
+      }
     });
   }
 
   void _onFilterChanged(String filter) {
     if (!mounted) return;
-    
+
     setState(() {
       _selectedFilter = filter;
       _scenarios = _filterScenarios(_allScenarios);
+      _currentPage = 0;
+      _displayedScenarios.clear();
+      _loadInitialPage();
     });
   }
 
+  /// Perform search asynchronously to prevent UI thread blocking
+  /// UI_OPTIMIZATION: Handles large result sets without blocking the main thread
+  Future<void> _performAsyncSearch() async {
+    if (!mounted) return;
+    
+    try {
+      // For small datasets, execute directly
+      if (_allScenarios.length <= 500) {
+        setState(() {
+          _scenarios = _filterScenarios(_allScenarios);
+          _currentPage = 0;
+          _displayedScenarios.clear();
+          _loadInitialPage();
+        });
+        return;
+      }
+      
+      // For larger datasets, use compute to prevent UI blocking
+      final searchParams = {
+        'allScenarios': _allScenarios.map((s) => s.toJson()).toList(),
+        'searchQuery': _search,
+        'selectedFilter': _selectedFilter,
+        'selectedChapter': _selectedChapter,
+      };
+      
+      final results = await compute(_performSearchCompute, searchParams);
+      
+      if (mounted) {
+        setState(() {
+          _scenarios = results.map((json) => Scenario.fromJson(json)).toList();
+        });
+      }
+    } catch (e) {
+      debugPrint('Error in async search: $e');
+      // Fallback to synchronous search if compute fails
+      if (mounted) {
+        setState(() {
+          _scenarios = _filterScenarios(_allScenarios);
+        });
+      }
+    }
+  }
 
   List<Scenario> get _filtered => _scenarios; // Already filtered by _filterScenarios
   
@@ -395,7 +586,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 ? AppLocalizations.of(context)!.chapterScenarios(_selectedChapter!)
                                 : AppLocalizations.of(context)!.lifeScenarios,
                             style: GoogleFonts.poiretOne(
-                              fontSize: 26,
+                              fontSize: theme.textTheme.headlineLarge?.fontSize,
                               fontWeight: FontWeight.w800,
                               color: theme.colorScheme.onSurface,
                               letterSpacing: 1.3,
@@ -424,7 +615,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 ? AppLocalizations.of(context)!.chapterScenariosSubtitle(_selectedChapter!)
                                 : AppLocalizations.of(context)!.applyGitaWisdom,
                             style: GoogleFonts.poppins(
-                              fontSize: 14,
+                              fontSize: theme.textTheme.bodyMedium?.fontSize,
                               color: theme.colorScheme.onSurface.withOpacity(0.7),
                               letterSpacing: 0.8,
                             ),
@@ -503,7 +694,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               AppLocalizations.of(context)!.clearFilter,
                               style: TextStyle(
                                 color: theme.colorScheme.secondary,
-                                fontSize: 12,
+                                fontSize: theme.textTheme.bodySmall?.fontSize,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -524,7 +715,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
                   // Scenario List
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 80),
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 80),
                     child: _isLoading
                         ? const Center(
                             child: Padding(
@@ -546,7 +737,52 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 ),
                               )
                             : Column(
-                                children: _filtered.map((scenario) => _buildScenarioCard(scenario, theme)).toList(),
+                                children: [
+                                  // Scenarios list with lazy loading
+                                  ..._displayedScenarios.map((scenario) => _buildScenarioCard(scenario, theme)).toList(),
+
+                                  // Load More button or loading indicator
+                                  if (_displayedScenarios.length < _scenarios.length) ...[
+                                    const SizedBox(height: 16),
+                                    Center(
+                                      child: _isLoadingMore
+                                          ? const Padding(
+                                              padding: EdgeInsets.all(16),
+                                              child: CircularProgressIndicator(),
+                                            )
+                                          : ElevatedButton.icon(
+                                              onPressed: _loadMoreScenarios,
+                                              icon: const Icon(Icons.expand_more),
+                                              label: Text(
+                                                'Load More (${_scenarios.length - _displayedScenarios.length} remaining)',
+                                                style: const TextStyle(fontSize: 14),
+                                              ),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: theme.colorScheme.primaryContainer,
+                                                foregroundColor: theme.colorScheme.onPrimaryContainer,
+                                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(25),
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+
+                                  // Show total count when all loaded
+                                  if (_displayedScenarios.length >= _scenarios.length && _scenarios.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.all(16),
+                                      child: Text(
+                                        'Showing all ${_scenarios.length} scenarios',
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                ],
                               ),
                   ),
                 ],
@@ -558,35 +794,35 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         
         // Floating Back Button
         Positioned(
-          top: 26,
+          top: 40,
           right: 84,
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.amberAccent,
+                  color: Colors.amberAccent.withOpacity(0.9),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
               ],
             ),
             child: CircleAvatar(
-              radius: 26,
+              radius: 25,
               backgroundColor: theme.colorScheme.surface,
               child: IconButton(
                 icon: Icon(
                   Icons.arrow_back,
-                  size: 32,
+                  size: 30,
                   color: theme.colorScheme.primary,
                 ),
-                splashRadius: 32,
+                splashRadius: 30,
                 onPressed: () {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
                   } else {
                     // Navigate to home tab instead of trying to pop empty stack
-                    NavigationHelper.goToTab(0);
+                    NavigationService.instance.goToTab(0);
                   }
                 },
                 tooltip: AppLocalizations.of(context)!.back,
@@ -597,33 +833,33 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         
         // Floating Home Button
         Positioned(
-          top: 26,
+          top: 40,
           right: 24,
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.amberAccent,
+                  color: Colors.amberAccent.withOpacity(0.9),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
               ],
             ),
             child: CircleAvatar(
-              radius: 26,
+              radius: 25,
               backgroundColor: theme.colorScheme.surface,
               child: IconButton(
                 icon: Icon(
                   Icons.home_filled,
-                  size: 32,
+                  size: 30,
                   color: theme.colorScheme.primary,
                 ),
-                splashRadius: 32,
+                splashRadius: 30,
                 onPressed: () {
                   // Use proper tab navigation to sync bottom navigation state
                   try {
-                    NavigationHelper.goToTab(0); // 0 = Home tab index
+                    NavigationService.instance.goToTab(0); // 0 = Home tab index
                   } catch (e) {
                     debugPrint('Home button error: $e');
                     // Fallback navigation
@@ -681,7 +917,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                 ],
                 // Spacer to push bottom content down
                 const SizedBox(height: 12), // Increased spacing to prevent overflow
-                
+
                 // Bottom row with flexible layout
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -698,25 +934,46 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    // Compact button to prevent overflow
-                    TextButton(
-                      onPressed: () {
-                        _fadePush(ScenarioDetailView(scenario: scenario));
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                        minimumSize: const Size(60, 30), // Fixed minimum size
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.readMore,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.primary,
-                          fontSize: 12, // Slightly smaller font
+                    // Action buttons row
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Share button
+                        IconButton(
+                          onPressed: () => _showShareDialog(scenario),
+                          icon: Icon(
+                            Icons.share,
+                            size: 18,
+                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                          tooltip: 'Share',
+                          padding: const EdgeInsets.all(4),
+                          constraints: const BoxConstraints(
+                            minWidth: 28,
+                            minHeight: 28,
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        softWrap: true,
-                      ),
+                        // Read More button
+                        TextButton(
+                          onPressed: () {
+                            _fadePush(ScenarioDetailView(scenario: scenario));
+                          },
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            minimumSize: const Size(60, 30),
+                          ),
+                          child: Text(
+                            AppLocalizations.of(context)!.readMore,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.primary,
+                              fontSize: theme.textTheme.bodySmall?.fontSize,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: true,
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -887,7 +1144,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                   ? Colors.white 
                                   : theme.colorScheme.onSurface,
                                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                                fontSize: 12,
+                                fontSize: theme.textTheme.bodySmall?.fontSize,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
@@ -899,7 +1156,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 color: isSelected 
                                   ? Colors.white.withOpacity(0.9) 
                                   : category.color.withOpacity(0.8),
-                                fontSize: 10,
+                                fontSize: theme.textTheme.labelSmall?.fontSize,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -971,7 +1228,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     color: theme.brightness == Brightness.light
                         ? theme.colorScheme.onSurface.withOpacity(0.95)
                         : theme.colorScheme.onSurface.withOpacity(0.9),
-                    fontSize: 13, // Increased from 12 for better readability
+                    fontSize: theme.textTheme.bodySmall?.fontSize, // Increased from 12 for better readability
                     fontWeight: FontWeight.w600, // Increased from w500 for better visibility
                     height: 1.4, // Added line height for better text spacing
                   ),
@@ -1004,6 +1261,208 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
   // Sub-tag selection removed - sub-categories are now informational only
 
+  /// Build category and tag information pills for the header
+  Widget _buildInfoPills(ThemeData theme) {
+    final List<Widget> pills = [];
+    
+    // Show current filter category
+    if (_selectedFilter != 'All' && _selectedFilter.isNotEmpty && !_selectedFilter.startsWith('Tag:')) {
+      pills.add(_buildInfoPill(
+        text: '📂 ${_selectedFilter}',
+        backgroundColor: theme.colorScheme.primaryContainer,
+        textColor: theme.colorScheme.onPrimaryContainer,
+      ));
+    }
+    
+    // Show sample tags from current scenarios (up to 3 most common)
+    if (_filtered.isNotEmpty) {
+      final Map<String, int> tagCounts = {};
+      
+      // Count tags in filtered scenarios
+      for (final scenario in _filtered.take(20)) { // Analyze first 20 for performance
+        if (scenario.tags != null) {
+          for (final tag in scenario.tags!) {
+            if (tag.trim().isNotEmpty) {
+              tagCounts[tag.trim()] = (tagCounts[tag.trim()] ?? 0) + 1;
+            }
+          }
+        }
+      }
+      
+      // Get top 3 most common tags
+      final sortedTags = tagCounts.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      
+      final topTags = sortedTags.take(3);
+      for (final tagEntry in topTags) {
+        pills.add(_buildInfoPill(
+          text: '🏷️ ${tagEntry.key} (${tagEntry.value})',
+          backgroundColor: theme.colorScheme.secondaryContainer,
+          textColor: theme.colorScheme.onSecondaryContainer,
+        ));
+      }
+    }
+    
+    // Show total scenario count
+    if (_filtered.isNotEmpty) {
+      pills.add(_buildInfoPill(
+        text: '📊 ${_filtered.length} scenarios',
+        backgroundColor: theme.colorScheme.tertiaryContainer,
+        textColor: theme.colorScheme.onTertiaryContainer,
+      ));
+    }
+    
+    if (pills.isEmpty) return const SizedBox.shrink();
+    
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: pills,
+    );
+  }
+  
+  /// Build individual info pill widget
+  Widget _buildInfoPill({
+    required String text,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: textColor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: 11,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  /// Show share dialog for a scenario
+  void _showShareDialog(Scenario scenario) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ShareCardWidget(
+        scenario: scenario,
+        onShared: () {
+          // Track sharing action
+          _trackScenarioShared(scenario);
+        },
+      ),
+    );
+  }
+
+  /// Track scenario shared for analytics
+  Future<void> _trackScenarioShared(Scenario scenario) async {
+    try {
+      // You can add analytics tracking here if needed
+      debugPrint('📤 Scenario "${scenario.title}" shared by user');
+    } catch (e) {
+      debugPrint('Failed to track scenario share: $e');
+    }
+  }
+
+}
+
+/// Compute function for background search processing
+/// UI_OPTIMIZATION: Runs search filtering in separate isolate to prevent main thread blocking
+List<Map<String, dynamic>> _performSearchCompute(Map<String, dynamic> params) {
+  try {
+    final allScenariosJson = params['allScenarios'] as List<dynamic>;
+    final searchQuery = params['searchQuery'] as String;
+    final selectedFilter = params['selectedFilter'] as String;
+    final selectedChapter = params['selectedChapter'] as int?;
+    
+    // Convert back to Scenario objects
+    final allScenarios = allScenariosJson
+        .map((json) => Scenario.fromJson(json as Map<String, dynamic>))
+        .toList();
+    
+    List<Scenario> filtered = List.from(allScenarios);
+    
+    // Apply chapter filter first
+    if (selectedChapter != null) {
+      filtered = filtered.where((s) => s.chapter == selectedChapter).toList();
+      
+      // Apply search within chapter scenarios
+      if (searchQuery.trim().isNotEmpty) {
+        filtered = filtered.where((s) => 
+          s.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.description.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.category.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.gitaWisdom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          (s.tags?.any((tag) => tag.toLowerCase().contains(searchQuery.toLowerCase())) ?? false)
+        ).toList();
+      }
+    } else {
+      // Apply search filter first (if exists) - using basic search for compute
+      if (searchQuery.trim().isNotEmpty) {
+        filtered = filtered.where((s) => 
+          s.title.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.description.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.category.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.gitaWisdom.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.heartResponse.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          s.dutyResponse.toLowerCase().contains(searchQuery.toLowerCase()) ||
+          (s.tags?.any((tag) => tag.toLowerCase().contains(searchQuery.toLowerCase())) ?? false)
+        ).toList();
+      }
+      
+      // Apply category/tag filters
+      if (selectedFilter != 'All') {
+        switch (selectedFilter) {
+          case 'Work & Career':
+          case 'Relationships':
+          case 'Parenting & Family':
+          case 'Personal Growth':
+          case 'Life Transitions':
+          case 'Social & Community':
+          case 'Health & Wellness':
+          case 'Financial':
+          case 'Education & Learning':
+          case 'Modern Living':
+            filtered = filtered.where((s) => s.category == selectedFilter).toList();
+            break;
+          default:
+            // Handle custom tag filters
+            if (selectedFilter.startsWith('Tag:')) {
+              final tagName = selectedFilter.substring(4);
+              filtered = filtered.where((s) => 
+                s.tags?.any((tag) => tag.toLowerCase().contains(tagName.toLowerCase())) ?? false
+              ).toList();
+            } else {
+              filtered = filtered.where((s) => 
+                s.tags?.any((tag) => tag.toLowerCase().contains(selectedFilter.toLowerCase())) ?? false ||
+                s.category.toLowerCase().contains(selectedFilter.toLowerCase())
+              ).toList();
+            }
+            break;
+        }
+      }
+    }
+    
+    // Convert back to JSON for return
+    return filtered.map((s) => s.toJson()).toList();
+    
+  } catch (e) {
+    debugPrint('Error in compute search: $e');
+    return [];
+  }
 }
 
 

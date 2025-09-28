@@ -136,17 +136,23 @@ abstract class AppLocalizations {
   /// **'Verse of the Day'**
   String get verseOfTheDay;
 
-  /// Verse carousel section title
+  /// Mindful verse carousel section title
   ///
   /// In en, this message translates to:
-  /// **'Verse Refresher'**
+  /// **'Mindful Verse'**
   String get verseRefresher;
 
-  /// Modern scenarios section title
+  /// Real life scenarios section title
   ///
   /// In en, this message translates to:
-  /// **'Modern Dilemma'**
+  /// **'Real Life Dilemma'**
   String get modernDilemma;
+
+  /// Subtitle text for Real Life Dilemma section in home screen
+  ///
+  /// In en, this message translates to:
+  /// **'Win battle of Emotions over Duty'**
+  String get winBattleText;
 
   /// Button text to view scenario wisdom
   ///
@@ -157,7 +163,7 @@ abstract class AppLocalizations {
   /// Subtitle text describing app purpose
   ///
   /// In en, this message translates to:
-  /// **'Find Wisdom for Any Life Challenge'**
+  /// **'Win Daily Battle of life choices by bite sized guidance'**
   String get applyGitaTeaching;
 
   /// Button text to view all scenarios with count
@@ -559,7 +565,7 @@ abstract class AppLocalizations {
   /// Header title for scenario detail view
   ///
   /// In en, this message translates to:
-  /// **'MODERN DAY SCENARIO'**
+  /// **'LIFE DILEMMA'**
   String get modernScenario;
 
   /// Overview section title
@@ -571,19 +577,19 @@ abstract class AppLocalizations {
   /// Subtitle for chapters screen
   ///
   /// In en, this message translates to:
-  /// **'Discover Wisdom for Any Life Challenge'**
+  /// **'Explore Scripture, Word for Word'**
   String get immersiveKnowledge;
 
   /// Header title for scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'LIFE SCENARIOS'**
+  /// **'LIFE\'S DAILY DILEMMA'**
   String get lifeScenarios;
 
   /// Subtitle for scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'Find Wisdom for Any Life Challenge'**
+  /// **'Clarity for life\'s daily challenges'**
   String get applyGitaWisdom;
 
   /// Back button tooltip
@@ -801,6 +807,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// Button text to reveal wisdom guidance (replaces 'Show Wisdom')
+  ///
+  /// In en, this message translates to:
+  /// **'GET GUIDANCE'**
+  String get getGuidance;
+
+  /// Tooltip text for the Get Guidance button
+  ///
+  /// In en, this message translates to:
+  /// **'By tapping, I will receive helpful guidance'**
+  String get getGuidanceTooltip;
+
+  /// Explanation tooltip for the Heart Says section
+  ///
+  /// In en, this message translates to:
+  /// **'What your emotions or desires tell you'**
+  String get heartSaysExplanation;
+
+  /// Explanation tooltip for the Duty Says section
+  ///
+  /// In en, this message translates to:
+  /// **'What your sense of duty or dharma recommends'**
+  String get dutySaysExplanation;
 }
 
 class _AppLocalizationsDelegate

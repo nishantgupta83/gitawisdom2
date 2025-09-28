@@ -2,10 +2,8 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'audio_service.dart';
+import 'background_music_service.dart';
 
-/// Manages app lifecycle events to control background music playback.
-/// Pauses music when app goes to background and resumes when returning to foreground.
 class AppLifecycleManager with WidgetsBindingObserver {
   AppLifecycleManager._();
   static final AppLifecycleManager instance = AppLifecycleManager._();
@@ -15,20 +13,23 @@ class AppLifecycleManager with WidgetsBindingObserver {
   bool _shouldResumeMusic = false;
   Timer? _resumeTimer;
 
-  /// Initialize the lifecycle manager
+  Timer? _lifecycleDebounceTimer;
+  AppLifecycleState? _lastProcessedState;
+  static const Duration _lifecycleDebounceDelay = Duration(milliseconds: 1000);
+
   void initialize() {
     if (_isInitialized) return;
-    
+
     WidgetsBinding.instance.addObserver(this);
     _isInitialized = true;
     debugPrint('🎵 AppLifecycleManager initialized');
   }
 
-  /// Dispose the lifecycle manager
   void dispose() {
     if (!_isInitialized) return;
-    
+
     _resumeTimer?.cancel();
+    _lifecycleDebounceTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     _isInitialized = false;
     debugPrint('🎵 AppLifecycleManager disposed');
@@ -36,96 +37,77 @@ class AppLifecycleManager with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    debugPrint('🎵 App lifecycle state changed: $state (Platform: ${Platform.operatingSystem})');
-    
-    switch (state) {
-      case AppLifecycleState.resumed:
-        _onAppResumed();
-        break;
-      case AppLifecycleState.paused:
-        _onAppPaused();
-        break;
-      case AppLifecycleState.inactive:
-        // App is transitioning - don't take action yet
-        debugPrint('🎵 App inactive - no action taken');
-        break;
-      case AppLifecycleState.detached:
-        _onAppDetached();
-        break;
-      case AppLifecycleState.hidden:
-        // App is hidden but still running
-        debugPrint('🎵 App hidden - treating as paused');
-        _onAppPaused();
-        break;
+    if (_lastProcessedState == state) {
+      return;
     }
+
+    _lifecycleDebounceTimer?.cancel();
+    _lifecycleDebounceTimer = Timer(_lifecycleDebounceDelay, () {
+      _lastProcessedState = state;
+      debugPrint('🎵 App lifecycle changed to: $state');
+
+      switch (state) {
+        case AppLifecycleState.resumed:
+          _onAppResumed();
+          break;
+        case AppLifecycleState.paused:
+          _onAppPaused();
+          break;
+        case AppLifecycleState.detached:
+          _onAppDetached();
+          break;
+        default:
+          break;
+      }
+    });
   }
 
-  /// Handle app resuming to foreground
   void _onAppResumed() {
-    debugPrint('🎵 App resumed - checking music state');
-    debugPrint('🎵 Should resume: $_shouldResumeMusic, Audio enabled: ${AudioService.instance.isEnabled}');
-    
-    // Cancel any pending resume timer
+    debugPrint('🎵 App resumed - checking resume state');
+    debugPrint('🎵 Should resume: $_shouldResumeMusic');
+
     _resumeTimer?.cancel();
-    
-    // Only resume music if it should be resumed and the user still has music enabled
-    if (_shouldResumeMusic && AudioService.instance.isEnabled) {
-      debugPrint('🎵 Attempting to resume music playback');
-      
-      // iOS may need a small delay to properly resume audio
-      final delay = Platform.isIOS ? 500 : 100;
-      
-      _resumeTimer = Timer(Duration(milliseconds: delay), () async {
+
+    if (_shouldResumeMusic) {
+      _resumeTimer = Timer(const Duration(milliseconds: 500), () async {
         try {
-          await AudioService.instance.start();
-          debugPrint('🎵 Music resumed successfully');
-          // Clear the should resume flag only after successful resume
-          _shouldResumeMusic = false;
+          debugPrint('🎵 Attempting to resume music...');
+          await BackgroundMusicService.instance.resumeMusic();
+          debugPrint('✅ Music resumed successfully');
         } catch (e) {
-          debugPrint('❌ Error resuming audio: $e');
-          // Keep the flag set so we can try again if user manually toggles
+          debugPrint('❌ Failed to resume music: $e');
         }
       });
     } else {
-      debugPrint('🎵 Music resume not needed or disabled');
-      // Clear flags even if not resuming
-      _shouldResumeMusic = false;
-      _wasMusicPlayingBeforeBackground = false;
+      debugPrint('🎵 Not resuming music');
     }
   }
 
-  /// Handle app going to background or being minimized
   void _onAppPaused() {
     debugPrint('🎵 App paused - checking music state');
-    
-    // Cancel any pending resume timer
+
     _resumeTimer?.cancel();
-    
-    // Remember if music was playing before pausing
-    _wasMusicPlayingBeforeBackground = AudioService.instance.isPlaying;
+
+    _wasMusicPlayingBeforeBackground = BackgroundMusicService.instance.isPlaying;
     debugPrint('🎵 Music was playing before background: $_wasMusicPlayingBeforeBackground');
-    
-    // Set resume flag if music was playing AND music is enabled
-    _shouldResumeMusic = _wasMusicPlayingBeforeBackground && AudioService.instance.isEnabled;
+
+    _shouldResumeMusic = _wasMusicPlayingBeforeBackground && BackgroundMusicService.instance.isEnabled;
     debugPrint('🎵 Should resume music when returning: $_shouldResumeMusic');
-    
-    // Pause music to be respectful of system resources and user experience
+
     if (_wasMusicPlayingBeforeBackground) {
       debugPrint('🎵 Pausing music due to app backgrounding');
-      AudioService.instance.pause();
+      BackgroundMusicService.instance.pauseMusic();
     }
   }
 
-  /// Handle app being terminated
   void _onAppDetached() {
     debugPrint('🎵 App detached - stopping music');
     _resumeTimer?.cancel();
     _shouldResumeMusic = false;
     _wasMusicPlayingBeforeBackground = false;
-    AudioService.instance.stop();
+    BackgroundMusicService.instance.stopMusic();
   }
 
-  /// Manually clear the resume state (useful when user manually changes music settings)
   void clearResumeState() {
     debugPrint('🎵 Manually clearing resume state');
     _resumeTimer?.cancel();
@@ -133,7 +115,6 @@ class AppLifecycleManager with WidgetsBindingObserver {
     _wasMusicPlayingBeforeBackground = false;
   }
 
-  /// Get the current state for debugging/UI synchronization
   bool get shouldResumeMusic => _shouldResumeMusic;
   bool get wasMusicPlayingBeforeBackground => _wasMusicPlayingBeforeBackground;
 }

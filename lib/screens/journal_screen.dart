@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/journal_entry.dart';
 import '../services/journal_service.dart';
 import '../screens/new_journal_entry_dialog.dart';
-import '../screens/journal_entry_detail_view.dart';
-import '../screens/home_screen.dart';
-import '../main.dart';
 import '../l10n/app_localizations.dart';
 
 class JournalScreen extends StatefulWidget {
@@ -293,25 +290,7 @@ class _JournalScreenState extends State<JournalScreen> {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface,
                   ),
-                  maxLines: 3,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 12),
-                
-                // Read More Button
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => JournalEntryDetailView(entry: entry),
-                        ),
-                      );
-                    },
-                    child: Text(localizations.readMore),
-                  ),
+                  maxLines: null,
                 ),
               ],
             ),

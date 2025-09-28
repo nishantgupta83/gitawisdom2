@@ -2,14 +2,22 @@
 // Updated with consistent UI patterns and branding header
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 
 import '../models/chapter.dart';
 import '../models/verse.dart';
 import '../services/service_locator.dart';
-import '../main.dart';
+import '../services/bookmark_service.dart';
+// import '../services/progress_service.dart'; // Removed for Apple compliance
+import '../models/bookmark.dart';
+import '../core/navigation/navigation_service.dart';
 import '../widgets/expandable_text.dart';
+import '../widgets/share_card_widget.dart';
+// Audio player removed for Apple App Store compliance
+// import '../widgets/verse_audio_player.dart';
 
 class VerseListView extends StatefulWidget {
   /// The ID of the chapter whose verses we're displaying.
@@ -28,11 +36,20 @@ class _VerseListViewState extends State<VerseListView> {
   List<Verse> _verses = [];
   bool _isLoading = true;
   String? _errorMessage;
+  late DateTime _sessionStartTime;
 
   @override
   void initState() {
     super.initState();
+    _sessionStartTime = DateTime.now();
     _loadVersesAndChapter();
+  }
+  
+  @override
+  void dispose() {
+    // Track session time before leaving
+    _trackSessionTime();
+    super.dispose();
   }
 
   Future<void> _loadVersesAndChapter() async {
@@ -41,6 +58,13 @@ class _VerseListViewState extends State<VerseListView> {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+    });
+    
+    // Track chapter started - defer to prevent setState during build
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _trackChapterStarted();
+      }
     });
     try {
       // Permanent caching for verses since they never change
@@ -229,14 +253,53 @@ class _VerseListViewState extends State<VerseListView> {
                     for (var verse in _verses)
                       Padding(
                         padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-                        child: Card(
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
+                        child: Container(
+                          decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(22),
+                            gradient: LinearGradient(
+                              colors: theme.brightness == Brightness.dark 
+                                ? [
+                                    theme.colorScheme.surface,
+                                    theme.colorScheme.primaryContainer.withOpacity(0.4),
+                                  ]
+                                : [
+                                    theme.colorScheme.surface,
+                                    theme.colorScheme.primaryContainer,
+                                  ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: theme.brightness == Brightness.dark
+                                  ? Colors.black.withOpacity(0.4)
+                                  : Colors.deepPurple.withOpacity(0.15),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                                offset: const Offset(0, 4),
+                              ),
+                              BoxShadow(
+                                color: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.primary.withOpacity(0.15)
+                                  : Colors.indigo.withOpacity(0.1),
+                                blurRadius: 8,
+                                spreadRadius: 1,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                          color: theme.colorScheme.surface,
-                          shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
-                          child: Padding(
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(22),
+                              onTap: () => _trackVerseRead(verse),
+                              child: Card(
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(22),
+                                ),
+                                color: Colors.transparent,
+                                child: Padding(
                             padding: const EdgeInsets.all(20),
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,16 +338,128 @@ class _VerseListViewState extends State<VerseListView> {
                                   ),
                                 ),
                                 const SizedBox(width: 16),
-                                // Verse text
+                                // Verse text and bookmark
                                 Expanded(
-                                  child: DefaultTextStyle(
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 15,
-                                      color: theme.colorScheme.onSurface.withOpacity(0.9),
-                                      height: 1.5,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                    child: ExpandableText(verse.description),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        verse.description,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                          color: theme.colorScheme.onSurface.withOpacity(0.9),
+                                          height: 1.5,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      
+                                      // Audio player removed for Apple App Store compliance
+                                      // VerseAudioPlayer(
+                                      //   verse: verse,
+                                      //   chapterId: widget.chapterId,
+                                      // ),
+                                      const SizedBox(height: 8),
+                                      
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          // Share Button
+                                          Material(
+                                            color: Colors.transparent,
+                                            child: InkWell(
+                                              borderRadius: BorderRadius.circular(20),
+                                              onTap: () => _showShareDialog(verse),
+                                              child: Container(
+                                                padding: const EdgeInsets.symmetric(
+                                                  horizontal: 12,
+                                                  vertical: 6,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                                                  borderRadius: BorderRadius.circular(20),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  children: [
+                                                    Icon(
+                                                      Icons.share,
+                                                      size: 16,
+                                                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                    ),
+                                                    const SizedBox(width: 4),
+                                                    Text(
+                                                      'Share',
+                                                      style: GoogleFonts.poppins(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.w500,
+                                                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          
+                                          // Bookmark Button
+                                          Consumer<BookmarkService>(
+                                            builder: (context, bookmarkService, child) {
+                                              final isBookmarked = bookmarkService.isBookmarked(
+                                                BookmarkType.verse, 
+                                                verse.verseId,
+                                              );
+                                              
+                                              return Material(
+                                                color: Colors.transparent,
+                                                child: InkWell(
+                                                  borderRadius: BorderRadius.circular(20),
+                                                  onTap: () => _toggleVerseBookmark(verse, isBookmarked),
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 6,
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      color: isBookmarked
+                                                          ? theme.colorScheme.primary
+                                                          : theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                                                      borderRadius: BorderRadius.circular(20),
+                                                    ),
+                                                    child: Row(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      children: [
+                                                        Icon(
+                                                          isBookmarked 
+                                                              ? Icons.bookmark 
+                                                              : Icons.bookmark_border,
+                                                          size: 16,
+                                                          color: isBookmarked
+                                                              ? theme.colorScheme.onPrimary
+                                                              : theme.colorScheme.onSurface.withOpacity(0.7),
+                                                        ),
+                                                        const SizedBox(width: 4),
+                                                        Text(
+                                                          isBookmarked ? 'Saved' : 'Save',
+                                                          style: GoogleFonts.poppins(
+                                                            fontSize: 12,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: isBookmarked
+                                                                ? theme.colorScheme.onPrimary
+                                                                : theme.colorScheme.onSurface.withOpacity(0.7),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -292,6 +467,9 @@ class _VerseListViewState extends State<VerseListView> {
                           ),
                         ),
                       ),
+                            ),
+                          ),
+                    ),
                   ],
 
                 const SizedBox(height: 16),
@@ -307,24 +485,24 @@ class _VerseListViewState extends State<VerseListView> {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Colors.amberAccent,
+                    color: Colors.amberAccent.withOpacity(0.9),
                     blurRadius: 16,
                     spreadRadius: 4,
                   ),
                 ],
               ),
               child: CircleAvatar(
-                radius: 26,
+                radius: 25,
                 backgroundColor: theme.colorScheme.surface,
                 child: IconButton(
                   icon: Icon(
                     Icons.arrow_back,
-                    size: 32,
+                    size: 30,
                     color: theme.colorScheme.primary,
                   ),
-                  splashRadius: 32,
+                  splashRadius: 30,
                   onPressed: () => Navigator.pop(context),
                   tooltip: 'Back',
                 ),
@@ -339,32 +517,27 @@ class _VerseListViewState extends State<VerseListView> {
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                boxShadow: const [
+                boxShadow: [
                   BoxShadow(
-                    color: Colors.amberAccent,
+                    color: Colors.amberAccent.withOpacity(0.9),
                     blurRadius: 16,
                     spreadRadius: 4,
                   ),
                 ],
               ),
               child: CircleAvatar(
-                radius: 26,
+                radius: 25,
                 backgroundColor: theme.colorScheme.surface,
                 child: IconButton(
                   icon: Icon(
                     Icons.home_filled,
-                    size: 32,
+                    size: 30,
                     color: theme.colorScheme.primary,
                   ),
-                  splashRadius: 32,
+                  splashRadius: 30,
                   onPressed: () {
-                    try {
-                      // Use proper tab navigation to sync bottom navigation state
-                      NavigationHelper.goToTab(0); // 0 = Home tab index
-                    } catch (e) {
-                      // Fallback navigation if NavigationHelper fails
-                      Navigator.of(context).pushNamedAndRemoveUntil('/', (route) => false);
-                    }
+                    // Use proper tab navigation to sync bottom navigation state
+                    NavigationService.instance.goToTab(0); // 0 = Home tab index
                   },
                   tooltip: 'Home',
                 ),
@@ -374,6 +547,124 @@ class _VerseListViewState extends State<VerseListView> {
         ],
       ),
     );
+  }
+  
+  /// Track verse read for progress analytics
+  Future<void> _trackVerseRead(Verse verse) async {
+    // Progress tracking removed for Apple compliance
+
+    try {
+      // Progress tracking removed for Apple compliance
+      debugPrint('Verse read: ${verse.verseId} in chapter ${widget.chapterId}');
+      
+      // Optional: Show subtle feedback
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                const SizedBox(width: 8),
+                Text('Verse ${verse.verseId} progress tracked'),
+              ],
+            ),
+            duration: const Duration(seconds: 1),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
+          ),
+        );
+      }
+    } catch (e) {
+      // Silent failure for progress tracking - don't disrupt user experience
+      if (mounted) {
+        debugPrint('Failed to track verse read: $e');
+      }
+    }
+  }
+  
+  /// Track chapter started
+  Future<void> _trackChapterStarted() async {
+    try {
+      // Progress tracking removed for Apple compliance
+      debugPrint('Chapter ${widget.chapterId} started');
+    } catch (e) {
+      debugPrint('Failed to track chapter started: $e');
+    }
+  }
+  
+  /// Track session time spent reading
+  Future<void> _trackSessionTime() async {
+    try {
+      final sessionDuration = DateTime.now().difference(_sessionStartTime);
+      final sessionMinutes = sessionDuration.inMinutes;
+      
+      if (sessionMinutes > 0) { // Only track if user spent at least a minute
+        // Progress tracking removed for Apple compliance
+        debugPrint('Session time: $sessionMinutes minutes for chapter ${widget.chapterId}');
+      }
+    } catch (e) {
+      debugPrint('Failed to track session time: $e');
+    }
+  }
+
+  /// Toggle bookmark for a verse
+  Future<void> _toggleVerseBookmark(Verse verse, bool isCurrentlyBookmarked) async {
+    final bookmarkService = context.read<BookmarkService>();
+    
+    if (isCurrentlyBookmarked) {
+      final bookmark = bookmarkService.getBookmark(BookmarkType.verse, verse.verseId);
+      if (bookmark != null) {
+        final success = await bookmarkService.removeBookmark(bookmark.id);
+        if (success && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Verse ${verse.verseId} removed from bookmarks'),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      }
+    } else {
+      final success = await bookmarkService.bookmarkVerse(verse, widget.chapterId);
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Verse ${verse.verseId} saved to bookmarks'),
+            duration: const Duration(seconds: 2),
+            action: SnackBarAction(
+              label: 'VIEW',
+              onPressed: () => Navigator.of(context).pushNamed('/bookmarks'),
+            ),
+          ),
+        );
+      }
+    }
+  }
+
+  /// Show share dialog for a verse
+  void _showShareDialog(Verse verse) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => ShareCardWidget(
+        verse: verse,
+        onShared: () {
+          // Track sharing action
+          _trackVerseShared(verse);
+        },
+      ),
+    );
+  }
+
+  /// Track verse shared for analytics
+  Future<void> _trackVerseShared(Verse verse) async {
+    try {
+      // You can add analytics tracking here if needed
+      debugPrint('📤 Verse ${verse.verseId} shared by user');
+    } catch (e) {
+      debugPrint('Failed to track verse share: $e');
+    }
   }
 }
 

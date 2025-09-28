@@ -7,6 +7,7 @@ import '../services/service_locator.dart';
 import 'chapters_detail_view.dart';
 import '../main.dart';
 import '../l10n/app_localizations.dart';
+import '../core/navigation/navigation_service.dart';
 
 /// CHAPTERS SCREEN: Modern UI, themed background, Material cards, floating buttons.
 /// This screen lists all Gita chapters as cards, using current app theming with enhanced multilingual support.
@@ -357,7 +358,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                       Navigator.pop(context);
                     } else {
                       // Navigate to home tab instead of trying to pop empty stack
-                      NavigationHelper.goToTab(0);
+                      NavigationService.instance.goToTab(0);
                     }
                   },
                   tooltip: AppLocalizations.of(context)!.back,
@@ -393,7 +394,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                   splashRadius: 32,
                   onPressed: () {
                     // Use proper tab navigation to sync bottom navigation state
-                    NavigationHelper.goToTab(0); // 0 = Home tab index
+                    NavigationService.instance.goToTab(0); // 0 = Home tab index
                   },
                   tooltip: AppLocalizations.of(context)!.home,
                 ),

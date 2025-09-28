@@ -8,7 +8,7 @@ import '../screens/new_journal_entry_dialog.dart';
 import '../screens/home_screen.dart';
 import '../services/journal_service.dart';
 import '../services/app_sharing_service.dart';
-import '../main.dart';
+import '../core/navigation/navigation_service.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import '../l10n/app_localizations.dart';
 
@@ -174,8 +174,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         children: [
                           Text(
                             AppLocalizations.of(context)!.modernScenario,
-                            style: GoogleFonts.poiretOne(
-                              fontSize: 26,
+                            style: GoogleFonts.poiretOne().copyWith(
+                              fontSize: theme.textTheme.headlineLarge?.fontSize,
                               fontWeight: FontWeight.w800,
                               color: theme.colorScheme.onSurface,
                               letterSpacing: 1.3,
@@ -201,8 +201,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                           const SizedBox(height: 8),
                           Text(
                             'Bite-sized wisdom for modern challenges',
-                            style: GoogleFonts.poppins(
-                              fontSize: 14,
+                            style: GoogleFonts.poppins().copyWith(
+                              fontSize: theme.textTheme.bodyMedium?.fontSize,
                               color: theme.colorScheme.onSurface.withOpacity(0.7),
                               letterSpacing: 0.8,
                             ),
@@ -231,8 +231,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                               Expanded(
                                 child: Text(
                                   widget.scenario.title,
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 18,
+                                  style: GoogleFonts.poppins().copyWith(
+                                    fontSize: theme.textTheme.titleLarge?.fontSize,
                                     fontWeight: FontWeight.w600,
                                     color: theme.colorScheme.primary,
                                   ),
@@ -252,7 +252,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                                       widget.scenario.title,
                                       widget.scenario.heartResponse,
                                       widget.scenario.dutyResponse,
-                                      widget.scenario.gitaWisdom,
+                                      '', // Remove Gita wisdom references as requested
                                       actionSteps: widget.scenario.actionSteps,
                                     );
                                   },
@@ -314,7 +314,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     if (!_showActions) _buildShowWisdomButton(theme),
                     
                     if (widget.scenario.tags?.isNotEmpty ?? false) _tagCard(theme),
-                    _card('Gita Wisdom', widget.scenario.gitaWisdom, theme),
+                    // TODO: Temporarily hidden - _card('Gita Wisdom', widget.scenario.gitaWisdom, theme),
                     if (_showActions) _actionStepsCard(theme),
                     
                     // Bottom padding for floating elements and bottom navigation bar
@@ -326,29 +326,29 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             
             // Floating Back Button
             Positioned(
-              top: 26,
+              top: 40,
               right: 84,
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.amberAccent,
+                      color: Colors.amberAccent.withOpacity(0.9),
                       blurRadius: 16,
                       spreadRadius: 4,
                     ),
                   ],
                 ),
                 child: CircleAvatar(
-                  radius: 26,
+                  radius: 25,
                   backgroundColor: theme.colorScheme.surface,
                   child: IconButton(
                     icon: Icon(
                       Icons.arrow_back,
-                      size: 32,
+                      size: 30,
                       color: theme.colorScheme.primary,
                     ),
-                    splashRadius: 32,
+                    splashRadius: 30,
                     onPressed: () => Navigator.pop(context),
                     tooltip: AppLocalizations.of(context)!.back,
                   ),
@@ -359,7 +359,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             /*
             // Journal This button
             Positioned(
-              top: 26,
+              top: 40,
               right: 84,
               child: Material(
                 elevation: 12,
@@ -372,32 +372,32 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             
             // Floating Home Button
             Positioned(
-              top: 26,
+              top: 40,
               right: 24,
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.amberAccent,
+                      color: Colors.amberAccent.withOpacity(0.9),
                       blurRadius: 16,
                       spreadRadius: 4,
                     ),
                   ],
                 ),
                 child: CircleAvatar(
-                  radius: 26,
+                  radius: 25,
                   backgroundColor: theme.colorScheme.surface,
                   child: IconButton(
                     icon: Icon(
                       Icons.home_filled,
-                      size: 32,
+                      size: 30,
                       color: theme.colorScheme.primary,
                     ),
-                    splashRadius: 32,
+                    splashRadius: 30,
                     onPressed: () {
                       // Use proper tab navigation to sync bottom navigation state
-                      NavigationHelper.goToTab(0); // 0 = Home tab index
+                      NavigationService.instance.goToTab(0); // 0 = Home tab index
                     },
                     tooltip: AppLocalizations.of(context)!.home,
                   ),
@@ -428,16 +428,16 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         padding: const EdgeInsets.all(20),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text(title,
-            style: GoogleFonts.poppins(
-              fontSize: 16,
+            style: GoogleFonts.poppins().copyWith(
+              fontSize: theme.textTheme.bodyLarge?.fontSize,
               fontWeight: FontWeight.w600,
               color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),
           Text(body,
-            style: GoogleFonts.poppins(
-              fontSize: 14,
+            style: GoogleFonts.poppins().copyWith(
+              fontSize: theme.textTheme.bodyMedium?.fontSize,
               color: theme.colorScheme.onSurface.withOpacity(0.8),
               height: 1.5,
             ),
@@ -448,15 +448,62 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
   );
 
   Widget _buildHeartSection(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: LinearGradient(
+          colors: [
+            Colors.pink.shade400.withOpacity(0.32),
+            Colors.pink.shade300.withOpacity(0.32),
+            Colors.pink.shade200.withOpacity(0.24),
+            Colors.pink.shade100.withOpacity(0.24),
+          ],
+          stops: const [0.0, 0.3, 0.7, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        color: theme.colorScheme.surface,
-        shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+        boxShadow: [
+          // Outermost glow - strongest and largest
+          BoxShadow(
+            color: Colors.pink.withOpacity(0.456),
+            blurRadius: 25,
+            spreadRadius: 6,
+            offset: const Offset(0, 8),
+          ),
+          // Middle glow - medium intensity
+          BoxShadow(
+            color: Colors.pink.shade300.withOpacity(0.304),
+            blurRadius: 18,
+            spreadRadius: 3,
+            offset: const Offset(0, 4),
+          ),
+          // Inner glow - subtle and close
+          BoxShadow(
+            color: Colors.pink.shade200.withOpacity(0.228),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+          // Accent glow - pink shimmer
+          BoxShadow(
+            color: Colors.pinkAccent.withOpacity(0.38),
+            blurRadius: 30,
+            spreadRadius: 8,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(3), // Creates enhanced border effect
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          color: theme.colorScheme.surface,
+          border: Border.all(
+            color: Colors.pink.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Row(
@@ -465,32 +512,56 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.pink.shade50,
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [Colors.pink.shade300, Colors.pink.shade400],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.pink.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.favorite, size: 24, color: Colors.pink),
+                child: Icon(
+                  Icons.favorite,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.heartSays,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.heartSays,
+                      style: GoogleFonts.poppins(
+                        fontSize: theme.textTheme.titleLarge?.fontSize,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      AppLocalizations.of(context)!.heartSaysExplanation,
+                      style: GoogleFonts.poppins(
+                        fontSize: theme.textTheme.bodySmall?.fontSize,
+                        color: Colors.pink.shade600,
+                        fontWeight: FontWeight.w500,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(widget.scenario.heartResponse,
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
+                          fontSize: theme.textTheme.bodyMedium?.fontSize,
                           color: theme.colorScheme.onSurface.withOpacity(0.8),
                           height: 1.5,
                         ),
-                        // Allow flexible text length for heart response
                         overflow: TextOverflow.visible),
                   ],
                 ),
@@ -503,15 +574,62 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
   }
 
   Widget _buildDutySection(ThemeData theme) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(22),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: LinearGradient(
+          colors: [
+            Colors.blue.shade400.withOpacity(0.32),
+            Colors.blue.shade300.withOpacity(0.32),
+            Colors.blue.shade200.withOpacity(0.24),
+            Colors.blue.shade100.withOpacity(0.24),
+          ],
+          stops: const [0.0, 0.3, 0.7, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        color: theme.colorScheme.surface,
-        shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
+        boxShadow: [
+          // Outermost glow - strongest and largest
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.456),
+            blurRadius: 25,
+            spreadRadius: 6,
+            offset: const Offset(0, 8),
+          ),
+          // Middle glow - medium intensity
+          BoxShadow(
+            color: Colors.blue.shade300.withOpacity(0.304),
+            blurRadius: 18,
+            spreadRadius: 3,
+            offset: const Offset(0, 4),
+          ),
+          // Inner glow - subtle and close
+          BoxShadow(
+            color: Colors.blue.shade200.withOpacity(0.228),
+            blurRadius: 12,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+          // Accent glow - blue shimmer
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.38),
+            blurRadius: 30,
+            spreadRadius: 8,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Container(
+        margin: const EdgeInsets.all(3), // Creates enhanced border effect
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          color: theme.colorScheme.surface,
+          border: Border.all(
+            color: Colors.blue.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
         child: Padding(
           padding: const EdgeInsets.all(20),
           child: Row(
@@ -520,32 +638,56 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(12),
+                  gradient: LinearGradient(
+                    colors: [Colors.blue.shade300, Colors.blue.shade400],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blue.withOpacity(0.3),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
-                child: const Icon(Icons.balance, size: 24, color: Colors.blue),
+                child: Icon(
+                  Icons.balance,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(AppLocalizations.of(context)!.dutySays,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis),
-                    const SizedBox(height: 8),
+                    Text(
+                      AppLocalizations.of(context)!.dutySays,
+                      style: GoogleFonts.poppins(
+                        fontSize: theme.textTheme.titleLarge?.fontSize,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      AppLocalizations.of(context)!.dutySaysExplanation,
+                      style: GoogleFonts.poppins(
+                        fontSize: theme.textTheme.bodySmall?.fontSize,
+                        color: Colors.blue.shade600,
+                        fontWeight: FontWeight.w500,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     Text(widget.scenario.dutyResponse,
                         style: GoogleFonts.poppins(
-                          fontSize: 14,
+                          fontSize: theme.textTheme.bodyMedium?.fontSize,
                           color: theme.colorScheme.onSurface.withOpacity(0.8),
                           height: 1.5,
                         ),
-                        // Allow flexible text length for duty response
                         overflow: TextOverflow.visible),
                   ],
                 ),
@@ -576,7 +718,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 label: Text(
                   tag,
                   style: GoogleFonts.poppins(
-                    fontSize: 12,
+                    fontSize: theme.textTheme.bodySmall?.fontSize,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -633,28 +775,28 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             boxShadow: [
               // Outermost glow - strongest and largest
               BoxShadow(
-                color: Colors.amber.withOpacity(0.6),
+                color: Colors.amber.withOpacity(0.54),
                 blurRadius: 25,
                 spreadRadius: 6,
                 offset: const Offset(0, 8),
               ),
               // Middle glow - medium intensity
               BoxShadow(
-                color: Colors.orange.withOpacity(0.4),
+                color: Colors.orange.withOpacity(0.36),
                 blurRadius: 18,
                 spreadRadius: 3,
                 offset: const Offset(0, 4),
               ),
               // Inner glow - subtle and close
               BoxShadow(
-                color: Colors.deepOrange.withOpacity(0.3),
+                color: Colors.deepOrange.withOpacity(0.27),
                 blurRadius: 12,
                 spreadRadius: 1,
                 offset: const Offset(0, 2),
               ),
               // Accent glow - golden shimmer
               BoxShadow(
-                color: Colors.amberAccent.withOpacity(0.5),
+                color: Colors.amberAccent.withOpacity(0.4),
                 blurRadius: 30,
                 spreadRadius: 8,
                 offset: const Offset(0, 10),
@@ -710,7 +852,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                           child: Text(
                             AppLocalizations.of(context)!.wisdomSteps,
                             style: GoogleFonts.poppins(
-                              fontSize: isTablet ? 20 : 18,
+                              fontSize: theme.textTheme.titleLarge?.fontSize,
                               fontWeight: FontWeight.w600,
                               color: theme.colorScheme.primary,
                             ),
@@ -794,13 +936,13 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.6),
+            color: Colors.amber.withOpacity(0.54),
             blurRadius: 25,
             spreadRadius: 3,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.orange.withOpacity(0.4),
+            color: Colors.orange.withOpacity(0.36),
             blurRadius: 15,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -812,28 +954,31 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         child: InkWell(
           borderRadius: BorderRadius.circular(16),
           onTap: _revealActions,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.auto_awesome, size: 28, color: Colors.white),
-                const SizedBox(width: 12),
-                Text(
-                  '🔮 SHOW WISDOM',
-                  style: GoogleFonts.poppins(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    letterSpacing: 1.2,
+          child: Tooltip(
+            message: AppLocalizations.of(context)!.getGuidanceTooltip,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 18),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.auto_awesome, size: 28, color: Colors.white),
+                  const SizedBox(width: 12),
+                  Text(
+                    '🔮 ${AppLocalizations.of(context)!.getGuidance}',
+                    style: GoogleFonts.poppins(
+                      fontSize: theme.textTheme.titleLarge?.fontSize,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      letterSpacing: 1.2,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    softWrap: true,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  softWrap: true,
-                ),
-                const SizedBox(width: 12),
-                const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white70),
-              ],
+                  const SizedBox(width: 12),
+                  const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white70),
+                ],
+              ),
             ),
           ),
         ),
@@ -872,4 +1017,60 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         ),
       );
   */
+
+  /// Build first tag information pill only for the header (category removed)
+  Widget _buildScenarioInfoPills(ThemeData theme) {
+    final List<Widget> pills = [];
+    
+    // Show first tag only (category pill removed as requested)
+    if (widget.scenario.tags != null && widget.scenario.tags!.isNotEmpty) {
+      final firstTag = widget.scenario.tags!.first.trim();
+      if (firstTag.isNotEmpty) {
+        pills.add(_buildInfoPill(
+          text: '🏷️ $firstTag',
+          backgroundColor: theme.colorScheme.secondaryContainer,
+          textColor: theme.colorScheme.onSecondaryContainer,
+        ));
+      }
+    }
+    
+    if (pills.isEmpty) return const SizedBox.shrink();
+    
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      alignment: WrapAlignment.center,
+      children: pills,
+    );
+  }
+  
+  /// Build individual info pill widget
+  Widget _buildInfoPill({
+    required String text,
+    required Color backgroundColor,
+    required Color textColor,
+  }) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: textColor.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Text(
+        text,
+        style: GoogleFonts.poppins(
+          fontSize: theme.textTheme.labelSmall?.fontSize,
+          fontWeight: FontWeight.w500,
+          color: textColor,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
 }

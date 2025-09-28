@@ -30,16 +30,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verseOfTheDay => 'Verse of the Day';
 
   @override
-  String get verseRefresher => 'Verse Refresher';
+  String get verseRefresher => 'Mindful Verse';
 
   @override
-  String get modernDilemma => 'Modern Dilemma';
+  String get modernDilemma => 'Real Life Dilemma';
+
+  @override
+  String get winBattleText => 'Win battle of Emotions over Duty';
 
   @override
   String get showWisdom => 'Show Wisdom';
 
   @override
-  String get applyGitaTeaching => 'Find Wisdom for Any Life Challenge';
+  String get applyGitaTeaching =>
+      'Win Daily Battle of life choices by bite sized guidance';
 
   @override
   String viewScenarios(int count) {
@@ -252,19 +256,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get wisdomSteps => 'Wisdom Steps';
 
   @override
-  String get modernScenario => 'MODERN DAY SCENARIO';
+  String get modernScenario => 'LIFE DILEMMA';
 
   @override
   String get overview => 'Overview';
 
   @override
-  String get immersiveKnowledge => 'Discover Wisdom for Any Life Challenge';
+  String get immersiveKnowledge => 'Explore Scripture, Word for Word';
 
   @override
-  String get lifeScenarios => 'LIFE SCENARIOS';
+  String get lifeScenarios => 'LIFE\'S DAILY DILEMMA';
 
   @override
-  String get applyGitaWisdom => 'Find Wisdom for Any Life Challenge';
+  String get applyGitaWisdom => 'Clarity for life\'s daily challenges';
 
   @override
   String get back => 'Back';
@@ -388,4 +392,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get retry => 'Retry';
+
+  @override
+  String get getGuidance => 'GET GUIDANCE';
+
+  @override
+  String get getGuidanceTooltip =>
+      'By tapping, I will receive helpful guidance';
+
+  @override
+  String get heartSaysExplanation => 'What your emotions or desires tell you';
+
+  @override
+  String get dutySaysExplanation =>
+      'What your sense of duty or dharma recommends';
 }
