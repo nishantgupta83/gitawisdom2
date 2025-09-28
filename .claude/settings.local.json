@@ -39,7 +39,22 @@
       "WebSearch",
       "Bash(security find-identity:*)",
       "Bash(keytool:*)",
-      "Bash(openssl req:*)"
+      "Bash(openssl req:*)",
+      "Read(//Users/nishantgupta/Desktop/**)",
+      "Bash(dart analyze:*)",
+      "WebFetch(domain:apps.apple.com)",
+      "Bash(dart scripts/validate_backend.dart:*)",
+      "Bash(dart:*)",
+      "Bash(pod install:*)",
+      "Bash(open Runner.xcworkspace)",
+      "Bash(./scripts/test_production_readiness.sh:*)",
+      "WebFetch(domain:archive.org)",
+      "WebFetch(domain:audio.iskcondesiretree.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(cat:*)",
+      "Read(///**)",
+      "Bash(git remote add:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "additionalDirectories": [

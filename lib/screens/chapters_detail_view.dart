@@ -231,40 +231,150 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                         ),
 
 
-                        // Key Teachings
+                        // Key Teachings with beautiful purple glow
                         if (_chapter!.keyTeachings?.isNotEmpty ?? false)
-                          Card(
-                            color: surface,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          Container(
                             margin: const EdgeInsets.only(bottom: 24),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Key Teachings',
-                                    style: theme.textTheme.titleMedium?.copyWith(color: onSurface),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  ..._chapter!.keyTeachings!.map(
-                                    (t) => Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: 4),
-                                      child: Row(
-                                        children: [
-                                          Icon(Icons.book, size: 20, color: theme.colorScheme.primary),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              t,
-                                              style: theme.textTheme.bodyMedium?.copyWith(color: onSurface),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(18),
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.purple.shade300.withOpacity(0.28),
+                                  Colors.purple.shade200.withOpacity(0.24),
+                                  Colors.purple.shade100.withOpacity(0.20),
+                                  Colors.purple.shade50.withOpacity(0.16),
+                                ],
+                                stops: const [0.0, 0.3, 0.7, 1.0],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              boxShadow: [
+                                // Outermost purple glow - strongest and largest
+                                BoxShadow(
+                                  color: Colors.purple.withOpacity(0.45),
+                                  blurRadius: 25,
+                                  spreadRadius: 6,
+                                  offset: const Offset(0, 8),
+                                ),
+                                // Middle purple glow - medium intensity
+                                BoxShadow(
+                                  color: Colors.purple.shade300.withOpacity(0.32),
+                                  blurRadius: 18,
+                                  spreadRadius: 3,
+                                  offset: const Offset(0, 4),
+                                ),
+                                // Inner purple glow - subtle and close
+                                BoxShadow(
+                                  color: Colors.purple.shade200.withOpacity(0.24),
+                                  blurRadius: 12,
+                                  spreadRadius: 1,
+                                  offset: const Offset(0, 2),
+                                ),
+                                // Accent purple shimmer
+                                BoxShadow(
+                                  color: Colors.purpleAccent.withOpacity(0.35),
+                                  blurRadius: 30,
+                                  spreadRadius: 8,
+                                  offset: const Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Container(
+                              margin: const EdgeInsets.all(3), // Creates enhanced border effect
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(18),
+                                color: theme.colorScheme.surface,
+                                border: Border.all(
+                                  color: Colors.purple.withOpacity(0.2),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [Colors.purple.shade300, Colors.purple.shade400],
+                                              begin: Alignment.topLeft,
+                                              end: Alignment.bottomRight,
+                                            ),
+                                            borderRadius: BorderRadius.circular(8),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: Colors.purple.withOpacity(0.3),
+                                                blurRadius: 8,
+                                                spreadRadius: 1,
+                                              ),
+                                            ],
+                                          ),
+                                          child: Icon(
+                                            Icons.auto_awesome,
+                                            color: Colors.white,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            'Key Teachings',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: theme.textTheme.titleLarge?.fontSize,
+                                              fontWeight: FontWeight.w600,
+                                              color: theme.colorScheme.primary,
                                             ),
                                           ),
-                                        ],
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 16),
+                                    ..._chapter!.keyTeachings!.map(
+                                      (t) => Container(
+                                        margin: const EdgeInsets.only(bottom: 12),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              width: 6,
+                                              height: 6,
+                                              margin: const EdgeInsets.only(top: 8, right: 12),
+                                              decoration: BoxDecoration(
+                                                gradient: LinearGradient(
+                                                  colors: [Colors.purple.shade400, Colors.purple.shade500],
+                                                  begin: Alignment.topLeft,
+                                                  end: Alignment.bottomRight,
+                                                ),
+                                                shape: BoxShape.circle,
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.purple.withOpacity(0.4),
+                                                    blurRadius: 4,
+                                                    spreadRadius: 1,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Expanded(
+                                              child: Text(
+                                                t,
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: theme.textTheme.bodyMedium?.fontSize,
+                                                  color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                                  height: 1.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
