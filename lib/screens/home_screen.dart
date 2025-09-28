@@ -309,8 +309,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildDynamicHeader(ThemeData theme, bool isDark) {
+    // Fixed overflow issue by reducing padding and font sizes
     return SliverAppBar(
-      expandedHeight: 200,
+      expandedHeight: 220,
       floating: false,
       pinned: true,
       backgroundColor: Colors.transparent,
@@ -331,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 80, 24, 20),
+            padding: const EdgeInsets.fromLTRB(24, 80, 24, 8),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -380,15 +381,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     );
                   },
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
                 Text(
                   'Let ancient wisdom guide your day',
-                  style: theme.textTheme.bodyLarge?.copyWith(
+                  style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark ? Colors.white.withOpacity(0.7) : theme.colorScheme.onSurface.withOpacity(0.7),
                     fontStyle: FontStyle.italic,
+                    fontSize: 14,
                   ),
                   overflow: TextOverflow.ellipsis,
-                  maxLines: 2,
+                  maxLines: 1,
                 ),
               ],
             ),
