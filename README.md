@@ -9,9 +9,11 @@ GitaWisdom transforms abstract spiritual teachings into practical guidance for m
 ## 📱 Current Status
 
 - **🚀 Production Ready**: Published on Google Play Store
-- **📲 iOS Ready**: App Store build prepared, awaiting distribution
+- **📲 iOS Ready**: App Store ready with Apple compliance fixes
+- **🤖 AI-Powered**: Hybrid search system with TF-IDF + TensorFlow Lite
 - **👥 User Testing**: Closed testing with positive feedback
-- **🎨 Version**: v2.2.1+14 with critical performance optimizations
+- **🎨 Version**: v2.3.0+15 with AI search and Apple Store compliance
+- **🔧 Latest Update (Sep 28, 2024)**: Compilation errors fixed, simulators tested
 
 ## 🏗️ Architecture Evolution
 
@@ -53,10 +55,17 @@ The 32 services represent **purposeful architecture**, not bloat:
 - `background_music_service.dart` - Meditation audio support
 - `narration_service.dart` - Text-to-speech functionality
 
+#### **AI-Powered Search** (NEW)
+- `intelligent_scenario_search.dart` - Hybrid search orchestrator
+- `keyword_search_service.dart` - TF-IDF keyword search (<50ms)
+- `semantic_search_service.dart` - TensorFlow Lite semantic AI
+- `search_service.dart` - Universal search interface
+
 #### **User Experience**
 - `settings_service.dart` - Persistent user preferences
 - `theme_provider.dart` - Dynamic light/dark themes
 - `bookmark_service.dart` - Verse favoriting system
+- `simple_auth_service.dart` - Authentication with guest mode
 
 #### **Platform Optimization**
 - `widget_service.dart` - iOS Home Screen widgets
@@ -140,23 +149,32 @@ flutter test test/integration/     # End-to-end flows
 
 ## 📊 Key Features
 
+### 🤖 AI-Powered Intelligent Search (NEW)
+- **Hybrid Search Architecture**: TF-IDF keyword search (<50ms) + TFLite semantic search
+- **Privacy-First AI**: 100% offline semantic search, no data leaves your device
+- **Intelligent Fallback**: Keyword search first, semantic AI when needed
+- **Universal Search**: Find verses, chapters, and scenarios with natural language
+
 ### Spiritual Guidance Engine
 - **1,200+ Scenarios**: Real-world dilemmas across life domains
 - **18 Gita Chapters**: Complete spiritual framework
 - **Heart vs Duty**: Contrasting response perspectives
 - **Contextual Verses**: Relevant Gita wisdom for each scenario
+- **Monthly Refresh**: Fresh scenarios from Supabase backend
 
 ### User Experience
 - **Instant Loading**: No wait times for spiritual guidance
 - **Offline Capability**: Full functionality without internet
 - **Personalization**: Dark mode, font scaling, audio preferences
 - **Cross-Device Sync**: Bookmarks and progress synchronization
+- **Guest Mode**: Anonymous access with full functionality
 
 ### Technical Innovation
 - **Progressive Loading**: Critical content first, background completion
 - **Intelligent Prefetching**: Anticipates user needs
 - **Resource Optimization**: Minimal battery/memory impact
 - **Accessibility**: Screen reader support, high contrast themes
+- **Apple Compliance**: Guideline 4.2 violations resolved
 
 ## 🗂️ Database Schema
 
@@ -257,6 +275,11 @@ supabase_flutter: ^2.10.0  # Backend integration
 google_fonts: ^6.1.0    # Typography
 just_audio: ^0.9.36     # Audio playback
 flutter_local_notifications: ^19.4.1  # User engagement
+```
+
+### AI & Search
+```yaml
+tflite_flutter: ^0.11.0     # TensorFlow Lite for semantic search
 ```
 
 ### Performance
