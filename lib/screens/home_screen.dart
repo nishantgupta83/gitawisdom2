@@ -345,7 +345,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     if (hour >= 12 && hour < 17) greeting = 'Good afternoon';
                     if (hour >= 17) greeting = 'Good evening';
                     
-                    final name = auth.isAuthenticated ? 'User' : 'Seeker';
+                    final name = auth.isAuthenticated
+                        ? (auth.displayName ?? 'User')
+                        : 'Seeker';
                     
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

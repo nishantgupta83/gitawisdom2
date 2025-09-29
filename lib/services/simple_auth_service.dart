@@ -12,11 +12,26 @@ class SimpleAuthService extends ChangeNotifier {
   bool _isGuest = false;
   String? _error;
   bool _isLoading = false;
+  String? _userEmail;
+  String? _userName;
 
   bool get isAuthenticated => _isAuthenticated || _isGuest;
   bool get isAnonymous => _isGuest;
   String? get error => _error;
   bool get isLoading => _isLoading;
+  String? get userEmail => _userEmail;
+  String? get userName => _userName;
+
+  // Extract username from email (part before @) or return full name
+  String? get displayName {
+    if (_userName != null && _userName!.isNotEmpty) {
+      return _userName;
+    }
+    if (_userEmail != null && _userEmail!.isNotEmpty) {
+      return _userEmail!.split('@').first;
+    }
+    return null;
+  }
 
   Stream<bool> get authStateChanges => Stream.periodic(
     const Duration(seconds: 1),
@@ -54,6 +69,8 @@ class SimpleAuthService extends ChangeNotifier {
       await Future.delayed(const Duration(seconds: 1)); // Simulate auth
       _isAuthenticated = true;
       _isGuest = false;
+      _userEmail = email;
+      _userName = null; // Clear any existing name
       _error = null;
       debugPrint('✅ Signed in with email: $email');
       return true;
@@ -73,8 +90,10 @@ class SimpleAuthService extends ChangeNotifier {
       await Future.delayed(const Duration(seconds: 1)); // Simulate auth
       _isAuthenticated = true;
       _isGuest = false;
+      _userEmail = email;
+      _userName = name.isNotEmpty ? name : null;
       _error = null;
-      debugPrint('✅ Signed up with email: $email');
+      debugPrint('✅ Signed up with email: $email, name: $name');
       return true;
     } catch (e) {
       _error = 'Failed to create account';
@@ -88,6 +107,8 @@ class SimpleAuthService extends ChangeNotifier {
   Future<void> signOut() async {
     _isAuthenticated = false;
     _isGuest = false;
+    _userEmail = null;
+    _userName = null;
     _error = null;
     notifyListeners();
     debugPrint('👋 Signed out');
