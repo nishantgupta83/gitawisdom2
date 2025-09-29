@@ -10,8 +10,8 @@ class AppConfig {
   static const String appTitle = 'Wisdom Guide';
   
   // Version and Build Information
-  static const String version = '1.6.0';
-  static const int buildNumber = 12;
+  static const String version = '2.2.8';
+  static const int buildNumber = 21;
   
   // Timing Configuration
   static const Duration splashDuration = Duration(seconds: 3);

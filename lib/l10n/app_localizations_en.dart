@@ -208,7 +208,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gitaQuoteReference => '- Bhagavad Gita 2.47';
 
   @override
-  String get appVersion => 'GitaWisdom v1.0.0';
+  String get appVersion => 'GitaWisdom v2.2.8';
 
   @override
   String get referencesTitle => 'References';

@@ -334,7 +334,7 @@
     "description": "Reference for the Gita quote"
   },
 
-  "appVersion": "GitaWisdom v1.0.0",
+  "appVersion": "GitaWisdom v2.2.8",
   "@appVersion": {
     "description": "App version display"
   },
