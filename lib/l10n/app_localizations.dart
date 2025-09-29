@@ -475,7 +475,7 @@ abstract class AppLocalizations {
   /// App version display
   ///
   /// In en, this message translates to:
-  /// **'GitaWisdom v1.0.0'**
+  /// **'GitaWisdom v2.2.8'**
   String get appVersion;
 
   /// Title for References screen

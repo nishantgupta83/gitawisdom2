@@ -285,7 +285,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   TextButton(
-                    onPressed: _saving ? null : () => Navigator.pop(c),
+                    onPressed: _saving ? null : () => Navigator.pop(context),
                     child: Text(localizations.cancel),
                   ),
                   const SizedBox(width: 8),

@@ -54,7 +54,21 @@
       "Bash(cat:*)",
       "Read(///**)",
       "Bash(git remote add:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(nc localhost 51049)",
+      "Bash(nc localhost 51149)",
+      "Bash(tee /proc/$PID_21c511/fd/0 /proc/$PID_d90474/fd/0)",
+      "Bash(/dev/null)",
+      "Bash(git remote set-url:*)",
+      "Bash(git fetch:*)",
+      "Bash(git remote remove:*)",
+      "Bash(pkill:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(sudo pkill:*)",
+      "Bash(xcrun simctl shutdown:*)",
+      "Bash(adb:*)",
+      "Bash(xcrun simctl boot:*)",
+      "Bash(PGPASSWORD=\"xbQUKAWHkkcaV7Q@\" psql -h db.jnzzwknjzigvupwfzfhq.supabase.co -p 5432 -U postgres -d postgres)"
     ],
     "deny": [],
     "additionalDirectories": [

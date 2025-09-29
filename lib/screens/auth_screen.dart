@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/simple_auth_service.dart';
+import '../services/supabase_auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -51,7 +51,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
 
     return Scaffold(
       backgroundColor: isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF5F5F5),
-      body: Consumer<SimpleAuthService>(
+      body: Consumer<SupabaseAuthService>(
         builder: (context, authService, child) {
           return Stack(
             children: [
@@ -137,7 +137,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAuthForm(ThemeData theme, SimpleAuthService authService, bool isDark) {
+  Widget _buildAuthForm(ThemeData theme, SupabaseAuthService authService, bool isDark) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -251,7 +251,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildFormFields(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildFormFields(ThemeData theme, SupabaseAuthService authService) {
     return Column(
       children: [
         // Name field (only for sign up)
@@ -359,7 +359,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildAnonymousOption(ThemeData theme, SimpleAuthService authService, bool isDark) {
+  Widget _buildAnonymousOption(ThemeData theme, SupabaseAuthService authService, bool isDark) {
     return Column(
       children: [
         Row(
@@ -425,7 +425,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   void _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     
-    final authService = context.read<SimpleAuthService>();
+    final authService = context.read<SupabaseAuthService>();
     bool success = false;
     
     if (_currentTab == 0) {
@@ -449,7 +449,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
   }
 
   void _continueAsAnonymous() async {
-    final authService = context.read<SimpleAuthService>();
+    final authService = context.read<SupabaseAuthService>();
     final success = await authService.continueAsAnonymous();
     
     if (success && mounted) {
@@ -488,7 +488,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             onPressed: () async {
               if (resetEmailController.text.trim().isEmpty) return;
               
-              final authService = context.read<SimpleAuthService>();
+              final authService = context.read<SupabaseAuthService>();
               final success = await authService.resetPassword(resetEmailController.text.trim());
               
               if (mounted) {

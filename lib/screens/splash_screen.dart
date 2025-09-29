@@ -9,7 +9,7 @@ import '../core/app_config.dart';
 import '../core/app_initializer.dart';
 import '../core/navigation/navigation_service.dart';
 import '../core/navigation/app_router.dart';
-import '../services/simple_auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import 'root_scaffold.dart';
 import 'modern_auth_screen.dart';
 
@@ -90,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       try {
         // Check authentication status
-        final authService = context.read<SimpleAuthService>();
+        final authService = SupabaseAuthService.instance;
         await authService.initialize();
         
         // Determine where to navigate based on auth status

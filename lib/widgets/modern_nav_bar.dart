@@ -54,28 +54,12 @@ class ModernNavBar extends StatelessWidget {
     final effectiveMargin = margin ?? const EdgeInsets.fromLTRB(12, 0, 12, 6);
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(20);
 
-    // Modern colors with high translucency for blur effect
-    final navBackgroundColor = backgroundColor ??
-        (isDark
-            ? const Color(0xFF1C1C1E).withOpacity(0.45)
-            : Colors.white.withOpacity(0.35));
-
     return SafeArea(
       child: Container(
         margin: effectiveMargin,
         height: effectiveHeight,
-        decoration: BoxDecoration(
-          borderRadius: effectiveBorderRadius,
-          boxShadow: [
-            BoxShadow(
-              color: isDark
-                  ? Colors.black.withOpacity(0.3)
-                  : Colors.black.withOpacity(0.08),
-              blurRadius: 20,
-              offset: const Offset(0, -4),
-              spreadRadius: 0,
-            ),
-          ],
+        decoration: const BoxDecoration(
+          // Completely transparent background - no color, no shadows
         ),
         child: RepaintBoundary(
           child: Row(
@@ -123,65 +107,68 @@ class ModernNavBar extends StatelessWidget {
           onTap: () => onTap(index),
           borderRadius: BorderRadius.circular(20),
           child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            constraints: const BoxConstraints(minHeight: 48), // Ensure minimum 44dp touch target
+            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
+            constraints: const BoxConstraints(minHeight: 44), // Ensure minimum 44dp touch target
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Icon with animation
+                // Icon with animation - completely transparent background
                 AnimatedContainer(
                   duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
                   curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                  padding: EdgeInsets.all(isSelected ? 8 : 6),
-                  decoration: BoxDecoration(
-                    color: isSelected 
-                        ? primaryColor.withOpacity(0.15)
-                        : Colors.transparent,
-                    borderRadius: const BorderRadius.all(Radius.circular(16)),
+                  padding: EdgeInsets.all(isSelected ? 5 : 3),
+                  decoration: const BoxDecoration(
+                    // No background color for modern transparent design
+                    color: Colors.transparent,
                   ),
                   child: AnimatedSwitcher(
                     duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
                     child: Icon(
                       isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
                       key: ValueKey('${item.icon}_$isSelected'),
-                      size: isSelected ? 26 : 24,
+                      size: isSelected ? 24 : 22,
                       color: iconColor,
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 2),
+                const SizedBox(height: 1),
 
                 // Label with animation
-                AnimatedDefaultTextStyle(
-                  duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                  curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                  style: TextStyle(
-                    fontSize: isSelected ? 12 : 11,
-                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: textColor,
-                    letterSpacing: isSelected ? 0.2 : 0,
-                  ),
-                  child: Text(
-                    item.label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                
-                // Selection indicator
-                AnimatedContainer(
-                  duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(),
-                  curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                  margin: const EdgeInsets.only(top: 1),
-                  height: 2,
-                  width: isSelected ? 20 : 0,
-                  decoration: BoxDecoration(
-                    color: primaryColor,
-                    borderRadius: const BorderRadius.all(Radius.circular(1)),
+                Flexible(
+                  child: AnimatedDefaultTextStyle(
+                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
+                    curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
+                    style: TextStyle(
+                      fontSize: isSelected ? 11 : 10,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: textColor,
+                      letterSpacing: isSelected ? 0.1 : 0,
+                      height: 1.2,
+                    ),
+                    child: Text(
+                      item.label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                    ),
                   ),
                 ),
+
+                // Selection indicator - only show when selected
+                if (isSelected)
+                  AnimatedContainer(
+                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(),
+                    curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
+                    margin: const EdgeInsets.only(top: 1),
+                    height: 2,
+                    width: 16,
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: const BorderRadius.all(Radius.circular(1)),
+                    ),
+                  ),
               ],
             ),
           ),

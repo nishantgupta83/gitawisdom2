@@ -10,7 +10,7 @@ import '../models/chapter.dart';
 import '../models/scenario.dart';
 import '../services/service_locator.dart';
 import '../services/daily_verse_service.dart';
-import '../services/simple_auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import '../services/progressive_scenario_service.dart';
 import '../core/theme/theme_provider.dart';
 import 'chapters_detail_view.dart';
@@ -338,7 +338,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               mainAxisAlignment: MainAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Consumer<SimpleAuthService>(
+                Consumer<SupabaseAuthService>(
                   builder: (context, auth, child) {
                     final hour = DateTime.now().hour;
                     String greeting = 'Good morning';

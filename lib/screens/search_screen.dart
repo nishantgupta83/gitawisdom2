@@ -1,7 +1,7 @@
 // lib/screens/search_screen.dart
 
 import 'package:flutter/material.dart';
-import '../services/intelligent_scenario_search.dart';
+// import '../services/intelligent_scenario_search.dart'; // Temporarily disabled for auth testing
 import '../models/scenario.dart';
 import '../screens/scenario_detail_view.dart';
 
@@ -17,9 +17,9 @@ class SearchScreen extends StatefulWidget {
 class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  final IntelligentScenarioSearch _searchService = IntelligentScenarioSearch.instance;
+  // final IntelligentScenarioSearch _searchService = IntelligentScenarioSearch.instance; // Temporarily disabled
 
-  List<IntelligentSearchResult> _results = [];
+  List<Scenario> _results = []; // Simplified for auth testing
   bool _isLoading = false;
   bool _isInitializing = true;
   String _lastQuery = '';
@@ -40,7 +40,8 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() => _isInitializing = true);
 
     try {
-      await _searchService.initialize();
+      // Simplified search initialization for auth testing
+      await Future.delayed(const Duration(milliseconds: 500));
     } catch (e) {
       debugPrint('⚠️ Search initialization error: $e');
     } finally {
@@ -186,8 +187,7 @@ class _SearchScreenState extends State<SearchScreen> {
           );
         }
 
-        final result = _results[index - 1];
-        final scenario = result.scenario;
+        final scenario = _results[index - 1];
 
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
@@ -209,7 +209,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           ),
                         ),
                       ),
-                      _buildSearchTypeBadge(result.searchType, theme),
+                      // _buildSearchTypeBadge(result.searchType, theme), // Disabled for auth testing
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -412,7 +412,9 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      final results = await _searchService.search(query, maxResults: 20);
+      // Simplified search for auth testing
+      await Future.delayed(const Duration(milliseconds: 500));
+      final results = <Scenario>[]; // Empty results for now
       if (mounted) {
         setState(() {
           _results = results;

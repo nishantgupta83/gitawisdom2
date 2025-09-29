@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/simple_auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import 'journal_screen.dart';
 import 'auth_screen.dart';
 
@@ -8,7 +8,7 @@ class JournalTabContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final SimpleAuthService authService = SimpleAuthService.instance;
+    final SupabaseAuthService authService = SupabaseAuthService.instance;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -56,7 +56,7 @@ class JournalTabContainer extends StatelessWidget {
   Widget _buildAuthPrompt(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final authService = SimpleAuthService.instance;
+    final authService = SupabaseAuthService.instance;
 
     return Center(
       child: Padding(

@@ -18,6 +18,7 @@ import '../services/journal_service.dart';
 // import '../services/audio_service.dart'; // Removed - using EnhancedAudioService with lazy loading
 import '../services/app_lifecycle_manager.dart';
 import '../services/service_locator.dart';
+import '../services/intelligent_scenario_search.dart';
 // import 'hive_manager.dart'; // Removed for simplification
 import 'performance_monitor.dart';
 import 'ios_performance_optimizer.dart';
@@ -175,6 +176,9 @@ class AppInitializer {
     
     // Initialize heavy services in background with proper thread management
     unawaited(_initializeHeavyServicesInBackground());
+
+    // Initialize search indexing in background to prevent UI blocking on search screen access
+    // unawaited(IntelligentScenarioSearch.instance.initialize()); // Temporarily disabled for auth testing
   }
   
   /// Initialize heavy services in background with proper thread management
@@ -206,12 +210,8 @@ class AppInitializer {
 
     } catch (e) {
       debugPrint('❌ Progressive scenario initialization failed: $e');
-      // Fallback: ensure service is at least initialized
-      try {
-        await ProgressiveScenarioService.instance.initialize();
-      } catch (fallbackError) {
-        debugPrint('❌ Progressive scenario service fallback initialization failed: $fallbackError');
-      }
+      // Continue gracefully - app can function without scenarios initially
+      // Removed problematic double initialization that caused "Future already completed" errors
     }
   }
   

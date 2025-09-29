@@ -5,6 +5,7 @@ import 'keyword_search_service.dart';
 import 'enhanced_semantic_search_service.dart';
 import 'progressive_scenario_service.dart';
 
+
 class IntelligentSearchResult {
   final Scenario scenario;
   final double score;
@@ -36,10 +37,17 @@ class IntelligentScenarioSearch {
       return;
     }
 
+    // Start initialization in background to prevent main thread blocking
+    _initializeInBackground();
+  }
+
+  /// Initialize search system in background isolate to prevent frame drops
+  void _initializeInBackground() async {
     final stopwatch = Stopwatch()..start();
-    debugPrint('🔍 Initializing intelligent search system...');
+    debugPrint('🔍 Starting intelligent search initialization in background...');
 
     try {
+      // Wait for critical scenarios without blocking UI
       await _scenarioService.waitForCriticalScenarios();
 
       final scenarios = await _getAllScenarios();
@@ -48,6 +56,7 @@ class IntelligentScenarioSearch {
         return;
       }
 
+      // Initialize search services - will optimize with Supabase indexing later
       await Future.wait([
         _keywordService.indexScenarios(scenarios),
         _semanticService.initialize(scenarios).catchError((e) {
@@ -65,6 +74,7 @@ class IntelligentScenarioSearch {
       debugPrint('❌ Failed to initialize intelligent search: $e');
     }
   }
+
 
   Future<List<IntelligentSearchResult>> search(String query, {int maxResults = 10}) async {
     if (!_isInitialized) {
@@ -166,13 +176,13 @@ class IntelligentScenarioSearch {
         final existingScore = combined[id]!.score;
         final combinedMatchedTerms = [
           ...(combined[id]!.matchedTerms ?? []),
-          ...result.matchedTerms,
-        ].toSet().toList();
+          ...(result.matchedTerms ?? []),
+        ].cast<String>().toSet().toList();
 
         combined[id] = IntelligentSearchResult(
           scenario: result.scenario,
           score: existingScore + semanticScore * 0.4,
-          matchedTerms: combinedMatchedTerms,
+          matchedTerms: combinedMatchedTerms.cast<String>(),
           searchType: 'hybrid',
         );
       } else {
@@ -204,7 +214,7 @@ class IntelligentScenarioSearch {
   Future<List<IntelligentSearchResult>> _tryBroaderSearch(String query, int maxResults) async {
     try {
       // Get all scenarios and try category-based matching
-      final allScenarios = await _scenarioService.getAllScenarios();
+      final allScenarios = _scenarioService.searchScenarios('');
       if (allScenarios.isEmpty) return [];
 
       final queryLower = query.toLowerCase();

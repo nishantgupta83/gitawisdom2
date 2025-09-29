@@ -3,7 +3,7 @@
 import 'dart:math' show sin, cos, pi;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../services/simple_auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import '../core/app_config.dart';
 import 'root_scaffold.dart';
 
@@ -34,25 +34,37 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   int _currentPage = 0; // 0 = Sign In, 1 = Sign Up
   bool _rememberMe = false;
 
-  // Test accounts for development
+  // Test accounts for development - Create these accounts using sign up
   final List<Map<String, String>> _testAccounts = [
     {
       'email': 'test@gitawisdom.com',
-      'password': 'test123',
+      'password': 'Test123!',
       'name': 'Test User',
       'role': 'Regular User'
     },
     {
-      'email': 'demo@gitawisdom.com', 
-      'password': 'demo123',
+      'email': 'demo@gitawisdom.com',
+      'password': 'Demo123!',
       'name': 'Demo User',
       'role': 'Demo Account'
     },
     {
-      'email': 'admin@gitawisdom.com',
-      'password': 'admin123',
-      'name': 'Admin User',
-      'role': 'Administrator'
+      'email': 'developer@gitawisdom.com',
+      'password': 'Dev123!',
+      'name': 'Developer User',
+      'role': 'Developer'
+    },
+    {
+      'email': 'tester@gitawisdom.com',
+      'password': 'Tester123!',
+      'name': 'QA Tester',
+      'role': 'QA Tester'
+    },
+    {
+      'email': 'user@gitawisdom.com',
+      'password': 'User123!',
+      'name': 'Regular User',
+      'role': 'Standard User'
     }
   ];
 
@@ -108,7 +120,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     final isDark = theme.brightness == Brightness.dark;
     
     return Scaffold(
-      body: Consumer<SimpleAuthService>(
+      body: Consumer<SupabaseAuthService>(
         builder: (context, authService, child) {
           return Stack(
             children: [
@@ -326,7 +338,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildAuthCard(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildAuthCard(ThemeData theme, SupabaseAuthService authService) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 20),
       decoration: BoxDecoration(
@@ -457,7 +469,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildErrorBanner(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildErrorBanner(ThemeData theme, SupabaseAuthService authService) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
@@ -499,7 +511,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildAuthForm(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildAuthForm(ThemeData theme, SupabaseAuthService authService) {
     return Form(
       key: _formKey,
       child: SizedBox(
@@ -518,7 +530,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildSignInForm(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildSignInForm(ThemeData theme, SupabaseAuthService authService) {
     return Column(
       children: [
         // Email field
@@ -603,7 +615,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildSignUpForm(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildSignUpForm(ThemeData theme, SupabaseAuthService authService) {
     return Column(
       children: [
         // Name field
@@ -857,7 +869,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildFooter(ThemeData theme, SimpleAuthService authService) {
+  Widget _buildFooter(ThemeData theme, SupabaseAuthService authService) {
     return Column(
       children: [
         Row(
@@ -952,7 +964,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   void _handleSignIn() async {
     if (!_formKey.currentState!.validate()) return;
     
-    final authService = context.read<SimpleAuthService>();
+    final authService = context.read<SupabaseAuthService>();
     final success = await authService.signInWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
@@ -968,7 +980,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   void _handleSignUp() async {
     if (!_formKey.currentState!.validate()) return;
     
-    final authService = context.read<SimpleAuthService>();
+    final authService = context.read<SupabaseAuthService>();
     final success = await authService.signUpWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
@@ -983,7 +995,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   }
 
   void _continueAsGuest() async {
-    final authService = context.read<SimpleAuthService>();
+    final authService = context.read<SupabaseAuthService>();
     final success = await authService.continueAsAnonymous();
     
     if (success && mounted) {
@@ -1023,7 +1035,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
             onPressed: () async {
               if (resetEmailController.text.trim().isEmpty) return;
               
-              final authService = context.read<SimpleAuthService>();
+              final authService = context.read<SupabaseAuthService>();
               final success = await authService.resetPassword(resetEmailController.text.trim());
               
               if (mounted) {

@@ -248,13 +248,21 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                                 height: 48,
                                 child: IconButton(
                                   onPressed: () async {
-                                    await AppSharingService().shareScenario(
-                                      widget.scenario.title,
-                                      widget.scenario.heartResponse,
-                                      widget.scenario.dutyResponse,
-                                      '', // Remove Gita wisdom references as requested
-                                      actionSteps: widget.scenario.actionSteps,
-                                    );
+                                    try {
+                                      await AppSharingService().shareScenario(
+                                        widget.scenario.title,
+                                        widget.scenario.heartResponse,
+                                        widget.scenario.dutyResponse,
+                                        '', // Remove Gita wisdom references as requested
+                                        actionSteps: widget.scenario.actionSteps,
+                                      );
+                                    } catch (e) {
+                                      if (mounted) {
+                                        ScaffoldMessenger.of(context).showSnackBar(
+                                          SnackBar(content: Text('Failed to share: $e')),
+                                        );
+                                      }
+                                    }
                                   },
                                   icon: Icon(
                                     Icons.share,

@@ -11,7 +11,7 @@ import '../theme/theme_provider.dart';
 import '../navigation/navigation_service.dart';
 import '../navigation/app_router.dart';
 // import '../dependency_injection.dart'; // Simplified for Apple compliance
-import '../../services/simple_auth_service.dart';
+import '../../services/supabase_auth_service.dart';
 import '../../services/bookmark_service.dart';
 import '../../services/background_music_service.dart';
 import '../../services/settings_service.dart';
@@ -45,9 +45,9 @@ class AppWidget extends StatelessWidget {
             return service;
           },
         ),
-        // Simple auth provider for journal access
-        ChangeNotifierProvider<SimpleAuthService>(
-          create: (_) => SimpleAuthService.instance,
+        // Supabase auth provider for real authentication
+        ChangeNotifierProvider<SupabaseAuthService>(
+          create: (_) => SupabaseAuthService.instance,
         ),
         // Background music service for meditation
         ChangeNotifierProvider<BackgroundMusicService>(

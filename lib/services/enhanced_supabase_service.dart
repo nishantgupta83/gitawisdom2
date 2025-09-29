@@ -12,6 +12,7 @@ import '../models/chapter.dart';
 import '../models/chapter_summary.dart';
 import '../models/scenario.dart';
 import '../models/verse.dart';
+import 'supabase_auth_service.dart';
 /* MOVED TO UNUSED: import '../models/daily_quote.dart'; */
 /* MULTILANG_TODO: import '../models/supported_language.dart'; */
 
@@ -1201,19 +1202,33 @@ class EnhancedSupabaseService {
     }
   }
 
-  /// Journal entry methods (unchanged - not multilingual)
+  /// Journal entry methods - now supports authenticated and anonymous users
   Future<void> insertJournalEntry(JournalEntry entry) async {
     try {
       final jsonData = entry.toJson();
-      
+
       if (!jsonData.containsKey('je_id') || jsonData['je_id'] == null || (jsonData['je_id'] as String).isEmpty) {
         throw ArgumentError('Journal entry must have a valid ID');
       }
-      
+
       if (!jsonData.containsKey('je_reflection') || jsonData['je_reflection'] == null || (jsonData['je_reflection'] as String).trim().isEmpty) {
         throw ArgumentError('Journal entry must have a reflection');
       }
-      
+
+      // Add user identification for authenticated and anonymous users
+      final user = client.auth.currentUser;
+      if (user != null) {
+        // Authenticated user
+        jsonData['user_id'] = user.id;
+        debugPrint('📔 Inserting journal entry for authenticated user: ${user.id}');
+      } else {
+        // Anonymous user - get device ID from auth service
+        final authService = SupabaseAuthService.instance;
+        final deviceId = authService.databaseUserId;
+        jsonData['user_device_id'] = deviceId;
+        debugPrint('📔 Inserting journal entry for anonymous user: $deviceId');
+      }
+
       await client
           .from('journal_entries')
           .insert(jsonData);
@@ -1229,11 +1244,24 @@ class EnhancedSupabaseService {
       if (entryId.isEmpty) {
         throw ArgumentError('Entry ID cannot be empty');
       }
-      
-      await client
-          .from('journal_entries')
-          .delete()
-          .eq('je_id', entryId);
+
+      // Build query with user filtering
+      var query = client.from('journal_entries').delete().eq('je_id', entryId);
+
+      final user = client.auth.currentUser;
+      if (user != null) {
+        // Authenticated user - filter by user_id
+        query = query.eq('user_id', user.id);
+        debugPrint('📔 Deleting journal entry for authenticated user: ${user.id}');
+      } else {
+        // Anonymous user - filter by device_id
+        final authService = SupabaseAuthService.instance;
+        final deviceId = authService.databaseUserId;
+        query = query.eq('user_device_id', deviceId);
+        debugPrint('📔 Deleting journal entry for anonymous user: $deviceId');
+      }
+
+      await query;
       debugPrint('✅ Journal entry deleted from Supabase: $entryId');
     } catch (e) {
       debugPrint('❌ Error deleting journal entry from Supabase: $e');
@@ -1243,27 +1271,40 @@ class EnhancedSupabaseService {
 
   Future<List<JournalEntry>> fetchJournalEntries() async {
     try {
-      final response = await client
-          .from('journal_entries')
-          .select()
-          .order('je_date_created', ascending: false);
-      
+      // Build query with user filtering - eq() must come before order()
+      final user = client.auth.currentUser;
+      late var query;
+
+      if (user != null) {
+        // Authenticated user - filter by user_id
+        query = client.from('journal_entries').select('*').eq('user_id', user.id).order('created_at', ascending: false);
+        debugPrint('📔 Fetching journal entries for authenticated user: ${user.id}');
+      } else {
+        // Anonymous user - filter by device_id
+        final authService = SupabaseAuthService.instance;
+        final deviceId = authService.databaseUserId;
+        query = client.from('journal_entries').select('*').eq('user_device_id', deviceId).order('created_at', ascending: false);
+        debugPrint('📔 Fetching journal entries for anonymous user: $deviceId');
+      }
+
+      final response = await query;
+
       if (response.isEmpty) {
         debugPrint('⚠️ Empty response from Supabase journal entries');
         return [];
       }
-      
+
       final data = response as List;
       final List<JournalEntry> validEntries = [];
-      
+
       for (final item in data) {
         try {
           if (item is Map<String, dynamic>) {
-            if (item['je_id'] != null && 
-                item['je_reflection'] != null && 
+            if (item['je_id'] != null &&
+                item['je_reflection'] != null &&
                 item['je_rating'] != null &&
                 item['je_date_created'] != null) {
-              
+
               final entry = JournalEntry.fromJson(item);
               validEntries.add(entry);
             } else {
@@ -1274,7 +1315,7 @@ class EnhancedSupabaseService {
           debugPrint('⚠️ Error parsing journal entry, skipping: $e');
         }
       }
-      
+
       debugPrint('✅ Fetched ${validEntries.length} valid journal entries from Supabase');
       return validEntries;
     } catch (e) {

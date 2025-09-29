@@ -91,7 +91,9 @@ class IntelligentCachingService with WidgetsBindingObserver {
       if (_hybridStorage.hasDataAtLevel(CacheLevel.critical)) {
         debugPrint('⚡ Critical scenarios already cached - instant startup!');
         _isLoadingCritical = false;
-        _criticalLoadCompleter?.complete();
+        if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
+          _criticalLoadCompleter!.complete();
+        }
         return;
       }
 
@@ -119,7 +121,9 @@ class IntelligentCachingService with WidgetsBindingObserver {
       debugPrint('❌ Error loading critical scenarios: $e');
     } finally {
       _isLoadingCritical = false;
-      _criticalLoadCompleter?.complete();
+      if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
+        _criticalLoadCompleter!.complete();
+      }
     }
   }
 

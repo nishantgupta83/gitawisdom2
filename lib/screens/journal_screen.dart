@@ -195,14 +195,11 @@ class _JournalScreenState extends State<JournalScreen> {
           ),
         );
       } else {
-        // First entry
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-          child: _buildJournalCard(_entries[0], theme, localizations),
-        );
+        // Empty placeholder - entries start at index 2
+        return const SizedBox.shrink();
       }
     } else {
-      // Subsequent entries
+      // Journal entries (starting from index 2)
       final entryIndex = index - 2;
       if (entryIndex < _entries.length) {
         return Padding(
