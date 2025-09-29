@@ -53,10 +53,12 @@ class ProgressiveScenarioService {
   List<Scenario> searchScenarios(String query, {int? maxResults}) {
     // For home screen dilemmas (empty query), return critical scenarios
     if (query.trim().isEmpty) {
-      return _getInstantScenarios(maxResults: maxResults ?? 20);
+      // For home screen: limit to 50 for performance, for search: no limit
+      final homeScreenLimit = maxResults ?? 50;
+      return _getInstantScenarios(maxResults: homeScreenLimit);
     }
 
-    // For actual search queries, use intelligent search
+    // For actual search queries, use intelligent search with NO LIMITS
     return _searchInLoadedScenarios(query, maxResults: maxResults);
   }
 
@@ -97,26 +99,48 @@ class ProgressiveScenarioService {
     }
   }
 
-  /// Search in currently loaded scenarios (async but progressive)
+  /// Search in currently loaded scenarios (synchronous with available data)
   List<Scenario> _searchInLoadedScenarios(String query, {int? maxResults}) {
     try {
       debugPrint('🔍 Searching in loaded scenarios for: "$query"');
 
-      // For synchronous search, we need to trigger async search and return empty for now
-      // The actual search results will be provided through the async method
-      searchScenariosAsync(query, maxResults: maxResults).then((results) {
-        debugPrint('🔍 Async search completed with ${results.length} results');
-      }).catchError((e) {
-        debugPrint('❌ Async search failed: $e');
-      });
+      // Get all available scenarios from cache
+      final allAvailable = <Scenario>[];
 
-      // Return empty for now - this method will be improved in Week 2
-      return [];
+      // Get critical scenarios first (fastest access)
+      final criticalScenarios = _getCriticalScenariosSync();
+      allAvailable.addAll(criticalScenarios);
+
+      // Filter by search query
+      final filteredResults = _filterScenariosByQuery(allAvailable, query);
+
+      // Apply maxResults limit only if specified
+      final finalResults = maxResults != null && maxResults > 0
+          ? filteredResults.take(maxResults).toList()
+          : filteredResults;
+
+      debugPrint('🔍 Search completed: ${finalResults.length} results for "$query"');
+      return finalResults;
 
     } catch (e) {
       debugPrint('❌ Error searching scenarios: $e');
       return [];
     }
+  }
+
+  /// Filter scenarios by search query using multiple criteria
+  List<Scenario> _filterScenariosByQuery(List<Scenario> scenarios, String query) {
+    if (query.trim().isEmpty) return scenarios;
+
+    final lowerQuery = query.toLowerCase();
+    return scenarios.where((scenario) {
+      return scenario.title.toLowerCase().contains(lowerQuery) ||
+             scenario.description.toLowerCase().contains(lowerQuery) ||
+             scenario.category.toLowerCase().contains(lowerQuery) ||
+             (scenario.heartResponse?.toLowerCase().contains(lowerQuery) ?? false) ||
+             (scenario.dutyResponse?.toLowerCase().contains(lowerQuery) ?? false) ||
+             (scenario.gitaWisdom?.toLowerCase().contains(lowerQuery) ?? false);
+    }).toList();
   }
 
   /// Async search across all loaded cache levels

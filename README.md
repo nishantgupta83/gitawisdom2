@@ -10,10 +10,10 @@ GitaWisdom transforms abstract spiritual teachings into practical guidance for m
 
 - **🚀 Production Ready**: Published on Google Play Store
 - **📲 iOS Ready**: App Store ready with Apple compliance fixes
-- **🤖 AI-Powered**: Hybrid search system with TF-IDF + TensorFlow Lite
+- **🤖 AI-Enhanced**: Multi-layer search across 1200+ scenarios with intelligent fallback
 - **👥 User Testing**: Closed testing with positive feedback
-- **🎨 Version**: v2.3.0+15 with AI search and Apple Store compliance
-- **🔧 Latest Update (Sep 28, 2024)**: Compilation errors fixed, simulators tested
+- **🎨 Version**: v2.4.0+16 with enhanced AI search and full dataset access
+- **🔧 Latest Update (Sep 29, 2024)**: AI search improvements, journal bug fixes, simulators tested
 
 ## 🏗️ Architecture Evolution
 
@@ -55,11 +55,11 @@ The 32 services represent **purposeful architecture**, not bloat:
 - `background_music_service.dart` - Meditation audio support
 - `narration_service.dart` - Text-to-speech functionality
 
-#### **AI-Powered Search** (NEW)
-- `intelligent_scenario_search.dart` - Hybrid search orchestrator
-- `keyword_search_service.dart` - TF-IDF keyword search (<50ms)
-- `semantic_search_service.dart` - TensorFlow Lite semantic AI
-- `search_service.dart` - Universal search interface
+#### **AI-Powered Search** (ENHANCED)
+- `intelligent_scenario_search.dart` - Multi-layer search orchestrator with fuzzy fallback
+- `keyword_search_service.dart` - TF-IDF keyword search with optimized quality thresholds
+- `enhanced_semantic_search_service.dart` - Advanced NLP semantic search (no TFLite model required)
+- `search_service.dart` - Universal search interface across 1200+ scenarios
 
 #### **User Experience**
 - `settings_service.dart` - Persistent user preferences
@@ -149,11 +149,14 @@ flutter test test/integration/     # End-to-end flows
 
 ## 📊 Key Features
 
-### 🤖 AI-Powered Intelligent Search (NEW)
-- **Hybrid Search Architecture**: TF-IDF keyword search (<50ms) + TFLite semantic search
-- **Privacy-First AI**: 100% offline semantic search, no data leaves your device
-- **Intelligent Fallback**: Keyword search first, semantic AI when needed
-- **Universal Search**: Find verses, chapters, and scenarios with natural language
+### 🤖 AI-Powered Intelligent Search (ENHANCED)
+- **Full Dataset Access**: Search across 1200+ scenarios with no artificial limits
+- **Multi-Layer Search**: TF-IDF keyword search + Enhanced semantic NLP + Fuzzy fallback
+- **Privacy-First AI**: 100% offline semantic search using advanced NLP algorithms
+- **Intelligent Quality Thresholds**: Optimized scoring ensures relevant results are returned
+- **Comprehensive Fallback**: Keyword → Semantic → Category-based → Fuzzy matching
+- **Universal Search**: Find verses, chapters, and scenarios with natural language queries
+- **Performance Optimized**: <50ms keyword search, 300ms+ semantic analysis when needed
 
 ### Spiritual Guidance Engine
 - **1,200+ Scenarios**: Real-world dilemmas across life domains

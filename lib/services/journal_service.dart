@@ -140,8 +140,14 @@ class JournalService {
       await _box!.put(entry.id, entry);
       debugPrint('📔 Journal entry saved locally: ${entry.id}');
       
-      // Add to cached entries
-      _cachedEntries.insert(0, entry); // Add at beginning (newest first)
+      // Add to cached entries (check for duplicates first)
+      final existingIndex = _cachedEntries.indexWhere((e) => e.id == entry.id);
+      if (existingIndex == -1) {
+        _cachedEntries.insert(0, entry); // Add at beginning (newest first)
+        debugPrint('📔 Entry added to cache: ${entry.id}');
+      } else {
+        debugPrint('⚠️ Entry already exists in cache, not duplicating: ${entry.id}');
+      }
       
       // Sync to server in background (non-blocking)
       _syncToServer(entry);

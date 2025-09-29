@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 
 import '../models/scenario.dart';
 import 'keyword_search_service.dart';
-import 'semantic_search_service.dart';
+import 'enhanced_semantic_search_service.dart';
 import 'progressive_scenario_service.dart';
 
 class IntelligentSearchResult {
@@ -24,7 +24,7 @@ class IntelligentScenarioSearch {
   IntelligentScenarioSearch._();
 
   final KeywordSearchService _keywordService = KeywordSearchService.instance;
-  final SemanticSearchService _semanticService = SemanticSearchService.instance;
+  final EnhancedSemanticSearchService _semanticService = EnhancedSemanticSearchService.instance;
   final ProgressiveScenarioService _scenarioService = ProgressiveScenarioService.instance;
 
   bool _isInitialized = false;
@@ -99,6 +99,17 @@ class IntelligentScenarioSearch {
         }
       }
 
+      // If no semantic results, try broader keyword search with relaxed matching
+      if (keywordResults.isEmpty) {
+        debugPrint('🔍 Trying broader keyword search...');
+        final broaderResults = await _tryBroaderSearch(query, maxResults);
+        if (broaderResults.isNotEmpty) {
+          stopwatch.stop();
+          debugPrint('✅ Broader search: ${broaderResults.length} results in ${stopwatch.elapsedMilliseconds}ms');
+          return broaderResults;
+        }
+      }
+
       stopwatch.stop();
       final keywordOnly = _convertKeywordResults(keywordResults, maxResults);
       debugPrint('✅ Keyword-only search: ${keywordOnly.length} results in ${stopwatch.elapsedMilliseconds}ms');
@@ -112,7 +123,8 @@ class IntelligentScenarioSearch {
 
   bool _hasHighQualityMatches(List<SearchResult> results) {
     if (results.isEmpty) return false;
-    return results.first.score > 5.0 && results.length >= 5;
+    // More reasonable quality threshold: accept results with any decent score
+    return results.first.score > 0.1 || results.length >= 2;
   }
 
   List<IntelligentSearchResult> _convertKeywordResults(
@@ -152,17 +164,22 @@ class IntelligentScenarioSearch {
 
       if (combined.containsKey(id)) {
         final existingScore = combined[id]!.score;
+        final combinedMatchedTerms = [
+          ...(combined[id]!.matchedTerms ?? []),
+          ...result.matchedTerms,
+        ].toSet().toList();
+
         combined[id] = IntelligentSearchResult(
           scenario: result.scenario,
           score: existingScore + semanticScore * 0.4,
-          matchedTerms: combined[id]!.matchedTerms,
+          matchedTerms: combinedMatchedTerms,
           searchType: 'hybrid',
         );
       } else {
         combined[id] = IntelligentSearchResult(
           scenario: result.scenario,
           score: semanticScore,
-          matchedTerms: null,
+          matchedTerms: result.matchedTerms,
           searchType: 'semantic',
         );
       }
@@ -179,6 +196,65 @@ class IntelligentScenarioSearch {
       return await _scenarioService.searchScenariosAsync('', maxResults: 2000);
     } catch (e) {
       debugPrint('❌ Failed to fetch scenarios: $e');
+      return [];
+    }
+  }
+
+  /// Try broader search with relaxed matching when no results found
+  Future<List<IntelligentSearchResult>> _tryBroaderSearch(String query, int maxResults) async {
+    try {
+      // Get all scenarios and try category-based matching
+      final allScenarios = await _scenarioService.getAllScenarios();
+      if (allScenarios.isEmpty) return [];
+
+      final queryLower = query.toLowerCase();
+      final results = <IntelligentSearchResult>[];
+
+      // Check if query matches common categories or concepts
+      for (final scenario in allScenarios.take(maxResults * 5)) {
+        double score = 0.0;
+        final matchedTerms = <String>[];
+
+        // Category matching
+        if (scenario.category.toLowerCase().contains(queryLower)) {
+          score += 2.0;
+          matchedTerms.add(scenario.category);
+        }
+
+        // Title partial matching
+        if (scenario.title.toLowerCase().contains(queryLower)) {
+          score += 1.5;
+          matchedTerms.add('title');
+        }
+
+        // Description partial matching
+        if (scenario.description.toLowerCase().contains(queryLower)) {
+          score += 1.0;
+          matchedTerms.add('description');
+        }
+
+        // Chapter-based matching for numbers
+        if (queryLower.contains(RegExp(r'\d+')) &&
+            scenario.chapter.toString().contains(queryLower)) {
+          score += 0.5;
+          matchedTerms.add('chapter');
+        }
+
+        if (score > 0) {
+          results.add(IntelligentSearchResult(
+            scenario: scenario,
+            score: score,
+            matchedTerms: matchedTerms,
+            searchType: 'fuzzy',
+          ));
+        }
+      }
+
+      // Sort and return top results
+      results.sort((a, b) => b.score.compareTo(a.score));
+      return results.take(maxResults).toList();
+    } catch (e) {
+      debugPrint('❌ Broader search failed: $e');
       return [];
     }
   }

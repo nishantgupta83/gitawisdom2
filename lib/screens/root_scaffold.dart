@@ -6,6 +6,7 @@ import '../core/navigation/navigation_service.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/custom_nav_bar.dart';
 import '../widgets/modern_nav_bar.dart';
+import '../services/post_login_data_loader.dart';
 import 'home_screen.dart';
 import 'chapters_screen.dart';
 import 'scenarios_screen.dart';
@@ -37,7 +38,35 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
     super.initState();
     _initializePages();
     _initializeNavigationService();
+    _startPostLoginBackgroundLoading();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Start loading all 1200+ scenarios in background after login
+  /// This ensures full dataset is available for AI search without blocking UI
+  void _startPostLoginBackgroundLoading() {
+    debugPrint('🚀 User logged in - starting background data loading...');
+
+    // Start loading immediately but non-blocking
+    PostLoginDataLoader.instance.startBackgroundLoading();
+
+    // Optional: Show user that background loading is happening
+    PostLoginDataLoader.instance.progressStream.listen((progress) {
+      if (progress.isCompleted) {
+        debugPrint('🎉 Background loading completed: ${progress.loadedScenarios} scenarios ready for AI search');
+
+        // Optionally show a subtle notification that full search is now available
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('✅ All ${progress.loadedScenarios} scenarios loaded! Full AI search available.'),
+              duration: const Duration(seconds: 2),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
+    });
   }
 
   /// Initialize navigation service with callbacks

@@ -95,7 +95,9 @@ class _JournalScreenState extends State<JournalScreen> {
                     onSave: (entry) async {
                       try {
                         await _service.createEntry(entry);
-                        await _reload();
+                        // No need to reload - createEntry already adds to cache
+                        // This prevents duplication
+                        setState(() {}); // Just trigger UI refresh
                       } catch (e) {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
