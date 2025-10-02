@@ -1,6 +1,6 @@
 name: GitaWisdom
 description: Experience the timeless wisdom of the Bhagavad Gita applied to modern life situations. Navigate daily challenges with ancient spiritual guidance.
-version: 2.2.8+21
+version: 2.3.0+24
 publish_to: "none"
 
 environment:

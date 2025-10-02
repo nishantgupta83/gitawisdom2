@@ -1,0 +1,290 @@
+# GitaWisdom UI/UX Test Configuration
+# Comprehensive test specification for systematic app testing
+
+app_config:
+  name: "GitaWisdom"
+  bundle_id: "com.hub4apps.gitawisdom"
+  platforms: ["android", "ios"]
+  testing_framework: "flutter_integration"
+  debug_mode: true
+
+# Navigation flow testing
+navigation_flow:
+  start_screen: "splash"
+  timeout_default: 3000
+
+  screens:
+    # Splash Screen
+    - name: "splash"
+      timeout: 5000
+      expected_elements:
+        - "app_logo"
+        - "loading_indicator"
+      next_actions: ["wait_for_auth_or_home"]
+
+    # Auth Screen (if not logged in)
+    - name: "auth"
+      required_elements:
+        - "signin_button"
+        - "anonymous_button"
+        - "title_text"
+      interactive_elements:
+        - type: "button"
+          key: "anonymous_button"
+          action: "tap"
+          expected_outcome: "navigate_to_home"
+
+    # Home Screen - Main Hub
+    - name: "home"
+      required_elements:
+        - "bottom_nav_bar"
+        - "home_content"
+        - "daily_verses_section"
+        - "dilemmas_section"
+      interactive_elements:
+        - type: "tab"
+          key: "home_tab"
+          action: "tap"
+          expected_outcome: "stay_on_home"
+        - type: "tab"
+          key: "chapters_tab"
+          action: "tap"
+          expected_outcome: "navigate_to_chapters"
+        - type: "tab"
+          key: "scenarios_tab"
+          action: "tap"
+          expected_outcome: "navigate_to_scenarios"
+        - type: "tab"
+          key: "journal_tab"
+          action: "tap"
+          expected_outcome: "navigate_to_journal"
+        - type: "tab"
+          key: "more_tab"
+          action: "tap"
+          expected_outcome: "navigate_to_more"
+
+    # Chapters Screen
+    - name: "chapters"
+      required_elements:
+        - "chapters_list"
+        - "search_bar"
+      interactive_elements:
+        - type: "list_item"
+          key: "chapter_1"
+          action: "tap"
+          expected_outcome: "navigate_to_chapter_detail"
+        - type: "textfield"
+          key: "search_bar"
+          action: "enter_text"
+          text: "karma"
+          expected_outcome: "filter_chapters"
+
+    # Chapter Detail Screen
+    - name: "chapter_detail"
+      required_elements:
+        - "chapter_title"
+        - "verses_list"
+        - "chapter_summary"
+      interactive_elements:
+        - type: "list_item"
+          key: "verse_1"
+          action: "tap"
+          expected_outcome: "navigate_to_verse_detail"
+        - type: "button"
+          key: "back_button"
+          action: "tap"
+          expected_outcome: "navigate_back_to_chapters"
+
+    # Scenarios Screen
+    - name: "scenarios"
+      required_elements:
+        - "scenarios_list"
+        - "search_functionality"
+      interactive_elements:
+        - type: "list_item"
+          key: "scenario_item"
+          action: "tap"
+          expected_outcome: "navigate_to_scenario_detail"
+        - type: "button"
+          key: "search_button"
+          action: "tap"
+          expected_outcome: "open_search"
+
+    # Scenario Detail Screen
+    - name: "scenario_detail"
+      required_elements:
+        - "scenario_title"
+        - "scenario_description"
+        - "heart_response"
+        - "duty_response"
+      interactive_elements:
+        - type: "expansion_tile"
+          key: "heart_response_tile"
+          action: "tap"
+          expected_outcome: "expand_heart_response"
+        - type: "expansion_tile"
+          key: "duty_response_tile"
+          action: "tap"
+          expected_outcome: "expand_duty_response"
+
+    # Journal Screen
+    - name: "journal"
+      required_elements:
+        - "journal_entries_list"
+        - "add_entry_button"
+      interactive_elements:
+        - type: "fab"
+          key: "add_entry_button"
+          action: "tap"
+          expected_outcome: "open_new_entry_dialog"
+        - type: "list_item"
+          key: "journal_entry"
+          action: "tap"
+          expected_outcome: "navigate_to_entry_detail"
+
+    # More/Settings Screen
+    - name: "more"
+      required_elements:
+        - "theme_settings"
+        - "about_section"
+        - "references_link"
+      interactive_elements:
+        - type: "switch"
+          key: "dark_mode_switch"
+          action: "toggle"
+          expected_outcome: "theme_change"
+        - type: "list_tile"
+          key: "about_tile"
+          action: "tap"
+          expected_outcome: "navigate_to_about"
+
+# Comprehensive Test Scenarios
+test_scenarios:
+  # Core Navigation Flow
+  - name: "complete_navigation_test"
+    description: "Test all main navigation paths"
+    steps:
+      - action: "launch_app"
+      - action: "wait_for_screen"
+        screen: "home"
+        timeout: 8000
+      - action: "tap_element"
+        element: "chapters_tab"
+      - action: "verify_screen"
+        screen: "chapters"
+      - action: "tap_element"
+        element: "scenarios_tab"
+      - action: "verify_screen"
+        screen: "scenarios"
+      - action: "tap_element"
+        element: "journal_tab"
+      - action: "verify_screen"
+        screen: "journal"
+      - action: "tap_element"
+        element: "more_tab"
+      - action: "verify_screen"
+        screen: "more"
+      - action: "tap_element"
+        element: "home_tab"
+      - action: "verify_screen"
+        screen: "home"
+
+  # Deep Navigation Test
+  - name: "deep_navigation_test"
+    description: "Test detailed screen navigation"
+    steps:
+      - action: "launch_app"
+      - action: "navigate_to_screen"
+        screen: "chapters"
+      - action: "tap_first_list_item"
+        list: "chapters_list"
+      - action: "verify_screen"
+        screen: "chapter_detail"
+      - action: "tap_first_list_item"
+        list: "verses_list"
+      - action: "verify_screen"
+        screen: "verse_detail"
+      - action: "navigate_back"
+      - action: "navigate_back"
+      - action: "verify_screen"
+        screen: "chapters"
+
+  # Interaction Test
+  - name: "interaction_test"
+    description: "Test all interactive elements"
+    steps:
+      - action: "launch_app"
+      - action: "navigate_to_screen"
+        screen: "scenarios"
+      - action: "tap_first_list_item"
+        list: "scenarios_list"
+      - action: "verify_screen"
+        screen: "scenario_detail"
+      - action: "tap_element"
+        element: "heart_response_tile"
+      - action: "verify_element_expanded"
+        element: "heart_response_content"
+      - action: "tap_element"
+        element: "duty_response_tile"
+      - action: "verify_element_expanded"
+        element: "duty_response_content"
+
+  # Theme and Settings Test
+  - name: "settings_test"
+    description: "Test theme switching and settings"
+    steps:
+      - action: "launch_app"
+      - action: "navigate_to_screen"
+        screen: "more"
+      - action: "tap_element"
+        element: "dark_mode_switch"
+      - action: "verify_theme_change"
+        expected_theme: "dark"
+      - action: "tap_element"
+        element: "dark_mode_switch"
+      - action: "verify_theme_change"
+        expected_theme: "light"
+
+  # Performance Test
+  - name: "performance_test"
+    description: "Monitor performance during navigation"
+    steps:
+      - action: "start_performance_monitoring"
+      - action: "launch_app"
+      - action: "complete_navigation_cycle"
+        cycles: 3
+      - action: "stop_performance_monitoring"
+      - action: "verify_performance_metrics"
+
+# Performance and Quality Thresholds
+performance_thresholds:
+  max_launch_time: 8000      # milliseconds
+  max_navigation_time: 1500  # milliseconds
+  min_fps: 55               # frames per second
+  max_memory_usage: 512     # MB
+  max_cpu_usage: 80         # percentage
+
+quality_checks:
+  accessibility:
+    - check_contrast_ratios: true
+    - check_touch_targets: true
+    - check_semantic_labels: true
+  ui_consistency:
+    - check_navigation_consistency: true
+    - check_color_scheme_consistency: true
+    - check_typography_consistency: true
+
+# Error Handling
+error_handling:
+  retry_attempts: 3
+  retry_delay: 1000  # milliseconds
+  screenshot_on_failure: true
+  detailed_logs: true
+
+# Reporting Configuration
+reporting:
+  generate_screenshots: true
+  generate_performance_report: true
+  generate_accessibility_report: true
+  output_format: ["html", "json", "junit_xml"]
+  output_directory: "test_reports"

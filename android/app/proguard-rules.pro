@@ -117,3 +117,26 @@
 # 5G network optimization
 -keep class android.net.** { *; }
 -keep class android.telephony.** { *; }
+
+# ============================================
+# TensorFlow Lite Support - Fix R8 Build Issues
+# ============================================
+
+# Keep TensorFlow Lite classes
+-keep class org.tensorflow.lite.** { *; }
+-keep class org.tensorflow.lite.gpu.** { *; }
+-dontwarn org.tensorflow.lite.**
+
+# Keep TensorFlow Lite GPU delegate factory
+-keep class org.tensorflow.lite.gpu.GpuDelegateFactory { *; }
+-keep class org.tensorflow.lite.gpu.GpuDelegateFactory$Options { *; }
+-keep class org.tensorflow.lite.gpu.GpuDelegate { *; }
+
+# Keep TensorFlow Lite interpreter and related classes
+-keep class org.tensorflow.lite.Interpreter { *; }
+-keep class org.tensorflow.lite.Tensor { *; }
+-keep class org.tensorflow.lite.DataType { *; }
+
+# Keep machine learning related classes
+-dontwarn com.google.android.gms.tflite.**
+-keep class com.google.android.gms.tflite.** { *; }

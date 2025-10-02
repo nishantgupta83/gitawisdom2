@@ -62,18 +62,32 @@ class ModernNavBar extends StatelessWidget {
           // Completely transparent background - no color, no shadows
         ),
         child: RepaintBoundary(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: List.generate(items.length, (index) {
-              return _buildNavItem(
-                context,
-                items[index],
-                index,
-                currentIndex == index,
-                isDark,
-                isTablet,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                mainAxisSize: MainAxisSize.max,
+                children: List.generate(items.length, (index) {
+                  return Flexible(
+                    flex: 1,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: constraints.maxWidth / items.length,
+                        minHeight: 44, // Ensure minimum touch target
+                      ),
+                      child: _buildNavItem(
+                        context,
+                        items[index],
+                        index,
+                        currentIndex == index,
+                        isDark,
+                        isTablet,
+                      ),
+                    ),
+                  );
+                }),
               );
-            }),
+            },
           ),
         ),
       ),
@@ -100,77 +114,94 @@ class ModernNavBar extends StatelessWidget {
         ? selectedColor
         : AccessibleColors.getSecondaryTextColor(context);
 
-    return Expanded(
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => onTap(index),
-          borderRadius: BorderRadius.circular(20),
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 4),
-            constraints: const BoxConstraints(minHeight: 44), // Ensure minimum 44dp touch target
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Icon with animation - completely transparent background
-                AnimatedContainer(
-                  duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                  curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                  padding: EdgeInsets.all(isSelected ? 5 : 3),
-                  decoration: const BoxDecoration(
-                    // No background color for modern transparent design
-                    color: Colors.transparent,
-                  ),
-                  child: AnimatedSwitcher(
-                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                    child: Icon(
-                      isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
-                      key: ValueKey('${item.icon}_$isSelected'),
-                      size: isSelected ? 24 : 22,
-                      color: iconColor,
-                    ),
-                  ),
-                ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onTap(index),
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            vertical: isTablet ? 4 : 2,
+            horizontal: 2,
+          ),
+          constraints: BoxConstraints(
+            minHeight: 44, // Ensure minimum 44dp touch target
+            maxHeight: isTablet ? 70 : 60, // Prevent overflow
+          ),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Responsive sizing based on available width
+              final iconSize = math.min(
+                isSelected ? 22.0 : 20.0,
+                constraints.maxWidth * 0.4, // Max 40% of width
+              ).toDouble();
+              final fontSize = math.min(
+                isSelected ? 10.0 : 9.0,
+                constraints.maxWidth * 0.15, // Scale with width
+              ).toDouble();
 
-                const SizedBox(height: 1),
-
-                // Label with animation
-                Flexible(
-                  child: AnimatedDefaultTextStyle(
-                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                    curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                    style: TextStyle(
-                      fontSize: isSelected ? 11 : 10,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                      color: textColor,
-                      letterSpacing: isSelected ? 0.1 : 0,
-                      height: 1.2,
-                    ),
-                    child: Text(
-                      item.label,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-
-                // Selection indicator - only show when selected
-                if (isSelected)
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Icon with animation - completely transparent background
                   AnimatedContainer(
-                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(),
+                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
                     curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                    margin: const EdgeInsets.only(top: 1),
-                    height: 2,
-                    width: 16,
-                    decoration: BoxDecoration(
-                      color: primaryColor,
-                      borderRadius: const BorderRadius.all(Radius.circular(1)),
+                    padding: EdgeInsets.all(isSelected ? 2 : 1),
+                    decoration: const BoxDecoration(
+                      color: Colors.transparent,
+                    ),
+                    child: AnimatedSwitcher(
+                      duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
+                      child: Icon(
+                        isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
+                        key: ValueKey('${item.icon}_$isSelected'),
+                        size: iconSize,
+                        color: iconColor,
+                      ),
                     ),
                   ),
-              ],
-            ),
+
+                  // Flexible spacing
+                  SizedBox(height: isTablet ? 2 : 1),
+
+                  // Label with animation and proper overflow handling
+                  Flexible(
+                    child: AnimatedDefaultTextStyle(
+                      duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
+                      curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
+                      style: TextStyle(
+                        fontSize: fontSize,
+                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                        color: textColor,
+                        letterSpacing: isSelected ? 0.1 : 0,
+                        height: 1.0,
+                      ),
+                      child: Text(
+                        item.label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        softWrap: false, // Prevent wrapping
+                      ),
+                    ),
+                  ),
+
+                  // Selection indicator - smaller and responsive
+                  if (isSelected)
+                    Container(
+                      margin: const EdgeInsets.only(top: 1),
+                      height: 1.5,
+                      width: math.min(12, constraints.maxWidth * 0.3),
+                      decoration: BoxDecoration(
+                        color: primaryColor,
+                        borderRadius: const BorderRadius.all(Radius.circular(0.75)),
+                      ),
+                    ),
+                ],
+              );
+            },
           ),
         ),
       ),

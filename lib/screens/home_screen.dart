@@ -332,7 +332,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 80, 24, 8),
+            padding: const EdgeInsets.fromLTRB(24, 80, 24, 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,

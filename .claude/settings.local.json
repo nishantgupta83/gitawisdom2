@@ -68,7 +68,13 @@
       "Bash(xcrun simctl shutdown:*)",
       "Bash(adb:*)",
       "Bash(xcrun simctl boot:*)",
-      "Bash(PGPASSWORD=\"xbQUKAWHkkcaV7Q@\" psql -h db.jnzzwknjzigvupwfzfhq.supabase.co -p 5432 -U postgres -d postgres)"
+      "Bash(PGPASSWORD=\"xbQUKAWHkkcaV7Q@\" psql -h db.jnzzwknjzigvupwfzfhq.supabase.co -p 5432 -U postgres -d postgres)",
+      "Bash(unzip:*)",
+      "Bash(timeout 600 flutter build appbundle --release --verbose)",
+      "Read(//Users/nishantgupta/**)",
+      "Bash(top:*)",
+      "Bash(pod:*)",
+      "Bash(killall:*)"
     ],
     "deny": [],
     "additionalDirectories": [

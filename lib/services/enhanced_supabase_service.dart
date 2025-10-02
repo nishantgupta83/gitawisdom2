@@ -1277,13 +1277,17 @@ class EnhancedSupabaseService {
 
       if (user != null) {
         // Authenticated user - filter by user_id
-        query = client.from('journal_entries').select('*').eq('user_id', user.id).order('created_at', ascending: false);
+        query = client.from('journal_entries').select('*');
+        query = query.eq('user_id', user.id);
+        query = query.order('created_at');
         debugPrint('📔 Fetching journal entries for authenticated user: ${user.id}');
       } else {
         // Anonymous user - filter by device_id
         final authService = SupabaseAuthService.instance;
         final deviceId = authService.databaseUserId;
-        query = client.from('journal_entries').select('*').eq('user_device_id', deviceId).order('created_at', ascending: false);
+        query = client.from('journal_entries').select('*');
+        query = query.eq('user_device_id', deviceId);
+        query = query.order('created_at');
         debugPrint('📔 Fetching journal entries for anonymous user: $deviceId');
       }
 

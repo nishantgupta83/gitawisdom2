@@ -1,0 +1,287 @@
+# GitaWisdom Maestro UI Testing Flow
+# Modern YAML-based UI testing using Maestro (2024 recommended approach)
+
+appId: com.hub4apps.gitawisdom
+name: "GitaWisdom Complete UI/UX Test"
+description: "Comprehensive navigation and interaction testing"
+
+---
+# Test 1: App Launch and Initial Setup
+- launchApp
+- takeScreenshot: "01_app_launch"
+
+# Wait for app to fully load (Supabase connection, data loading)
+- waitForAnimationToEnd:
+    timeout: 10000
+
+# Handle potential auth screen or go directly to home
+- runFlow:
+    when:
+      visible: "Sign In"
+    commands:
+      - tapOn: "Continue as Anonymous"
+      - takeScreenshot: "02_anonymous_login"
+
+# Verify home screen is displayed
+- assertVisible: "GitaWisdom"
+- takeScreenshot: "03_home_screen"
+
+---
+# Test 2: Bottom Navigation Testing
+- tapOn:
+    id: "chapters_tab"
+- waitForAnimationToEnd
+- assertVisible: "Chapters"
+- takeScreenshot: "04_chapters_screen"
+
+- tapOn:
+    id: "scenarios_tab"
+- waitForAnimationToEnd
+- assertVisible: "Scenarios"
+- takeScreenshot: "05_scenarios_screen"
+
+- tapOn:
+    id: "journal_tab"
+- waitForAnimationToEnd
+- assertVisible: "Journal"
+- takeScreenshot: "06_journal_screen"
+
+- tapOn:
+    id: "more_tab"
+- waitForAnimationToEnd
+- assertVisible: "More"
+- takeScreenshot: "07_more_screen"
+
+# Return to home
+- tapOn:
+    id: "home_tab"
+- waitForAnimationToEnd
+- assertVisible: "GitaWisdom"
+- takeScreenshot: "08_back_to_home"
+
+---
+# Test 3: Deep Navigation - Chapters Flow
+- tapOn:
+    id: "chapters_tab"
+- waitForAnimationToEnd
+
+# Tap on first chapter
+- tapOn:
+    index: 0
+    childOf:
+      id: "chapters_list"
+- waitForAnimationToEnd
+- takeScreenshot: "09_chapter_detail"
+
+# Verify chapter detail elements
+- assertVisible: "Chapter Summary"
+- assertVisible: "Verses"
+
+# Test verse navigation
+- tapOn:
+    index: 0
+    childOf:
+      id: "verses_list"
+- waitForAnimationToEnd
+- takeScreenshot: "10_verse_detail"
+
+# Navigate back to chapters
+- pressKey: "Back"
+- waitForAnimationToEnd
+- pressKey: "Back"
+- waitForAnimationToEnd
+- assertVisible: "Chapters"
+
+---
+# Test 4: Scenarios Deep Dive
+- tapOn:
+    id: "scenarios_tab"
+- waitForAnimationToEnd
+
+# Search functionality test
+- runFlow:
+    when:
+      visible:
+        id: "search_bar"
+    commands:
+      - tapOn:
+          id: "search_bar"
+      - inputText: "career"
+      - waitForAnimationToEnd
+      - takeScreenshot: "11_scenario_search"
+      - pressKey: "Back"  # Close keyboard
+
+# Tap on first scenario
+- tapOn:
+    index: 0
+    childOf:
+      id: "scenarios_list"
+- waitForAnimationToEnd
+- takeScreenshot: "12_scenario_detail"
+
+# Test expansion tiles
+- tapOn: "Heart Response"
+- waitForAnimationToEnd
+- takeScreenshot: "13_heart_response_expanded"
+
+- tapOn: "Duty Response"
+- waitForAnimationToEnd
+- takeScreenshot: "14_duty_response_expanded"
+
+# Navigate back
+- pressKey: "Back"
+- waitForAnimationToEnd
+
+---
+# Test 5: Journal Functionality
+- tapOn:
+    id: "journal_tab"
+- waitForAnimationToEnd
+
+# Test adding new journal entry
+- runFlow:
+    when:
+      visible:
+        id: "add_entry_button"
+    commands:
+      - tapOn:
+          id: "add_entry_button"
+      - waitForAnimationToEnd
+      - takeScreenshot: "15_new_journal_dialog"
+      - inputText: "Test journal entry from Maestro automation"
+      - tapOn: "Save"
+      - waitForAnimationToEnd
+      - takeScreenshot: "16_journal_entry_saved"
+
+# Test tapping on existing journal entry
+- runFlow:
+    when:
+      visible:
+        index: 0
+        childOf:
+          id: "journal_entries_list"
+    commands:
+      - tapOn:
+          index: 0
+          childOf:
+            id: "journal_entries_list"
+      - waitForAnimationToEnd
+      - takeScreenshot: "17_journal_entry_detail"
+      - pressKey: "Back"
+
+---
+# Test 6: Settings and Theme Testing
+- tapOn:
+    id: "more_tab"
+- waitForAnimationToEnd
+
+# Test theme switching
+- runFlow:
+    when:
+      visible:
+        id: "dark_mode_switch"
+    commands:
+      - takeScreenshot: "18_before_theme_change"
+      - tapOn:
+          id: "dark_mode_switch"
+      - waitForAnimationToEnd
+      - takeScreenshot: "19_dark_theme"
+      - tapOn:
+          id: "dark_mode_switch"
+      - waitForAnimationToEnd
+      - takeScreenshot: "20_light_theme"
+
+# Test About navigation
+- runFlow:
+    when:
+      visible: "About"
+    commands:
+      - tapOn: "About"
+      - waitForAnimationToEnd
+      - takeScreenshot: "21_about_screen"
+      - pressKey: "Back"
+
+---
+# Test 7: Performance and Stress Testing
+# Rapid navigation test
+- repeat:
+    times: 3
+    commands:
+      - tapOn:
+          id: "home_tab"
+      - waitForAnimationToEnd:
+          timeout: 1000
+      - tapOn:
+          id: "chapters_tab"
+      - waitForAnimationToEnd:
+          timeout: 1000
+      - tapOn:
+          id: "scenarios_tab"
+      - waitForAnimationToEnd:
+          timeout: 1000
+      - tapOn:
+          id: "journal_tab"
+      - waitForAnimationToEnd:
+          timeout: 1000
+
+- takeScreenshot: "22_stress_test_complete"
+
+---
+# Test 8: Error Resilience
+# Test double-tapping (should be gracefully handled)
+- tapOn:
+    id: "home_tab"
+- tapOn:
+    id: "home_tab"
+- waitForAnimationToEnd
+
+# Test rapid sequential taps
+- repeat:
+    times: 5
+    commands:
+      - tapOn:
+          id: "chapters_tab"
+      - wait: 100
+
+- waitForAnimationToEnd
+- takeScreenshot: "23_error_resilience_test"
+
+---
+# Test 9: Accessibility Testing
+# Verify important elements have proper accessibility labels
+- assertVisible:
+    text: "Home"
+    accessibilityLabel: "Home tab"
+
+- assertVisible:
+    text: "Chapters"
+    accessibilityLabel: "Chapters tab"
+
+---
+# Test 10: Final Verification
+# Return to home and verify app state
+- tapOn:
+    id: "home_tab"
+- waitForAnimationToEnd
+- assertVisible: "GitaWisdom"
+- takeScreenshot: "24_final_verification"
+
+# Test app backgrounding and foregrounding
+- pressKey: "Home"
+- wait: 2000
+- launchApp
+- waitForAnimationToEnd
+- assertVisible: "GitaWisdom"
+- takeScreenshot: "25_app_restored"
+
+---
+# Test Complete
+- takeScreenshot: "26_test_complete"
+
+# Optional: Generate test report
+- runScript: |
+    echo "✅ GitaWisdom UI/UX Testing Complete"
+    echo "📊 All navigation flows tested"
+    echo "🎯 Interactive elements verified"
+    echo "📱 Performance and accessibility checked"
+    date

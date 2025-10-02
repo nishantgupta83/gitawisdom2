@@ -45,6 +45,7 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
   /// Initialize the service and start critical loading
   Future<void> initialize() async {
+    // Thread-safe initialization check
     if (_isInitialized) {
       debugPrint('🧠 IntelligentCachingService already initialized');
       return;
@@ -60,6 +61,7 @@ class IntelligentCachingService with WidgetsBindingObserver {
       WidgetsBinding.instance.addObserver(this);
       _startActivityMonitoring();
 
+      // Mark as initialized before starting async operations
       _isInitialized = true;
 
       // Start critical loading immediately for home screen
@@ -72,30 +74,36 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
     } catch (e) {
       debugPrint('❌ Error initializing IntelligentCachingService: $e');
+      // Reset initialization state on error
+      _isInitialized = false;
       rethrow;
     }
   }
 
   /// Load critical scenarios immediately for app startup
   Future<void> _loadCriticalScenariosForStartup() async {
-    if (_isLoadingCritical) return;
+    // Thread-safe check with early return
+    if (_isLoadingCritical) {
+      // If already loading, wait for the existing operation
+      if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
+        await _criticalLoadCompleter!.future;
+      }
+      return;
+    }
+
+    // Check if we already have critical scenarios cached BEFORE setting loading state
+    if (_hybridStorage.hasDataAtLevel(CacheLevel.critical)) {
+      debugPrint('⚡ Critical scenarios already cached - instant startup!');
+      return;
+    }
 
     _isLoadingCritical = true;
+    // Create a new completer for this loading operation
     _criticalLoadCompleter = Completer<void>();
     _loadingStartTime = DateTime.now();
 
     try {
       debugPrint('🚀 Loading critical scenarios for immediate startup...');
-
-      // Check if we already have critical scenarios cached
-      if (_hybridStorage.hasDataAtLevel(CacheLevel.critical)) {
-        debugPrint('⚡ Critical scenarios already cached - instant startup!');
-        _isLoadingCritical = false;
-        if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
-          _criticalLoadCompleter!.complete();
-        }
-        return;
-      }
 
       // Load critical scenarios from server with high priority
       final criticalScenarios = await _loadScenariosBatch(
@@ -121,9 +129,14 @@ class IntelligentCachingService with WidgetsBindingObserver {
       debugPrint('❌ Error loading critical scenarios: $e');
     } finally {
       _isLoadingCritical = false;
-      if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
-        _criticalLoadCompleter!.complete();
-      }
+      _safeCompleteCompleter();
+    }
+  }
+
+  /// Safely complete the completer to avoid "Bad state: Future already completed" errors
+  void _safeCompleteCompleter() {
+    if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
+      _criticalLoadCompleter!.complete();
     }
   }
 
@@ -286,8 +299,13 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
   /// Wait for critical scenarios to be loaded
   Future<void> waitForCriticalScenarios() async {
-    if (_criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
+    // If currently loading, wait for completion
+    if (_isLoadingCritical && _criticalLoadCompleter != null && !_criticalLoadCompleter!.isCompleted) {
       await _criticalLoadCompleter!.future;
+    }
+    // If not loading and no data exists, trigger loading
+    else if (!_isLoadingCritical && !_hybridStorage.hasDataAtLevel(CacheLevel.critical)) {
+      await _loadCriticalScenariosForStartup();
     }
   }
 

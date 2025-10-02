@@ -63,5 +63,16 @@
 		<string>ru</string>
 		<string>kn</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.hub4apps.gitawisdom.deeplink</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.hub4apps.gitawisdom</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

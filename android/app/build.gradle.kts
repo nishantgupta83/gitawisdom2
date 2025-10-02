@@ -7,9 +7,9 @@ plugins {
 
 android {
     namespace = "com.hub4apps.gitawisdom"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 36  // Required by plugins (app_links, path_provider, etc) - backward compatible
    // ndkVersion = flutter.ndkVersion
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.0.12674087"  // Updated for API 35 compatibility
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -35,11 +35,11 @@ android {
         applicationId = "com.hub4apps.gitawisdom"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        
-        // Set explicit SDK versions for better compatibility
+
+        // Set explicit SDK versions for Google Play API 35 compliance
         // Android 5.0 (API 21) covers 99%+ of Indian market including older OPPO/Vivo devices
         minSdk = flutter.minSdkVersion  // Covers Android 5.0+ (99% Indian market coverage)
-        targetSdk = 34  // Android 14 (latest stable)
+        targetSdk = 35  // Android 15 (API 35) - Required for Google Play compliance
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         
