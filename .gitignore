@@ -55,3 +55,99 @@ ios/Runner/Config/
 # Flutter/Dart build files
 build/
 .dart_tool/
+
+# SECURITY: Android Signing & Keystore Files
+*.jks
+*.keystore
+*.p12
+*.pem
+*.crt
+*.cer
+keystore.properties
+android/keystore.properties
+android/app/keystore.properties
+**/keystore.properties
+
+# SECURITY: iOS Signing & Certificates
+*.mobileprovision
+*.p12
+*.certSigningRequest
+ios/Runner/Config/
+ios/Certificates/
+ios/Provisioning/
+ios/*.mobileprovision
+ios/*.p12
+
+# SECURITY: Environment & Secret Files
+.env
+.env.*
+!.env.example
+.secrets
+secrets.*
+config.json
+.firebase/
+firebase.json
+google-services.json
+GoogleService-Info.plist
+
+# SECURITY: API Keys & Authentication
+**/api_keys.dart
+**/secrets.dart
+**/config/secrets.*
+auth_config.*
+*.auth
+
+# SECURITY: macOS System Files (.DS_Store comprehensive coverage)
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# SECURITY: Windows System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# SECURITY: Linux System Files
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# SECURITY: Git & Version Control Artifacts
+.git/
+*.orig
+*.rej
+*.bak
+*.swp
+*.tmp
+
+# SECURITY: Database & Cache Files
+*.db
+*.sqlite
+*.sqlite3
+*.cache
+.cache/
+
+# SECURITY: Archive Files (potential source of exposed data)
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+!assets/archive/  # Allow intentional asset archives
+
+# SECURITY: Log Files (may contain sensitive data)
+*.log
+logs/
+*.log.*
+
+# SECURITY: Backup Files
+*.backup
+*.bk
+*_backup
+*_bak

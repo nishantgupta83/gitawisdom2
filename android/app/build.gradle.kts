@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -19,10 +21,28 @@ android {
 
     signingConfigs {
         create("release") {
-            keyAlias = "gitawisdom-alias"
-            keyPassword = "Entertain@2025"
-            storeFile = file("/Users/nishantgupta/Documents/GitaGyan/OldWisdom/gitawisdom-key.jks")
-            storePassword = "Entertain@2025"
+            // Use environment variables for secure signing
+            // For local development, create android/keystore.properties with:
+            // storeFile=path/to/keystore.jks
+            // storePassword=your_store_password
+            // keyAlias=your_key_alias
+            // keyPassword=your_key_password
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                val keystoreProperties = Properties()
+                keystoreProperties.load(keystorePropertiesFile.inputStream())
+
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+                storeFile = file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+            } else {
+                // For CI/CD environments, use environment variables
+                keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "upload"
+                keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: ""
+                storeFile = System.getenv("ANDROID_KEYSTORE_PATH")?.let { file(it) }
+                storePassword = System.getenv("ANDROID_STORE_PASSWORD") ?: ""
+            }
         }
     }
 

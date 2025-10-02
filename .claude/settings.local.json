@@ -74,7 +74,18 @@
       "Read(//Users/nishantgupta/**)",
       "Bash(top:*)",
       "Bash(pod:*)",
-      "Bash(killall:*)"
+      "Bash(killall:*)",
+      "Bash(./gradlew:*)",
+      "Bash(kill:*)",
+      "Bash(if [ -f \"build/app/outputs/flutter-apk/app-debug.apk\" ])",
+      "Bash(then unzip -l build/app/outputs/flutter-apk/app-debug.apk)",
+      "Bash(else echo \"No debug APK found, checking for release APK...\")",
+      "Bash(fi)",
+      "Bash(if [ -d \"build/ios/Release-iphoneos\" ])",
+      "Bash(then find build/ios/Release-iphoneos -name \"*.app\" -exec ls -la {})",
+      "Bash(else echo \"No iOS release build found\")",
+      "Bash(git rev-list:*)",
+      "Bash(git filter-branch:*)"
     ],
     "deny": [],
     "additionalDirectories": [
