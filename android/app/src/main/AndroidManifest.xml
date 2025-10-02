@@ -29,60 +29,15 @@
         android:name="android.hardware.sensor.accelerometer" 
         android:required="false" />
     
-    <!-- Support for different screen sizes and densities - Enhanced for Indian devices -->
-    <supports-screens 
+    <!-- Support for different screen sizes and densities -->
+    <supports-screens
         android:anyDensity="true"
         android:largeScreens="true"
         android:normalScreens="true"
         android:smallScreens="true"
         android:xlargeScreens="true"
         android:resizeable="true" />
-    
-    <!-- Compatible screens declaration for Play Store visibility on all devices -->
-    <!-- This ensures app shows up for OPPO, Vivo, OnePlus, Samsung, Xiaomi devices -->
-    <compatible-screens>
-        <!-- Small screens: ~426dp x 320dp -->
-        <screen android:screenSize="small" android:screenDensity="ldpi" />
-        <screen android:screenSize="small" android:screenDensity="mdpi" />
-        <screen android:screenSize="small" android:screenDensity="hdpi" />
-        <screen android:screenSize="small" android:screenDensity="xhdpi" />
-        <screen android:screenSize="small" android:screenDensity="xxhdpi" />
-        <screen android:screenSize="small" android:screenDensity="xxxhdpi" />
-        <!-- Normal screens: ~470dp x 320dp (Most common - Redmi, Vivo Y series) -->
-        <screen android:screenSize="normal" android:screenDensity="ldpi" />
-        <screen android:screenSize="normal" android:screenDensity="mdpi" />
-        <screen android:screenSize="normal" android:screenDensity="hdpi" />
-        <screen android:screenSize="normal" android:screenDensity="xhdpi" />
-        <screen android:screenSize="normal" android:screenDensity="xxhdpi" />
-        <screen android:screenSize="normal" android:screenDensity="xxxhdpi" />
-        <screen android:screenSize="normal" android:screenDensity="280" />
-        <screen android:screenSize="normal" android:screenDensity="360" />
-        <screen android:screenSize="normal" android:screenDensity="420" />
-        <screen android:screenSize="normal" android:screenDensity="480" />
-        <screen android:screenSize="normal" android:screenDensity="560" />
-        <screen android:screenSize="normal" android:screenDensity="640" />
-        <!-- Large screens: ~640dp x 480dp (Samsung S series, OnePlus flagships) -->
-        <screen android:screenSize="large" android:screenDensity="ldpi" />
-        <screen android:screenSize="large" android:screenDensity="mdpi" />
-        <screen android:screenSize="large" android:screenDensity="hdpi" />
-        <screen android:screenSize="large" android:screenDensity="xhdpi" />
-        <screen android:screenSize="large" android:screenDensity="xxhdpi" />
-        <screen android:screenSize="large" android:screenDensity="xxxhdpi" />
-        <screen android:screenSize="large" android:screenDensity="280" />
-        <screen android:screenSize="large" android:screenDensity="360" />
-        <screen android:screenSize="large" android:screenDensity="420" />
-        <screen android:screenSize="large" android:screenDensity="480" />
-        <screen android:screenSize="large" android:screenDensity="560" />
-        <screen android:screenSize="large" android:screenDensity="640" />
-        <!-- Extra large screens: Tablets and foldables -->
-        <screen android:screenSize="xlarge" android:screenDensity="ldpi" />
-        <screen android:screenSize="xlarge" android:screenDensity="mdpi" />
-        <screen android:screenSize="xlarge" android:screenDensity="hdpi" />
-        <screen android:screenSize="xlarge" android:screenDensity="xhdpi" />
-        <screen android:screenSize="xlarge" android:screenDensity="xxhdpi" />
-        <screen android:screenSize="xlarge" android:screenDensity="xxxhdpi" />
-    </compatible-screens>
-    
+
     <application
         android:label="GitaWisdom"
         android:name="${applicationName}"

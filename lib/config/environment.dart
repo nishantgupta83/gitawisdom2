@@ -7,14 +7,16 @@ class Environment {
   Environment._();
 
   /// Supabase configuration
+  /// IMPORTANT: Set these values via --dart-define at build time:
+  /// flutter build apk --dart-define=SUPABASE_URL=your_url --dart-define=SUPABASE_ANON_KEY=your_key
   static const String supabaseUrl = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: 'https://wlfwdtdtiedlcczfoslt.supabase.co', // Your actual Supabase URL
+    defaultValue: '', // Must be provided at build time
   );
 
   static const String supabaseAnonKey = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZndkdGR0aWVkbGNjemZvc2x0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE4NjQ5MDAsImV4cCI6MjA2NzQ0MDkwMH0.OiWhZled2trJ7eTd8lpQ658B4p-IVsRp2HXHcgAUoFU', // Your actual anon key
+    defaultValue: '', // Must be provided at build time
   );
 
   /// App environment settings

@@ -35,10 +35,9 @@ dependencies:
   permission_handler: ^12.0.1
   shared_preferences: ^2.2.2
   tflite_flutter: ^0.11.0
+  flutter_dotenv: ^6.0.0
   # firebase_core: any
  # firebase_analytics: any
-dependency_overrides:
-  win32: ^5.5.1
 
 dev_dependencies:
   flutter_test:
@@ -51,10 +50,6 @@ dev_dependencies:
   flutter_launcher_icons: ^0.14.4
   # Essential testing dependencies only
   mockito: ^5.4.4
-
-  # Flutter Launcher Icons configuration
-  gotrue: any
-  flutter_dotenv: ^6.0.0
 flutter_launcher_icons:
   android: true
   ios: true
@@ -75,7 +70,7 @@ flutter:
     - assets/images/lotus_bg.jpg
     - assets/audio/Riverside_Morning_Calm.mp3
     - assets/images/ow_hb.jpeg
-    - assets/images/ow_app_hb.jp2
+    - assets/images/ow_app_hb.png
     - assets/images/app_bg.png
     - assets/images/app_icon_ocean.png
     - assets/images/hub4apps_qr.svg
