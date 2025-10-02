@@ -5,6 +5,9 @@
     
     <!-- Audio playback permissions -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Notification permissions for Android 13+ (API level 33+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     
     <!-- Device compatibility features - Optimized for maximum compatibility -->
     <uses-feature 
