@@ -3,6 +3,7 @@ import '../models/journal_entry.dart';
 import '../services/journal_service.dart';
 import '../screens/new_journal_entry_dialog.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/app_background.dart';
 
 class JournalScreen extends StatefulWidget {
   const JournalScreen({Key? key}) : super(key: key);
@@ -49,16 +50,9 @@ class _JournalScreenState extends State<JournalScreen> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background image with dark overlay for dark mode
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/app_bg.png',
-              fit: BoxFit.cover,
-              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
-              colorBlendMode: isDark ? BlendMode.darken : null,
-            ),
-          ),
-          
+          // Unified gradient background
+          AppBackground(isDark: isDark),
+
           // Main content
           SafeArea(
             child: RefreshIndicator(
@@ -123,12 +117,23 @@ class _JournalScreenState extends State<JournalScreen> {
   Widget _buildListItem(int index, BoxConstraints constraints) {
     final theme = Theme.of(context);
     final localizations = AppLocalizations.of(context)!;
-    
+    final isDark = theme.brightness == Brightness.dark;
+
     if (index == 0) {
       // Header card
       return Padding(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
         child: Card(
+          elevation: 8,
+          color: theme.colorScheme.surface.withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.05),
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 28.0, horizontal: 16),
             child: Column(
@@ -146,7 +151,7 @@ class _JournalScreenState extends State<JournalScreen> {
                   localizations.trackSpiritual,
                   textAlign: TextAlign.center,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ],
@@ -172,13 +177,13 @@ class _JournalScreenState extends State<JournalScreen> {
                 Icon(
                   Icons.book_outlined,
                   size: 64,
-                  color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.3),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   localizations.noJournalEntries,
                   style: theme.textTheme.titleMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -186,7 +191,7 @@ class _JournalScreenState extends State<JournalScreen> {
                 Text(
                   localizations.tapPlusButton,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.4),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -214,6 +219,8 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildJournalCard(JournalEntry entry, ThemeData theme, AppLocalizations localizations) {
+    final isDark = theme.brightness == Brightness.dark;
+
     return Dismissible(
       key: Key(entry.id),
       direction: DismissDirection.horizontal,
@@ -273,7 +280,16 @@ class _JournalScreenState extends State<JournalScreen> {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Card(
-          elevation: 4,
+          elevation: 8,
+          color: theme.colorScheme.surface.withValues(alpha: 0.95),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: isDark
+                ? Colors.white.withValues(alpha: 0.1)
+                : Colors.black.withValues(alpha: 0.05),
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(18),
             child: Column(
@@ -347,7 +363,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     Text(
                       entry.dateCreated.toLocal().toIso8601String().split('T').first,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                         fontWeight: FontWeight.w500,
                       ),
                       maxLines: 1,
@@ -357,10 +373,10 @@ class _JournalScreenState extends State<JournalScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: theme.colorScheme.primary.withOpacity(0.2),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -386,7 +402,7 @@ class _JournalScreenState extends State<JournalScreen> {
               Text(
                 'Rating: ',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
               ...List.generate(5, (j) {
@@ -412,7 +428,7 @@ class _JournalScreenState extends State<JournalScreen> {
                 Text(
                   entry.dateCreated.toLocal().toIso8601String().split('T').first,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -422,10 +438,10 @@ class _JournalScreenState extends State<JournalScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withOpacity(0.3),
+                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: theme.colorScheme.primary.withOpacity(0.2),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),

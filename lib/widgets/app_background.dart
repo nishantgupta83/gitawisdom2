@@ -1,92 +1,93 @@
 // lib/widgets/app_background.dart
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../core/app_config.dart';
 
-/// App background widget - handles both theme-based and image-based backgrounds
-/// Extracted from the complex background logic in main.dart
+/// App background widget - provides unified gradient backgrounds across all screens
+/// Replaces image-based backgrounds for better performance and smaller bundle size
 class AppBackground extends StatelessWidget {
   final bool isDark;
   final double opacity;
-  final bool useImageBackground;
+  final bool showAnimatedOrbs;
+  final AnimationController? orbController;
 
   const AppBackground({
     Key? key,
     required this.isDark,
-    required this.opacity,
-    this.useImageBackground = false, // Default to theme-based background
-  }) : super(key: key);
+    this.opacity = 1.0,
+    this.showAnimatedOrbs = false,
+    this.orbController,
+  }) : assert(
+         !showAnimatedOrbs || orbController != null,
+         'orbController must be provided when showAnimatedOrbs is true',
+       ),
+       super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
     return Positioned.fill(
-      child: useImageBackground 
-          ? _buildImageBackground()
-          : _buildThemeBasedBackground(),
-    );
-  }
-
-  /// Build theme-based background with gradient colors
-  /// Active background system - provides elegant gradient backgrounds
-  Widget _buildThemeBasedBackground() {
-    if (isDark) {
-      return _buildDarkThemeBackground();
-    } else {
-      return _buildLightThemeBackground();
-    }
-  }
-
-  /// Dark theme background with enhanced colors matching light theme quality
-  Widget _buildDarkThemeBackground() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppConfig.darkThemeBaseColor.withOpacity(opacity), // Warmer dark base
-            AppConfig.darkThemeMidColor.withOpacity(opacity),  // Mid-tone for depth
-            AppConfig.darkThemeAccentColor.withOpacity(opacity), // Subtle purple accent
-            AppConfig.darkThemeEdgeColor.withOpacity(opacity), // Lighter edge for dimension
-          ],
-          stops: AppConfig.darkThemeGradientStops,
+      child: Container(
+        width: size.width,
+        height: size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDark
+                ? [
+                    const Color(0xFF0D1B2A),
+                    const Color(0xFF1B263B),
+                    const Color(0xFF415A77),
+                  ]
+                : [
+                    const Color(0xFFF8FAFC),
+                    const Color(0xFFE2E8F0),
+                    const Color(0xFFCBD5E1),
+                  ],
+          ),
         ),
+        child: showAnimatedOrbs && orbController != null
+            ? _buildAnimatedOrbs(size)
+            : null,
       ),
     );
   }
 
-  /// Light theme background with soft warm gradient
-  Widget _buildLightThemeBackground() {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppConfig.lightThemeBaseColor.withOpacity(opacity), // Soft white base
-            AppConfig.lightThemeGradientColor.withOpacity(opacity), // Light gray gradient
-            AppConfig.lightThemeAccentColor.withOpacity(opacity), // Warm accent
-          ],
-          stops: AppConfig.lightThemeGradientStops,
-        ),
-      ),
-    );
-  }
-
-  /// Image-based background (preserved for future use)
-  /// Can be activated by setting useImageBackground to true
-  Widget _buildImageBackground() {
-    return Opacity(
-      opacity: opacity,
-      child: Image.asset(
-        AppConfig.appBackgroundImage,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          // Fallback to theme-based background if image fails to load
-          debugPrint('❌ Background image failed to load: $error');
-          return _buildThemeBasedBackground();
-        },
-      ),
+  /// Build animated background orbs (only for home screen)
+  Widget _buildAnimatedOrbs(Size size) {
+    return Stack(
+      children: List.generate(5, (index) {
+        return Positioned(
+          top: (index * 150.0) % size.height,
+          left: (index * 200.0) % size.width,
+          child: AnimatedBuilder(
+            animation: orbController!,
+            builder: (context, child) {
+              return Transform.translate(
+                offset: Offset(
+                  math.sin(orbController!.value * 2 * math.pi + index) * 20,
+                  math.cos(orbController!.value * 2 * math.pi + index) * 30,
+                ),
+                child: Container(
+                  width: 80 + (index * 20.0),
+                  height: 80 + (index * 20.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: RadialGradient(
+                      colors: [
+                        (isDark ? Colors.orange : Colors.blue).withValues(alpha: 0.1),
+                        (isDark ? Colors.deepOrange : Colors.indigo).withValues(alpha: 0.05),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      }),
     );
   }
 }

@@ -125,7 +125,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     )
                   : null,
               filled: true,
-              fillColor: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+              fillColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide.none,
@@ -153,13 +153,13 @@ class _SearchScreenState extends State<SearchScreen> {
               Icon(
                 Icons.auto_awesome,
                 size: 14,
-                color: theme.colorScheme.primary.withOpacity(0.7),
+                color: theme.colorScheme.primary.withValues(alpha:0.7),
               ),
               const SizedBox(width: 4),
               Text(
                 'Powered by AI',
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.primary.withOpacity(0.7),
+                  color: theme.colorScheme.primary.withValues(alpha:0.7),
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -288,9 +288,9 @@ class _SearchScreenState extends State<SearchScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha:0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -318,20 +318,20 @@ class _SearchScreenState extends State<SearchScreen> {
             Icon(
               Icons.search_off,
               size: 64,
-              color: theme.colorScheme.onSurface.withOpacity(0.4),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.4),
             ),
             const SizedBox(height: 16),
             Text(
               'No scenarios found',
               style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.7),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Try different keywords or rephrase your query',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.5),
               ),
               textAlign: TextAlign.center,
             ),
@@ -352,7 +352,7 @@ class _SearchScreenState extends State<SearchScreen> {
               Icon(
                 Icons.auto_awesome,
                 size: 64,
-                color: theme.colorScheme.primary.withOpacity(0.5),
+                color: theme.colorScheme.primary.withValues(alpha:0.5),
               ),
               const SizedBox(height: 16),
               Text(
@@ -366,7 +366,7 @@ class _SearchScreenState extends State<SearchScreen> {
               Text(
                 'Search across 1280 life scenarios using intelligent keyword and semantic AI search.',
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
+                  color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -396,7 +396,7 @@ class _SearchScreenState extends State<SearchScreen> {
         _searchController.text = label;
         _performSearch();
       },
-      backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+      backgroundColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
     );
   }
 

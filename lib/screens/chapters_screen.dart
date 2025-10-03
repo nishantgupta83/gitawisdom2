@@ -8,6 +8,7 @@ import 'chapters_detail_view.dart';
 import '../main.dart';
 import '../l10n/app_localizations.dart';
 import '../core/navigation/navigation_service.dart';
+import '../widgets/app_background.dart';
 
 /// CHAPTERS SCREEN: Modern UI, themed background, Material cards, floating buttons.
 /// This screen lists all Gita chapters as cards, using current app theming with enhanced multilingual support.
@@ -76,16 +77,9 @@ class _ChapterScreenState extends State<ChapterScreen> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background image with dark overlay for dark mode
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/app_bg.png',
-              fit: BoxFit.cover,
-              color: isDark ? Color.fromARGB((0.32 * 255).toInt(), 0, 0, 0) : null,
-              colorBlendMode: isDark ? BlendMode.darken : null,
-            ),
-          ),
-          
+          // Unified gradient background
+          AppBackground(isDark: isDark),
+
           // Scrollable content area
           SafeArea(
             child: Container(
@@ -131,11 +125,11 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                   margin: const EdgeInsets.only(bottom: 20),
                                   padding: const EdgeInsets.all(24),
                                   decoration: BoxDecoration(
-                                    color: theme.colorScheme.surface.withOpacity(0.85),
+                                    color: theme.colorScheme.surface.withValues(alpha:0.85),
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color: Colors.black.withValues(alpha:0.1),
                                         blurRadius: 10,
                                         offset: const Offset(0, 2),
                                       ),
@@ -163,12 +157,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                           gradient: LinearGradient(
                                             colors: [
                                               theme.colorScheme.primary,
-                                              Color.fromARGB(
-                                                (0.6 * 255).round(),
-                                                theme.colorScheme.primary.red,
-                                                theme.colorScheme.primary.green,
-                                                theme.colorScheme.primary.blue
-                                              ),
+                                              theme.colorScheme.primary.withValues(alpha: 0.6),
                                             ],
                                           ),
                                           borderRadius: BorderRadius.circular(2),
@@ -179,12 +168,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                         AppLocalizations.of(context)!.immersiveKnowledge,
                                         style: GoogleFonts.poppins(
                                           fontSize: textScaler.scale(14),
-                                          color: Color.fromARGB(
-                                            (0.7 * 255).round(),
-                                            theme.colorScheme.onSurface.red,
-                                            theme.colorScheme.onSurface.green,
-                                            theme.colorScheme.onSurface.blue
-                                          ),
+                                          color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                           letterSpacing: 0.8,
                                         ),
                                         textAlign: TextAlign.center,
@@ -203,11 +187,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                         borderRadius: BorderRadius.circular(22),
                                       ),
                                       color: theme.colorScheme.surface,
-                                      shadowColor: Color.fromARGB((0.12 * 255).toInt(), 
-                                        theme.colorScheme.primary.red,
-                                        theme.colorScheme.primary.green,
-                                        theme.colorScheme.primary.blue
-                                      ),
+                                      shadowColor: theme.colorScheme.primary.withValues(alpha: 0.12),
                                       child: InkWell(
                                         borderRadius: BorderRadius.circular(22),
                                         onTap: () {
@@ -227,14 +207,14 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                       gradient: LinearGradient(
                                                         colors: [
                                                           theme.colorScheme.primary,
-                                                          theme.colorScheme.primary.withOpacity(0.8),
+                                                          theme.colorScheme.primary.withValues(alpha:0.8),
                                                         ],
                                                         begin: Alignment.topLeft,
                                                         end: Alignment.bottomRight,
                                                       ),
                                                       boxShadow: [
                                                         BoxShadow(
-                                                          color: theme.colorScheme.primary.withOpacity(0.3),
+                                                          color: theme.colorScheme.primary.withValues(alpha:0.3),
                                                           blurRadius: 8,
                                                           spreadRadius: 1,
                                                         ),
@@ -274,12 +254,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                             ch.subtitle!,
                                                             style: GoogleFonts.poppins(
                                                               fontSize: textScaler.scale(13),
-                                                              color: Color.fromARGB(
-                                                                (0.7 * 255).round(),
-                                                                theme.colorScheme.onSurface.red,
-                                                                theme.colorScheme.onSurface.green,
-                                                                theme.colorScheme.onSurface.blue
-                                                              ),
+                                                              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                                                             ),
                                                             maxLines: 2,
                                                             overflow: TextOverflow.ellipsis,
@@ -292,7 +267,7 @@ class _ChapterScreenState extends State<ChapterScreen> {
                                                   // Chevron icon
                                                   Icon(
                                                     Icons.chevron_right,
-                                                    color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                                    color: theme.colorScheme.onSurface.withValues(alpha:0.5),
                                                     size: 24,
                                                   ),
                                                 ],
@@ -411,10 +386,10 @@ class _ChapterScreenState extends State<ChapterScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primary.withOpacity(0.08),
+        color: theme.colorScheme.primary.withValues(alpha:0.08),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: theme.colorScheme.primary.withOpacity(0.2),
+          color: theme.colorScheme.primary.withValues(alpha:0.2),
           width: 1,
         ),
       ),

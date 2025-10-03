@@ -36,7 +36,7 @@ class BookmarkFilterChip extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isSelected 
                     ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.primary.withOpacity(0.2),
+                    : theme.colorScheme.primary.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -56,11 +56,11 @@ class BookmarkFilterChip extends StatelessWidget {
       selected: isSelected,
       onSelected: (_) => onSelected(isSelected ? null : filterType),
       selectedColor: theme.colorScheme.primaryContainer,
-      backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+      backgroundColor: theme.colorScheme.surfaceVariant.withValues(alpha: 0.3),
       side: BorderSide(
         color: isSelected 
             ? theme.colorScheme.primary
-            : theme.colorScheme.outline.withOpacity(0.2),
+            : theme.colorScheme.outline.withValues(alpha: 0.2),
       ),
       showCheckmark: false,
     );

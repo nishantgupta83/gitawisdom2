@@ -43,7 +43,7 @@ class AppConfig {
   static const Color splashIconColor = Colors.white;
   
   // Asset Paths
-  static const String appBackgroundImage = 'assets/images/app_bg.png';
+  // Background images removed - using gradient backgrounds for better performance
   static const String splashBackgroundImage = 'assets/images/app_bg.png';
   
   // Feature Flags

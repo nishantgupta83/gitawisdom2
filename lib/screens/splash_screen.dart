@@ -189,7 +189,7 @@ class _SplashScreenState extends State<SplashScreen> {
                   Text(
                     'Version ${AppConfig.fullVersion}',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppConfig.splashIconColor.withOpacity(0.8),
+                      color: AppConfig.splashIconColor.withValues(alpha:0.8),
                     ),
                   ),
                 ],

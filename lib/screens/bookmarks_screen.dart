@@ -134,7 +134,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(
@@ -164,7 +164,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
         controller: _tabController,
         isScrollable: true,
         labelColor: theme.colorScheme.primary,
-        unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
+        unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha:0.6),
         indicatorColor: theme.colorScheme.primary,
         tabs: const [
           Tab(text: 'All'),
@@ -271,7 +271,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
           Text(
             'Loading bookmarks...',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.6),
             ),
           ),
         ],
@@ -289,13 +289,13 @@ class _BookmarksScreenState extends State<BookmarksScreen>
             Icon(
               Icons.bookmark_border,
               size: 80,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.3),
             ),
             const SizedBox(height: 16),
             Text(
               'No Bookmarks Yet',
               style: theme.textTheme.headlineSmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -304,7 +304,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
               'Start bookmarking verses, chapters, and scenarios to see them here.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.6),
               ),
             ),
             const SizedBox(height: 24),
@@ -334,13 +334,13 @@ class _BookmarksScreenState extends State<BookmarksScreen>
             Icon(
               Icons.search_off,
               size: 60,
-              color: theme.colorScheme.onSurface.withOpacity(0.3),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.3),
             ),
             const SizedBox(height: 16),
             Text(
               'No Results Found',
               style: theme.textTheme.titleLarge?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.7),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.7),
               ),
             ),
             const SizedBox(height: 8),
@@ -350,7 +350,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
                   : 'No bookmarks in this category',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha:0.6),
               ),
             ),
           ],

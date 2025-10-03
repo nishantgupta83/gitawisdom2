@@ -161,7 +161,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
               // Loading overlay
               if (authService.isLoading)
                 Container(
-                  color: Colors.black.withOpacity(0.7),
+                  color: Colors.black.withValues(alpha:0.7),
                   child: Center(
                     child: Container(
                       padding: const EdgeInsets.all(24),
@@ -217,17 +217,17 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
           Positioned(
             top: 100,
             right: -50,
-            child: _buildFloatingOrb(120, isDark ? Colors.orange.withOpacity(0.1) : Colors.blue.withOpacity(0.1)),
+            child: _buildFloatingOrb(120, isDark ? Colors.orange.withValues(alpha:0.1) : Colors.blue.withValues(alpha:0.1)),
           ),
           Positioned(
             bottom: 150,
             left: -30,
-            child: _buildFloatingOrb(80, isDark ? Colors.blue.withOpacity(0.1) : Colors.orange.withOpacity(0.1)),
+            child: _buildFloatingOrb(80, isDark ? Colors.blue.withValues(alpha:0.1) : Colors.orange.withValues(alpha:0.1)),
           ),
           Positioned(
             top: 300,
             left: 50,
-            child: _buildFloatingOrb(40, isDark ? Colors.purple.withOpacity(0.1) : Colors.green.withOpacity(0.1)),
+            child: _buildFloatingOrb(40, isDark ? Colors.purple.withValues(alpha:0.1) : Colors.green.withValues(alpha:0.1)),
           ),
         ],
       ),
@@ -251,7 +251,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
               color: color,
               boxShadow: [
                 BoxShadow(
-                  color: color.withOpacity(0.3),
+                  color: color.withValues(alpha:0.3),
                   blurRadius: 20,
                   spreadRadius: 5,
                 ),
@@ -284,7 +284,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.4),
+                  color: theme.colorScheme.primary.withValues(alpha:0.4),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                   spreadRadius: 2,
@@ -304,7 +304,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         Text(
           'Welcome to',
           style: theme.textTheme.headlineSmall?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.8),
+            color: theme.colorScheme.onSurface.withValues(alpha:0.8),
             fontWeight: FontWeight.w300,
           ),
         ),
@@ -329,7 +329,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         Text(
           'Ancient wisdom for modern life',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.7),
+            color: theme.colorScheme.onSurface.withValues(alpha:0.7),
             fontStyle: FontStyle.italic,
           ),
           textAlign: TextAlign.center,
@@ -345,12 +345,12 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         color: theme.cardColor,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: theme.colorScheme.outline.withOpacity(0.1),
+          color: theme.colorScheme.outline.withValues(alpha:0.1),
           width: 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: theme.shadowColor.withOpacity(0.1),
+            color: theme.shadowColor.withValues(alpha:0.1),
             blurRadius: 30,
             offset: const Offset(0, 15),
             spreadRadius: 0,
@@ -388,7 +388,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   Widget _buildTabIndicator(ThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+        color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(4),
@@ -409,7 +409,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                   boxShadow: _currentPage == 0
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withOpacity(0.3),
+                            color: theme.colorScheme.primary.withValues(alpha:0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -422,7 +422,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: _currentPage == 0
                         ? Colors.white
-                        : theme.colorScheme.onSurface.withOpacity(0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha:0.7),
                     fontWeight: _currentPage == 0 ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
@@ -444,7 +444,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                   boxShadow: _currentPage == 1
                       ? [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withOpacity(0.3),
+                            color: theme.colorScheme.primary.withValues(alpha:0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -457,7 +457,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                   style: theme.textTheme.titleMedium?.copyWith(
                     color: _currentPage == 1
                         ? Colors.white
-                        : theme.colorScheme.onSurface.withOpacity(0.7),
+                        : theme.colorScheme.onSurface.withValues(alpha:0.7),
                     fontWeight: _currentPage == 1 ? FontWeight.w600 : FontWeight.w400,
                   ),
                 ),
@@ -474,10 +474,10 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer.withOpacity(0.1),
+        color: theme.colorScheme.errorContainer.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: theme.colorScheme.error.withOpacity(0.3),
+          color: theme.colorScheme.error.withValues(alpha:0.3),
           width: 1,
         ),
       ),
@@ -561,7 +561,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
           suffixIcon: IconButton(
             icon: Icon(
               _obscurePassword ? Icons.visibility_off : Icons.visibility,
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.6),
             ),
             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
           ),
@@ -661,7 +661,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
           suffixIcon: IconButton(
             icon: Icon(
               _obscurePassword ? Icons.visibility_off : Icons.visibility,
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.6),
             ),
             onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
           ),
@@ -687,7 +687,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
           suffixIcon: IconButton(
             icon: Icon(
               _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
-              color: theme.colorScheme.onSurface.withOpacity(0.6),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.6),
             ),
             onPressed: () => setState(() => _obscureConfirmPassword = !_obscureConfirmPassword),
           ),
@@ -737,13 +737,13 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha:0.3),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha:0.3),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -769,7 +769,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.1),
+        fillColor: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha:0.1),
       ),
     );
   }
@@ -793,7 +793,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         boxShadow: onPressed != null
             ? [
                 BoxShadow(
-                  color: theme.colorScheme.primary.withOpacity(0.3),
+                  color: theme.colorScheme.primary.withValues(alpha:0.3),
                   blurRadius: 12,
                   offset: const Offset(0, 6),
                 ),
@@ -827,36 +827,36 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         const SizedBox(height: 24),
         Row(
           children: [
-            Expanded(child: Divider(color: theme.colorScheme.outline.withOpacity(0.3))),
+            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'Test Accounts',
                 style: TextStyle(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                   fontSize: 12,
                 ),
               ),
             ),
-            Expanded(child: Divider(color: theme.colorScheme.outline.withOpacity(0.3))),
+            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
           ],
         ),
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+            color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
             children: _testAccounts.map((account) {
               return ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
+                  backgroundColor: theme.colorScheme.primary.withValues(alpha:0.2),
                   child: Icon(Icons.person, color: theme.colorScheme.primary),
                 ),
                 title: Text(account['name']!, style: const TextStyle(fontSize: 14)),
                 subtitle: Text('${account['email']} • ${account['password']}', 
-                  style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withOpacity(0.6))),
+                  style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha:0.6))),
                 trailing: TextButton(
                   onPressed: () => _useTestAccount(account),
                   child: const Text('Use', style: TextStyle(fontSize: 12)),
@@ -874,17 +874,17 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
       children: [
         Row(
           children: [
-            Expanded(child: Divider(color: theme.colorScheme.outline.withOpacity(0.3))),
+            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(
                 'or',
                 style: TextStyle(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                 ),
               ),
             ),
-            Expanded(child: Divider(color: theme.colorScheme.outline.withOpacity(0.3))),
+            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
           ],
         ),
         
@@ -897,7 +897,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: theme.colorScheme.outline.withOpacity(0.3),
+              color: theme.colorScheme.outline.withValues(alpha:0.3),
               width: 1,
             ),
           ),
@@ -911,13 +911,13 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                 children: [
                   Icon(
                     Icons.person_outline_rounded,
-                    color: theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     'Continue as Guest',
                     style: TextStyle(
-                      color: theme.colorScheme.onSurface.withOpacity(0.8),
+                      color: theme.colorScheme.onSurface.withValues(alpha:0.8),
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
                     ),
@@ -933,7 +933,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         Text(
           'You can create an account later to sync your progress',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha:0.6),
           ),
           textAlign: TextAlign.center,
         ),

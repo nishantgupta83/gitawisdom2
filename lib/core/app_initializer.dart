@@ -17,6 +17,7 @@ import '../services/progressive_scenario_service.dart';
 import '../services/journal_service.dart';
 // import '../services/audio_service.dart'; // Removed - using EnhancedAudioService with lazy loading
 import '../services/app_lifecycle_manager.dart';
+import '../services/background_music_service.dart';
 import '../services/service_locator.dart';
 import '../services/intelligent_scenario_search.dart';
 // import 'hive_manager.dart'; // Removed for simplification
@@ -24,6 +25,7 @@ import 'performance_monitor.dart';
 import 'ios_performance_optimizer.dart';
 import 'ios_audio_session_manager.dart';
 import 'ios_metal_optimizer.dart';
+import 'app_config.dart';
 import '../models/journal_entry.dart';
 import '../models/scenario.dart';
 import '../models/chapter.dart';
@@ -238,6 +240,20 @@ class AppInitializer {
       debugPrint('🎵 App lifecycle manager initialized successfully');
     } catch (e) {
       debugPrint('❌ App lifecycle manager initialization failed: $e');
+    }
+
+    // Initialize background music service
+    try {
+      await BackgroundMusicService.instance.initialize();
+      debugPrint('🎵 Background music service initialized successfully');
+
+      // Start music if default enabled in config
+      if (AppConfig.defaultMusicEnabled) {
+        await BackgroundMusicService.instance.startMusic();
+        debugPrint('🎵 Background music started automatically');
+      }
+    } catch (e) {
+      debugPrint('❌ Background music initialization failed: $e');
     }
   }
 

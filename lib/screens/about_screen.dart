@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../l10n/app_localizations.dart';
 import '../core/navigation/navigation_service.dart';
+import '../widgets/app_background.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({Key? key}) : super(key: key);
@@ -18,16 +19,9 @@ class AboutScreen extends StatelessWidget {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background image with dark overlay for dark mode
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/app_bg.png',
-              fit: BoxFit.cover,
-              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
-              colorBlendMode: isDark ? BlendMode.darken : null,
-            ),
-          ),
-          
+          // Unified gradient background
+          AppBackground(isDark: isDark),
+
           // Sticky header that stays fixed at top
           SafeArea(
             child: Container(
@@ -35,10 +29,10 @@ class AboutScreen extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
               decoration: BoxDecoration(
                 // Semi-transparent background for glassmorphism effect
-                color: theme.colorScheme.surface.withOpacity(0.95),
+                color: theme.colorScheme.surface.withValues(alpha: 0.95),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha: 0.1),
                     blurRadius: 10,
                     spreadRadius: 0,
                     offset: const Offset(0, 2),
@@ -47,7 +41,7 @@ class AboutScreen extends StatelessWidget {
                 // Subtle border at bottom
                 border: Border(
                   bottom: BorderSide(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     width: 1,
                   ),
                 ),
@@ -73,7 +67,7 @@ class AboutScreen extends StatelessWidget {
                       gradient: LinearGradient(
                         colors: [
                           theme.colorScheme.primary,
-                          theme.colorScheme.primary.withOpacity(0.6),
+                          theme.colorScheme.primary.withValues(alpha: 0.6),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(2),
@@ -84,7 +78,7 @@ class AboutScreen extends StatelessWidget {
                     'Ancient wisdom for modern life',
                     style: GoogleFonts.poppins(
                       fontSize: 14,
-                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       letterSpacing: 0.8,
                     ),
                     textAlign: TextAlign.center,
@@ -119,7 +113,7 @@ class AboutScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(22),
                         gradient: LinearGradient(
                           colors: [
-                            theme.colorScheme.primaryContainer.withOpacity(0.1),
+                            theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
                             theme.colorScheme.surface,
                           ],
                           begin: Alignment.topLeft,
@@ -175,7 +169,7 @@ class AboutScreen extends StatelessWidget {
                                   gradient: LinearGradient(
                                     colors: [
                                       theme.colorScheme.primary,
-                                      theme.colorScheme.primary.withOpacity(0.8),
+                                      theme.colorScheme.primary.withValues(alpha: 0.8),
                                     ],
                                   ),
                                   borderRadius: BorderRadius.circular(12),
@@ -219,15 +213,15 @@ class AboutScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
                                 colors: [
-                                  theme.colorScheme.primaryContainer.withOpacity(0.2),
-                                  theme.colorScheme.primaryContainer.withOpacity(0.1),
+                                  theme.colorScheme.primaryContainer.withValues(alpha: 0.2),
+                                  theme.colorScheme.primaryContainer.withValues(alpha: 0.1),
                                 ],
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
                               ),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: theme.colorScheme.primary.withOpacity(0.3),
+                                color: theme.colorScheme.primary.withValues(alpha: 0.3),
                                 width: 1.5,
                               ),
                             ),
@@ -245,7 +239,7 @@ class AboutScreen extends StatelessWidget {
                                     fontSize: isTablet ? 16 : 14,
                                     fontStyle: FontStyle.italic,
                                     height: 1.5,
-                                    color: theme.colorScheme.onSurface.withOpacity(0.9),
+                                    color: theme.colorScheme.onSurface.withValues(alpha: 0.9),
                                     fontWeight: FontWeight.w500,
                                   ),
                                   textAlign: TextAlign.center,
@@ -283,14 +277,14 @@ class AboutScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(22),
                         gradient: LinearGradient(
                           colors: [
-                            Colors.orange.shade50.withOpacity(0.3),
+                            Colors.orange.shade50.withValues(alpha: 0.3),
                             theme.colorScheme.surface,
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         border: Border.all(
-                          color: Colors.orange.withOpacity(0.2),
+                          color: Colors.orange.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -456,7 +450,7 @@ class AboutScreen extends StatelessWidget {
             subtitle,
             style: GoogleFonts.poppins(
               fontSize: isTablet ? 13 : 12,
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
               height: 1.4,
             ),
           ),

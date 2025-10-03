@@ -303,7 +303,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_dotenv:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_dotenv
       sha256: d4130c4a43e0b13fefc593bc3961f2cb46e30cb79e253d4a526b1b5d24ae1ce4
@@ -432,7 +432,7 @@ packages:
     source: hosted
     version: "6.3.1"
   gotrue:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       name: gotrue
       sha256: "4ed944bfa31cca12e6d224ed07557ccf1bb604959de3c7d5282cd11314e7655b"
@@ -1314,7 +1314,7 @@ packages:
     source: hosted
     version: "3.1.0"
   win32:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: win32
       sha256: "66814138c3562338d05613a6e368ed8cfb237ad6d64a9e9334be3f309acfca03"

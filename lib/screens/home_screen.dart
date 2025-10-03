@@ -14,6 +14,7 @@ import '../services/supabase_auth_service.dart';
 import '../services/progressive_scenario_service.dart';
 import '../core/theme/theme_provider.dart';
 import 'chapters_detail_view.dart';
+import '../widgets/app_background.dart';
 
 /// Serializable scenario data for compute() isolate
 class ScenarioData {
@@ -78,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late final _service = ServiceLocator.instance.enhancedSupabaseService;
   late AnimationController _fadeController;
   late AnimationController _slideController;
+  late AnimationController _orbController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   
@@ -105,6 +107,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
+    _orbController = AnimationController(
+      duration: const Duration(seconds: 20),
+      vsync: this,
+    )..repeat(); // Continuous animation for orbs
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
@@ -174,6 +180,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
+    _orbController.dispose();
     _pageController.dispose();
     _dilemmasPageController.dispose();
     super.dispose();
@@ -190,9 +197,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // Enhanced background with better dark mode support
-          _buildEnhancedBackground(isDark, size),
-          
+          // Unified gradient background with animated orbs
+          AppBackground(
+            isDark: isDark,
+            showAnimatedOrbs: true,
+            orbController: _orbController,
+          ),
+
           // Main content
           SafeArea(
             child: FadeTransition(
@@ -249,65 +260,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildEnhancedBackground(bool isDark, Size size) {
-    return Container(
-      width: size.width,
-      height: size.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [
-                  const Color(0xFF0D1B2A),
-                  const Color(0xFF1B263B),
-                  const Color(0xFF415A77),
-                ]
-              : [
-                  const Color(0xFFF8FAFC),
-                  const Color(0xFFE2E8F0),
-                  const Color(0xFFCBD5E1),
-                ],
-        ),
-      ),
-      child: Stack(
-        children: [
-          // Animated background orbs
-          ...List.generate(5, (index) {
-            return Positioned(
-              top: (index * 150.0) % size.height,
-              left: (index * 200.0) % size.width,
-              child: AnimatedBuilder(
-                animation: _fadeController,
-                builder: (context, child) {
-                  return Transform.translate(
-                    offset: Offset(
-                      math.sin(_fadeController.value * 2 * math.pi + index) * 20,
-                      math.cos(_fadeController.value * 2 * math.pi + index) * 30,
-                    ),
-                    child: Container(
-                      width: 80 + (index * 20.0),
-                      height: 80 + (index * 20.0),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            (isDark ? Colors.orange : Colors.blue).withOpacity(0.1),
-                            (isDark ? Colors.deepOrange : Colors.indigo).withOpacity(0.05),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            );
-          }),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDynamicHeader(ThemeData theme, bool isDark) {
     // Fixed overflow issue by reducing padding and font sizes
     return SliverAppBar(
@@ -327,7 +279,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                (isDark ? Colors.black : Colors.white).withOpacity(0.1),
+                (isDark ? Colors.black : Colors.white).withValues(alpha:0.1),
               ],
             ),
           ),
@@ -355,7 +307,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         Text(
                           '$greeting,',
                           style: theme.textTheme.headlineSmall?.copyWith(
-                            color: isDark ? Colors.white.withOpacity(0.9) : theme.colorScheme.onSurface.withOpacity(0.8),
+                            color: isDark ? Colors.white.withValues(alpha:0.9) : theme.colorScheme.onSurface.withValues(alpha:0.8),
                             fontWeight: FontWeight.w300,
                           ),
                           overflow: TextOverflow.ellipsis,
@@ -387,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Text(
                   'Let ancient wisdom guide your day',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: isDark ? Colors.white.withOpacity(0.7) : theme.colorScheme.onSurface.withOpacity(0.7),
+                    color: isDark ? Colors.white.withValues(alpha:0.7) : theme.colorScheme.onSurface.withValues(alpha:0.7),
                     fontStyle: FontStyle.italic,
                     fontSize: 14,
                   ),
@@ -437,22 +389,22 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: isDark 
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.05),
+                    ? Colors.white.withValues(alpha:0.1)
+                    : Colors.black.withValues(alpha:0.05),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
                   color: isDark 
-                      ? Colors.black.withOpacity(0.3)
-                      : Colors.black.withOpacity(0.1),
+                      ? Colors.black.withValues(alpha:0.3)
+                      : Colors.black.withValues(alpha:0.1),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                   spreadRadius: 0,
                 ),
                 if (isDark)
                   BoxShadow(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha:0.1),
                     blurRadius: 30,
                     offset: const Offset(0, 0),
                     spreadRadius: 2,
@@ -501,8 +453,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               'Chapter $_chapterId, Verse ${verse.verseId}',
                               style: theme.textTheme.bodyMedium?.copyWith(
                                 color: isDark 
-                                    ? Colors.white.withOpacity(0.7)
-                                    : theme.colorScheme.onSurface.withOpacity(0.7),
+                                    ? Colors.white.withValues(alpha:0.7)
+                                    : theme.colorScheme.onSurface.withValues(alpha:0.7),
                               ),
                             ),
                           ],
@@ -515,20 +467,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: isDark 
-                          ? Colors.white.withOpacity(0.05)
-                          : theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                          ? Colors.white.withValues(alpha:0.05)
+                          : theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isDark 
-                            ? Colors.white.withOpacity(0.1)
-                            : Colors.black.withOpacity(0.05),
+                            ? Colors.white.withValues(alpha:0.1)
+                            : Colors.black.withValues(alpha:0.05),
                       ),
                     ),
                     child: Text(
                       verse.description,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: isDark
-                            ? Colors.white.withOpacity(0.9)
+                            ? Colors.white.withValues(alpha:0.9)
                             : theme.colorScheme.onSurface,
                         height: 1.6,
                       ),
@@ -561,7 +513,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         'onTap': () => widget.onTabChange?.call(1),
       },
       {
-        'title': 'Practice',
+        'title': 'Journal',
         'subtitle': 'Daily spiritual growth',
         'icon': Icons.self_improvement,
         'color': Colors.green,
@@ -630,14 +582,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isDark 
-                  ? Colors.white.withOpacity(0.1)
-                  : Colors.black.withOpacity(0.05),
+                  ? Colors.white.withValues(alpha:0.1)
+                  : Colors.black.withValues(alpha:0.05),
             ),
             boxShadow: [
               BoxShadow(
                 color: isDark 
-                    ? Colors.black.withOpacity(0.2)
-                    : Colors.black.withOpacity(0.08),
+                    ? Colors.black.withValues(alpha:0.2)
+                    : Colors.black.withValues(alpha:0.08),
                 blurRadius: 15,
                 offset: const Offset(0, 4),
               ),
@@ -654,14 +606,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        (action['color'] as Color).withOpacity(0.8),
+                        (action['color'] as Color).withValues(alpha:0.8),
                         (action['color'] as Color),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: (action['color'] as Color).withOpacity(0.3),
+                        color: (action['color'] as Color).withValues(alpha:0.3),
                         blurRadius: 8,
                         offset: const Offset(0, 2),
                       ),
@@ -690,8 +642,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     action['subtitle'],
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: isDark
-                          ? Colors.white.withOpacity(0.6)
-                          : theme.colorScheme.onSurface.withOpacity(0.6),
+                          ? Colors.white.withValues(alpha:0.6)
+                          : theme.colorScheme.onSurface.withValues(alpha:0.6),
                     ),
                     textAlign: TextAlign.center,
                     maxLines: 2,
@@ -782,7 +734,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: colors[index % colors.length][0].withOpacity(0.3),
+            color: colors[index % colors.length][0].withValues(alpha:0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -811,7 +763,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha:0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
@@ -825,7 +777,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     const Spacer(),
                     Icon(
                       Icons.arrow_forward_ios,
-                      color: Colors.white.withOpacity(0.8),
+                      color: Colors.white.withValues(alpha:0.8),
                       size: 16,
                     ),
                   ],
@@ -850,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                         child: Text(
                           chapter.summary ?? '',
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withValues(alpha:0.9),
                             height: 1.4,
                           ),
                           maxLines: 4,
@@ -897,7 +849,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.orange.withOpacity(0.3),
+            color: Colors.orange.withValues(alpha:0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -938,7 +890,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             Text(
               'Ancient Wisdom',
               style: theme.textTheme.bodySmall?.copyWith(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha:0.8),
               ),
             ),
           ],
@@ -958,14 +910,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
           color: isDark 
-              ? Colors.white.withOpacity(0.1)
-              : Colors.black.withOpacity(0.05),
+              ? Colors.white.withValues(alpha:0.1)
+              : Colors.black.withValues(alpha:0.05),
         ),
         boxShadow: [
           BoxShadow(
             color: isDark 
-                ? Colors.black.withOpacity(0.2)
-                : Colors.black.withOpacity(0.08),
+                ? Colors.black.withValues(alpha:0.2)
+                : Colors.black.withValues(alpha:0.08),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -981,8 +933,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             message,
             style: theme.textTheme.bodyMedium?.copyWith(
               color: isDark 
-                  ? Colors.white.withOpacity(0.7)
-                  : theme.colorScheme.onSurface.withOpacity(0.7),
+                  ? Colors.white.withValues(alpha:0.7)
+                  : theme.colorScheme.onSurface.withValues(alpha:0.7),
             ),
           ),
         ],
@@ -1000,13 +952,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             : Colors.white,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: theme.colorScheme.error.withOpacity(0.3),
+          color: theme.colorScheme.error.withValues(alpha:0.3),
         ),
         boxShadow: [
           BoxShadow(
             color: isDark 
-                ? Colors.black.withOpacity(0.2)
-                : Colors.black.withOpacity(0.08),
+                ? Colors.black.withValues(alpha:0.2)
+                : Colors.black.withValues(alpha:0.08),
             blurRadius: 15,
             offset: const Offset(0, 4),
           ),
@@ -1024,8 +976,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
             message,
             style: theme.textTheme.bodyLarge?.copyWith(
               color: isDark 
-                  ? Colors.white.withOpacity(0.7)
-                  : theme.colorScheme.onSurface.withOpacity(0.7),
+                  ? Colors.white.withValues(alpha:0.7)
+                  : theme.colorScheme.onSurface.withValues(alpha:0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -1039,7 +991,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       opacity: _showGreeting ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 500),
       child: Container(
-        color: Colors.black.withOpacity(0.7),
+        color: Colors.black.withValues(alpha:0.7),
         child: Center(
           child: Container(
             margin: const EdgeInsets.all(24),
@@ -1049,7 +1001,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha:0.3),
                   blurRadius: 30,
                   offset: const Offset(0, 15),
                 ),
@@ -1089,8 +1041,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   'Your journey of ancient wisdom begins now',
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: isDark 
-                        ? Colors.white.withOpacity(0.7)
-                        : theme.colorScheme.onSurface.withOpacity(0.7),
+                        ? Colors.white.withValues(alpha:0.7)
+                        : theme.colorScheme.onSurface.withValues(alpha:0.7),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -1235,8 +1187,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   '${_currentDilemmaPage + 1} / ${dilemmas.length}',
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: isDark 
-                        ? Colors.white.withOpacity(0.6)
-                        : theme.colorScheme.onSurface.withOpacity(0.6),
+                        ? Colors.white.withValues(alpha:0.6)
+                        : theme.colorScheme.onSurface.withValues(alpha:0.6),
                   ),
                 ),
               ],
@@ -1270,7 +1222,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                   decoration: BoxDecoration(
                     color: _currentDilemmaPage == index
                         ? theme.colorScheme.primary
-                        : (isDark ? Colors.white.withOpacity(0.3) : Colors.black.withOpacity(0.3)),
+                        : (isDark ? Colors.white.withValues(alpha:0.3) : Colors.black.withValues(alpha:0.3)),
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -1300,7 +1252,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.purple.withOpacity(0.3),
+            color: Colors.purple.withValues(alpha:0.3),
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -1320,7 +1272,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.2),
+                    color: Colors.white.withValues(alpha:0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -1354,7 +1306,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: Text(
                 scenario.description,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha:0.9),
                   height: 1.4,
                 ),
                 maxLines: 4,
@@ -1366,20 +1318,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               children: [
                 Icon(
                   Icons.favorite,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha:0.8),
                   size: 16,
                 ),
                 const SizedBox(width: 8),
                 Text(
                   'Heart vs Duty guidance',
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha:0.8),
                   ),
                 ),
                 const Spacer(),
                 Icon(
                   Icons.arrow_forward_ios,
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha:0.8),
                   size: 16,
                 ),
               ],

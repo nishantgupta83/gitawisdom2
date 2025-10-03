@@ -85,7 +85,15 @@
       "Bash(then find build/ios/Release-iphoneos -name \"*.app\" -exec ls -la {})",
       "Bash(else echo \"No iOS release build found\")",
       "Bash(git rev-list:*)",
-      "Bash(git filter-branch:*)"
+      "Bash(git filter-branch:*)",
+      "Bash(sips:*)",
+      "Bash(ls:*)",
+      "Bash(xcrun simctl io:*)",
+      "Read(//tmp/**)",
+      "Bash(/Users/nishantgupta/Library/Android/sdk/platform-tools/adb:*)",
+      "Bash(/Users/nishantgupta/Library/Android/sdk/emulator/emulator -list-avds)",
+      "Bash(xcrun simctl launch:*)",
+      "Bash(xcrun simctl:*)"
     ],
     "deny": [],
     "additionalDirectories": [

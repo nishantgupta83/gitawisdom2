@@ -106,7 +106,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
           width: 80,
           height: 80,
           decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withOpacity(0.1),
+            color: theme.colorScheme.primary.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Icon(
@@ -128,7 +128,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         Text(
           'Sign in to sync your personal journal\nacross all your devices',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: (isDark ? Colors.white : Colors.black87).withOpacity(0.7),
+            color: (isDark ? Colors.white : Colors.black87).withValues(alpha: 0.7),
             height: 1.5,
           ),
           textAlign: TextAlign.center,
@@ -145,7 +145,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.shadow.withOpacity(0.1),
+            color: theme.colorScheme.shadow.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -158,7 +158,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
             TabBar(
               controller: _tabController,
               labelColor: theme.colorScheme.primary,
-              unselectedLabelColor: theme.colorScheme.onSurface.withOpacity(0.6),
+              unselectedLabelColor: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               indicatorColor: theme.colorScheme.primary,
               tabs: const [
                 Tab(text: 'Sign In'),
@@ -370,7 +370,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
               child: Text(
                 'or',
                 style: TextStyle(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
               ),
             ),
@@ -414,7 +414,7 @@ class _AuthScreenState extends State<AuthScreen> with TickerProviderStateMixin {
         Text(
           'You can create an account later to sync your data',
           style: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurface.withOpacity(0.6),
+            color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
           ),
           textAlign: TextAlign.center,
         ),

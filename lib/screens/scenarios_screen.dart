@@ -13,6 +13,7 @@ import '../core/navigation/navigation_service.dart';
 import '../screens/root_scaffold.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/share_card_widget.dart';
+import '../widgets/app_background.dart';
 // import 'sub_category_mapper.dart'; // TODO: Implement sub-category filtering UI
 
 /// Utility function to format counts in human-readable format
@@ -534,17 +535,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       resizeToAvoidBottomInset: false, // Prevent automatic resizing for keyboard
       body: Stack(
         children: [
-          // Background image with dark overlay for dark mode
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/app_bg.png',
-              fit: BoxFit.cover,
-              color: theme.brightness == Brightness.dark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
-              colorBlendMode: theme.brightness == Brightness.dark ? BlendMode.darken : null,
-            ),
-          ),
-          
-          
+          // Unified gradient background
+          AppBackground(isDark: theme.brightness == Brightness.dark),
+
           // Scrollable content area
           SafeArea(
             child: GestureDetector(
@@ -569,11 +562,11 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       margin: const EdgeInsets.only(bottom: 20),
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surface.withOpacity(0.85),
+                        color: theme.colorScheme.surface.withValues(alpha:0.85),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha:0.1),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -603,7 +596,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               gradient: LinearGradient(
                                 colors: [
                                   theme.colorScheme.primary,
-                                  theme.colorScheme.primary.withOpacity(0.6),
+                                  theme.colorScheme.primary.withValues(alpha:0.6),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(2),
@@ -616,7 +609,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                 : AppLocalizations.of(context)!.applyGitaWisdom,
                             style: GoogleFonts.poppins(
                               fontSize: theme.textTheme.bodyMedium?.fontSize,
-                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                               letterSpacing: 0.8,
                             ),
                             textAlign: TextAlign.center,
@@ -633,7 +626,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       decoration: InputDecoration(
                         hintText: localizations?.searchScenarios ?? 'Search scenarios...',
                         hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                         ),
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: _search.isNotEmpty
@@ -646,7 +639,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         )
                             : null,
                         filled: true,
-                        fillColor: theme.colorScheme.surface.withOpacity(.85),
+                        fillColor: theme.colorScheme.surface.withValues(alpha:.85),
                         contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(30),
@@ -730,7 +723,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                   child: Text(
                                     _search.isEmpty ? (localizations?.noScenariosAvailable ?? 'No scenarios available') : (localizations?.noScenariosMatch ?? 'No scenarios match your search'),
                                     style: theme.textTheme.bodyLarge?.copyWith(
-                                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                      color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -777,7 +770,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                       child: Text(
                                         'Showing all ${_scenarios.length} scenarios',
                                         style: theme.textTheme.bodySmall?.copyWith(
-                                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                          color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                                         ),
                                         textAlign: TextAlign.center,
                                       ),
@@ -801,7 +794,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.amberAccent.withOpacity(0.9),
+                  color: Colors.amberAccent.withValues(alpha:0.9),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
@@ -840,7 +833,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.amberAccent.withOpacity(0.9),
+                  color: Colors.amberAccent.withValues(alpha:0.9),
                   blurRadius: 16,
                   spreadRadius: 4,
                 ),
@@ -928,7 +921,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       child: Text(
                         AppLocalizations.of(context)!.chapter(scenario.chapter),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                          color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -944,7 +937,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           icon: Icon(
                             Icons.share,
                             size: 18,
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                           ),
                           tooltip: 'Share',
                           padding: const EdgeInsets.all(4),
@@ -1097,23 +1090,23 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
             child: Material(
               elevation: isSelected ? 6 : 2,
               borderRadius: BorderRadius.circular(20),
-              shadowColor: category.color.withOpacity(0.3),
+              shadowColor: category.color.withValues(alpha:0.3),
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(20),
                   gradient: isSelected 
                     ? LinearGradient(
                         colors: [
-                          category.color.withOpacity(0.8),
-                          category.color.withOpacity(0.6),
+                          category.color.withValues(alpha:0.8),
+                          category.color.withValues(alpha:0.6),
                         ],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       )
                     : null,
-                  color: isSelected ? null : theme.colorScheme.surface.withOpacity(0.8),
+                  color: isSelected ? null : theme.colorScheme.surface.withValues(alpha:0.8),
                   border: Border.all(
-                    color: category.color.withOpacity(isSelected ? 0.8 : 0.3),
+                    color: category.color.withValues(alpha:isSelected ? 0.8 : 0.3),
                     width: isSelected ? 2 : 1,
                   ),
                 ),
@@ -1154,8 +1147,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                               formatCount(count),
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: isSelected 
-                                  ? Colors.white.withOpacity(0.9) 
-                                  : category.color.withOpacity(0.8),
+                                  ? Colors.white.withValues(alpha:0.9) 
+                                  : category.color.withValues(alpha:0.8),
                                 fontSize: theme.textTheme.labelSmall?.fontSize,
                                 fontWeight: FontWeight.w500,
                               ),
@@ -1196,17 +1189,17 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         decoration: BoxDecoration(
           // Enhanced background opacity for much better visibility and contrast
           color: theme.brightness == Brightness.light 
-              ? mainCategory.color.withOpacity(0.2) // Increased from 0.15 for better contrast
-              : mainCategory.color.withOpacity(0.12), // Increased from 0.08 for better contrast
+              ? mainCategory.color.withValues(alpha:0.2) // Increased from 0.15 for better contrast
+              : mainCategory.color.withValues(alpha:0.12), // Increased from 0.08 for better contrast
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: mainCategory.color.withOpacity(0.4), // Increased from 0.3 for better visibility
+            color: mainCategory.color.withValues(alpha:0.4), // Increased from 0.3 for better visibility
             width: 1.5,
           ),
           // Enhanced shadow for better contrast
           boxShadow: [
             BoxShadow(
-              color: mainCategory.color.withOpacity(0.15), // Increased shadow opacity
+              color: mainCategory.color.withValues(alpha:0.15), // Increased shadow opacity
               blurRadius: 6, // Increased blur for better visibility
               offset: const Offset(0, 2),
             ),
@@ -1226,8 +1219,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                   style: theme.textTheme.bodySmall?.copyWith(
                     // Improved text contrast and readability
                     color: theme.brightness == Brightness.light
-                        ? theme.colorScheme.onSurface.withOpacity(0.95)
-                        : theme.colorScheme.onSurface.withOpacity(0.9),
+                        ? theme.colorScheme.onSurface.withValues(alpha:0.95)
+                        : theme.colorScheme.onSurface.withValues(alpha:0.9),
                     fontSize: theme.textTheme.bodySmall?.fontSize, // Increased from 12 for better readability
                     fontWeight: FontWeight.w600, // Increased from w500 for better visibility
                     height: 1.4, // Added line height for better text spacing
@@ -1244,7 +1237,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       text: description,
                       style: TextStyle(
                         fontWeight: FontWeight.w600, // Increased weight for description
-                        color: Colors.white.withOpacity(0.9), // White with slight transparency
+                        color: Colors.white.withValues(alpha:0.9), // White with slight transparency
                       ),
                     ),
                   ],
@@ -1334,7 +1327,7 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: textColor.withOpacity(0.2),
+          color: textColor.withValues(alpha:0.2),
           width: 1,
         ),
       ),

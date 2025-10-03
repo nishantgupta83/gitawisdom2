@@ -223,7 +223,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
                                 border: Border.all(
                                   color: isSelected
                                       ? theme.colorScheme.primary
-                                      : theme.colorScheme.outline.withOpacity(0.3),
+                                      : theme.colorScheme.outline.withValues(alpha: 0.3),
                                   width: 1.5,
                                 ),
                               ),
@@ -247,7 +247,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
                     Text(
                       '${localizations.rating} (${_rating}/5)',
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                     const SizedBox(height: 8),

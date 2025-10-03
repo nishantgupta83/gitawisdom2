@@ -9,6 +9,7 @@ import '../screens/verse_list_view.dart';
 import '../screens/home_screen.dart';
 import '../core/navigation/navigation_service.dart';
 import '../l10n/app_localizations.dart';
+import '../widgets/app_background.dart';
 
 class ChapterDetailView extends StatefulWidget {
   final int chapterId;
@@ -75,15 +76,8 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background image with dark overlay for dark mode
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/app_bg.png',
-              fit: BoxFit.cover,
-              color: theme.brightness == Brightness.dark ? Color.fromARGB((0.32 * 255).toInt(), 0, 0, 0) : null,
-              colorBlendMode: theme.brightness == Brightness.dark ? BlendMode.darken : null,
-            ),
-          ),
+          // Unified gradient background
+          AppBackground(isDark: theme.brightness == Brightness.dark),
 
           // Sticky header that stays fixed at top
           SafeArea(
@@ -92,10 +86,10 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
               padding: const EdgeInsets.fromLTRB(20, 40, 20, 30),
               decoration: BoxDecoration(
                 // Semi-transparent background for glassmorphism effect
-                color: theme.colorScheme.surface.withOpacity(0.85),
+                color: theme.colorScheme.surface.withValues(alpha:0.85),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
+                    color: Colors.black.withValues(alpha:0.1),
                     blurRadius: 10,
                     spreadRadius: 0,
                     offset: const Offset(0, 2),
@@ -104,7 +98,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                 // Subtle border at bottom
                 border: Border(
                   bottom: BorderSide(
-                    color: theme.colorScheme.primary.withOpacity(0.1),
+                    color: theme.colorScheme.primary.withValues(alpha:0.1),
                     width: 1,
                   ),
                 ),
@@ -132,12 +126,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                       gradient: LinearGradient(
                         colors: [
                           theme.colorScheme.primary,
-                          Color.fromARGB(
-                            (0.6 * 255).round(),
-                            theme.colorScheme.primary.red,
-                            theme.colorScheme.primary.green,
-                            theme.colorScheme.primary.blue
-                          ),
+                          theme.colorScheme.primary.withValues(alpha: 0.6),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(2),
@@ -148,12 +137,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                     'Chapter ${widget.chapterId} of the Bhagavad Gita',
                     style: GoogleFonts.poppins(
                       fontSize: textScaler.scale(14),
-                      color: Color.fromARGB(
-                        (0.7 * 255).round(),
-                        theme.colorScheme.onSurface.red,
-                        theme.colorScheme.onSurface.green,
-                        theme.colorScheme.onSurface.blue
-                      ),
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
                       letterSpacing: 0.8,
                     ),
                     textAlign: TextAlign.center,
@@ -239,10 +223,10 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                               borderRadius: BorderRadius.circular(18),
                               gradient: LinearGradient(
                                 colors: [
-                                  Colors.purple.shade300.withOpacity(0.28),
-                                  Colors.purple.shade200.withOpacity(0.24),
-                                  Colors.purple.shade100.withOpacity(0.20),
-                                  Colors.purple.shade50.withOpacity(0.16),
+                                  Colors.purple.shade300.withValues(alpha:0.28),
+                                  Colors.purple.shade200.withValues(alpha:0.24),
+                                  Colors.purple.shade100.withValues(alpha:0.20),
+                                  Colors.purple.shade50.withValues(alpha:0.16),
                                 ],
                                 stops: const [0.0, 0.3, 0.7, 1.0],
                                 begin: Alignment.topLeft,
@@ -251,28 +235,28 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                               boxShadow: [
                                 // Outermost purple glow - strongest and largest
                                 BoxShadow(
-                                  color: Colors.purple.withOpacity(0.45),
+                                  color: Colors.purple.withValues(alpha:0.45),
                                   blurRadius: 25,
                                   spreadRadius: 6,
                                   offset: const Offset(0, 8),
                                 ),
                                 // Middle purple glow - medium intensity
                                 BoxShadow(
-                                  color: Colors.purple.shade300.withOpacity(0.32),
+                                  color: Colors.purple.shade300.withValues(alpha:0.32),
                                   blurRadius: 18,
                                   spreadRadius: 3,
                                   offset: const Offset(0, 4),
                                 ),
                                 // Inner purple glow - subtle and close
                                 BoxShadow(
-                                  color: Colors.purple.shade200.withOpacity(0.24),
+                                  color: Colors.purple.shade200.withValues(alpha:0.24),
                                   blurRadius: 12,
                                   spreadRadius: 1,
                                   offset: const Offset(0, 2),
                                 ),
                                 // Accent purple shimmer
                                 BoxShadow(
-                                  color: Colors.purpleAccent.withOpacity(0.35),
+                                  color: Colors.purpleAccent.withValues(alpha:0.35),
                                   blurRadius: 30,
                                   spreadRadius: 8,
                                   offset: const Offset(0, 10),
@@ -285,7 +269,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                 borderRadius: BorderRadius.circular(18),
                                 color: theme.colorScheme.surface,
                                 border: Border.all(
-                                  color: Colors.purple.withOpacity(0.2),
+                                  color: Colors.purple.withValues(alpha:0.2),
                                   width: 1,
                                 ),
                               ),
@@ -307,7 +291,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                             borderRadius: BorderRadius.circular(8),
                                             boxShadow: [
                                               BoxShadow(
-                                                color: Colors.purple.withOpacity(0.3),
+                                                color: Colors.purple.withValues(alpha:0.3),
                                                 blurRadius: 8,
                                                 spreadRadius: 1,
                                               ),
@@ -352,7 +336,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                 shape: BoxShape.circle,
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: Colors.purple.withOpacity(0.4),
+                                                    color: Colors.purple.withValues(alpha:0.4),
                                                     blurRadius: 4,
                                                     spreadRadius: 1,
                                                   ),
@@ -364,7 +348,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                 t,
                                                 style: GoogleFonts.poppins(
                                                   fontSize: theme.textTheme.bodyMedium?.fontSize,
-                                                  color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                                  color: theme.colorScheme.onSurface.withValues(alpha:0.8),
                                                   height: 1.5,
                                                 ),
                                               ),
@@ -398,7 +382,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: theme.colorScheme.primary.withOpacity(0.1),
+                                        color: theme.colorScheme.primary.withValues(alpha:0.1),
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                       child: Text(
@@ -419,22 +403,27 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                   final isLast = index == _scenarios.length - 1;
 
                                   return [
-                                    // Scenario container with enhanced styling
+                                    // Scenario container with purple gradient styling
                                     Container(
                                       margin: const EdgeInsets.symmetric(vertical: 8),
                                       padding: const EdgeInsets.all(16),
                                       decoration: BoxDecoration(
-                                        color: theme.colorScheme.surface,
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: theme.colorScheme.outline.withOpacity(0.1),
-                                          width: 1,
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            Colors.deepPurple.shade400,
+                                            Colors.purple.shade300,
+                                            Colors.indigo.shade300,
+                                          ],
+                                          stops: const [0.0, 0.5, 1.0],
                                         ),
+                                        borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: theme.colorScheme.shadow.withOpacity(0.05),
-                                            blurRadius: 8,
-                                            offset: const Offset(0, 2),
+                                            color: Colors.purple.withValues(alpha:0.2),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
                                           ),
                                         ],
                                       ),
@@ -459,7 +448,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                 gradient: LinearGradient(
                                                   colors: [
                                                     theme.colorScheme.primary,
-                                                    theme.colorScheme.primary.withOpacity(0.8),
+                                                    theme.colorScheme.primary.withValues(alpha:0.8),
                                                   ],
                                                   begin: Alignment.topLeft,
                                                   end: Alignment.bottomRight,
@@ -467,7 +456,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                 shape: BoxShape.circle,
                                                 boxShadow: [
                                                   BoxShadow(
-                                                    color: theme.colorScheme.primary.withOpacity(0.3),
+                                                    color: theme.colorScheme.primary.withValues(alpha:0.3),
                                                     blurRadius: 4,
                                                     offset: const Offset(0, 2),
                                                   ),
@@ -493,7 +482,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                   Text(
                                                     scenario.title,
                                                     style: theme.textTheme.titleSmall?.copyWith(
-                                                      color: onSurface,
+                                                      color: Colors.white,
                                                       fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
@@ -502,7 +491,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                     Text(
                                                       scenario.description,
                                                       style: theme.textTheme.bodySmall?.copyWith(
-                                                        color: onSurface.withOpacity(0.7),
+                                                        color: Colors.white.withValues(alpha:0.9),
                                                         height: 1.4,
                                                       ),
                                                     ),
@@ -514,7 +503,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                             Icon(
                                               Icons.arrow_forward_ios,
                                               size: 16,
-                                              color: theme.colorScheme.primary.withOpacity(0.6),
+                                              color: Colors.white.withValues(alpha:0.7),
                                             ),
                                           ],
                                         ),
@@ -530,8 +519,8 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                           gradient: LinearGradient(
                                             colors: [
                                               Colors.transparent,
-                                              theme.colorScheme.primary.withOpacity(0.3),
-                                              theme.colorScheme.secondary.withOpacity(0.2),
+                                              theme.colorScheme.primary.withValues(alpha:0.3),
+                                              theme.colorScheme.secondary.withValues(alpha:0.2),
                                               Colors.transparent,
                                             ],
                                             stops: const [0.0, 0.3, 0.7, 1.0],

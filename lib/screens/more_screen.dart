@@ -23,7 +23,6 @@ class _MoreScreenState extends State<MoreScreen> {
   String _version = '';
   bool _isLoading = true;
   String? _errorMessage;
-  bool _musicOn = true;
 
   @override
   void initState() {
@@ -185,19 +184,18 @@ class _MoreScreenState extends State<MoreScreen> {
               return SwitchListTile(
                 title: const Text('Background Music'),
                 subtitle: const Text('Enable ambient meditation music'),
-                value: _musicOn,
+                value: musicService.isEnabled,
                 onChanged: (v) async {
-                  setState(() => _musicOn = v);
                   try {
-                    if (v) {
-                      await musicService.startMusic();
-                    } else {
-                      await musicService.stopMusic();
-                    }
+                    await musicService.setEnabled(v);
                     debugPrint('🎵 Background music ${v ? 'enabled' : 'disabled'}');
                   } catch (e) {
                     debugPrint('⚠️ Failed to toggle background music: $e');
-                    setState(() => _musicOn = !v);
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to toggle music: $e')),
+                      );
+                    }
                   }
                 },
               );

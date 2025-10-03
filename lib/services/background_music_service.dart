@@ -15,12 +15,13 @@ class BackgroundMusicService extends ChangeNotifier {
 
   AudioPlayer? _player;
   bool _isInitialized = false;
+  bool _isInitializing = false; // Lock to prevent concurrent initialization
   bool _isEnabled = true;
   bool _isPlaying = false;
   double _volume = 0.3; // Lower volume for background music
   double _duckingVolume = 0.1; // Volume when narration is playing
   bool _isDucking = false;
-  
+
   MusicTheme _currentTheme = MusicTheme.meditation;
 
   // Getters
@@ -35,6 +36,16 @@ class BackgroundMusicService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
+    // Prevent concurrent initialization
+    if (_isInitializing) {
+      debugPrint('⏳ Background music initialization already in progress, waiting...');
+      while (_isInitializing && !_isInitialized) {
+        await Future.delayed(const Duration(milliseconds: 100));
+      }
+      return;
+    }
+
+    _isInitializing = true;
     try {
       _player = AudioPlayer();
       
@@ -59,6 +70,8 @@ class BackgroundMusicService extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('❌ Failed to initialize BackgroundMusicService: $e');
+    } finally {
+      _isInitializing = false;
     }
   }
 

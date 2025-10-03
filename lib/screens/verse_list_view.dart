@@ -13,6 +13,7 @@ import '../services/service_locator.dart';
 import '../services/bookmark_service.dart';
 // import '../services/progress_service.dart'; // Removed for Apple compliance
 import '../models/bookmark.dart';
+import '../widgets/app_background.dart';
 import '../core/navigation/navigation_service.dart';
 import '../widgets/expandable_text.dart';
 import '../widgets/share_card_widget.dart';
@@ -137,17 +138,9 @@ class _VerseListViewState extends State<VerseListView> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // Background image with dark overlay for dark mode
-          Positioned.fill(
-            child: Image.asset(
-              'assets/images/app_bg.png',
-              fit: BoxFit.cover,
-              color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
-              colorBlendMode: isDark ? BlendMode.darken : null,
-            ),
-          ),
-          
-          
+          // Unified gradient background
+          AppBackground(isDark: isDark),
+
           // Scrollable content area that goes under the header
           SafeArea(
             child: Container(
@@ -163,11 +156,11 @@ class _VerseListViewState extends State<VerseListView> {
                       margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surface.withOpacity(0.85),
+                        color: theme.colorScheme.surface.withValues(alpha:0.85),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha:0.1),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -195,7 +188,7 @@ class _VerseListViewState extends State<VerseListView> {
                               gradient: LinearGradient(
                                 colors: [
                                   theme.colorScheme.primary,
-                                  theme.colorScheme.primary.withOpacity(0.6),
+                                  theme.colorScheme.primary.withValues(alpha:0.6),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(2),
@@ -206,7 +199,7 @@ class _VerseListViewState extends State<VerseListView> {
                             'Chapter ${widget.chapterId} verses from Bhagavad Gita',
                             style: GoogleFonts.poppins(
                               fontSize: 14,
-                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                               letterSpacing: 0.8,
                             ),
                             textAlign: TextAlign.center,
@@ -242,7 +235,7 @@ class _VerseListViewState extends State<VerseListView> {
                         child: Text(
                           'No verses available.',
                           style: GoogleFonts.poppins(
-                            color: theme.colorScheme.onSurface.withOpacity(0.7),
+                            color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                             fontSize: 16,
                           ),
                           textAlign: TextAlign.center,
@@ -260,7 +253,7 @@ class _VerseListViewState extends State<VerseListView> {
                               colors: theme.brightness == Brightness.dark 
                                 ? [
                                     theme.colorScheme.surface,
-                                    theme.colorScheme.primaryContainer.withOpacity(0.4),
+                                    theme.colorScheme.primaryContainer.withValues(alpha:0.4),
                                   ]
                                 : [
                                     theme.colorScheme.surface,
@@ -272,16 +265,16 @@ class _VerseListViewState extends State<VerseListView> {
                             boxShadow: [
                               BoxShadow(
                                 color: theme.brightness == Brightness.dark
-                                  ? Colors.black.withOpacity(0.4)
-                                  : Colors.deepPurple.withOpacity(0.15),
+                                  ? Colors.black.withValues(alpha:0.4)
+                                  : Colors.deepPurple.withValues(alpha:0.15),
                                 blurRadius: 12,
                                 spreadRadius: 2,
                                 offset: const Offset(0, 4),
                               ),
                               BoxShadow(
                                 color: theme.brightness == Brightness.dark
-                                  ? theme.colorScheme.primary.withOpacity(0.15)
-                                  : Colors.indigo.withOpacity(0.1),
+                                  ? theme.colorScheme.primary.withValues(alpha:0.15)
+                                  : Colors.indigo.withValues(alpha:0.1),
                                 blurRadius: 8,
                                 spreadRadius: 1,
                                 offset: const Offset(0, 2),
@@ -313,14 +306,14 @@ class _VerseListViewState extends State<VerseListView> {
                                     gradient: LinearGradient(
                                       colors: [
                                         theme.colorScheme.primary,
-                                        theme.colorScheme.primary.withOpacity(0.8),
+                                        theme.colorScheme.primary.withValues(alpha:0.8),
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: theme.colorScheme.primary.withOpacity(0.3),
+                                        color: theme.colorScheme.primary.withValues(alpha:0.3),
                                         blurRadius: 8,
                                         spreadRadius: 1,
                                       ),
@@ -347,7 +340,7 @@ class _VerseListViewState extends State<VerseListView> {
                                         verse.description,
                                         style: GoogleFonts.poppins(
                                           fontSize: 15,
-                                          color: theme.colorScheme.onSurface.withOpacity(0.9),
+                                          color: theme.colorScheme.onSurface.withValues(alpha:0.9),
                                           height: 1.5,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -376,7 +369,7 @@ class _VerseListViewState extends State<VerseListView> {
                                                   vertical: 6,
                                                 ),
                                                 decoration: BoxDecoration(
-                                                  color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                                                  color: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
                                                   borderRadius: BorderRadius.circular(20),
                                                 ),
                                                 child: Row(
@@ -385,7 +378,7 @@ class _VerseListViewState extends State<VerseListView> {
                                                     Icon(
                                                       Icons.share,
                                                       size: 16,
-                                                      color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                      color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                                                     ),
                                                     const SizedBox(width: 4),
                                                     Text(
@@ -393,7 +386,7 @@ class _VerseListViewState extends State<VerseListView> {
                                                       style: GoogleFonts.poppins(
                                                         fontSize: 12,
                                                         fontWeight: FontWeight.w500,
-                                                        color: theme.colorScheme.onSurface.withOpacity(0.7),
+                                                        color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                                                       ),
                                                     ),
                                                   ],
@@ -424,7 +417,7 @@ class _VerseListViewState extends State<VerseListView> {
                                                     decoration: BoxDecoration(
                                                       color: isBookmarked
                                                           ? theme.colorScheme.primary
-                                                          : theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                                                          : theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
                                                       borderRadius: BorderRadius.circular(20),
                                                     ),
                                                     child: Row(
@@ -437,7 +430,7 @@ class _VerseListViewState extends State<VerseListView> {
                                                           size: 16,
                                                           color: isBookmarked
                                                               ? theme.colorScheme.onPrimary
-                                                              : theme.colorScheme.onSurface.withOpacity(0.7),
+                                                              : theme.colorScheme.onSurface.withValues(alpha:0.7),
                                                         ),
                                                         const SizedBox(width: 4),
                                                         Text(
@@ -447,7 +440,7 @@ class _VerseListViewState extends State<VerseListView> {
                                                             fontWeight: FontWeight.w500,
                                                             color: isBookmarked
                                                                 ? theme.colorScheme.onPrimary
-                                                                : theme.colorScheme.onSurface.withOpacity(0.7),
+                                                                : theme.colorScheme.onSurface.withValues(alpha:0.7),
                                                           ),
                                                         ),
                                                       ],
@@ -480,14 +473,14 @@ class _VerseListViewState extends State<VerseListView> {
 
           // Floating Back Button
           Positioned(
-            top: 26,
+            top: 50,
             right: 84,
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amberAccent.withOpacity(0.9),
+                    color: Colors.amberAccent.withValues(alpha:0.9),
                     blurRadius: 16,
                     spreadRadius: 4,
                   ),
@@ -512,14 +505,14 @@ class _VerseListViewState extends State<VerseListView> {
           
           // Floating Home Button
           Positioned(
-            top: 26,
+            top: 50,
             right: 24,
             child: Container(
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.amberAccent.withOpacity(0.9),
+                    color: Colors.amberAccent.withValues(alpha:0.9),
                     blurRadius: 16,
                     spreadRadius: 4,
                   ),

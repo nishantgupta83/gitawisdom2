@@ -44,7 +44,7 @@ class TextThemeBuilder {
     return [
       Shadow(
         color: Platform.isIOS 
-            ? Colors.black.withOpacity(0.6) 
+            ? Colors.black.withValues(alpha:0.6) 
             : Colors.black45, // Stronger for headers on iOS
         offset: Platform.isIOS 
             ? const Offset(1.5, 1.5) 
@@ -62,7 +62,7 @@ class TextThemeBuilder {
     return [
       Shadow(
         color: Platform.isIOS 
-            ? Colors.black.withOpacity(0.5) 
+            ? Colors.black.withValues(alpha:0.5) 
             : Colors.black38, // Lighter for body text on iOS
         offset: Platform.isIOS 
             ? const Offset(1.0, 1.0) 
@@ -81,7 +81,7 @@ class TextThemeBuilder {
       Shadow(
         color: Platform.isIOS 
             ? Colors.black45 
-            : Colors.black.withOpacity(0.3), // Subtle for labels on iOS
+            : Colors.black.withValues(alpha:0.3), // Subtle for labels on iOS
         offset: Platform.isIOS 
             ? const Offset(0.8, 0.8) 
             : const Offset(0.5, 0.5),

@@ -11,6 +11,7 @@ import '../services/app_sharing_service.dart';
 import '../core/navigation/navigation_service.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import '../l10n/app_localizations.dart';
+import '../widgets/app_background.dart';
 
 class ScenarioDetailView extends StatefulWidget {
   final Scenario scenario;
@@ -137,16 +138,9 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         backgroundColor: Colors.transparent,
         body: Stack(
           children: [
-            // Background image with dark overlay for dark mode
-            Positioned.fill(
-              child: Image.asset(
-                'assets/images/app_bg.png',
-                fit: BoxFit.cover,
-                color: isDark ? Colors.black.withAlpha((0.32 * 255).toInt()) : null,
-                colorBlendMode: isDark ? BlendMode.darken : null,
-              ),
-            ),
-            
+            // Unified gradient background
+            AppBackground(isDark: isDark),
+
             // Scrollable content area
             SafeArea(
               child: Container(
@@ -160,11 +154,11 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                       margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.surface.withOpacity(0.85),
+                        color: theme.colorScheme.surface.withValues(alpha:0.85),
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha:0.1),
                             blurRadius: 10,
                             offset: const Offset(0, 2),
                           ),
@@ -192,7 +186,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                               gradient: LinearGradient(
                                 colors: [
                                   theme.colorScheme.primary,
-                                  theme.colorScheme.primary.withOpacity(0.6),
+                                  theme.colorScheme.primary.withValues(alpha:0.6),
                                 ],
                               ),
                               borderRadius: BorderRadius.circular(2),
@@ -203,7 +197,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                             'Bite-sized wisdom for modern challenges',
                             style: GoogleFonts.poppins().copyWith(
                               fontSize: theme.textTheme.bodyMedium?.fontSize,
-                              color: theme.colorScheme.onSurface.withOpacity(0.7),
+                              color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                               letterSpacing: 0.8,
                             ),
                             textAlign: TextAlign.center,
@@ -299,7 +293,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                                             child: Icon(
                                               _isFavorited ? Icons.favorite : Icons.favorite_border,
                                               key: ValueKey(_isFavorited),
-                                              color: _isFavorited ? Colors.red : theme.colorScheme.onSurface.withOpacity(0.6),
+                                              color: _isFavorited ? Colors.red : theme.colorScheme.onSurface.withValues(alpha:0.6),
                                               size: 28,
                                             ),
                                           ),
@@ -341,7 +335,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.amberAccent.withOpacity(0.9),
+                      color: Colors.amberAccent.withValues(alpha:0.9),
                       blurRadius: 16,
                       spreadRadius: 4,
                     ),
@@ -387,7 +381,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.amberAccent.withOpacity(0.9),
+                      color: Colors.amberAccent.withValues(alpha:0.9),
                       blurRadius: 16,
                       spreadRadius: 4,
                     ),
@@ -446,7 +440,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           Text(body,
             style: GoogleFonts.poppins().copyWith(
               fontSize: theme.textTheme.bodyMedium?.fontSize,
-              color: theme.colorScheme.onSurface.withOpacity(0.8),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.8),
               height: 1.5,
             ),
           ),
@@ -462,10 +456,10 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         borderRadius: BorderRadius.circular(18),
         gradient: LinearGradient(
           colors: [
-            Colors.pink.shade400.withOpacity(0.32),
-            Colors.pink.shade300.withOpacity(0.32),
-            Colors.pink.shade200.withOpacity(0.24),
-            Colors.pink.shade100.withOpacity(0.24),
+            Colors.pink.shade400.withValues(alpha:0.32),
+            Colors.pink.shade300.withValues(alpha:0.32),
+            Colors.pink.shade200.withValues(alpha:0.24),
+            Colors.pink.shade100.withValues(alpha:0.24),
           ],
           stops: const [0.0, 0.3, 0.7, 1.0],
           begin: Alignment.topLeft,
@@ -474,28 +468,28 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         boxShadow: [
           // Outermost glow - strongest and largest
           BoxShadow(
-            color: Colors.pink.withOpacity(0.456),
+            color: Colors.pink.withValues(alpha:0.456),
             blurRadius: 25,
             spreadRadius: 6,
             offset: const Offset(0, 8),
           ),
           // Middle glow - medium intensity
           BoxShadow(
-            color: Colors.pink.shade300.withOpacity(0.304),
+            color: Colors.pink.shade300.withValues(alpha:0.304),
             blurRadius: 18,
             spreadRadius: 3,
             offset: const Offset(0, 4),
           ),
           // Inner glow - subtle and close
           BoxShadow(
-            color: Colors.pink.shade200.withOpacity(0.228),
+            color: Colors.pink.shade200.withValues(alpha:0.228),
             blurRadius: 12,
             spreadRadius: 1,
             offset: const Offset(0, 2),
           ),
           // Accent glow - pink shimmer
           BoxShadow(
-            color: Colors.pinkAccent.withOpacity(0.38),
+            color: Colors.pinkAccent.withValues(alpha:0.38),
             blurRadius: 30,
             spreadRadius: 8,
             offset: const Offset(0, 10),
@@ -508,7 +502,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           borderRadius: BorderRadius.circular(18),
           color: theme.colorScheme.surface,
           border: Border.all(
-            color: Colors.pink.withOpacity(0.2),
+            color: Colors.pink.withValues(alpha:0.2),
             width: 1,
           ),
         ),
@@ -528,7 +522,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.pink.withOpacity(0.3),
+                      color: Colors.pink.withValues(alpha:0.3),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -567,7 +561,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     Text(widget.scenario.heartResponse,
                         style: GoogleFonts.poppins(
                           fontSize: theme.textTheme.bodyMedium?.fontSize,
-                          color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          color: theme.colorScheme.onSurface.withValues(alpha:0.8),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.start,
@@ -589,10 +583,10 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         borderRadius: BorderRadius.circular(18),
         gradient: LinearGradient(
           colors: [
-            Colors.blue.shade400.withOpacity(0.32),
-            Colors.blue.shade300.withOpacity(0.32),
-            Colors.blue.shade200.withOpacity(0.24),
-            Colors.blue.shade100.withOpacity(0.24),
+            Colors.blue.shade400.withValues(alpha:0.32),
+            Colors.blue.shade300.withValues(alpha:0.32),
+            Colors.blue.shade200.withValues(alpha:0.24),
+            Colors.blue.shade100.withValues(alpha:0.24),
           ],
           stops: const [0.0, 0.3, 0.7, 1.0],
           begin: Alignment.topLeft,
@@ -601,28 +595,28 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         boxShadow: [
           // Outermost glow - strongest and largest
           BoxShadow(
-            color: Colors.blue.withOpacity(0.456),
+            color: Colors.blue.withValues(alpha:0.456),
             blurRadius: 25,
             spreadRadius: 6,
             offset: const Offset(0, 8),
           ),
           // Middle glow - medium intensity
           BoxShadow(
-            color: Colors.blue.shade300.withOpacity(0.304),
+            color: Colors.blue.shade300.withValues(alpha:0.304),
             blurRadius: 18,
             spreadRadius: 3,
             offset: const Offset(0, 4),
           ),
           // Inner glow - subtle and close
           BoxShadow(
-            color: Colors.blue.shade200.withOpacity(0.228),
+            color: Colors.blue.shade200.withValues(alpha:0.228),
             blurRadius: 12,
             spreadRadius: 1,
             offset: const Offset(0, 2),
           ),
           // Accent glow - blue shimmer
           BoxShadow(
-            color: Colors.blueAccent.withOpacity(0.38),
+            color: Colors.blueAccent.withValues(alpha:0.38),
             blurRadius: 30,
             spreadRadius: 8,
             offset: const Offset(0, 10),
@@ -635,7 +629,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           borderRadius: BorderRadius.circular(18),
           color: theme.colorScheme.surface,
           border: Border.all(
-            color: Colors.blue.withOpacity(0.2),
+            color: Colors.blue.withValues(alpha:0.2),
             width: 1,
           ),
         ),
@@ -655,7 +649,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   borderRadius: BorderRadius.circular(8),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.blue.withOpacity(0.3),
+                      color: Colors.blue.withValues(alpha:0.3),
                       blurRadius: 8,
                       spreadRadius: 1,
                     ),
@@ -694,7 +688,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     Text(widget.scenario.dutyResponse,
                         style: GoogleFonts.poppins(
                           fontSize: theme.textTheme.bodyMedium?.fontSize,
-                          color: theme.colorScheme.onSurface.withOpacity(0.8),
+                          color: theme.colorScheme.onSurface.withValues(alpha:0.8),
                           height: 1.5,
                         ),
                         textAlign: TextAlign.start,
@@ -742,9 +736,9 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     ),
                   );
                 },
-                backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
+                backgroundColor: theme.colorScheme.primary.withValues(alpha:0.1),
                 side: BorderSide(
-                  color: theme.colorScheme.primary.withOpacity(0.3),
+                  color: theme.colorScheme.primary.withValues(alpha:0.3),
                   width: 1,
                 ),
               ))
@@ -773,10 +767,10 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             borderRadius: BorderRadius.circular(18),
             gradient: LinearGradient(
               colors: [
-                Colors.amber.shade400.withOpacity(0.4),
-                Colors.orange.shade500.withOpacity(0.4),
-                Colors.deepOrange.shade400.withOpacity(0.4),
-                Colors.amber.shade300.withOpacity(0.3),
+                Colors.amber.shade400.withValues(alpha:0.4),
+                Colors.orange.shade500.withValues(alpha:0.4),
+                Colors.deepOrange.shade400.withValues(alpha:0.4),
+                Colors.amber.shade300.withValues(alpha:0.3),
               ],
               stops: const [0.0, 0.3, 0.7, 1.0],
               begin: Alignment.topLeft,
@@ -785,28 +779,28 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             boxShadow: [
               // Outermost glow - strongest and largest
               BoxShadow(
-                color: Colors.amber.withOpacity(0.54),
+                color: Colors.amber.withValues(alpha:0.54),
                 blurRadius: 25,
                 spreadRadius: 6,
                 offset: const Offset(0, 8),
               ),
               // Middle glow - medium intensity
               BoxShadow(
-                color: Colors.orange.withOpacity(0.36),
+                color: Colors.orange.withValues(alpha:0.36),
                 blurRadius: 18,
                 spreadRadius: 3,
                 offset: const Offset(0, 4),
               ),
               // Inner glow - subtle and close
               BoxShadow(
-                color: Colors.deepOrange.withOpacity(0.27),
+                color: Colors.deepOrange.withValues(alpha:0.27),
                 blurRadius: 12,
                 spreadRadius: 1,
                 offset: const Offset(0, 2),
               ),
               // Accent glow - golden shimmer
               BoxShadow(
-                color: Colors.amberAccent.withOpacity(0.4),
+                color: Colors.amberAccent.withValues(alpha:0.4),
                 blurRadius: 30,
                 spreadRadius: 8,
                 offset: const Offset(0, 10),
@@ -819,7 +813,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
               borderRadius: BorderRadius.circular(22),
               color: theme.colorScheme.surface,
               border: Border.all(
-                color: Colors.amber.withOpacity(0.2),
+                color: Colors.amber.withValues(alpha:0.2),
                 width: 1,
               ),
             ),
@@ -845,7 +839,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                             borderRadius: BorderRadius.circular(8),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.amber.withOpacity(0.3),
+                                color: Colors.amber.withValues(alpha:0.3),
                                 blurRadius: 8,
                                 spreadRadius: 1,
                               ),
@@ -889,7 +883,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                               borderRadius: BorderRadius.circular(12),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.amber.withOpacity(0.3),
+                                  color: Colors.amber.withValues(alpha:0.3),
                                   blurRadius: 6,
                                   spreadRadius: 1,
                                 ),
@@ -911,7 +905,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                               entry.value,
                               style: GoogleFonts.poppins(
                                 fontSize: isTablet ? 16 : 14,
-                                color: theme.colorScheme.onSurface.withOpacity(0.8),
+                                color: theme.colorScheme.onSurface.withValues(alpha:0.8),
                                 height: 1.5,
                               ),
                             ),
@@ -946,13 +940,13 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.amber.withOpacity(0.54),
+            color: Colors.amber.withValues(alpha:0.54),
             blurRadius: 25,
             spreadRadius: 3,
             offset: const Offset(0, 8),
           ),
           BoxShadow(
-            color: Colors.orange.withOpacity(0.36),
+            color: Colors.orange.withValues(alpha:0.36),
             blurRadius: 15,
             spreadRadius: 1,
             offset: const Offset(0, 4),
@@ -1005,7 +999,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: Colors.greenAccent.withOpacity(0.6),
+              color: Colors.greenAccent.withValues(alpha:0.6),
               blurRadius: 18,
               spreadRadius: 4,
             ),
@@ -1067,7 +1061,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: textColor.withOpacity(0.2),
+          color: textColor.withValues(alpha:0.2),
           width: 1,
         ),
       ),

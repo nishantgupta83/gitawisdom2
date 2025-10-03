@@ -204,7 +204,7 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return PopScope(
       canPop: _currentIndex == 0,
       onPopInvoked: (bool didPop) {
@@ -213,31 +213,10 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
         }
       },
       child: Scaffold(
-        body: Stack(
-          children: [
-            // Background image for main scaffold
-            Positioned.fill(
-              child: Image.asset(
-                AppConfig.appBackgroundImage,
-                fit: BoxFit.cover,
-                color: isDark 
-                    ? Color.fromARGB((0.32 * 255).toInt(), 0, 0, 0) 
-                    : null,
-                colorBlendMode: isDark ? BlendMode.darken : null,
-                errorBuilder: (context, error, stackTrace) {
-                  debugPrint('❌ Root background image failed to load: $error');
-                  return Container(color: theme.scaffoldBackgroundColor);
-                },
-              ),
-            ),
-            
-            // Optimized tab content with IndexedStack and better memory management
-            IndexedStack(
-              index: _currentIndex,
-              sizing: StackFit.expand,
-              children: _pages,
-            ),
-          ],
+        body: IndexedStack(
+          index: _currentIndex,
+          sizing: StackFit.expand,
+          children: _pages,
         ),
         
         // Modern bottom navigation bar

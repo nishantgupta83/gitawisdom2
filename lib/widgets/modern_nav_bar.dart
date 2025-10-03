@@ -51,15 +51,32 @@ class ModernNavBar extends StatelessWidget {
     // Responsive design
     final isTablet = media.size.width > 600;
     final effectiveHeight = height ?? (isTablet ? 75 : 65);
-    final effectiveMargin = margin ?? const EdgeInsets.fromLTRB(12, 0, 12, 6);
+    final effectiveMargin = margin ?? const EdgeInsets.fromLTRB(12, 0, 12, 20);
     final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(20);
 
     return SafeArea(
       child: Container(
         margin: effectiveMargin,
         height: effectiveHeight,
-        decoration: const BoxDecoration(
-          // Completely transparent background - no color, no shadows
+        decoration: BoxDecoration(
+          color: isDark
+              ? const Color(0xE61C1C1E)  // 90% opacity dark
+              : const Color(0xE6FFFFFF), // 90% opacity white
+          borderRadius: effectiveBorderRadius,
+          border: Border.all(
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.12)
+                : Colors.black.withValues(alpha: 0.08),
+            width: 0.5,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.1),
+              blurRadius: 24,
+              offset: const Offset(0, -4),
+              spreadRadius: 0,
+            ),
+          ],
         ),
         child: RepaintBoundary(
           child: LayoutBuilder(
@@ -250,15 +267,15 @@ class FloatingModernNavBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(effectiveHeight / 2),
           border: Border.all(
             color: isDark 
-                ? Colors.white.withOpacity(0.15)
-                : Colors.black.withOpacity(0.05),
+                ? Colors.white.withValues(alpha: 0.15)
+                : Colors.black.withValues(alpha: 0.05),
             width: 1,
           ),
           boxShadow: [
             BoxShadow(
               color: isDark 
-                  ? Colors.black.withOpacity(0.5)
-                  : Colors.black.withOpacity(0.15),
+                  ? Colors.black.withValues(alpha: 0.5)
+                  : Colors.black.withValues(alpha: 0.15),
               blurRadius: 25,
               offset: const Offset(0, 10),
               spreadRadius: 0,
@@ -280,14 +297,14 @@ class FloatingModernNavBar extends StatelessWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      theme.colorScheme.primary.withOpacity(0.8),
-                      theme.colorScheme.secondary.withOpacity(0.8),
+                      theme.colorScheme.primary.withValues(alpha: 0.8),
+                      theme.colorScheme.secondary.withValues(alpha: 0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular((effectiveHeight - 16) / 2),
                   boxShadow: [
                     BoxShadow(
-                      color: theme.colorScheme.primary.withOpacity(0.3),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),

@@ -264,7 +264,7 @@ class IOSMetalOptimizer {
 
     // Metal-optimized card with custom shadow implementation
     final effectiveElevation = elevation ?? 4.0;
-    final shadowColor = Colors.black.withOpacity(0.2);
+    final shadowColor = Colors.black.withValues(alpha:0.2);
 
     return Container(
       margin: margin,

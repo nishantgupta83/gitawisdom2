@@ -45,7 +45,7 @@ class JournalTabContainer extends StatelessWidget {
           Text(
             'Loading journal...',
             style: theme.textTheme.bodyLarge?.copyWith(
-              color: theme.colorScheme.onSurface.withOpacity(0.7),
+              color: theme.colorScheme.onSurface.withValues(alpha:0.7),
             ),
           ),
         ],
@@ -67,7 +67,7 @@ class JournalTabContainer extends StatelessWidget {
             Icon(
               Icons.lock_outline,
               size: 80,
-              color: theme.colorScheme.primary.withOpacity(0.5),
+              color: theme.colorScheme.primary.withValues(alpha:0.5),
             ),
             const SizedBox(height: 24),
             Text(
@@ -81,7 +81,7 @@ class JournalTabContainer extends StatelessWidget {
             Text(
               'Your journal entries are private and synced across devices',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: (isDark ? Colors.white : Colors.black87).withOpacity(0.7),
+                color: (isDark ? Colors.white : Colors.black87).withValues(alpha:0.7),
               ),
               textAlign: TextAlign.center,
             ),

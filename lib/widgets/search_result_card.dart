@@ -32,18 +32,18 @@ class SearchResultCard extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.surface,
-                  theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                  theme.colorScheme.surfaceVariant.withValues(alpha: 0.3),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: theme.colorScheme.outline.withOpacity(0.2),
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
               ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withOpacity(0.1),
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.1),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -77,10 +77,10 @@ class SearchResultCard extends StatelessWidget {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: _getTypeColor(theme).withOpacity(0.1),
+                                color: _getTypeColor(theme).withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
-                                  color: _getTypeColor(theme).withOpacity(0.3),
+                                  color: _getTypeColor(theme).withValues(alpha: 0.3),
                                 ),
                               ),
                               child: Text(
@@ -104,7 +104,7 @@ class SearchResultCard extends StatelessWidget {
                               vertical: 4,
                             ),
                             decoration: BoxDecoration(
-                              color: _getTypeColor(theme).withOpacity(0.1),
+                              color: _getTypeColor(theme).withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text(
@@ -119,7 +119,7 @@ class SearchResultCard extends StatelessWidget {
                           Icon(
                             Icons.arrow_forward_ios,
                             size: 16,
-                            color: theme.colorScheme.onSurface.withOpacity(0.4),
+                            color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
                           ),
                         ],
                       ),
@@ -144,7 +144,7 @@ class SearchResultCard extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.8),
+            color.withValues(alpha: 0.8),
             color,
           ],
           begin: Alignment.topLeft,
@@ -153,7 +153,7 @@ class SearchResultCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: color.withOpacity(0.3),
+            color: color.withValues(alpha: 0.3),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -173,7 +173,7 @@ class SearchResultCard extends StatelessWidget {
       return Text(
         snippet,
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.8),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
           height: 1.4,
         ),
         maxLines: 3,
@@ -205,7 +205,7 @@ class SearchResultCard extends StatelessWidget {
         spans.add(TextSpan(
           text: text.substring(match.start, match.end),
           style: TextStyle(
-            backgroundColor: theme.colorScheme.primary.withOpacity(0.3),
+            backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.3),
             fontWeight: FontWeight.w600,
             color: theme.colorScheme.primary,
           ),
@@ -228,7 +228,7 @@ class SearchResultCard extends StatelessWidget {
     return RichText(
       text: TextSpan(
         style: theme.textTheme.bodyMedium?.copyWith(
-          color: theme.colorScheme.onSurface.withOpacity(0.8),
+          color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
           height: 1.4,
         ),
         children: spans,
