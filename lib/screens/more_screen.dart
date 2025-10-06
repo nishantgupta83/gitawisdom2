@@ -9,7 +9,6 @@ import '../services/background_music_service.dart';
 import '../services/app_sharing_service.dart';
 import 'package:provider/provider.dart';
 import '../screens/about_screen.dart';
-import '../screens/bookmarks_screen.dart';
 import '../screens/search_screen.dart';
 
 class MoreScreen extends StatefulWidget {
@@ -232,20 +231,10 @@ class _MoreScreenState extends State<MoreScreen> {
           ListTile(
             leading: const Icon(Icons.search),
             title: const Text('Search'),
-            subtitle: const Text('Find verses, chapters, and wisdom'),
+            subtitle: const Text('Find life scenarios and wisdom'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const SearchScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.bookmark),
-            title: const Text('My Bookmarks'),
-            subtitle: const Text('Saved verses, chapters, and scenarios'),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const BookmarksScreen()),
               );
             },
           ),

@@ -151,3 +151,5 @@ logs/
 *.bk
 *_backup
 *_bak
+*.json
+KEYSTORE_CREDENTIALS_BACKUP.txt

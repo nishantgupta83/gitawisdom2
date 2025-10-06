@@ -1,7 +1,8 @@
 // lib/screens/search_screen.dart
 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
-// import '../services/intelligent_scenario_search.dart'; // Temporarily disabled for auth testing
+import '../services/intelligent_scenario_search.dart';
 import '../models/scenario.dart';
 import '../screens/scenario_detail_view.dart';
 
@@ -14,19 +15,34 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> {
+class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  // final IntelligentScenarioSearch _searchService = IntelligentScenarioSearch.instance; // Temporarily disabled
+  final IntelligentScenarioSearch _searchService = IntelligentScenarioSearch.instance;
 
-  List<Scenario> _results = []; // Simplified for auth testing
+  List<Scenario> _results = [];
   bool _isLoading = false;
+  bool _isLoadingMore = false;
   bool _isInitializing = true;
   String _lastQuery = '';
+  int _currentMaxResults = 20;
+  bool _hasMoreResults = true;
+
+  late AnimationController _glowAnimationController;
+  late Animation<double> _glowAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Initialize glow animation
+    _glowAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 2000),
+      vsync: this,
+    );
+
+    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_glowAnimationController);
+    _glowAnimationController.repeat();
 
     _initializeSearch();
 
@@ -40,8 +56,7 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() => _isInitializing = true);
 
     try {
-      // Simplified search initialization for auth testing
-      await Future.delayed(const Duration(milliseconds: 500));
+      await _searchService.initialize();
     } catch (e) {
       debugPrint('⚠️ Search initialization error: $e');
     } finally {
@@ -55,6 +70,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void dispose() {
     _searchController.dispose();
     _focusNode.dispose();
+    _glowAnimationController.dispose();
     super.dispose();
   }
 
@@ -106,45 +122,79 @@ class _SearchScreenState extends State<SearchScreen> {
       margin: const EdgeInsets.all(16),
       child: Column(
         children: [
-          TextField(
-            controller: _searchController,
-            focusNode: _focusNode,
-            decoration: InputDecoration(
-              hintText: 'Ask about any life situation...',
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: _searchController.text.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          _results = [];
-                          _lastQuery = '';
-                        });
-                      },
-                    )
-                  : null,
-              filled: true,
-              fillColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide.none,
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(25),
-                borderSide: BorderSide(
-                  color: theme.colorScheme.primary,
-                  width: 2,
+          AnimatedBuilder(
+            animation: _glowAnimation,
+            builder: (context, child) {
+              // Calculate rotation angle for snake effect
+              final angle = _glowAnimation.value * 2 * math.pi;
+
+              return Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25),
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF9C27B0).withValues(alpha: 0.8),
+                      blurRadius: 20,
+                      spreadRadius: math.sin(angle) * 2 + 1,
+                      offset: Offset(
+                        math.cos(angle) * 2,
+                        math.sin(angle) * 2,
+                      ),
+                    ),
+                    BoxShadow(
+                      color: const Color(0xFFE91E63).withValues(alpha: 0.6),
+                      blurRadius: 15,
+                      spreadRadius: math.cos(angle + math.pi / 2) * 2 + 1,
+                      offset: Offset(
+                        math.cos(angle + math.pi) * 2,
+                        math.sin(angle + math.pi) * 2,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            ),
-            onSubmitted: (value) {
-              if (value.trim().isNotEmpty) {
-                _performSearch();
-              }
+                child: child!,
+              );
             },
-            textInputAction: TextInputAction.search,
+            child: TextField(
+              controller: _searchController,
+              focusNode: _focusNode,
+              decoration: InputDecoration(
+                hintText: 'Ask about any life situation...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _results = [];
+                            _lastQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide(
+                    color: theme.colorScheme.primary,
+                    width: 2,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              ),
+              onSubmitted: (value) {
+                if (value.trim().isNotEmpty) {
+                  _performSearch();
+                }
+              },
+              textInputAction: TextInputAction.search,
+            ),
           ),
           const SizedBox(height: 8),
           Row(
@@ -173,15 +223,54 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildResultsList(ThemeData theme) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: _results.length + 1,
+      itemCount: _results.length + 2, // +1 for header, +1 for load more button
       itemBuilder: (context, index) {
         if (index == 0) {
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
-              'Found ${_results.length} scenarios for "$_lastQuery"',
+              'Showing ${_results.length} scenarios for "$_lastQuery"',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
+              ),
+            ),
+          );
+        }
+
+        // Load more button at the end
+        if (index == _results.length + 1) {
+          if (_isLoadingMore) {
+            return const Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+
+          if (_hasMoreResults) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: OutlinedButton.icon(
+                onPressed: _loadMoreResults,
+                icon: const Icon(Icons.expand_more),
+                label: const Text('Load More Results'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            );
+          }
+
+          return Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Center(
+              child: Text(
+                'All matching scenarios shown',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                ),
               ),
             ),
           );
@@ -344,7 +433,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildWelcomeState(ThemeData theme) {
     return Expanded(
       child: Center(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -409,17 +498,21 @@ class _SearchScreenState extends State<SearchScreen> {
     setState(() {
       _isLoading = true;
       _lastQuery = query;
+      _currentMaxResults = 20; // Reset to initial count
     });
 
     try {
-      // Simplified search for auth testing
-      await Future.delayed(const Duration(milliseconds: 500));
-      final results = <Scenario>[]; // Empty results for now
+      final searchResults = await _searchService.search(query, maxResults: _currentMaxResults);
+      final scenarios = searchResults.map((result) => result.scenario).toList();
+
       if (mounted) {
         setState(() {
-          _results = results;
+          _results = scenarios;
           _isLoading = false;
+          _hasMoreResults = scenarios.length >= _currentMaxResults;
         });
+
+        debugPrint('🔍 Search completed: Found ${scenarios.length} results for "$query"');
       }
     } catch (e) {
       debugPrint('❌ Search error: $e');
@@ -430,6 +523,37 @@ class _SearchScreenState extends State<SearchScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Search failed: $e')),
         );
+      }
+    }
+  }
+
+  void _loadMoreResults() async {
+    if (_isLoadingMore || !_hasMoreResults) return;
+
+    setState(() {
+      _isLoadingMore = true;
+      _currentMaxResults += 20; // Load 20 more
+    });
+
+    try {
+      final searchResults = await _searchService.search(_lastQuery, maxResults: _currentMaxResults);
+      final scenarios = searchResults.map((result) => result.scenario).toList();
+
+      if (mounted) {
+        setState(() {
+          _results = scenarios;
+          _isLoadingMore = false;
+          _hasMoreResults = scenarios.length >= _currentMaxResults;
+        });
+
+        debugPrint('📊 Loaded more: Now showing ${scenarios.length} results for "$_lastQuery"');
+      }
+    } catch (e) {
+      debugPrint('❌ Load more error: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+        });
       }
     }
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/supabase_auth_service.dart';
 import 'journal_screen.dart';
-import 'auth_screen.dart';
+import 'modern_auth_screen.dart';
 
 class JournalTabContainer extends StatelessWidget {
   const JournalTabContainer({Key? key}) : super(key: key);
@@ -93,7 +93,7 @@ class JournalTabContainer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const AuthScreen(),
+                    builder: (_) => const ModernAuthScreen(),
                     fullscreenDialog: true,
                   ),
                 );

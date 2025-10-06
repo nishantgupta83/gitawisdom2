@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../core/app_config.dart';
 import '../core/navigation/navigation_service.dart';
 import '../l10n/app_localizations.dart';
-import '../widgets/custom_nav_bar.dart';
 import '../widgets/modern_nav_bar.dart';
 import '../services/post_login_data_loader.dart';
 import 'home_screen.dart';
@@ -22,24 +21,37 @@ class RootScaffold extends StatefulWidget {
   State<RootScaffold> createState() => _RootScaffoldState();
 }
 
-class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver {
+class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver, AutomaticKeepAliveClientMixin {
+
+  @override
+  bool get wantKeepAlive => true; // Preserve state across rebuilds (rotation, low memory)
   int _currentIndex = 0;
   int? _pendingChapterFilter;
-  late List<Widget> _pages;
-  
+
+  // Lazy loading: Only build pages when accessed (saves memory and initialization time)
+  final Map<int, Widget> _builtPages = {};
+
   // Performance optimization: Cache page keys to prevent unnecessary rebuilds
   final Map<int, GlobalKey<NavigatorState>> _pageKeys = {};
-  
+
   // Track page state preservation
   final Map<int, bool> _pageStates = {};
 
   @override
   void initState() {
     super.initState();
-    _initializePages();
+    _initializePageKeys(); // Only initialize keys, not pages (lazy loading)
     _initializeNavigationService();
     _startPostLoginBackgroundLoading();
     WidgetsBinding.instance.addObserver(this);
+  }
+
+  /// Initialize page keys for state management (lightweight operation)
+  void _initializePageKeys() {
+    for (int i = 0; i < 5; i++) {
+      _pageKeys[i] = GlobalKey<NavigatorState>();
+      _pageStates[i] = false;
+    }
   }
 
   /// Start loading all 1200+ scenarios in background after login
@@ -77,21 +89,38 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
     );
   }
 
-  /// Initialize pages for bottom navigation with optimized state management
-  void _initializePages() {
-    // Initialize page keys for better state management
-    for (int i = 0; i < 5; i++) {
-      _pageKeys[i] = GlobalKey<NavigatorState>();
-      _pageStates[i] = false;
+  /// Get page by index with lazy loading (only build when first accessed)
+  Widget _getPage(int index) {
+    // Return cached page if already built
+    if (_builtPages.containsKey(index)) {
+      return _builtPages[index]!;
     }
-    
-    _pages = [
-      _buildHomePage(),
-      _buildChaptersPage(),
-      _buildScenariosPage(),
-      _buildJournalPage(),
-      _buildMorePage(),
-    ];
+
+    // Build page on first access and cache it
+    Widget page;
+    switch (index) {
+      case 0:
+        page = _buildHomePage();
+        break;
+      case 1:
+        page = _buildChaptersPage();
+        break;
+      case 2:
+        page = _buildScenariosPage();
+        break;
+      case 3:
+        page = _buildJournalPage();
+        break;
+      case 4:
+        page = _buildMorePage();
+        break;
+      default:
+        page = const SizedBox.shrink();
+    }
+
+    _builtPages[index] = page;
+    debugPrint('📱 Lazy loaded tab $index (${_getTabName(index)})');
+    return page;
   }
   
   /// Build home page with optimized state preservation
@@ -151,7 +180,8 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
 
   /// Select a tab by index with performance optimizations
   void _selectTab(int index) {
-    if (index >= 0 && index < _pages.length && index != _currentIndex) {
+    const totalTabs = 5; // Total number of tabs in bottom navigation
+    if (index >= 0 && index < totalTabs && index != _currentIndex) {
       // Mark previous page state as preserved
       _pageStates[_currentIndex] = true;
       
@@ -175,20 +205,21 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
     }
   }
 
-  /// Navigate to scenarios with chapter filter - optimized to avoid rebuilds
+  /// Navigate to scenarios with chapter filter - optimized for lazy loading
   void _goToScenariosWithChapter(int chapterId) {
     debugPrint('🔧 Navigating to scenarios with chapter filter: $chapterId');
-    
+
     // Only update if filter actually changed
     if (_pendingChapterFilter != chapterId) {
       _pendingChapterFilter = chapterId;
-      
-      // Update scenarios screen efficiently without full rebuild
+
+      // Rebuild scenarios page with new filter and update cache
+      _builtPages[2] = _buildScenariosPage();
+
       setState(() {
-        _pages[2] = _buildScenariosPage();
         _currentIndex = 2; // Switch to scenarios tab
       });
-      
+
       debugPrint('🔧 Updated scenarios filter to chapter $chapterId and switched tab');
     } else {
       // Just switch tab if filter is same
@@ -202,6 +233,8 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
 
   @override
   Widget build(BuildContext context) {
+    super.build(context); // Required for AutomaticKeepAliveClientMixin to preserve state
+
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
@@ -216,7 +249,8 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
         body: IndexedStack(
           index: _currentIndex,
           sizing: StackFit.expand,
-          children: _pages,
+          // Lazy loading: Build pages on demand using _getPage()
+          children: List.generate(5, (index) => _getPage(index)),
         ),
         
         // Modern bottom navigation bar

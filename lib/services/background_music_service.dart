@@ -1,7 +1,9 @@
 // lib/services/background_music_service.dart
 
+import 'dart:io' show Platform;
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:audio_session/audio_session.dart';
 import '../models/simple_meditation.dart' show MusicTheme;
 
 /// Service for handling background ambient music during reading and meditation
@@ -36,19 +38,53 @@ class BackgroundMusicService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Prevent concurrent initialization
+    // Prevent concurrent initialization with timeout to avoid ANR
     if (_isInitializing) {
       debugPrint('⏳ Background music initialization already in progress, waiting...');
+
+      // Wait for initialization to complete with 5-second timeout
+      final startTime = DateTime.now().millisecondsSinceEpoch;
+      const timeoutMs = 5000; // 5 seconds
+
       while (_isInitializing && !_isInitialized) {
+        final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
+
+        if (elapsed >= timeoutMs) {
+          debugPrint('❌ Background music initialization timed out after ${timeoutMs}ms');
+          _isInitializing = false; // Reset flag to allow retry
+          return;
+        }
+
         await Future.delayed(const Duration(milliseconds: 100));
       }
+
       return;
     }
 
     _isInitializing = true;
     try {
+      // Configure AVAudioSession for iOS (required for proper background playback)
+      if (Platform.isIOS) {
+        final session = await AudioSession.instance;
+        await session.configure(const AudioSessionConfiguration(
+          avAudioSessionCategory: AVAudioSessionCategory.playback,
+          avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.duckOthers,
+          avAudioSessionMode: AVAudioSessionMode.defaultMode,
+          avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+          avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+          androidAudioAttributes: AndroidAudioAttributes(
+            contentType: AndroidAudioContentType.music,
+            flags: AndroidAudioFlags.none,
+            usage: AndroidAudioUsage.media,
+          ),
+          androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+          androidWillPauseWhenDucked: true,
+        ));
+        debugPrint('✅ iOS AVAudioSession configured for background music');
+      }
+
       _player = AudioPlayer();
-      
+
       // Set up audio session for background music
       await _player!.setLoopMode(LoopMode.all);
       await _player!.setVolume(_volume);
@@ -64,6 +100,31 @@ class BackgroundMusicService extends ChangeNotifier {
       _player!.playerStateStream.listen((playerState) {
         debugPrint('🎵 Background music state: ${playerState.processingState}');
       });
+
+      // Handle audio interruptions (phone calls, Siri, alarms) - iOS requirement
+      if (Platform.isIOS) {
+        final session = await AudioSession.instance;
+
+        // Handle interruptions (phone calls, Siri, alarms)
+        session.interruptionEventStream.listen((event) {
+          if (event.begin) {
+            pauseMusic();
+            debugPrint('🎵 Background music paused due to interruption');
+          } else {
+            // Resume music when interruption ends if music was enabled
+            if (_isEnabled && !_isPlaying) {
+              resumeMusic();
+              debugPrint('🎵 Background music resumed after interruption');
+            }
+          }
+        });
+
+        // Handle headphones unplugged
+        session.becomingNoisyEventStream.listen((_) {
+          pauseMusic();
+          debugPrint('🎵 Background music paused (headphones unplugged)');
+        });
+      }
 
       _isInitialized = true;
       debugPrint('✅ BackgroundMusicService initialized');
@@ -232,8 +293,24 @@ class BackgroundMusicService extends ChangeNotifier {
   }
 
   /// Dispose of resources
-  void dispose() {
-    _player?.dispose();
+  Future<void> dispose() async {
+    // Stop and dispose player first
+    if (_player != null) {
+      await _player!.stop();
+      await _player!.dispose();
+    }
+
+    // CRITICAL: Deactivate AVAudioSession on iOS (App Store requirement)
+    if (Platform.isIOS && _isInitialized) {
+      try {
+        final session = await AudioSession.instance;
+        await session.setActive(false);
+        debugPrint('✅ iOS AVAudioSession deactivated');
+      } catch (e) {
+        debugPrint('⚠️ AVAudioSession deactivation error: $e');
+      }
+    }
+
     _isInitialized = false;
     debugPrint('🎵 BackgroundMusicService disposed');
     super.dispose();

@@ -7,6 +7,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/scenario.dart';
 import '../services/service_locator.dart';
 import '../services/progressive_scenario_service.dart';
+import '../services/intelligent_scenario_search.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import 'scenario_detail_view.dart';
 import '../core/navigation/navigation_service.dart';
@@ -110,6 +111,7 @@ class ScenariosScreen extends StatefulWidget {
 class _ScenariosScreenState extends State<ScenariosScreen> {
   late final _service = ServiceLocator.instance.enhancedSupabaseService;
   final ScenarioServiceAdapter _scenarioService = ScenarioServiceAdapter.instance;
+  final IntelligentScenarioSearch _aiSearchService = IntelligentScenarioSearch.instance;
   // final FavoritesService _favoritesService = FavoritesService.instance; // COMMENTED OUT: User-specific features disabled
   List<Scenario> _scenarios = [];
   List<Scenario> _allScenarios = []; // Cache all scenarios for instant filtering
@@ -124,7 +126,12 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   int _totalScenarioCount = 0;
   Timer? _debounceTimer;
 
+  // AI Search state
+  bool _aiSearchEnabled = true; // Default to AI search enabled
+  bool _aiSearchInitialized = false;
+
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode(); // Track search bar focus for glow effect
 
   // Lazy loading configuration - Load 20 scenarios at a time for smooth UI performance
   static const int _pageSize = 20;
@@ -136,10 +143,15 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
   void initState() {
     super.initState();
     _selectedChapter = widget.filterChapter;
-    
+
     // Initialize pagination scroll listener
     _scrollController.addListener(_onScroll);
-    
+
+    // Add listener to search focus node to trigger UI updates for glow effect
+    _searchFocusNode.addListener(() {
+      setState(() {}); // Rebuild to show/hide glow effect
+    });
+
     // Set initial filter based on any existing tag
     if (widget.filterTag != null) {
       // Map tags to comprehensive filter categories with intelligent matching
@@ -155,19 +167,43 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         tags: [widget.filterTag!],
         createdAt: DateTime.now(),
       );
-      
+
       // For tag-based filtering, set to 'All' and let search handle it
       _selectedFilter = 'All';
       _search = widget.filterTag!; // Use search to filter by tag
     }
-    
+
     _loadScenarios();
+
+    // Periodically check for newly loaded scenarios and update count
+    Timer.periodic(const Duration(seconds: 2), (timer) async {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      final currentScenarios = await _scenarioService.getAllScenarios();
+      if (mounted && currentScenarios.length != _allScenarios.length) {
+        setState(() {
+          _allScenarios = currentScenarios;
+          _scenarios = _filterScenarios(currentScenarios);
+          _totalScenarioCount = currentScenarios.length;
+        });
+        debugPrint('📊 Updated scenario count: ${currentScenarios.length}');
+
+        // Stop checking once we have all scenarios
+        if (currentScenarios.length >= 1200) {
+          timer.cancel();
+        }
+      }
+    });
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
     _searchController.dispose();
+    _searchFocusNode.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -222,14 +258,23 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
         // Start background sync if needed (non-blocking) - monthly check only
         // Pass callback to update UI when sync completes
-        _scenarioService.backgroundSync(onComplete: () {
+        _scenarioService.backgroundSync(onComplete: () async {
           if (mounted) {
-            debugPrint('🔄 Background sync completed - updating UI with full dataset');
-            setState(() {
-              // Force rebuild of category filters with updated counts
-              // _allScenarios already contains the full dataset from the sync
-              _totalScenarioCount = _allScenarios.length;
-            });
+            debugPrint('🔄 Background sync completed - reloading all scenarios');
+            // Reload all scenarios to get the full dataset
+            final fullScenarios = await _scenarioService.getAllScenarios();
+            if (mounted) {
+              setState(() {
+                _allScenarios = fullScenarios;
+                _scenarios = _filterScenarios(fullScenarios);
+                _totalScenarioCount = fullScenarios.length;
+                // Reset pagination to show updated count
+                _displayedScenarios.clear();
+                _currentPage = 0;
+                _loadInitialPage();
+              });
+              debugPrint('✅ Updated UI with ${fullScenarios.length} scenarios');
+            }
           }
         });
       }
@@ -403,23 +448,59 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
 
   void _onSearchChanged(String query) {
     if (!mounted) return;
-    
+
     // Cancel previous debounce timer
     _debounceTimer?.cancel();
-    
+
     // Update search query immediately for UI feedback
     setState(() {
       _search = query;
     });
-    
+
     // PERFORMANCE FIX: Add 300ms debouncing to prevent UI jank on rapid typing
     // This prevents search execution on every keystroke which was causing frame drops
     _debounceTimer = Timer(const Duration(milliseconds: 300), () {
       if (mounted) {
         // UI_OPTIMIZATION: Execute search asynchronously to prevent UI thread blocking
-        _performAsyncSearch();
+        if (_aiSearchEnabled && query.trim().isNotEmpty) {
+          _performAISearch(query);
+        } else {
+          _performAsyncSearch();
+        }
       }
     });
+  }
+
+  /// Perform AI-powered search using IntelligentScenarioSearch
+  Future<void> _performAISearch(String query) async {
+    if (!mounted || query.trim().isEmpty) return;
+
+    try {
+      // Initialize AI search if needed
+      if (!_aiSearchInitialized) {
+        await _aiSearchService.initialize();
+        _aiSearchInitialized = true;
+      }
+
+      // Perform intelligent search
+      final searchResults = await _aiSearchService.search(query);
+
+      // Extract scenarios from search results
+      final scenarios = searchResults.map((result) => result.scenario).toList();
+
+      if (mounted) {
+        setState(() {
+          _scenarios = scenarios;
+          _currentPage = 0;
+          _displayedScenarios.clear();
+          _loadInitialPage();
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ AI search error: $e');
+      // Fallback to basic search
+      _performAsyncSearch();
+    }
   }
 
   void _onFilterChanged(String filter) {
@@ -441,7 +522,8 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
     
     try {
       // For small datasets, execute directly
-      if (_allScenarios.length <= 500) {
+      // Threshold lowered to 200 for Android mid-range devices to prevent 200-300ms jank
+      if (_allScenarios.length <= 200) {
         setState(() {
           _scenarios = _filterScenarios(_allScenarios);
           _currentPage = 0;
@@ -464,6 +546,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       if (mounted) {
         setState(() {
           _scenarios = results.map((json) => Scenario.fromJson(json)).toList();
+          _currentPage = 0;
+          _displayedScenarios.clear();
+          _loadInitialPage();
         });
       }
     } catch (e) {
@@ -472,6 +557,9 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
       if (mounted) {
         setState(() {
           _scenarios = _filterScenarios(_allScenarios);
+          _currentPage = 0;
+          _displayedScenarios.clear();
+          _loadInitialPage();
         });
       }
     }
@@ -617,36 +705,97 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         ],
                       ),
                     ),
-                    // Search Bar
+                    // Search Bar with AI Toggle
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 8, 0, 8),
-                    child: TextField(
-                      controller: _searchController,
-                      onChanged: _onSearchChanged,
-                      decoration: InputDecoration(
-                        hintText: localizations?.searchScenarios ?? 'Search scenarios...',
-                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface.withValues(alpha:0.6),
-                        ),
-                        prefixIcon: const Icon(Icons.search),
-                        suffixIcon: _search.isNotEmpty
-                            ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _onSearchChanged('');
-                          },
-                        )
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(30),
+                        gradient: _aiSearchEnabled ? LinearGradient(
+                          colors: [
+                            theme.colorScheme.primary.withValues(alpha:0.2),
+                            theme.colorScheme.secondary.withValues(alpha:0.2),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ) : null,
+                        border: _aiSearchEnabled ? Border.all(
+                          color: theme.colorScheme.primary.withValues(alpha:0.5),
+                          width: 2,
+                        ) : null,
+                        boxShadow: _searchFocusNode.hasFocus
+                            ? [
+                                BoxShadow(
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.4),
+                                  blurRadius: 20,
+                                  spreadRadius: 2,
+                                ),
+                                BoxShadow(
+                                  color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                                  blurRadius: 40,
+                                  spreadRadius: 4,
+                                ),
+                              ]
                             : null,
-                        filled: true,
-                        fillColor: theme.colorScheme.surface.withValues(alpha:.85),
-                        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(30),
-                          borderSide: BorderSide.none,
-                        ),
                       ),
-                      style: theme.textTheme.bodyMedium,
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        onChanged: _onSearchChanged,
+                        decoration: InputDecoration(
+                          hintText: _aiSearchEnabled
+                              ? '✨ AI Search: Try "feeling stressed at work"'
+                              : (localizations?.searchScenarios ?? 'Search scenarios...'),
+                          hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurface.withValues(alpha:0.6),
+                          ),
+                          prefixIcon: Icon(
+                            _aiSearchEnabled ? Icons.auto_awesome : Icons.search,
+                            color: _aiSearchEnabled ? theme.colorScheme.primary : null,
+                          ),
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // AI Toggle Button
+                              IconButton(
+                                icon: Icon(
+                                  Icons.psychology,
+                                  color: _aiSearchEnabled
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.onSurface.withValues(alpha:0.5),
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _aiSearchEnabled = !_aiSearchEnabled;
+                                  });
+                                  // Re-run search if there's a query
+                                  if (_search.isNotEmpty) {
+                                    _onSearchChanged(_search);
+                                  }
+                                },
+                                tooltip: _aiSearchEnabled ? 'Disable AI Search' : 'Enable AI Search',
+                              ),
+                              // Clear Button
+                              if (_search.isNotEmpty)
+                                IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    _searchController.clear();
+                                    _onSearchChanged('');
+                                  },
+                                ),
+                            ],
+                          ),
+                          filled: true,
+                          fillColor: theme.colorScheme.surface.withValues(alpha:.85),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(30),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: theme.textTheme.bodyMedium,
+                      ),
                     ),
                   ),
 
@@ -729,53 +878,64 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                                   ),
                                 ),
                               )
-                            : Column(
-                                children: [
-                                  // Scenarios list with lazy loading
-                                  ..._displayedScenarios.map((scenario) => _buildScenarioCard(scenario, theme)).toList(),
+                            : ListView.builder(
+                                shrinkWrap: true, // Allow ListView to size itself to content
+                                physics: const NeverScrollableScrollPhysics(), // Disable internal scrolling (parent ListView handles it)
+                                // Calculate item count: scenarios + Load More button (if not all loaded) + total count message (if all loaded)
+                                itemCount: _displayedScenarios.length +
+                                    (_displayedScenarios.length < _scenarios.length ? 1 : 0) +
+                                    (_displayedScenarios.length >= _scenarios.length && _scenarios.isNotEmpty ? 1 : 0),
+                                itemBuilder: (context, index) {
+                                  // Scenario cards
+                                  if (index < _displayedScenarios.length) {
+                                    return _buildScenarioCard(_displayedScenarios[index], theme);
+                                  }
 
-                                  // Load More button or loading indicator
-                                  if (_displayedScenarios.length < _scenarios.length) ...[
-                                    const SizedBox(height: 16),
-                                    Center(
-                                      child: _isLoadingMore
-                                          ? const Padding(
-                                              padding: EdgeInsets.all(16),
-                                              child: CircularProgressIndicator(),
-                                            )
-                                          : ElevatedButton.icon(
-                                              onPressed: _loadMoreScenarios,
-                                              icon: const Icon(Icons.expand_more),
-                                              label: Text(
-                                                'Load More (${_scenarios.length - _displayedScenarios.length} remaining)',
-                                                style: const TextStyle(fontSize: 14),
-                                              ),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: theme.colorScheme.primaryContainer,
-                                                foregroundColor: theme.colorScheme.onPrimaryContainer,
-                                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(25),
+                                  // Load More button (if not all loaded)
+                                  if (_displayedScenarios.length < _scenarios.length && index == _displayedScenarios.length) {
+                                    return Column(
+                                      children: [
+                                        const SizedBox(height: 16),
+                                        Center(
+                                          child: _isLoadingMore
+                                              ? const Padding(
+                                                  padding: EdgeInsets.all(16),
+                                                  child: CircularProgressIndicator(),
+                                                )
+                                              : ElevatedButton.icon(
+                                                  onPressed: _loadMoreScenarios,
+                                                  icon: const Icon(Icons.expand_more),
+                                                  label: Text(
+                                                    'Load More (${_scenarios.length - _displayedScenarios.length} remaining)',
+                                                    style: const TextStyle(fontSize: 14),
+                                                  ),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: theme.colorScheme.primaryContainer,
+                                                    foregroundColor: theme.colorScheme.onPrimaryContainer,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.circular(25),
+                                                    ),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                    ),
-                                    const SizedBox(height: 16),
-                                  ],
-
-                                  // Show total count when all loaded
-                                  if (_displayedScenarios.length >= _scenarios.length && _scenarios.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.all(16),
-                                      child: Text(
-                                        'Showing all ${_scenarios.length} scenarios',
-                                        style: theme.textTheme.bodySmall?.copyWith(
-                                          color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                                         ),
-                                        textAlign: TextAlign.center,
+                                        const SizedBox(height: 16),
+                                      ],
+                                    );
+                                  }
+
+                                  // Total count message (if all loaded)
+                                  return Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Text(
+                                      'Showing all ${_scenarios.length} scenarios',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                                       ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                ],
+                                  );
+                                },
                               ),
                   ),
                 ],
@@ -936,14 +1096,14 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                           onPressed: () => _showShareDialog(scenario),
                           icon: Icon(
                             Icons.share,
-                            size: 18,
+                            size: 20, // Increased from 18 for better visibility
                             color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                           ),
                           tooltip: 'Share',
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(12), // Increased from 4 for WCAG compliance
                           constraints: const BoxConstraints(
-                            minWidth: 28,
-                            minHeight: 28,
+                            minWidth: 44,  // WCAG 2.1 AA minimum touch target
+                            minHeight: 44, // WCAG 2.1 AA minimum touch target
                           ),
                         ),
                         // Read More button
@@ -1187,10 +1347,10 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          // Enhanced background opacity for much better visibility and contrast
-          color: theme.brightness == Brightness.light 
-              ? mainCategory.color.withValues(alpha:0.2) // Increased from 0.15 for better contrast
-              : mainCategory.color.withValues(alpha:0.12), // Increased from 0.08 for better contrast
+          // Enhanced background opacity for WCAG AA compliance (4.5:1 contrast ratio)
+          color: theme.brightness == Brightness.light
+              ? mainCategory.color.withValues(alpha:0.35) // Increased to 0.35 for sufficient contrast
+              : mainCategory.color.withValues(alpha:0.25), // Increased to 0.25 for sufficient contrast
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: mainCategory.color.withValues(alpha:0.4), // Increased from 0.3 for better visibility
@@ -1230,14 +1390,20 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                       text: AppLocalizations.of(context)!.includes,
                       style: TextStyle(
                         fontWeight: FontWeight.w700, // Bold for "Includes:" label
-                        color: Colors.white, // White as requested by user
+                        // Theme-aware color for WCAG compliance
+                        color: theme.brightness == Brightness.light
+                            ? theme.colorScheme.onSurface
+                            : Colors.white,
                       ),
                     ),
                     TextSpan(
                       text: description,
                       style: TextStyle(
                         fontWeight: FontWeight.w600, // Increased weight for description
-                        color: Colors.white.withValues(alpha:0.9), // White with slight transparency
+                        // Theme-aware color for WCAG compliance
+                        color: theme.brightness == Brightness.light
+                            ? theme.colorScheme.onSurface.withValues(alpha:0.95)
+                            : Colors.white.withValues(alpha:0.95),
                       ),
                     ),
                   ],
@@ -1416,8 +1582,9 @@ List<Map<String, dynamic>> _performSearchCompute(Map<String, dynamic> params) {
         ).toList();
       }
       
-      // Apply category/tag filters
-      if (selectedFilter != 'All') {
+      // Apply category/tag filters ONLY when search query is empty
+      // When user types in search bar, search ALL scenarios regardless of selected category
+      if (searchQuery.trim().isEmpty && selectedFilter != 'All') {
         switch (selectedFilter) {
           case 'Work & Career':
           case 'Relationships':

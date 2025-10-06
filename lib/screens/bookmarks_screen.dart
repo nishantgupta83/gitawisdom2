@@ -554,9 +554,6 @@ class _BookmarksScreenState extends State<BookmarksScreen>
             onPressed: () {
               // TODO: Implement export functionality
               Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Export feature coming soon')),
-              );
             },
             child: const Text('Export'),
           ),
@@ -567,8 +564,5 @@ class _BookmarksScreenState extends State<BookmarksScreen>
 
   void _showEditDialog(Bookmark bookmark) {
     // TODO: Implement edit dialog
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edit feature coming soon')),
-    );
   }
 }

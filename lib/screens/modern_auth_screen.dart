@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../services/supabase_auth_service.dart';
 import '../core/app_config.dart';
 import 'root_scaffold.dart';
+import '../widgets/social_auth_buttons.dart';
 
 class ModernAuthScreen extends StatefulWidget {
   const ModernAuthScreen({super.key});
@@ -19,8 +20,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   late AnimationController _slideController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
-  
-  final PageController _pageController = PageController();
+
   final _formKey = GlobalKey<FormState>();
   
   // Form controllers
@@ -105,7 +105,6 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
-    _pageController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
@@ -135,23 +134,16 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                     position: _slideAnimation,
                     child: SingleChildScrollView(
                       padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: size.height - MediaQuery.of(context).padding.top - MediaQuery.of(context).padding.bottom,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(height: 40),
-                            _buildHeader(theme),
-                            const SizedBox(height: 32),
-                            Flexible(
-                              child: _buildAuthCard(theme, authService),
-                            ),
-                            _buildFooter(theme, authService),
-                            const SizedBox(height: 16),
-                          ],
-                        ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const SizedBox(height: 40),
+                          _buildHeader(theme),
+                          const SizedBox(height: 32),
+                          _buildAuthCard(theme, authService),
+                          _buildFooter(theme, authService),
+                          const SizedBox(height: 16),
+                        ],
                       ),
                     ),
                   ),
@@ -363,23 +355,57 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-            // Tab indicator
-            _buildTabIndicator(theme),
-            const SizedBox(height: 32),
-            
-            // Show error if any
-            if (authService.error != null) ...[
-              _buildErrorBanner(theme, authService),
+              // Tab indicator
+              _buildTabIndicator(theme),
+              const SizedBox(height: 24),
+
+              // Show error if any
+              if (authService.error != null) ...[
+                _buildErrorBanner(theme, authService),
+                const SizedBox(height: 16),
+              ],
+
+              // Social authentication buttons
+              SocialAuthButtons(authService: authService),
+
               const SizedBox(height: 20),
+
+              // OR divider
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      color: theme.colorScheme.onSurface.withValues(alpha:0.2),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Text(
+                      'or continue with email',
+                      style: TextStyle(
+                        color: theme.colorScheme.onSurface.withValues(alpha:0.5),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Divider(
+                      color: theme.colorScheme.onSurface.withValues(alpha:0.2),
+                    ),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 20),
+
+              // Auth form
+              _buildAuthForm(theme, authService),
+
+              // Test accounts section
+              if (_currentPage == 0) _buildTestAccountsSection(theme),
             ],
-            
-            // Auth form
-            _buildAuthForm(theme, authService),
-            
-            // Test accounts section
-            if (_currentPage == 0) _buildTestAccountsSection(theme),
-          ],
-        ),
+          ),
         ),
       ),
     );
@@ -514,18 +540,12 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   Widget _buildAuthForm(ThemeData theme, SupabaseAuthService authService) {
     return Form(
       key: _formKey,
-      child: SizedBox(
-        height: 400, // Fixed height to prevent unbounded constraints
-        child: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() => _currentPage = index);
-          },
-          children: [
-            _buildSignInForm(theme, authService),
-            _buildSignUpForm(theme, authService),
-          ],
-        ),
+      child: IndexedStack(
+        index: _currentPage,
+        children: [
+          _buildSignInForm(theme, authService),
+          _buildSignUpForm(theme, authService),
+        ],
       ),
     );
   }
@@ -603,7 +623,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         ),
         
         const SizedBox(height: 32),
-        
+
         // Sign in button
         _buildPrimaryButton(
           context: context,
@@ -703,7 +723,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         ),
         
         const SizedBox(height: 32),
-        
+
         // Sign up button
         _buildPrimaryButton(
           context: context,
@@ -872,24 +892,8 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   Widget _buildFooter(ThemeData theme, SupabaseAuthService authService) {
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'or',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha:0.6),
-                ),
-              ),
-            ),
-            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
-          ],
-        ),
-        
         const SizedBox(height: 20),
-        
+
         // Continue as guest button
         Container(
           width: double.infinity,
@@ -943,12 +947,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
 
   void _switchToPage(int page) {
     setState(() => _currentPage = page);
-    _pageController.animateToPage(
-      page,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
-    
+
     // Clear form when switching tabs
     _emailController.clear();
     _passwordController.clear();

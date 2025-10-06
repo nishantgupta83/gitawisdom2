@@ -151,8 +151,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   children: [
                     // Floating header card
                     Container(
-                      margin: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                      padding: const EdgeInsets.all(24),
+                      margin: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surface.withValues(alpha:0.85),
                         borderRadius: BorderRadius.circular(16),
@@ -980,7 +980,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                     softWrap: true,
                   ),
                   const SizedBox(width: 12),
-                  const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white70),
+                  const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white), // Solid white for WCAG AA compliance (4.5:1 contrast)
                 ],
               ),
             ),

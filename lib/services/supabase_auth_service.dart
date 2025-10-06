@@ -116,6 +116,7 @@ class SupabaseAuthService extends ChangeNotifier {
         email: email.toLowerCase().trim(),
         password: password,
         data: {'name': name}, // Store name in user metadata
+        emailRedirectTo: 'com.hub4apps.gitawisdom://login-callback',
       );
 
       if (response.user == null) {
@@ -532,6 +533,101 @@ class SupabaseAuthService extends ChangeNotifier {
       _error = 'Failed to continue as anonymous user';
       _setLoading(false);
       return false;
+    }
+  }
+
+  // ============= Social Authentication Methods =============
+
+  /// Sign in with Google using Supabase OAuth
+  Future<bool> signInWithGoogle() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final result = await _supabase.auth.signInWithOAuth(
+        OAuthProvider.google,
+        redirectTo: 'com.hub4apps.gitawisdom://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
+      );
+
+      if (result) {
+        debugPrint('✅ Google sign-in initiated');
+        return true;
+      }
+
+      throw Exception('Failed to initiate Google sign-in');
+    } on AuthException catch (e) {
+      _error = _handleAuthException(e);
+      debugPrint('❌ Google sign-in failed: ${e.message}');
+      return false;
+    } catch (e) {
+      _error = 'Failed to sign in with Google. Please try again.';
+      debugPrint('❌ Google sign-in error: $e');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign in with Apple using Supabase OAuth
+  Future<bool> signInWithApple() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final result = await _supabase.auth.signInWithOAuth(
+        OAuthProvider.apple,
+        redirectTo: 'com.hub4apps.gitawisdom://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
+      );
+
+      if (result) {
+        debugPrint('✅ Apple sign-in initiated');
+        return true;
+      }
+
+      throw Exception('Failed to initiate Apple sign-in');
+    } on AuthException catch (e) {
+      _error = _handleAuthException(e);
+      debugPrint('❌ Apple sign-in failed: ${e.message}');
+      return false;
+    } catch (e) {
+      _error = 'Failed to sign in with Apple. Please try again.';
+      debugPrint('❌ Apple sign-in error: $e');
+      return false;
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Sign in with Facebook using Supabase OAuth
+  Future<bool> signInWithFacebook() async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      final result = await _supabase.auth.signInWithOAuth(
+        OAuthProvider.facebook,
+        redirectTo: 'com.hub4apps.gitawisdom://login-callback',
+        authScreenLaunchMode: LaunchMode.externalApplication,
+      );
+
+      if (result) {
+        debugPrint('✅ Facebook sign-in initiated');
+        return true;
+      }
+
+      throw Exception('Failed to initiate Facebook sign-in');
+    } on AuthException catch (e) {
+      _error = _handleAuthException(e);
+      debugPrint('❌ Facebook sign-in failed: ${e.message}');
+      return false;
+    } catch (e) {
+      _error = 'Failed to sign in with Facebook. Please try again.';
+      debugPrint('❌ Facebook sign-in error: $e');
+      return false;
+    } finally {
+      _setLoading(false);
     }
   }
 }

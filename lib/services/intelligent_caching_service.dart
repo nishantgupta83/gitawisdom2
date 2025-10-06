@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:isolate';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../models/scenario.dart';
 import '../services/service_locator.dart';
@@ -13,6 +14,10 @@ import '../services/progressive_cache_service.dart';
 class IntelligentCachingService with WidgetsBindingObserver {
   static final IntelligentCachingService instance = IntelligentCachingService._();
   IntelligentCachingService._();
+
+  // Cache version - increment this to force cache rebuild when architecture changes
+  static const int _CACHE_VERSION = 3; // v3: Fixed Supabase pagination (.range() added)
+  static const String _VERSION_KEY = 'cache_architecture_version';
 
   late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
   late final HybridStorage _hybridStorage = HybridStorage();
@@ -56,6 +61,9 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
       // Initialize hybrid storage
       await _hybridStorage.initialize();
+
+      // Check cache version and clear if architecture changed
+      await _checkAndUpdateCacheVersion();
 
       // Set up user activity monitoring
       WidgetsBinding.instance.addObserver(this);
@@ -210,8 +218,9 @@ class IntelligentCachingService with WidgetsBindingObserver {
       final offset = batchNumber * _batchSize;
       final limit = _batchSize;
 
-      // Offset for different levels to avoid overlap
-      final adjustedOffset = offset + (level.priority - 1) * 1000;
+      // All levels load from offset 0 - they're cumulative (critical ⊂ frequent ⊂ complete)
+      // Critical: 0-49, Frequent: 0-299, Complete: 0-1225
+      final adjustedOffset = offset;
 
       final scenarios = await _loadScenariosBatch(
         offset: adjustedOffset,
@@ -356,34 +365,53 @@ class IntelligentCachingService with WidgetsBindingObserver {
   /// Search scenarios across all loaded levels
   Future<List<Scenario>> searchScenarios(String query, {int? maxResults}) async {
     final results = <Scenario>[];
+    final seenTitles = <String>{};
 
     // Search critical first (instant)
     if (_hybridStorage.hasDataAtLevel(CacheLevel.critical)) {
       final criticalScenarios = await _hybridStorage.getScenariosByLevel(CacheLevel.critical);
-      results.addAll(_filterScenarios(criticalScenarios, query));
+      final filtered = _filterScenarios(criticalScenarios, query);
+      for (final scenario in filtered) {
+        if (!seenTitles.contains(scenario.title)) {
+          seenTitles.add(scenario.title);
+          results.add(scenario);
+        }
+      }
     }
 
     // If we need more results and have frequent scenarios loaded
     if ((maxResults == null || results.length < maxResults) &&
         _hybridStorage.hasDataAtLevel(CacheLevel.frequent)) {
       final frequentScenarios = await _hybridStorage.getScenariosByLevel(CacheLevel.frequent);
-      results.addAll(_filterScenarios(frequentScenarios, query));
+      final filtered = _filterScenarios(frequentScenarios, query);
+      for (final scenario in filtered) {
+        if (!seenTitles.contains(scenario.title)) {
+          seenTitles.add(scenario.title);
+          results.add(scenario);
+        }
+      }
     }
 
     // Finally search complete if needed
     if ((maxResults == null || results.length < maxResults) &&
         _hybridStorage.hasDataAtLevel(CacheLevel.complete)) {
       final completeScenarios = await _hybridStorage.getScenariosByLevel(CacheLevel.complete);
-      results.addAll(_filterScenarios(completeScenarios, query));
+      final filtered = _filterScenarios(completeScenarios, query);
+      for (final scenario in filtered) {
+        if (!seenTitles.contains(scenario.title)) {
+          seenTitles.add(scenario.title);
+          results.add(scenario);
+        }
+      }
     }
 
-    // Remove duplicates and limit results
-    final uniqueResults = results.toSet().toList();
-    if (maxResults != null && uniqueResults.length > maxResults) {
-      return uniqueResults.take(maxResults).toList();
+    // Limit results if needed
+    if (maxResults != null && results.length > maxResults) {
+      return results.take(maxResults).toList();
     }
 
-    return uniqueResults;
+    debugPrint('📊 Search returned ${results.length} unique scenarios (${seenTitles.length} titles)');
+    return results;
   }
 
   /// Filter scenarios by search query
@@ -439,6 +467,31 @@ class IntelligentCachingService with WidgetsBindingObserver {
     await _hybridStorage.dispose();
 
     debugPrint('🧠 IntelligentCachingService disposed');
+  }
+
+  /// Check cache version and clear if outdated
+  Future<void> _checkAndUpdateCacheVersion() async {
+    try {
+      final box = await Hive.openBox('app_metadata');
+      final storedVersion = box.get(_VERSION_KEY, defaultValue: 0) as int;
+
+      if (storedVersion < _CACHE_VERSION) {
+        debugPrint('🔄 Cache version outdated ($storedVersion < $_CACHE_VERSION) - clearing all caches');
+
+        // Clear all cache levels
+        for (final level in CacheLevel.values) {
+          await _hybridStorage.clearLevel(level);
+        }
+
+        // Update version
+        await box.put(_VERSION_KEY, _CACHE_VERSION);
+        debugPrint('✅ Cache version updated to $_CACHE_VERSION');
+      } else {
+        debugPrint('✅ Cache version current: $_CACHE_VERSION');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error checking cache version: $e');
+    }
   }
 
   // WidgetsBindingObserver overrides for better user activity detection

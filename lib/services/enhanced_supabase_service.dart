@@ -861,6 +861,7 @@ class EnhancedSupabaseService {
             created_at
           ''')
           .order('created_at', ascending: false)
+          .range(offset, offset + limit - 1)
           .limit(limit);
       
       if (response.isEmpty) return [];

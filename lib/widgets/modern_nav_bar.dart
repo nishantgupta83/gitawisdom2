@@ -1,10 +1,204 @@
 // lib/widgets/modern_nav_bar.dart
 
+import 'dart:io';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../core/accessible_colors.dart';
 import '../core/ios_performance_optimizer.dart';
+
+/// Pulsating animation wrapper for navigation icons with color animation
+class PulsatingIcon extends StatefulWidget {
+  final Widget child;
+  final bool enabled;
+  final Color? glowColor;
+  final ValueChanged<Color>? onColorChanged;
+
+  const PulsatingIcon({
+    required this.child,
+    this.enabled = true,
+    this.glowColor,
+    this.onColorChanged,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<PulsatingIcon> createState() => _PulsatingIconState();
+}
+
+class _PulsatingIconState extends State<PulsatingIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<Color?> _colorAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Animate glow color from 60% opacity to 85% opacity for pulsating effect
+    _colorAnimation = ColorTween(
+      begin: const Color(0xFF9C27B0).withValues(alpha: 0.6),
+      end: const Color(0xFF9C27B0).withValues(alpha: 0.85),
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    if (widget.enabled) {
+      _controller.repeat(reverse: true);
+    }
+
+    // Notify parent of color changes
+    if (widget.onColorChanged != null) {
+      _controller.addListener(() {
+        if (_colorAnimation.value != null) {
+          widget.onColorChanged!(_colorAnimation.value!);
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(PulsatingIcon oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.enabled && !_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    } else if (!widget.enabled && _controller.isAnimating) {
+      _controller.stop();
+      _controller.reset();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) {
+      return widget.child;
+    }
+
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: widget.child,
+    );
+  }
+}
+
+/// Pulsating icon with animated glow effect
+class _PulsatingGlowIcon extends StatefulWidget {
+  final bool isSelected;
+  final double iconSize;
+  final Color? iconColor;
+  final IconData icon;
+
+  const _PulsatingGlowIcon({
+    required this.isSelected,
+    required this.iconSize,
+    required this.iconColor,
+    required this.icon,
+  });
+
+  @override
+  State<_PulsatingGlowIcon> createState() => _PulsatingGlowIconState();
+}
+
+class _PulsatingGlowIconState extends State<_PulsatingGlowIcon> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+  late Animation<Color?> _colorAnimation;
+  late Animation<double> _blurAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Animate glow color from 60% opacity to 85% opacity
+    _colorAnimation = ColorTween(
+      begin: const Color(0xFF9C27B0).withValues(alpha: 0.6),
+      end: const Color(0xFF9C27B0).withValues(alpha: 0.85),
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    // Animate blur radius from 17.6 to 22 for pulsating effect (10% increase from base 16 to 17.6)
+    _blurAnimation = Tween<double>(begin: 17.6, end: 22.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _controller.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return Container(
+          padding: EdgeInsets.all(widget.isSelected ? 2 : 1),
+          decoration: BoxDecoration(
+            color: Colors.transparent,
+            boxShadow: [
+              BoxShadow(
+                color: _colorAnimation.value ?? const Color(0xFF9C27B0).withValues(alpha: 0.6),
+                blurRadius: _blurAnimation.value,
+                spreadRadius: 3,
+              ),
+            ],
+          ),
+          child: Transform.scale(
+            scale: _scaleAnimation.value,
+            child: Icon(
+              widget.icon,
+              key: ValueKey('${widget.icon}_${widget.isSelected}'),
+              size: widget.iconSize,
+              color: widget.iconColor,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 
 /// A modern navigation bar item
 class ModernNavBarItem {
@@ -12,7 +206,7 @@ class ModernNavBarItem {
   final IconData? selectedIcon;
   final String label;
   final Color? color;
-  
+
   const ModernNavBarItem({
     required this.icon,
     this.selectedIcon,
@@ -47,66 +241,110 @@ class ModernNavBar extends StatelessWidget {
     final theme = Theme.of(context);
     final media = MediaQuery.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     // Responsive design
     final isTablet = media.size.width > 600;
-    final effectiveHeight = height ?? (isTablet ? 75 : 65);
-    final effectiveMargin = margin ?? const EdgeInsets.fromLTRB(12, 0, 12, 20);
-    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(20);
+    final effectiveHeight = height ?? (isTablet ? 80 : 72);
+    final effectiveMargin = margin ?? const EdgeInsets.fromLTRB(16, 0, 16, 12);
+    final effectiveBorderRadius = borderRadius ?? BorderRadius.circular(24);
+
+    // Platform-optimized blur settings
+    final bool enableBlur = Platform.isIOS; // Only enable glassmorphism on iOS
+
+    // Build nav bar content
+    Widget navBarContent = Container(
+      decoration: BoxDecoration(
+        color: enableBlur
+            ? (isDark ? const Color(0x99000000) : const Color(0xCCFFFFFF)) // iOS: 60% dark, 80% light
+            : (isDark ? const Color(0xDD000000) : const Color(0xF0FFFFFF)), // Android: 87% dark, 94% light
+        borderRadius: effectiveBorderRadius,
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.15)
+              : Colors.black.withValues(alpha: 0.1),
+          width: 0.5,
+        ),
+      ),
+      child: RepaintBoundary(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.max,
+              children: List.generate(items.length, (index) {
+                return Flexible(
+                  flex: 1,
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth / items.length,
+                      minHeight: 44, // Ensure minimum touch target
+                    ),
+                    child: _buildNavItem(
+                      context,
+                      items[index],
+                      index,
+                      currentIndex == index,
+                      isDark,
+                      isTablet,
+                    ),
+                  ),
+                );
+              }),
+            );
+          },
+        ),
+      ),
+    );
+
+    // Apply blur only on iOS for glassmorphism effect
+    if (enableBlur) {
+      navBarContent = ClipRRect(
+        borderRadius: effectiveBorderRadius,
+        child: BackdropFilter(
+          filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: navBarContent,
+        ),
+      );
+    } else {
+      navBarContent = ClipRRect(
+        borderRadius: effectiveBorderRadius,
+        child: navBarContent,
+      );
+    }
 
     return SafeArea(
       child: Container(
         margin: effectiveMargin,
         height: effectiveHeight,
         decoration: BoxDecoration(
-          color: isDark
-              ? const Color(0xE61C1C1E)  // 90% opacity dark
-              : const Color(0xE6FFFFFF), // 90% opacity white
           borderRadius: effectiveBorderRadius,
-          border: Border.all(
-            color: isDark
-                ? Colors.white.withValues(alpha: 0.12)
-                : Colors.black.withValues(alpha: 0.08),
-            width: 0.5,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.4 : 0.1),
-              blurRadius: 24,
-              offset: const Offset(0, -4),
-              spreadRadius: 0,
-            ),
-          ],
+          boxShadow: enableBlur
+              ? [
+                  // iOS: Dual shadows for depth
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.5 : 0.15),
+                    blurRadius: 32,
+                    offset: const Offset(0, -6),
+                    spreadRadius: 0,
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, -2),
+                    spreadRadius: 0,
+                  ),
+                ]
+              : [
+                  // Android: Single optimized shadow
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.1),
+                    blurRadius: 16,
+                    offset: const Offset(0, -4),
+                    spreadRadius: 0,
+                  ),
+                ],
         ),
-        child: RepaintBoundary(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                mainAxisSize: MainAxisSize.max,
-                children: List.generate(items.length, (index) {
-                  return Flexible(
-                    flex: 1,
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: constraints.maxWidth / items.length,
-                        minHeight: 44, // Ensure minimum touch target
-                      ),
-                      child: _buildNavItem(
-                        context,
-                        items[index],
-                        index,
-                        currentIndex == index,
-                        isDark,
-                        isTablet,
-                      ),
-                    ),
-                  );
-                }),
-              );
-            },
-          ),
-        ),
+        child: navBarContent,
       ),
     );
   }
@@ -120,7 +358,7 @@ class ModernNavBar extends StatelessWidget {
     bool isTablet,
   ) {
     final theme = Theme.of(context);
-    
+
     // Modern color scheme
     final primaryColor = item.color ?? theme.colorScheme.primary;
     final selectedColor = isSelected ? primaryColor : null;
@@ -138,12 +376,12 @@ class ModernNavBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         child: Container(
           padding: EdgeInsets.symmetric(
-            vertical: isTablet ? 4 : 2,
+            vertical: isTablet ? 12 : 10,
             horizontal: 2,
           ),
           constraints: BoxConstraints(
             minHeight: 44, // Ensure minimum 44dp touch target
-            maxHeight: isTablet ? 70 : 60, // Prevent overflow
+            maxHeight: isTablet ? 80 : 72, // Prevent overflow
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
@@ -153,7 +391,7 @@ class ModernNavBar extends StatelessWidget {
                 constraints.maxWidth * 0.4, // Max 40% of width
               ).toDouble();
               final fontSize = math.min(
-                isSelected ? 10.0 : 9.0,
+                isSelected ? 12.0 : 11.0,
                 constraints.maxWidth * 0.15, // Scale with width
               ).toDouble();
 
@@ -161,27 +399,36 @@ class ModernNavBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Icon with animation - completely transparent background
-                  AnimatedContainer(
-                    duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                    curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
-                    padding: EdgeInsets.all(isSelected ? 2 : 1),
-                    decoration: const BoxDecoration(
-                      color: Colors.transparent,
-                    ),
-                    child: AnimatedSwitcher(
+                  // Icon with animated glow for Scenarios tab
+                  if (item.label == 'Scenarios')
+                    _PulsatingGlowIcon(
+                      isSelected: isSelected,
+                      iconSize: iconSize,
+                      iconColor: iconColor,
+                      icon: isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
+                    )
+                  else
+                    // Regular icon for other tabs
+                    AnimatedContainer(
                       duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                      child: Icon(
-                        isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
-                        key: ValueKey('${item.icon}_$isSelected'),
-                        size: iconSize,
-                        color: iconColor,
+                      curve: IOSPerformanceOptimizer.instance.getOptimalAnimationCurve(),
+                      padding: EdgeInsets.all(isSelected ? 2 : 1),
+                      decoration: const BoxDecoration(
+                        color: Colors.transparent,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
+                        child: Icon(
+                          isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
+                          key: ValueKey('${item.icon}_$isSelected'),
+                          size: iconSize,
+                          color: iconColor,
+                        ),
                       ),
                     ),
-                  ),
 
                   // Flexible spacing
-                  SizedBox(height: isTablet ? 2 : 1),
+                  SizedBox(height: isTablet ? 4 : 3),
 
                   // Label with animation and proper overflow handling
                   Flexible(
@@ -219,168 +466,6 @@ class ModernNavBar extends StatelessWidget {
                 ],
               );
             },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// Enhanced navigation bar with floating style
-class FloatingModernNavBar extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-  final List<ModernNavBarItem> items;
-  final Color? backgroundColor;
-  final double? height;
-
-  const FloatingModernNavBar({
-    required this.currentIndex,
-    required this.onTap,
-    required this.items,
-    this.backgroundColor,
-    this.height,
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final media = MediaQuery.of(context);
-    final isTablet = media.size.width > 600;
-    
-    final effectiveHeight = height ?? (isTablet ? 70 : 60);
-    
-    // Floating style colors
-    final navBackgroundColor = backgroundColor ?? 
-        (isDark 
-            ? const Color(0xFF2C2C2E)
-            : Colors.white);
-
-    return SafeArea(
-      child: Container(
-        margin: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-        height: effectiveHeight,
-        decoration: BoxDecoration(
-          color: navBackgroundColor,
-          borderRadius: BorderRadius.circular(effectiveHeight / 2),
-          border: Border.all(
-            color: isDark 
-                ? Colors.white.withValues(alpha: 0.15)
-                : Colors.black.withValues(alpha: 0.05),
-            width: 1,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isDark 
-                  ? Colors.black.withValues(alpha: 0.5)
-                  : Colors.black.withValues(alpha: 0.15),
-              blurRadius: 25,
-              offset: const Offset(0, 10),
-              spreadRadius: 0,
-            ),
-          ],
-        ),
-        child: Stack(
-          children: [
-            // Floating selection indicator
-            AnimatedPositioned(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-              left: (MediaQuery.of(context).size.width - 40) / items.length * currentIndex + 
-                    (MediaQuery.of(context).size.width - 40) / items.length * 0.15,
-              top: 8,
-              child: Container(
-                width: (MediaQuery.of(context).size.width - 40) / items.length * 0.7,
-                height: effectiveHeight - 16,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      theme.colorScheme.primary.withValues(alpha: 0.8),
-                      theme.colorScheme.secondary.withValues(alpha: 0.8),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular((effectiveHeight - 16) / 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            
-            // Navigation items
-            Row(
-              children: List.generate(items.length, (index) {
-                return Expanded(
-                  child: _buildFloatingNavItem(
-                    context,
-                    items[index],
-                    index,
-                    currentIndex == index,
-                    isDark,
-                    effectiveHeight,
-                  ),
-                );
-              }),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFloatingNavItem(
-    BuildContext context,
-    ModernNavBarItem item,
-    int index,
-    bool isSelected,
-    bool isDark,
-    double height,
-  ) {
-    final iconColor = isSelected
-        ? Colors.white
-        : AccessibleColors.getMutedTextColor(context);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: () => onTap(index),
-        borderRadius: BorderRadius.circular(height / 2),
-        child: Container(
-          height: height,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
-                duration: IOSPerformanceOptimizer.instance.getOptimalAnimationDuration(isUserInteraction: true),
-                child: Icon(
-                  isSelected ? (item.selectedIcon ?? item.icon) : item.icon,
-                  key: ValueKey('${item.icon}_$isSelected'),
-                  size: isSelected ? 24 : 22,
-                  color: iconColor,
-                ),
-              ),
-              if (isSelected) ...[
-                const SizedBox(height: 2),
-                Text(
-                  item.label,
-                  style: TextStyle(
-                    fontSize: 12, // Increased from 10 to 12 for better readability
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                    height: 1.2, // Improved line height
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ],
           ),
         ),
       ),

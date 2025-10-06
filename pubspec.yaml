@@ -24,6 +24,7 @@ dependencies:
   package_info_plus: ^8.3.0
   share_plus: ^11.0.0
   just_audio: ^0.10.4
+  audio_session: ^0.1.21  # AVAudioSession configuration for iOS
   flutter_tts: ^4.2.0
   uuid: ^4.5.1
   url_launcher: ^6.1.14
@@ -36,6 +37,10 @@ dependencies:
   shared_preferences: ^2.2.2
   tflite_flutter: ^0.11.0
   flutter_dotenv: ^6.0.0
+  # Social authentication
+  google_sign_in: ^6.2.2
+  sign_in_with_apple: ^6.1.3
+  flutter_facebook_auth: ^7.1.1
   # firebase_core: any
  # firebase_analytics: any
 

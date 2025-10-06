@@ -125,7 +125,7 @@ class _JournalScreenState extends State<JournalScreen> {
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 14),
         child: Card(
           elevation: 8,
-          color: theme.colorScheme.surface.withValues(alpha: 0.95),
+          color: theme.colorScheme.surface.withValues(alpha: 0.98), // Increased from 0.95 for better readability
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
@@ -281,7 +281,7 @@ class _JournalScreenState extends State<JournalScreen> {
         padding: const EdgeInsets.only(bottom: 12),
         child: Card(
           elevation: 8,
-          color: theme.colorScheme.surface.withValues(alpha: 0.95),
+          color: theme.colorScheme.surface.withValues(alpha: 0.98), // Increased from 0.95 for better readability
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
@@ -373,17 +373,17 @@ class _JournalScreenState extends State<JournalScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                       decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.6), // Increased from 0.3 for WCAG compliance
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                          color: theme.colorScheme.primary.withValues(alpha: 0.4), // Increased from 0.2 for better visibility
                           width: 1,
                         ),
                       ),
                       child: Text(
                         entry.category,
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.primary,
+                          color: theme.colorScheme.onPrimaryContainer, // Changed from primary for WCAG contrast compliance
                           fontSize: 10,
                         ),
                         maxLines: 1,
@@ -438,17 +438,17 @@ class _JournalScreenState extends State<JournalScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.3),
+                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.6), // Increased from 0.3 for WCAG compliance
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.4), // Increased from 0.2 for better visibility
                       width: 1,
                     ),
                   ),
                   child: Text(
                     entry.category,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.primary,
+                      color: theme.colorScheme.onPrimaryContainer, // Changed from primary for WCAG contrast compliance
                       fontSize: 10,
                     ),
                     maxLines: 1,

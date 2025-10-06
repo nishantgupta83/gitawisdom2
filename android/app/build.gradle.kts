@@ -36,12 +36,26 @@ android {
                 keyPassword = keystoreProperties["keyPassword"] as String
                 storeFile = file(keystoreProperties["storeFile"] as String)
                 storePassword = keystoreProperties["storePassword"] as String
+
+                println("✅ Using keystore from keystore.properties")
             } else {
                 // For CI/CD environments, use environment variables
-                keyAlias = System.getenv("ANDROID_KEY_ALIAS") ?: "upload"
-                keyPassword = System.getenv("ANDROID_KEY_PASSWORD") ?: ""
-                storeFile = System.getenv("ANDROID_KEYSTORE_PATH")?.let { file(it) }
-                storePassword = System.getenv("ANDROID_STORE_PASSWORD") ?: ""
+                val keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                val keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+                val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+                val storePassword = System.getenv("ANDROID_STORE_PASSWORD")
+
+                if (keyAlias != null && keyPassword != null && keystorePath != null && storePassword != null) {
+                    this.keyAlias = keyAlias
+                    this.keyPassword = keyPassword
+                    this.storeFile = file(keystorePath)
+                    this.storePassword = storePassword
+                    println("✅ Using keystore from environment variables")
+                } else {
+                    println("⚠️ WARNING: No signing config found. Release builds will fail.")
+                    println("   For debug builds, use: flutter run --debug")
+                    println("   For release builds, create android/keystore.properties")
+                }
             }
         }
     }

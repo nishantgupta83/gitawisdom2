@@ -10,9 +10,9 @@ import 'package:provider/provider.dart';
 import '../models/chapter.dart';
 import '../models/verse.dart';
 import '../services/service_locator.dart';
-import '../services/bookmark_service.dart';
-// import '../services/progress_service.dart'; // Removed for Apple compliance
-import '../models/bookmark.dart';
+// Bookmark functionality removed
+// import '../services/bookmark_service.dart';
+// import '../models/bookmark.dart';
 import '../widgets/app_background.dart';
 import '../core/navigation/navigation_service.dart';
 import '../widgets/expandable_text.dart';
@@ -394,62 +394,6 @@ class _VerseListViewState extends State<VerseListView> {
                                               ),
                                             ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          
-                                          // Bookmark Button
-                                          Consumer<BookmarkService>(
-                                            builder: (context, bookmarkService, child) {
-                                              final isBookmarked = bookmarkService.isBookmarked(
-                                                BookmarkType.verse, 
-                                                verse.verseId,
-                                              );
-                                              
-                                              return Material(
-                                                color: Colors.transparent,
-                                                child: InkWell(
-                                                  borderRadius: BorderRadius.circular(20),
-                                                  onTap: () => _toggleVerseBookmark(verse, isBookmarked),
-                                                  child: Container(
-                                                    padding: const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 6,
-                                                    ),
-                                                    decoration: BoxDecoration(
-                                                      color: isBookmarked
-                                                          ? theme.colorScheme.primary
-                                                          : theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
-                                                      borderRadius: BorderRadius.circular(20),
-                                                    ),
-                                                    child: Row(
-                                                      mainAxisSize: MainAxisSize.min,
-                                                      children: [
-                                                        Icon(
-                                                          isBookmarked 
-                                                              ? Icons.bookmark 
-                                                              : Icons.bookmark_border,
-                                                          size: 16,
-                                                          color: isBookmarked
-                                                              ? theme.colorScheme.onPrimary
-                                                              : theme.colorScheme.onSurface.withValues(alpha:0.7),
-                                                        ),
-                                                        const SizedBox(width: 4),
-                                                        Text(
-                                                          isBookmarked ? 'Saved' : 'Save',
-                                                          style: GoogleFonts.poppins(
-                                                            fontSize: 12,
-                                                            fontWeight: FontWeight.w500,
-                                                            color: isBookmarked
-                                                                ? theme.colorScheme.onPrimary
-                                                                : theme.colorScheme.onSurface.withValues(alpha:0.7),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
                                         ],
                                       ),
                                     ],
@@ -542,37 +486,11 @@ class _VerseListViewState extends State<VerseListView> {
     );
   }
   
-  /// Track verse read for progress analytics
+  /// Track verse read - logging only (progress tracking removed for Apple compliance)
   Future<void> _trackVerseRead(Verse verse) async {
     // Progress tracking removed for Apple compliance
-
-    try {
-      // Progress tracking removed for Apple compliance
-      debugPrint('Verse read: ${verse.verseId} in chapter ${widget.chapterId}');
-      
-      // Optional: Show subtle feedback
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Row(
-              children: [
-                const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                const SizedBox(width: 8),
-                Text('Verse ${verse.verseId} progress tracked'),
-              ],
-            ),
-            duration: const Duration(seconds: 1),
-            behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.only(bottom: 80, left: 16, right: 16),
-          ),
-        );
-      }
-    } catch (e) {
-      // Silent failure for progress tracking - don't disrupt user experience
-      if (mounted) {
-        debugPrint('Failed to track verse read: $e');
-      }
-    }
+    // Only logs verse interaction for debugging
+    debugPrint('Verse read: ${verse.verseId} in chapter ${widget.chapterId}');
   }
   
   /// Track chapter started
@@ -600,39 +518,8 @@ class _VerseListViewState extends State<VerseListView> {
     }
   }
 
-  /// Toggle bookmark for a verse
-  Future<void> _toggleVerseBookmark(Verse verse, bool isCurrentlyBookmarked) async {
-    final bookmarkService = context.read<BookmarkService>();
-    
-    if (isCurrentlyBookmarked) {
-      final bookmark = bookmarkService.getBookmark(BookmarkType.verse, verse.verseId);
-      if (bookmark != null) {
-        final success = await bookmarkService.removeBookmark(bookmark.id);
-        if (success && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Verse ${verse.verseId} removed from bookmarks'),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        }
-      }
-    } else {
-      final success = await bookmarkService.bookmarkVerse(verse, widget.chapterId);
-      if (success && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Verse ${verse.verseId} saved to bookmarks'),
-            duration: const Duration(seconds: 2),
-            action: SnackBarAction(
-              label: 'VIEW',
-              onPressed: () => Navigator.of(context).pushNamed('/bookmarks'),
-            ),
-          ),
-        );
-      }
-    }
-  }
+  // Bookmark functionality removed - not implemented
+  // Future<void> _toggleVerseBookmark(Verse verse, bool isCurrentlyBookmarked) async { ... }
 
   /// Show share dialog for a verse
   void _showShareDialog(Verse verse) {
