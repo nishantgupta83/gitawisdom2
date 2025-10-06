@@ -20,6 +20,7 @@ import '../services/app_lifecycle_manager.dart';
 import '../services/background_music_service.dart';
 import '../services/service_locator.dart';
 import '../services/intelligent_scenario_search.dart';
+import '../services/notification_permission_service.dart';
 // import 'hive_manager.dart'; // Removed for simplification
 import 'performance_monitor.dart';
 import 'ios_performance_optimizer.dart';
@@ -229,6 +230,14 @@ class AppInitializer {
       }
     } catch (e) {
       debugPrint('❌ Supabase connection test failed: $e');
+    }
+
+    // Request notification permissions (Android 13+)
+    try {
+      await NotificationPermissionService.instance.requestPermissionIfNeeded();
+      debugPrint('🔔 Notification permission check completed');
+    } catch (e) {
+      debugPrint('⚠️ Notification permission request failed (non-critical): $e');
     }
 
     // Audio initialization is now handled lazily by EnhancedAudioService

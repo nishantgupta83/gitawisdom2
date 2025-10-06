@@ -1,6 +1,9 @@
 
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/journal_entry.dart';
 import '../services/service_locator.dart';
@@ -11,28 +14,67 @@ class JournalService {
 
   late final _supabaseService = ServiceLocator.instance.enhancedSupabaseService;
   Box<JournalEntry>? _box;
-  
+
   static const String boxName = 'journal_entries';
   static const String lastSyncKey = 'journal_last_sync_timestamp';
-  
+  static const String _encryptionKeyName = 'journal_encryption_key';
+
+  final _secureStorage = const FlutterSecureStorage();
+
   // Cache journal entries for 1 hour before background refresh
   static const Duration cacheValidityDuration = Duration(hours: 1);
-  
+
+  /// Get or generate encryption key for Hive
+  Future<Uint8List> _getEncryptionKey() async {
+    try {
+      // Try to get existing key
+      String? keyString = await _secureStorage.read(key: _encryptionKeyName);
+
+      if (keyString == null) {
+        // Generate new 256-bit key
+        final key = Hive.generateSecureKey();
+        // Store it securely
+        await _secureStorage.write(
+          key: _encryptionKeyName,
+          value: base64Encode(key),
+        );
+        debugPrint('🔐 Generated new encryption key for journal data');
+        return Uint8List.fromList(key);
+      }
+
+      debugPrint('🔐 Retrieved existing encryption key');
+      return base64Decode(keyString);
+    } catch (e) {
+      debugPrint('❌ Error managing encryption key: $e');
+      rethrow;
+    }
+  }
+
   List<JournalEntry> _cachedEntries = [];
   DateTime? _lastLocalFetch;
 
-  /// Initialize the service and open Hive box
+  /// Initialize the service and open Hive box with encryption
   Future<void> initialize() async {
     try {
+      // Get encryption key
+      final encryptionKey = await _getEncryptionKey();
+
       if (!Hive.isBoxOpen(boxName)) {
         try {
-          _box = await Hive.openBox<JournalEntry>(boxName);
+          _box = await Hive.openBox<JournalEntry>(
+            boxName,
+            encryptionCipher: HiveAesCipher(encryptionKey),
+          );
+          debugPrint('✅ Opened encrypted journal box');
         } on HiveError catch (e) {
           debugPrint('🔄 Hive error detected, clearing corrupted journal data: $e');
           // Clear corrupted box and try again
           await Hive.deleteBoxFromDisk(boxName);
-          _box = await Hive.openBox<JournalEntry>(boxName);
-          debugPrint('✅ Cleared corrupted journal data, starting fresh');
+          _box = await Hive.openBox<JournalEntry>(
+            boxName,
+            encryptionCipher: HiveAesCipher(encryptionKey),
+          );
+          debugPrint('✅ Cleared corrupted journal data, starting fresh with encryption');
         }
       } else {
         _box = Hive.box<JournalEntry>(boxName);

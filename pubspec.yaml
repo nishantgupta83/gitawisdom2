@@ -37,6 +37,7 @@ dependencies:
   shared_preferences: ^2.2.2
   tflite_flutter: ^0.11.0
   flutter_dotenv: ^6.0.0
+  flutter_secure_storage: ^9.2.2
   # Social authentication
   google_sign_in: ^6.2.2
   sign_in_with_apple: ^6.1.3
@@ -70,12 +71,7 @@ flutter:
   generate: true  # Enable localization generation
 
   assets:
-    #- assets/images/divine_scroll_bg.png
-    - assets/images/lotus.png
-    - assets/images/lotus_bg.jpg
     - assets/audio/Riverside_Morning_Calm.mp3
-    - assets/images/ow_hb.jpeg
-    - assets/images/ow_app_hb.png
     - assets/images/app_bg.png
     - assets/images/app_icon_ocean.png
     - assets/images/hub4apps_qr.svg

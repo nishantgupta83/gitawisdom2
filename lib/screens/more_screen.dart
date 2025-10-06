@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 import '../services/settings_service.dart';
 import '../services/background_music_service.dart';
 import '../services/app_sharing_service.dart';
+import '../services/supabase_auth_service.dart';
 import 'package:provider/provider.dart';
 import '../screens/about_screen.dart';
 import '../screens/search_screen.dart';
@@ -159,6 +160,35 @@ class _MoreScreenState extends State<MoreScreen> {
 
     return ListView(
         children: [
+          // Account section - only shown for authenticated users
+          Consumer<SupabaseAuthService>(
+            builder: (context, authService, child) {
+              if (authService.isAuthenticated) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                      child: Text('Account', style: theme.textTheme.titleMedium),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.account_circle),
+                      title: Text(authService.displayName ?? 'User'),
+                      subtitle: Text(authService.userEmail ?? ''),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
+                      title: Text('Delete Account', style: TextStyle(color: theme.colorScheme.error)),
+                      subtitle: const Text('Permanently delete your account and all data'),
+                      onTap: () => _showDeleteAccountDialog(context, authService),
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+
           // Appearance section
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -356,6 +386,155 @@ class _MoreScreenState extends State<MoreScreen> {
         child: CircularProgressIndicator(strokeWidth: 2),
       ),
     );
+  }
+
+  /// Show delete account confirmation dialog
+  Future<void> _showDeleteAccountDialog(BuildContext context, SupabaseAuthService authService) async {
+    final theme = Theme.of(context);
+
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.warning_amber_rounded, color: theme.colorScheme.error),
+              const SizedBox(width: 8),
+              const Text('Delete Account?'),
+            ],
+          ),
+          content: const Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'This action cannot be undone. All your data will be permanently deleted:',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: 12),
+              Text('• Journal entries'),
+              Text('• Bookmarks'),
+              Text('• Progress tracking'),
+              Text('• Account information'),
+              SizedBox(height: 12),
+              Text('Are you sure you want to continue?'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                await _performAccountDeletion(context, authService);
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.error,
+                foregroundColor: theme.colorScheme.onError,
+              ),
+              child: const Text('Delete Account'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  /// Perform account deletion with Hive data clearing
+  Future<void> _performAccountDeletion(BuildContext context, SupabaseAuthService authService) async {
+    try {
+      // Show loading indicator
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: Card(
+            child: Padding(
+              padding: EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(height: 16),
+                  Text('Deleting account...'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Clear all local Hive data
+      // List all known Hive boxes that contain user data
+      final boxesToDelete = [
+        'journal_entries',
+        'bookmarks',  // FIXED: was 'user_bookmarks' (wrong name)
+        'user_progress',
+        'settings',
+        'scenarios',
+        'scenarios_critical',
+        'scenarios_frequent',
+        'scenarios_complete',
+        'daily_verses',
+        'chapters',
+        'chapter_summaries',
+        'search_cache',
+      ];
+
+      for (final boxName in boxesToDelete) {
+        try {
+          await Hive.deleteBoxFromDisk(boxName);
+          debugPrint('🗑️ Deleted Hive box: $boxName');
+        } catch (e) {
+          debugPrint('⚠️ Could not delete box $boxName: $e');
+        }
+      }
+
+      debugPrint('✅ Local Hive data cleared');
+
+      // Delete account from Supabase
+      final success = await authService.deleteAccount();
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      if (success) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Account deleted successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Navigate back to auth screen or home
+        // The auth state listener will handle navigation automatically
+      } else {
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(authService.error ?? 'Failed to delete account'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Account deletion error: $e');
+      if (!mounted) return;
+
+      Navigator.of(context).pop(); // Close loading dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to delete account: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
 }
