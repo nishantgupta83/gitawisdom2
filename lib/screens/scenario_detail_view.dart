@@ -508,38 +508,39 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.pink.shade300, Colors.pink.shade400],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.pink.withValues(alpha:0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
+              // Header row with icon and title
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.pink.shade300, Colors.pink.shade400],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.pink.withValues(alpha:0.3),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.favorite,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+                    child: Icon(
+                      Icons.favorite,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
                       AppLocalizations.of(context)!.heartSays,
                       style: GoogleFonts.poppins(
                         fontSize: theme.textTheme.titleLarge?.fontSize,
@@ -547,27 +548,31 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         color: theme.colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppLocalizations.of(context)!.heartSaysExplanation,
-                      style: GoogleFonts.poppins(
-                        fontSize: theme.textTheme.bodySmall?.fontSize,
-                        color: Colors.pink.shade600,
-                        fontWeight: FontWeight.w500,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(widget.scenario.heartResponse,
-                        style: GoogleFonts.poppins(
-                          fontSize: theme.textTheme.bodyMedium?.fontSize,
-                          color: theme.colorScheme.onSurface.withValues(alpha:0.8),
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.start,
-                        overflow: TextOverflow.visible),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Explanation text - full width below header
+              Text(
+                AppLocalizations.of(context)!.heartSaysExplanation,
+                style: GoogleFonts.poppins(
+                  fontSize: theme.textTheme.bodySmall?.fontSize,
+                  color: Colors.pink.shade600,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: FontStyle.italic,
                 ),
+              ),
+              const SizedBox(height: 16),
+              // Heart response text - full width below
+              Text(
+                widget.scenario.heartResponse,
+                style: GoogleFonts.poppins(
+                  fontSize: theme.textTheme.bodyMedium?.fontSize,
+                  color: theme.colorScheme.onSurface.withValues(alpha:0.8),
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.visible,
               ),
             ],
           ),
@@ -635,38 +640,39 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Colors.blue.shade300, Colors.blue.shade400],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.blue.withValues(alpha:0.3),
-                      blurRadius: 8,
-                      spreadRadius: 1,
+              // Header row with icon and title
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [Colors.blue.shade300, Colors.blue.shade400],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.blue.withValues(alpha:0.3),
+                          blurRadius: 8,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                child: Icon(
-                  Icons.balance,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
+                    child: Icon(
+                      Icons.balance,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
                       AppLocalizations.of(context)!.dutySays,
                       style: GoogleFonts.poppins(
                         fontSize: theme.textTheme.titleLarge?.fontSize,
@@ -674,27 +680,31 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         color: theme.colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      AppLocalizations.of(context)!.dutySaysExplanation,
-                      style: GoogleFonts.poppins(
-                        fontSize: theme.textTheme.bodySmall?.fontSize,
-                        color: Colors.blue.shade600,
-                        fontWeight: FontWeight.w500,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(widget.scenario.dutyResponse,
-                        style: GoogleFonts.poppins(
-                          fontSize: theme.textTheme.bodyMedium?.fontSize,
-                          color: theme.colorScheme.onSurface.withValues(alpha:0.8),
-                          height: 1.5,
-                        ),
-                        textAlign: TextAlign.start,
-                        overflow: TextOverflow.visible),
-                  ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // Explanation text - full width below header
+              Text(
+                AppLocalizations.of(context)!.dutySaysExplanation,
+                style: GoogleFonts.poppins(
+                  fontSize: theme.textTheme.bodySmall?.fontSize,
+                  color: Colors.blue.shade600,
+                  fontWeight: FontWeight.w500,
+                  fontStyle: FontStyle.italic,
                 ),
+              ),
+              const SizedBox(height: 16),
+              // Duty response text - full width below
+              Text(
+                widget.scenario.dutyResponse,
+                style: GoogleFonts.poppins(
+                  fontSize: theme.textTheme.bodyMedium?.fontSize,
+                  color: theme.colorScheme.onSurface.withValues(alpha:0.8),
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.start,
+                overflow: TextOverflow.visible,
               ),
             ],
           ),

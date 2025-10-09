@@ -16,9 +16,9 @@
     "description": "Chapters tab label in bottom navigation"
   },
   
-  "scenariosTab": "Scenarios", 
+  "scenariosTab": "Situations",
   "@scenariosTab": {
-    "description": "Scenarios tab label in bottom navigation"
+    "description": "Situations tab label in bottom navigation"
   },
   
   "journalTab": "Journal",
@@ -61,7 +61,7 @@
     "description": "Subtitle text describing app purpose"
   },
   
-  "viewScenarios": "View Scenarios ({count})",
+  "viewScenarios": "View Situations ({count})",
   "@viewScenarios": {
     "description": "Button text to view all scenarios with count",
     "placeholders": {
@@ -83,7 +83,7 @@
     }
   },
   
-  "relatedScenarios": "Related Scenarios",
+  "relatedScenarios": "Related Situations",
   "@relatedScenarios": {
     "description": "Section title for related scenarios in chapter detail"
   },
@@ -98,7 +98,7 @@
     "description": "Section title for chapter exploration buttons"
   },
   
-  "viewMoreScenarios": "View {count} more scenarios",
+  "viewMoreScenarios": "View {count} more situations",
   "@viewMoreScenarios": {
     "description": "Button text to expand scenario list",
     "placeholders": {
@@ -109,7 +109,7 @@
     }
   },
   
-  "showFewerScenarios": "Show fewer scenarios",
+  "showFewerScenarios": "Show fewer situations",
   "@showFewerScenarios": {
     "description": "Button text to collapse scenario list"
   },
@@ -274,12 +274,12 @@
     "description": "Label for verse count"
   },
 
-  "scenariosCount": "Scenarios",
+  "scenariosCount": "Situations",
   "@scenariosCount": {
     "description": "Label for scenario count"
   },
 
-  "scenarios": "SCENARIOS",
+  "scenarios": "SITUATIONS",
   "@scenarios": {
     "description": "Main title for scenarios screen"
   },
@@ -289,22 +289,22 @@
     "description": "Subtitle for scenarios screen"
   },
 
-  "searchScenarios": "Search scenarios by title or description...",
+  "searchScenarios": "Search situations by title or description...",
   "@searchScenarios": {
     "description": "Search hint text for scenarios"
   },
 
-  "noScenariosAvailable": "No scenarios available",
+  "noScenariosAvailable": "No situations available",
   "@noScenariosAvailable": {
     "description": "Empty state when no scenarios exist"
   },
 
-  "noScenariosMatch": "No scenarios match your search",
+  "noScenariosMatch": "No situations match your search",
   "@noScenariosMatch": {
     "description": "Empty state when search has no results"
   },
 
-  "failedToRefresh": "Failed to refresh scenarios",
+  "failedToRefresh": "Failed to refresh situations",
   "@failedToRefresh": {
     "description": "Error message when refresh fails"
   },
@@ -319,7 +319,7 @@
     "description": "Dedication message in About screen"
   },
 
-  "aboutDescription": "A bite-size guide to the Bhagavad Gita, offering chapters, scenarios, and reflections—now with custom themes, language support, and more.",
+  "aboutDescription": "A bite-size guide to the Bhagavad Gita, offering chapters, situations, and reflections—now with custom themes, language support, and more.",
   "@aboutDescription": {
     "description": "App description in About screen"
   },
@@ -419,7 +419,7 @@
     "description": "Overview section title"
   },
 
-  "showFewerScenarios": "Show fewer scenarios",
+  "showFewerScenarios": "Show fewer situations",
   "@showFewerScenarios": {
     "description": "Button text to collapse scenario list"
   },
@@ -434,12 +434,12 @@
     "description": "Subtitle for chapters screen"
   },
 
-  "lifeScenarios": "LIFE'S DAILY DILEMMA",
+  "lifeScenarios": "LIFE'S DILEMMA",
   "@lifeScenarios": {
     "description": "Header title for scenarios screen"
   },
 
-  "applyGitaWisdom": "Clarity for life's daily challenges",
+  "applyGitaWisdom": "Get clarity for your Situations",
   "@applyGitaWisdom": {
     "description": "Subtitle for scenarios screen"
   },
@@ -536,7 +536,7 @@
     "description": "Daily Reflection category option"
   },
 
-  "categoryScenarioWisdom": "Scenario Wisdom",
+  "categoryScenarioWisdom": "Situation Wisdom",
   "@categoryScenarioWisdom": {
     "description": "Scenario Wisdom category option"
   },
@@ -596,7 +596,7 @@
     "description": "Validation message when no rating is selected"
   },
 
-  "chapterScenarios": "CHAPTER {chapter} SCENARIOS",
+  "chapterScenarios": "CHAPTER {chapter} SITUATIONS",
   "@chapterScenarios": {
     "description": "Title for chapter-specific scenarios screen",
     "placeholders": {
@@ -618,7 +618,7 @@
     }
   },
 
-  "showingScenariosForChapter": "Showing scenarios for Chapter {chapter}",
+  "showingScenariosForChapter": "Showing situations for Chapter {chapter}",
   "@showingScenariosForChapter": {
     "description": "Filter status message for chapter scenarios",
     "placeholders": {

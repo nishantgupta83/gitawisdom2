@@ -280,8 +280,8 @@ class _JournalScreenState extends State<JournalScreen> {
       child: Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: Card(
-          elevation: 8,
-          color: theme.colorScheme.surface.withValues(alpha: 0.98), // Increased from 0.95 for better readability
+          elevation: 2, // Reduced from 8 for modern, subtle depth
+          color: theme.colorScheme.surface.withValues(alpha: 0.98),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
@@ -290,27 +290,101 @@ class _JournalScreenState extends State<JournalScreen> {
                 : Colors.black.withValues(alpha: 0.05),
             ),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Date, Category and Rating - Responsive Layout
-                _buildResponsiveDateCategoryRating(entry, theme, context),
-                const SizedBox(height: 12),
-                
-                // Reflection Text
-                Text(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Metadata header with background tint for visual grouping
+              _buildMetadataHeader(entry, theme, context),
+
+              // Reflection content - flows directly from header (no gap)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(
                   entry.reflection,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: theme.colorScheme.onSurface,
+                    height: 1.6, // Better line spacing
+                    fontSize: 15, // Slightly larger for readability
                   ),
                   maxLines: null,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Build metadata header with visual grouping via background tint
+  Widget _buildMetadataHeader(JournalEntry entry, ThemeData theme, BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 12),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.15),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(16),
+          topRight: Radius.circular(16),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Category and Date (vertical stack for better hierarchy)
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Category chip - primary focus
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Text(
+                    entry.category,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 12, // Increased from 10 for accessibility
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                // Date - secondary info
+                Text(
+                  entry.dateCreated.toLocal().toIso8601String().split('T').first,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    fontSize: 12,
+                  ),
                 ),
               ],
             ),
           ),
-        ),
+          const SizedBox(width: 12),
+          // Rating stars with screen reader support
+          Semantics(
+            label: '${entry.rating} out of 5 stars',
+            readOnly: true,
+            child: Row(
+              children: List.generate(5, (i) {
+                return Icon(
+                  i < entry.rating ? Icons.star_rounded : Icons.star_outline_rounded,
+                  color: Colors.amber[700],
+                  size: 18, // Increased from 14-16 for better visibility
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -341,141 +415,6 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  /// Build responsive date/category/rating layout to prevent overflow
-  Widget _buildResponsiveDateCategoryRating(JournalEntry entry, ThemeData theme, BuildContext context) {
-    final textScaleFactor = MediaQuery.of(context).textScaler.scale(1.0);
-    final screenWidth = MediaQuery.of(context).size.width;
-    
-    // Use Column layout for large text or narrow screens to prevent overflow
-    final useColumnLayout = textScaleFactor > 1.1 || screenWidth < 360;
-    
-    if (useColumnLayout) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Date and category
-          Row(
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.dateCreated.toLocal().toIso8601String().split('T').first,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                        fontWeight: FontWeight.w500,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer.withValues(alpha: 0.6), // Increased from 0.3 for WCAG compliance
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: theme.colorScheme.primary.withValues(alpha: 0.4), // Increased from 0.2 for better visibility
-                          width: 1,
-                        ),
-                      ),
-                      child: Text(
-                        entry.category,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer, // Changed from primary for WCAG contrast compliance
-                          fontSize: 10,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Rating stars in separate row
-          Row(
-            children: [
-              Text(
-                'Rating: ',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
-                ),
-              ),
-              ...List.generate(5, (j) {
-                return Icon(
-                  j < entry.rating ? Icons.star : Icons.star_border,
-                  color: Colors.amber,
-                  size: 16,
-                );
-              }),
-            ],
-          ),
-        ],
-      );
-    } else {
-      // Original Row layout for normal text sizes
-      return Row(
-        children: [
-          Expanded(
-            flex: 4, // Give more space to left side
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  entry.dateCreated.toLocal().toIso8601String().split('T').first,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w500,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.6), // Increased from 0.3 for WCAG compliance
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: theme.colorScheme.primary.withValues(alpha: 0.4), // Increased from 0.2 for better visibility
-                      width: 1,
-                    ),
-                  ),
-                  child: Text(
-                    entry.category,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer, // Changed from primary for WCAG contrast compliance
-                      fontSize: 10,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          // Fixed-width stars container
-          SizedBox(
-            width: 100, // Fixed width to prevent overflow
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: List.generate(5, (j) {
-                return Icon(
-                  j < entry.rating ? Icons.star : Icons.star_border,
-                  color: Colors.amber,
-                  size: 14, // Slightly smaller in row layout
-                );
-              }),
-            ),
-          ),
-        ],
-      );
-    }
-  }
 
   /// Delete journal entry with feedback
   Future<void> _deleteJournalEntry(JournalEntry entry, AppLocalizations localizations) async {

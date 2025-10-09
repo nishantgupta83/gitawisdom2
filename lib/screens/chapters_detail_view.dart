@@ -415,7 +415,7 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                   final isLast = index == _scenarios.length - 1;
 
                                   return [
-                                    // Scenario container with purple gradient styling (reduced by 30%)
+                                    // Scenario container with darker purple gradient (same as home screen dilemmas)
                                     Container(
                                       margin: const EdgeInsets.symmetric(vertical: 8),
                                       padding: const EdgeInsets.all(16),
@@ -424,18 +424,18 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                           begin: Alignment.topLeft,
                                           end: Alignment.bottomRight,
                                           colors: [
-                                            Colors.deepPurple.shade400.withValues(alpha: 0.5),
-                                            Colors.purple.shade300.withValues(alpha: 0.5),
-                                            Colors.indigo.shade300.withValues(alpha: 0.5),
+                                            Colors.deepPurple.shade600,
+                                            Colors.purple.shade500,
+                                            Colors.indigo.shade500,
                                           ],
                                           stops: const [0.0, 0.5, 1.0],
                                         ),
                                         borderRadius: BorderRadius.circular(16),
                                         boxShadow: [
                                           BoxShadow(
-                                            color: Colors.purple.withValues(alpha:0.2),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 4),
+                                            color: Colors.purple.withValues(alpha:0.3),
+                                            blurRadius: 15,
+                                            offset: const Offset(0, 8),
                                           ),
                                         ],
                                       ),

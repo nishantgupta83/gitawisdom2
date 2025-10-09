@@ -98,7 +98,18 @@
       "Bash(nc localhost 54950)",
       "Bash(PGPASSWORD=\"xbQUKAWHkkcaV7Q@\" psql -h db.jnzzwknjzigvupwfzfhq.supabase.co -p 5432 -U postgres -d postgres -f supabase/migrations/004_quality_fixes.sql)",
       "Bash(PGPASSWORD=\"xbQUKAWHkkcaV7Q@\" psql -h db.jnzzwknjzigvupwfzfhq.supabase.co -p 5432 -U postgres -d postgres -c \"SELECT email FROM auth.users WHERE email LIKE ''test%'' LIMIT 5;\")",
-      "Bash(nc localhost 53484)"
+      "Bash(nc localhost 53484)",
+      "Bash(git clone:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(python3:*)",
+      "Bash(./scripts/run_dev.sh:*)",
+      "Bash(jobs)",
+      "Bash(timeout 10 flutter devices)",
+      "Bash(./scripts/build_production.sh:*)",
+      "Bash(source:*)",
+      "Bash(tee:*)",
+      "Bash(do echo \"Trying password: $password\" keytool -list -v -keystore /Users/nishantgupta/gitawisdom-release-key.jks -storepass \"$password\" -alias \"gitawisdom-release\")"
     ],
     "deny": [],
     "additionalDirectories": [

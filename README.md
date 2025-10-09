@@ -11,10 +11,12 @@ GitaWisdom transforms abstract spiritual teachings into practical guidance for m
 - **🚀 Production Ready**: Published on Google Play Store with comprehensive security hardening
 - **🔐 Security Hardened**: Complete production-grade security infrastructure implemented
 - **📲 iOS Ready**: App Store ready with Apple compliance fixes and security audit complete
-- **🤖 AI-Enhanced**: Multi-layer search with progressive caching and intelligent fallback
+- **🔍 Search Enhanced**: Multi-layer intelligent search with progressive caching and semantic matching
 - **👥 User Testing**: Closed testing with positive feedback
-- **🎨 Version**: v2.3.0+24 with Google Play 2024 compliance and security hardening
-- **🔧 Latest Update (Oct 6, 2025)**: Google Play compliance implementation with account deletion, encryption, and Android 13+ permissions
+- **🎨 Version**: v2.3.0+24 with Google Play 2024 compliance and critical UX improvements
+- **🔧 Latest Updates**:
+  - **Oct 8, 2025**: Critical bug fixes (chapters loading, OAuth error display, text alignment) + Enhanced journal UX with emoji hints, gradient buttons, lavender theme, and haptic feedback
+  - **Oct 6, 2025**: Google Play compliance implementation with account deletion, encryption, and Android 13+ permissions
 
 ## 🔐 Security & Compliance Infrastructure
 
@@ -82,10 +84,10 @@ The 32 services represent **purposeful architecture**, not bloat:
 - `background_music_service.dart` - Meditation audio support
 - `narration_service.dart` - Text-to-speech functionality
 
-#### **AI-Powered Search** (ENHANCED)
+#### **Intelligent Search System** (ENHANCED)
 - `intelligent_scenario_search.dart` - Multi-layer search orchestrator with fuzzy fallback
 - `keyword_search_service.dart` - TF-IDF keyword search with optimized quality thresholds
-- `enhanced_semantic_search_service.dart` - Advanced NLP semantic search (no TFLite model required)
+- `enhanced_semantic_search_service.dart` - Advanced NLP semantic search (no external dependencies)
 - `search_service.dart` - Universal search interface across 1200+ scenarios
 
 #### **User Experience**
@@ -176,16 +178,34 @@ flutter test test/integration/     # End-to-end flows
 
 ## 📊 Key Features
 
-### 🤖 AI-Powered Intelligent Search (ENHANCED)
+### 🔍 Intelligent Search System (ENHANCED)
 - **Progressive Dataset Access**: Search with multi-tier caching architecture for improved performance
 - **Multi-Layer Search**: TF-IDF keyword search + Enhanced semantic NLP + Fuzzy fallback
-- **Privacy-First AI**: 100% offline semantic search using advanced NLP algorithms
+- **Privacy-First Design**: 100% offline semantic search using advanced NLP algorithms
 - **Intelligent Quality Thresholds**: Optimized scoring ensures relevant results are returned
 - **Comprehensive Fallback**: Keyword → Semantic → Category-based → Fuzzy matching
 - **Universal Search**: Find verses, chapters, and scenarios with natural language queries
 - **Performance Optimized**: Efficient keyword search with semantic analysis when needed
 
-### 🎨 Modern UI/UX Enhancements (NEW)
+### 🎨 Modern UI/UX Enhancements (LATEST - Oct 8, 2025)
+
+#### Critical Bug Fixes
+- **✅ Chapters Loading**: Implemented instant cache-first loading with background refresh and parallel network fetching
+- **✅ OAuth Error Display**: Fixed Google sign-in error banner showing after successful authentication
+- **✅ Text Alignment**: Fixed Heart/Duty Says sections - text now properly starts below icons (critical for large font mode)
+- **✅ Search Interface**: Removed duplicate search indicators for cleaner UI
+- **✅ Semantic Search**: Always-on intelligent search (no longer requires manual activation)
+
+#### Enhanced Journal Experience
+- **📝 Emoji Rating Hints**: Tappable emoji row above stars (😞 😐 🙂 😃 🤩) with visual selection feedback
+- **🎨 Gradient Save Button**: Purple gradient with pulsating animation and glow effect
+- **💜 Lavender Theme**: Radial gradient background (lavender to white) for calming aesthetic
+- **🔘 Side-by-Side Buttons**: Equal-width Cancel/Save layout with modern outlined Cancel button
+- **📊 Dynamic Labels**: Rating-specific labels ("Feeling Challenged" → "Truly Blessed")
+- **📳 Haptic Feedback**: Medium impact feedback on emoji and star taps for tactile confirmation
+- **✅ Success Toast**: Green confirmation with "View Entries" action button to navigate to journal
+
+#### Previous Enhancements (Sept 28, 2024)
 - **Transparent Navigation**: Completely transparent bottom navigation bar showing background imagery
 - **Modern Design**: Clean, minimalist interface with just icons and text
 - **Background Consistency**: Unified visual experience across all screens
@@ -314,7 +334,7 @@ just_audio: ^0.9.36     # Audio playback
 flutter_local_notifications: ^19.4.1  # User engagement
 ```
 
-### AI & Search
+### Search & Intelligence
 ```yaml
 tflite_flutter: ^0.11.0     # TensorFlow Lite for semantic search
 ```

@@ -1,15 +1,14 @@
 // lib/screens/splash_screen.dart
 
 import 'dart:io' show Platform;
-import 'dart:async' show TimeoutException;
+import 'dart:async' show TimeoutException, Timer;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import '../core/app_config.dart';
 import '../core/app_initializer.dart';
 import '../core/navigation/navigation_service.dart';
-import '../core/navigation/app_router.dart';
 import '../services/supabase_auth_service.dart';
+import '../services/progressive_scenario_service.dart';
 import 'root_scaffold.dart';
 import 'modern_auth_screen.dart';
 
@@ -23,10 +22,44 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  double _loadingProgress = 0.0;
+  String _loadingMessage = 'Initializing...';
+  Timer? _progressTimer;
+
   @override
   void initState() {
     super.initState();
+    _startProgressTracking();
     _initializeAndNavigate();
+  }
+
+  @override
+  void dispose() {
+    _progressTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Start tracking loading progress
+  void _startProgressTracking() {
+    _progressTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      final progress = ScenarioServiceAdapter.instance.loadingProgress;
+      final loaded = progress['loaded'] ?? 0;
+      final total = progress['total'] ?? 1;
+
+      setState(() {
+        _loadingProgress = total > 0 ? (loaded / total) : 0.0;
+        if (loaded > 0 && total > 0) {
+          _loadingMessage = 'Loading wisdom... $loaded/$total';
+        } else {
+          _loadingMessage = 'Initializing...';
+        }
+      });
+    });
   }
 
   /// Initialize remaining services and navigate to main app with comprehensive error handling
@@ -177,10 +210,28 @@ class _SplashScreenState extends State<SplashScreen> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                
-                // Loading indicator
-                const CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(AppConfig.splashIconColor),
+
+                // Loading progress bar
+                SizedBox(
+                  width: 250,
+                  child: Column(
+                    children: [
+                      LinearProgressIndicator(
+                        value: _loadingProgress > 0 ? _loadingProgress : null,
+                        valueColor: const AlwaysStoppedAnimation<Color>(AppConfig.splashIconColor),
+                        backgroundColor: AppConfig.splashIconColor.withValues(alpha: 0.3),
+                        minHeight: 4,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        _loadingMessage,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppConfig.splashIconColor.withValues(alpha: 0.9),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 
                 // Version info (only in debug mode)

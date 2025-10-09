@@ -313,6 +313,10 @@ class ScenarioServiceAdapter {
   /// Get scenario count - returns count of currently loaded scenarios
   int get scenarioCount => _progressiveService.scenarioCount;
 
+  /// Get loading progress for UI indicators (splash screen, progress bars)
+  /// Returns map with keys: 'loaded', 'total', 'percentage'
+  Map<String, dynamic> get loadingProgress => _progressiveService.getLoadingProgress();
+
   /// Refresh from server
   Future<void> refreshFromServer() async {
     await _progressiveService.refreshFromServer();

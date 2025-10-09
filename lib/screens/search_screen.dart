@@ -1,6 +1,5 @@
 // lib/screens/search_screen.dart
 
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../services/intelligent_scenario_search.dart';
 import '../models/scenario.dart';
@@ -15,7 +14,7 @@ class SearchScreen extends StatefulWidget {
   State<SearchScreen> createState() => _SearchScreenState();
 }
 
-class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderStateMixin {
+class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   final IntelligentScenarioSearch _searchService = IntelligentScenarioSearch.instance;
@@ -28,21 +27,9 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   int _currentMaxResults = 20;
   bool _hasMoreResults = true;
 
-  late AnimationController _glowAnimationController;
-  late Animation<double> _glowAnimation;
-
   @override
   void initState() {
     super.initState();
-
-    // Initialize glow animation
-    _glowAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 2000),
-      vsync: this,
-    );
-
-    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_glowAnimationController);
-    _glowAnimationController.repeat();
 
     _initializeSearch();
 
@@ -70,7 +57,6 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   void dispose() {
     _searchController.dispose();
     _focusNode.dispose();
-    _glowAnimationController.dispose();
     super.dispose();
   }
 
@@ -118,51 +104,34 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
   }
 
   Widget _buildSearchBar(ThemeData theme) {
-    return Container(
-      margin: const EdgeInsets.all(16),
+    // Shrink header when search results are visible
+    final bool hasSearchResults = _results.isNotEmpty || _lastQuery.isNotEmpty;
+    // Hide "Powered by AI" when welcome state is showing OR when there are results
+    // Welcome state = no results AND no query AND not initializing
+    final bool showWelcomeState = _results.isEmpty && _lastQuery.isEmpty && !_isInitializing;
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      margin: EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: hasSearchResults ? 8 : 16, // Reduced vertical margin when searching
+      ),
       child: Column(
         children: [
-          AnimatedBuilder(
-            animation: _glowAnimation,
-            builder: (context, child) {
-              // Calculate rotation angle for snake effect
-              final angle = _glowAnimation.value * 2 * math.pi;
-
-              return Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF9C27B0).withValues(alpha: 0.8),
-                      blurRadius: 20,
-                      spreadRadius: math.sin(angle) * 2 + 1,
-                      offset: Offset(
-                        math.cos(angle) * 2,
-                        math.sin(angle) * 2,
+          TextField(
+            controller: _searchController,
+            focusNode: _focusNode,
+            decoration: InputDecoration(
+              hintText: 'Ask about any life situation...',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        minHeight: 44,
+                        minWidth: 44,
                       ),
-                    ),
-                    BoxShadow(
-                      color: const Color(0xFFE91E63).withValues(alpha: 0.6),
-                      blurRadius: 15,
-                      spreadRadius: math.cos(angle + math.pi / 2) * 2 + 1,
-                      offset: Offset(
-                        math.cos(angle + math.pi) * 2,
-                        math.sin(angle + math.pi) * 2,
-                      ),
-                    ),
-                  ],
-                ),
-                child: child!,
-              );
-            },
-            child: TextField(
-              controller: _searchController,
-              focusNode: _focusNode,
-              decoration: InputDecoration(
-                hintText: 'Ask about any life situation...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
+                      child: IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
@@ -171,49 +140,70 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
                             _lastQuery = '';
                           });
                         },
-                      )
-                    : null,
-                filled: true,
-                fillColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
+                      ),
+                    )
+                  : null,
+              filled: true,
+              fillColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide(
+                  color: const Color(0xFF9C27B0),
+                  width: 1.5,
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide(
-                    color: theme.colorScheme.primary,
-                    width: 2,
-                  ),
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               ),
-              onSubmitted: (value) {
-                if (value.trim().isNotEmpty) {
-                  _performSearch();
-                }
-              },
-              textInputAction: TextInputAction.search,
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide(
+                  color: const Color(0xFF9C27B0),
+                  width: 2,
+                ),
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(25),
+                borderSide: BorderSide(
+                  color: const Color(0xFF9C27B0),
+                  width: 1.5,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             ),
+            onSubmitted: (value) {
+              if (value.trim().isNotEmpty) {
+                _performSearch();
+              }
+            },
+            textInputAction: TextInputAction.search,
           ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.auto_awesome,
-                size: 14,
-                color: theme.colorScheme.primary.withValues(alpha:0.7),
-              ),
-              const SizedBox(width: 4),
-              Text(
-                'Powered by AI',
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.primary.withValues(alpha:0.7),
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
+          // Hide "Powered by AI" text when:
+          // 1. Welcome state is showing (has its own AI icon)
+          // 2. Search results are visible
+          AnimatedSize(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            child: (showWelcomeState || hasSearchResults)
+                ? const SizedBox.shrink()
+                : Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.auto_awesome,
+                          size: 14,
+                          color: theme.colorScheme.primary.withValues(alpha:0.7),
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          'Powered by AI',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary.withValues(alpha:0.7),
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
           ),
         ],
       ),
@@ -229,7 +219,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(
-              'Showing ${_results.length} scenarios for "$_lastQuery"',
+              'Showing ${_results.length} situations for "$_lastQuery"',
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
@@ -267,7 +257,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             padding: const EdgeInsets.all(24.0),
             child: Center(
               child: Text(
-                'All matching scenarios shown',
+                'All matching situations shown',
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                 ),
@@ -411,7 +401,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
             ),
             const SizedBox(height: 16),
             Text(
-              'No scenarios found',
+              'No situations found',
               style: theme.textTheme.titleLarge?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha:0.7),
               ),
@@ -453,7 +443,7 @@ class _SearchScreenState extends State<SearchScreen> with SingleTickerProviderSt
               ),
               const SizedBox(height: 12),
               Text(
-                'Search across 1280 life scenarios using intelligent keyword and semantic AI search.',
+                'Search across 1280 life situations using intelligent keyword and semantic AI search.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                 ),

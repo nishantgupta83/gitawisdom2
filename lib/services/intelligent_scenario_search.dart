@@ -89,41 +89,49 @@ class IntelligentScenarioSearch {
     final stopwatch = Stopwatch()..start();
 
     try {
-      final keywordResults = _keywordService.search(query, maxResults: maxResults * 2);
-
-      if (keywordResults.isNotEmpty && _hasHighQualityMatches(keywordResults)) {
-        stopwatch.stop();
-        debugPrint('✅ Fast keyword search: ${keywordResults.length} results in ${stopwatch.elapsedMilliseconds}ms');
-        return _convertKeywordResults(keywordResults, maxResults);
-      }
-
+      // ALWAYS use AI semantic search for best results
       if (_semanticService.isInitialized) {
-        debugPrint('🧠 Falling back to semantic search...');
+        debugPrint('🧠 Using AI semantic search...');
+
+        // Run keyword search in parallel to boost matching results
+        final keywordResults = _keywordService.search(query, maxResults: maxResults * 2);
         final semanticResults = await _semanticService.search(query, maxResults: maxResults);
 
         if (semanticResults.isNotEmpty) {
+          // Combine AI results with keyword boosting for best accuracy
           final combined = _combineResults(keywordResults, semanticResults, maxResults);
           stopwatch.stop();
-          debugPrint('✅ Hybrid search: ${combined.length} results in ${stopwatch.elapsedMilliseconds}ms');
+          debugPrint('✅ AI-powered hybrid search: ${combined.length} results in ${stopwatch.elapsedMilliseconds}ms');
           return combined;
-        }
-      }
-
-      // If no semantic results, try broader keyword search with relaxed matching
-      if (keywordResults.isEmpty) {
-        debugPrint('🔍 Trying broader keyword search...');
-        final broaderResults = await _tryBroaderSearch(query, maxResults);
-        if (broaderResults.isNotEmpty) {
+        } else {
+          // If AI returns no results, use keyword search as fallback
+          debugPrint('⚠️ AI search returned no results, using keyword fallback');
           stopwatch.stop();
-          debugPrint('✅ Broader search: ${broaderResults.length} results in ${stopwatch.elapsedMilliseconds}ms');
-          return broaderResults;
+          final keywordOnly = _convertKeywordResults(keywordResults, maxResults);
+          debugPrint('✅ Keyword fallback: ${keywordOnly.length} results in ${stopwatch.elapsedMilliseconds}ms');
+          return keywordOnly;
         }
-      }
+      } else {
+        // AI not initialized yet - use keyword search only
+        debugPrint('⚠️ AI semantic search not initialized, using keyword search');
+        final keywordResults = _keywordService.search(query, maxResults: maxResults * 2);
 
-      stopwatch.stop();
-      final keywordOnly = _convertKeywordResults(keywordResults, maxResults);
-      debugPrint('✅ Keyword-only search: ${keywordOnly.length} results in ${stopwatch.elapsedMilliseconds}ms');
-      return keywordOnly;
+        if (keywordResults.isEmpty) {
+          // Try broader keyword search if no results
+          debugPrint('🔍 Trying broader keyword search...');
+          final broaderResults = await _tryBroaderSearch(query, maxResults);
+          if (broaderResults.isNotEmpty) {
+            stopwatch.stop();
+            debugPrint('✅ Broader search: ${broaderResults.length} results in ${stopwatch.elapsedMilliseconds}ms');
+            return broaderResults;
+          }
+        }
+
+        stopwatch.stop();
+        final keywordOnly = _convertKeywordResults(keywordResults, maxResults);
+        debugPrint('✅ Keyword-only search: ${keywordOnly.length} results in ${stopwatch.elapsedMilliseconds}ms');
+        return keywordOnly;
+      }
 
     } catch (e) {
       debugPrint('❌ Search failed: $e');

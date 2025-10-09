@@ -4,7 +4,6 @@ import 'dart:math' show sin, cos, pi;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/supabase_auth_service.dart';
-import '../core/app_config.dart';
 import 'root_scaffold.dart';
 import '../widgets/social_auth_buttons.dart';
 
@@ -34,39 +33,6 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   int _currentPage = 0; // 0 = Sign In, 1 = Sign Up
   bool _rememberMe = false;
 
-  // Test accounts for development - Create these accounts using sign up
-  final List<Map<String, String>> _testAccounts = [
-    {
-      'email': 'test@gitawisdom.com',
-      'password': 'Test123!',
-      'name': 'Test User',
-      'role': 'Regular User'
-    },
-    {
-      'email': 'demo@gitawisdom.com',
-      'password': 'Demo123!',
-      'name': 'Demo User',
-      'role': 'Demo Account'
-    },
-    {
-      'email': 'developer@gitawisdom.com',
-      'password': 'Dev123!',
-      'name': 'Developer User',
-      'role': 'Developer'
-    },
-    {
-      'email': 'tester@gitawisdom.com',
-      'password': 'Tester123!',
-      'name': 'QA Tester',
-      'role': 'QA Tester'
-    },
-    {
-      'email': 'user@gitawisdom.com',
-      'password': 'User123!',
-      'name': 'Regular User',
-      'role': 'Standard User'
-    }
-  ];
 
   @override
   void initState() {
@@ -401,9 +367,6 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
 
               // Auth form
               _buildAuthForm(theme, authService),
-
-              // Test accounts section
-              if (_currentPage == 0) _buildTestAccountsSection(theme),
             ],
           ),
         ),
@@ -841,53 +804,6 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     );
   }
 
-  Widget _buildTestAccountsSection(ThemeData theme) {
-    return Column(
-      children: [
-        const SizedBox(height: 24),
-        Row(
-          children: [
-            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Test Accounts',
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha:0.6),
-                  fontSize: 12,
-                ),
-              ),
-            ),
-            Expanded(child: Divider(color: theme.colorScheme.outline.withValues(alpha:0.3))),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            children: _testAccounts.map((account) {
-              return ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: theme.colorScheme.primary.withValues(alpha:0.2),
-                  child: Icon(Icons.person, color: theme.colorScheme.primary),
-                ),
-                title: Text(account['name']!, style: const TextStyle(fontSize: 14)),
-                subtitle: Text('${account['email']} • ${account['password']}', 
-                  style: TextStyle(fontSize: 12, color: theme.colorScheme.onSurface.withValues(alpha:0.6))),
-                trailing: TextButton(
-                  onPressed: () => _useTestAccount(account),
-                  child: const Text('Use', style: TextStyle(fontSize: 12)),
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
 
   Widget _buildFooter(ThemeData theme, SupabaseAuthService authService) {
     return Column(
@@ -953,11 +869,6 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     _passwordController.clear();
     _nameController.clear();
     _confirmPasswordController.clear();
-  }
-
-  void _useTestAccount(Map<String, String> account) {
-    _emailController.text = account['email']!;
-    _passwordController.text = account['password']!;
   }
 
   void _handleSignIn() async {

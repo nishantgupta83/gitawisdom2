@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../services/supabase_auth_service.dart';
 
 /// Social authentication buttons widget
-/// Displays Google, Apple, and Facebook sign-in options
+/// Displays Google and Apple sign-in options
 class SocialAuthButtons extends StatelessWidget {
   final SupabaseAuthService authService;
 
@@ -37,18 +37,6 @@ class SocialAuthButtons extends StatelessWidget {
     }
   }
 
-  Future<void> _handleFacebookSignIn(BuildContext context) async {
-    final success = await authService.signInWithFacebook();
-    if (!success && context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authService.error ?? 'Facebook sign-in failed'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -74,16 +62,6 @@ class SocialAuthButtons extends StatelessWidget {
           backgroundColor: isDark ? Colors.white : Colors.black,
           foregroundColor: isDark ? Colors.black : Colors.white,
           icon: Icons.apple,
-        ),
-
-        const SizedBox(width: 16),
-
-        // Facebook Sign-In
-        _CircularSocialButton(
-          onPressed: authService.isLoading ? null : () => _handleFacebookSignIn(context),
-          backgroundColor: const Color(0xFF1877F2),
-          foregroundColor: Colors.white,
-          icon: Icons.facebook,
         ),
       ],
     );

@@ -177,6 +177,12 @@ class _MoreScreenState extends State<MoreScreen> {
                       subtitle: Text(authService.userEmail ?? ''),
                     ),
                     ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('Sign Out'),
+                      subtitle: const Text('Sign out of your account'),
+                      onTap: () => _handleSignOut(context, authService),
+                    ),
+                    ListTile(
                       leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
                       title: Text('Delete Account', style: TextStyle(color: theme.colorScheme.error)),
                       subtitle: const Text('Permanently delete your account and all data'),
@@ -261,7 +267,7 @@ class _MoreScreenState extends State<MoreScreen> {
           ListTile(
             leading: const Icon(Icons.search),
             title: const Text('Search'),
-            subtitle: const Text('Find life scenarios and wisdom'),
+            subtitle: const Text('Find life situations and wisdom'),
             onTap: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const SearchScreen()),
@@ -388,6 +394,84 @@ class _MoreScreenState extends State<MoreScreen> {
     );
   }
 
+  /// Handle sign out with confirmation
+  Future<void> _handleSignOut(BuildContext context, SupabaseAuthService authService) async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Sign Out?'),
+          content: const Text('Are you sure you want to sign out?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: const Text('Sign Out'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: Card(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Signing out...'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    try {
+      // Perform sign out
+      await authService.signOut();
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Signed out successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      // Navigation is handled automatically by auth state listener
+      // in main.dart - user will be redirected to home/auth screen
+    } catch (e) {
+      debugPrint('❌ Sign out error: $e');
+      if (!mounted) return;
+
+      Navigator.of(context).pop(); // Close loading dialog
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Failed to sign out: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   /// Show delete account confirmation dialog
   Future<void> _showDeleteAccountDialog(BuildContext context, SupabaseAuthService authService) async {
     final theme = Theme.of(context);
@@ -469,20 +553,22 @@ class _MoreScreenState extends State<MoreScreen> {
       );
 
       // Clear all local Hive data
-      // List all known Hive boxes that contain user data
+      // List all known Hive boxes that contain USER-SPECIFIC data only
+      // DO NOT delete shared content (scenarios, chapters, verses) - these are the same for all users!
       final boxesToDelete = [
         'journal_entries',
         'bookmarks',  // FIXED: was 'user_bookmarks' (wrong name)
         'user_progress',
         'settings',
-        'scenarios',
-        'scenarios_critical',
-        'scenarios_frequent',
-        'scenarios_complete',
-        'daily_verses',
-        'chapters',
-        'chapter_summaries',
-        'search_cache',
+        // NOTE: Scenarios, chapters, daily_verses are SHARED content - do not delete!
+        // 'scenarios',           // REMOVED: shared content
+        // 'scenarios_critical',  // REMOVED: shared content
+        // 'scenarios_frequent',  // REMOVED: shared content
+        // 'scenarios_complete',  // REMOVED: shared content
+        // 'daily_verses',        // REMOVED: shared content
+        // 'chapters',            // REMOVED: shared content
+        // 'chapter_summaries',   // REMOVED: shared content
+        // 'search_cache',        // REMOVED: shared content (can keep for performance)
       ];
 
       for (final boxName in boxesToDelete) {

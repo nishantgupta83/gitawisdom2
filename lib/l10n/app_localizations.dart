@@ -112,10 +112,10 @@ abstract class AppLocalizations {
   /// **'Chapters'**
   String get chaptersTab;
 
-  /// Scenarios tab label in bottom navigation
+  /// Situations tab label in bottom navigation
   ///
   /// In en, this message translates to:
-  /// **'Scenarios'**
+  /// **'Situations'**
   String get scenariosTab;
 
   /// Journal tab label in bottom navigation
@@ -169,7 +169,7 @@ abstract class AppLocalizations {
   /// Button text to view all scenarios with count
   ///
   /// In en, this message translates to:
-  /// **'View Scenarios ({count})'**
+  /// **'View Situations ({count})'**
   String viewScenarios(int count);
 
   /// Button text to read all verses with count
@@ -181,7 +181,7 @@ abstract class AppLocalizations {
   /// Section title for related scenarios in chapter detail
   ///
   /// In en, this message translates to:
-  /// **'Related Scenarios'**
+  /// **'Related Situations'**
   String get relatedScenarios;
 
   /// Section title for key teachings in chapter detail
@@ -199,13 +199,13 @@ abstract class AppLocalizations {
   /// Button text to expand scenario list
   ///
   /// In en, this message translates to:
-  /// **'View {count} more scenarios'**
+  /// **'View {count} more situations'**
   String viewMoreScenarios(int count);
 
   /// Button text to collapse scenario list
   ///
   /// In en, this message translates to:
-  /// **'Show fewer scenarios'**
+  /// **'Show fewer situations'**
   String get showFewerScenarios;
 
   /// Loading state text
@@ -403,13 +403,13 @@ abstract class AppLocalizations {
   /// Label for scenario count
   ///
   /// In en, this message translates to:
-  /// **'Scenarios'**
+  /// **'Situations'**
   String get scenariosCount;
 
   /// Main title for scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'SCENARIOS'**
+  /// **'SITUATIONS'**
   String get scenarios;
 
   /// Subtitle for scenarios screen
@@ -421,25 +421,25 @@ abstract class AppLocalizations {
   /// Search hint text for scenarios
   ///
   /// In en, this message translates to:
-  /// **'Search scenarios by title or description...'**
+  /// **'Search situations by title or description...'**
   String get searchScenarios;
 
   /// Empty state when no scenarios exist
   ///
   /// In en, this message translates to:
-  /// **'No scenarios available'**
+  /// **'No situations available'**
   String get noScenariosAvailable;
 
   /// Empty state when search has no results
   ///
   /// In en, this message translates to:
-  /// **'No scenarios match your search'**
+  /// **'No situations match your search'**
   String get noScenariosMatch;
 
   /// Error message when refresh fails
   ///
   /// In en, this message translates to:
-  /// **'Failed to refresh scenarios'**
+  /// **'Failed to refresh situations'**
   String get failedToRefresh;
 
   /// Title for About screen
@@ -457,7 +457,7 @@ abstract class AppLocalizations {
   /// App description in About screen
   ///
   /// In en, this message translates to:
-  /// **'A bite-size guide to the Bhagavad Gita, offering chapters, scenarios, and reflections—now with custom themes, language support, and more.'**
+  /// **'A bite-size guide to the Bhagavad Gita, offering chapters, situations, and reflections—now with custom themes, language support, and more.'**
   String get aboutDescription;
 
   /// Famous Gita quote in About screen
@@ -583,13 +583,13 @@ abstract class AppLocalizations {
   /// Header title for scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'LIFE\'S DAILY DILEMMA'**
+  /// **'LIFE\'S DILEMMA'**
   String get lifeScenarios;
 
   /// Subtitle for scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'Clarity for life\'s daily challenges'**
+  /// **'Get clarity for your Situations'**
   String get applyGitaWisdom;
 
   /// Back button tooltip
@@ -691,7 +691,7 @@ abstract class AppLocalizations {
   /// Scenario Wisdom category option
   ///
   /// In en, this message translates to:
-  /// **'Scenario Wisdom'**
+  /// **'Situation Wisdom'**
   String get categoryScenarioWisdom;
 
   /// Chapter Insights category option
@@ -763,7 +763,7 @@ abstract class AppLocalizations {
   /// Title for chapter-specific scenarios screen
   ///
   /// In en, this message translates to:
-  /// **'CHAPTER {chapter} SCENARIOS'**
+  /// **'CHAPTER {chapter} SITUATIONS'**
   String chapterScenarios(int chapter);
 
   /// Subtitle for chapter-specific scenarios
@@ -775,7 +775,7 @@ abstract class AppLocalizations {
   /// Filter status message for chapter scenarios
   ///
   /// In en, this message translates to:
-  /// **'Showing scenarios for Chapter {chapter}'**
+  /// **'Showing situations for Chapter {chapter}'**
   String showingScenariosForChapter(int chapter);
 
   /// Filter status message for tag-filtered scenarios

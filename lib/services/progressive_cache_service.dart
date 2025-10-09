@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 
 import '../models/scenario.dart';
-import '../services/service_locator.dart';
 
 /// Cache levels for progressive loading strategy
 enum CacheLevel {
@@ -99,7 +98,7 @@ class HybridStorage {
     // Try warm caches (fast) - check in priority order
     for (final level in CacheLevel.values) {
       final box = _warmCaches[level];
-      if (box != null) {
+      if (box != null && box.isOpen) {
         final scenario = box.get(id);
         if (scenario != null) {
           debugPrint('📦 Warm cache hit (${level.name}) for scenario: $id');
@@ -110,7 +109,7 @@ class HybridStorage {
     }
 
     // Try cold cache (slower but still local)
-    if (_coldCache != null) {
+    if (_coldCache != null && _coldCache!.isOpen) {
       final compressed = _coldCache!.get(id);
       if (compressed != null) {
         try {
@@ -136,7 +135,7 @@ class HybridStorage {
     await _ensureInitialized();
 
     final box = _warmCaches[level];
-    if (box == null) return [];
+    if (box == null || !box.isOpen) return [];
 
     final scenarios = box.values.toList();
     debugPrint('📊 Retrieved ${scenarios.length} scenarios from ${level.name} cache');
@@ -150,11 +149,15 @@ class HybridStorage {
     try {
       // Store in warm cache for the specified level
       final box = _warmCaches[level];
-      await box?.put(id, scenario);
+      if (box != null && box.isOpen) {
+        await box.put(id, scenario);
+      }
 
       // Also store in cold cache for completeness
       final compressed = jsonEncode(scenario.toJson());
-      await _coldCache?.put(id, compressed);
+      if (_coldCache != null && _coldCache!.isOpen) {
+        await _coldCache!.put(id, compressed);
+      }
 
       // If it's frequently accessed, promote to hot cache
       if (_isFrequentlyAccessed(id)) {
@@ -174,7 +177,7 @@ class HybridStorage {
 
     try {
       final box = _warmCaches[level];
-      if (box != null) {
+      if (box != null && box.isOpen) {
         await box.putAll(scenarios);
         debugPrint('📦 Stored ${scenarios.length} scenarios in ${level.name} cache');
       }
@@ -184,7 +187,9 @@ class HybridStorage {
       for (final entry in scenarios.entries) {
         compressedMap[entry.key] = jsonEncode(entry.value.toJson());
       }
-      await _coldCache?.putAll(compressedMap);
+      if (_coldCache != null && _coldCache!.isOpen) {
+        await _coldCache!.putAll(compressedMap);
+      }
 
     } catch (e) {
       debugPrint('❌ Error storing scenario batch: $e');
@@ -194,31 +199,36 @@ class HybridStorage {
   /// Check if scenarios exist at a specific level
   bool hasDataAtLevel(CacheLevel level) {
     final box = _warmCaches[level];
-    return box != null && box.isNotEmpty;
+    return box != null && box.isOpen && box.isNotEmpty;
   }
 
   /// Get count of scenarios at each level
   Map<CacheLevel, int> getCacheCounts() {
     final counts = <CacheLevel, int>{};
     for (final level in CacheLevel.values) {
-      counts[level] = _warmCaches[level]?.length ?? 0;
+      final box = _warmCaches[level];
+      counts[level] = (box != null && box.isOpen) ? box.length : 0;
     }
     return counts;
   }
 
   /// Clear specific cache level
   Future<void> clearLevel(CacheLevel level) async {
-    await _warmCaches[level]?.clear();
-    debugPrint('🗑️ Cleared ${level.name} cache');
+    final box = _warmCaches[level];
+    if (box != null && box.isOpen) {
+      await box.clear();
+      debugPrint('🗑️ Cleared ${level.name} cache');
+    }
   }
 
   /// Get cache statistics
   Map<String, dynamic> getStats() {
+    final coldCacheSize = (_coldCache != null && _coldCache!.isOpen) ? _coldCache!.length : 0;
     return {
       'hotCacheSize': _hotCache.length,
       'cacheCounts': getCacheCounts(),
       'totalAccesses': _accessFrequency.length,
-      'coldCacheSize': _coldCache?.length ?? 0,
+      'coldCacheSize': coldCacheSize,
     };
   }
 
@@ -341,9 +351,8 @@ class HybridStorage {
     _accessFrequency.clear();
     _lastAccessed.clear();
 
-    for (final box in _warmCaches.values) {
-      // Don't close Hive boxes as they might be used elsewhere
-    }
+    // Don't close Hive boxes as they might be used elsewhere
+    // _warmCaches remain open for other parts of the app
 
     debugPrint('🔥 HybridStorage disposed');
   }

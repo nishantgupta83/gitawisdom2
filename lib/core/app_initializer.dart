@@ -1,9 +1,7 @@
 // lib/core/app_initializer.dart
 
-import 'dart:io' show Platform, Directory;
-import 'dart:async' show unawaited, TimeoutException;
-import 'dart:isolate';
-import 'package:flutter/foundation.dart' show compute;
+import 'dart:io' show Platform;
+import 'dart:async' show TimeoutException;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -19,7 +17,6 @@ import '../services/journal_service.dart';
 import '../services/app_lifecycle_manager.dart';
 import '../services/background_music_service.dart';
 import '../services/service_locator.dart';
-import '../services/intelligent_scenario_search.dart';
 import '../services/notification_permission_service.dart';
 // import 'hive_manager.dart'; // Removed for simplification
 import 'performance_monitor.dart';
@@ -177,8 +174,9 @@ class AppInitializer {
     // Initialize notification service last (can be deferred)
     // Practice notification service removed for Apple compliance
     
-    // Initialize heavy services in background with proper thread management
-    unawaited(_initializeHeavyServicesInBackground());
+    // Initialize heavy services during splash screen (users expect splash to load)
+    // Changed from unawaited() to await - scenarios load before home screen
+    await _initializeHeavyServicesInBackground();
 
     // Initialize search indexing in background to prevent UI blocking on search screen access
     // unawaited(IntelligentScenarioSearch.instance.initialize()); // Temporarily disabled for auth testing

@@ -406,7 +406,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Find wisdom guide for your daily Dilemma',
+                  'Find wisdom to guide your daily dilemmas',
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: isDark ? Colors.white.withValues(alpha:0.7) : theme.colorScheme.onSurface.withValues(alpha:0.7),
                     fontStyle: FontStyle.italic,
@@ -568,7 +568,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   Widget _buildQuickActionsGrid(ThemeData theme, bool isDark) {
     final actions = [
       {
-        'title': 'Scenarios',
+        'title': 'Situations',
         'subtitle': 'Real-life guidance',
         'icon': Icons.psychology,
         'color': Colors.purple,
@@ -1133,9 +1133,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
         // Service is already initialized and has cached data - much faster!
         debugPrint('✅ Using cached scenarios for dilemmas');
 
-        // We need to access scenarios somehow - let's try searchScenarios with empty query
-        // which should return all scenarios
-        final allScenarios = ScenarioServiceAdapter.instance.searchScenarios('');
+        // Use async search to get ALL scenarios from all cache levels (not just critical)
+        final allScenarios = await ProgressiveScenarioService.instance.searchScenariosAsync('');
         debugPrint('📊 Found ${allScenarios.length} total scenarios for filtering');
 
         if (allScenarios.isNotEmpty) {
@@ -1176,8 +1175,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       debugPrint('⚠️ No cached scenarios - initializing service (may cause performance impact)');
       await ScenarioServiceAdapter.instance.initialize();
 
-      // Try searchScenarios again after initialization
-      final allScenarios = ScenarioServiceAdapter.instance.searchScenarios('');
+      // Try async search again after initialization to get ALL scenarios
+      final allScenarios = await ProgressiveScenarioService.instance.searchScenariosAsync('');
       debugPrint('📊 After initialization: ${allScenarios.length} scenarios available');
 
       if (allScenarios.isNotEmpty) {

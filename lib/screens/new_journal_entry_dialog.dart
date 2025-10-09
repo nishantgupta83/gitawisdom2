@@ -1,4 +1,6 @@
+// Journal Entry Dialog with enhanced UX improvements
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/journal_entry.dart';
 import '../l10n/app_localizations.dart';
 
@@ -22,11 +24,13 @@ class NewJournalEntryDialog extends StatefulWidget {
   _NewJournalEntryDialogState createState() => _NewJournalEntryDialogState();
 }
 
-class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
+class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with SingleTickerProviderStateMixin {
   final _ctrl = TextEditingController();
   int _rating = 3; // Default rating of 3 stars for better UX
   bool _saving = false;
   late String _selectedCategoryKey;
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
   
   static const List<String> _categoryKeys = [
     'categoryGeneral',
@@ -46,13 +50,31 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
     super.initState();
     // Set initial category (from scenario context or default)
     _selectedCategoryKey = widget.initialCategory ?? 'categoryGeneral';
-    
+
     // Pre-fill journal prompt if coming from scenario
     if (widget.scenarioTitle != null) {
       _ctrl.text = 'Reflecting on "${widget.scenarioTitle}":\n\nHow does this scenario relate to my life? What wisdom can I apply from this situation?\n\n';
       // Move cursor to end for user to continue writing
       _ctrl.selection = TextSelection.fromPosition(TextPosition(offset: _ctrl.text.length));
     }
+
+    // Initialize pulse animation for Save button
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.stop();
+    _pulseController.dispose();
+    _ctrl.dispose();
+    super.dispose();
   }
 
   Future<void> _doSave() async {
@@ -78,7 +100,27 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
       );
 
       await widget.onSave(entry);
-      if (mounted) Navigator.of(context).pop();
+      if (mounted) {
+        Navigator.of(context).pop();
+        // Show success toast with "View Entries" action
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('✓ Journal entry saved!'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            action: SnackBarAction(
+              label: 'View Entries',
+              textColor: Colors.white,
+              onPressed: () {
+                // Navigate to journal tab (index 3)
+                if (mounted) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
+              },
+            ),
+          ),
+        );
+      }
     } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
@@ -139,6 +181,40 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
     }
   }
 
+  String _getRatingLabel(int rating) {
+    switch (rating) {
+      case 1:
+        return 'Feeling Challenged';
+      case 2:
+        return 'Somewhat Neutral';
+      case 3:
+        return 'Feeling Centered';
+      case 4:
+        return 'Feeling Grateful';
+      case 5:
+        return 'Truly Blessed';
+      default:
+        return 'No rating';
+    }
+  }
+
+  String _getRatingEmoji(int rating) {
+    switch (rating) {
+      case 1:
+        return '😞';
+      case 2:
+        return '😐';
+      case 3:
+        return '🙂';
+      case 4:
+        return '😃';
+      case 5:
+        return '🤩';
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext c) {
     final theme = Theme.of(c);
@@ -148,14 +224,35 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
     
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxHeight: maxDialogHeight,
-          maxWidth: 400, // Reasonable max width for tablets
+      backgroundColor: Colors.transparent,
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            colors: [
+              Color(0xFFF3E5F5), // Lavender tint (light purple)
+              Color(0xFFE1BEE7), // Slightly deeper lavender
+              Colors.white,
+            ],
+            center: Alignment.topCenter,
+            radius: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Color(0xFF9C27B0).withValues(alpha: 0.15),
+              blurRadius: 24,
+              offset: Offset(0, 8),
+            ),
+          ],
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: maxDialogHeight,
+            maxWidth: 400, // Reasonable max width for tablets
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             // Title
             Container(
               padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
@@ -242,34 +339,79 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
                       }).toList(),
                     ),
                     const SizedBox(height: 16),
-                    
-                    // Rating Stars with better layout
+
+                    // Rating Section with Emojis
                     Text(
-                      '${localizations.rating} (${_rating}/5)',
+                      localizations.rating,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
+                    const SizedBox(height: 12),
+
+                    // Emoji Hints (Tappable)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (i) {
+                        final rating = i + 1;
+                        final isSelected = _rating == rating;
+                        return GestureDetector(
+                          onTap: _saving ? null : () {
+                            HapticFeedback.mediumImpact();
+                            setState(() => _rating = rating);
+                          },
+                          child: Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 6),
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                ? theme.colorScheme.primary.withValues(alpha: 0.15)
+                                : Colors.transparent,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              _getRatingEmoji(rating),
+                              style: TextStyle(
+                                fontSize: isSelected ? 32 : 28,
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Star Rating
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(5, (i) {
+                        return IconButton(
+                          constraints: const BoxConstraints(
+                            minWidth: 44,
+                            minHeight: 44,
+                          ),
+                          icon: Icon(
+                            i < _rating ? Icons.star : Icons.star_border,
+                            color: Colors.amber,
+                            size: 28,
+                          ),
+                          onPressed: _saving ? null : () {
+                            HapticFeedback.mediumImpact();
+                            setState(() => _rating = i + 1);
+                          },
+                        );
+                      }),
+                    ),
                     const SizedBox(height: 8),
-                    Container(
-                      constraints: const BoxConstraints(maxWidth: 280),
-                      child: Wrap(
-                        alignment: WrapAlignment.center,
-                        spacing: 4, // Add spacing between stars
-                        children: List.generate(5, (i) {
-                          return IconButton(
-                            constraints: const BoxConstraints(
-                              minWidth: 40,
-                              minHeight: 40,
-                            ),
-                            icon: Icon(
-                              i < _rating ? Icons.star : Icons.star_border,
-                              color: Colors.amber, // More recognizable color
-                              size: 28,
-                            ),
-                            onPressed: _saving ? null : () => setState(() => _rating = i + 1),
-                          );
-                        }),
+
+                    // Dynamic Rating Label
+                    Text(
+                      _getRatingLabel(_rating),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 16), // Extra spacing to prevent bottom overflow
@@ -278,23 +420,87 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> {
               ),
             ),
             
-            // Actions
+            // Actions - Side by Side with Gradient Save Button
             Container(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 28), // Extra bottom padding
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 28),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton(
-                    onPressed: _saving ? null : () => Navigator.pop(context),
-                    child: Text(localizations.cancel),
+                  // Cancel Button (Outlined)
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _saving ? null : () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(
+                          color: theme.colorScheme.outline.withValues(alpha: 0.5),
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        localizations.cancel,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 8),
-                  ElevatedButton(
-                    onPressed: _saving ? null : _doSave,
-                    child: _saving
-                        ? const SizedBox(
-                            height: 16, width: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Text(localizations.save),
+                  const SizedBox(width: 12),
+
+                  // Save Button (Gradient with Pulse Animation)
+                  Expanded(
+                    child: ScaleTransition(
+                      scale: _pulseAnimation,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF9C27B0), // Purple
+                              Color(0xFFBA68C8), // Light Purple
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Color(0xFF9C27B0).withValues(alpha: 0.4),
+                              blurRadius: 12,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: ElevatedButton(
+                          onPressed: _saving ? null : _doSave,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: _saving
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  ),
+                                )
+                              : Text(
+                                  localizations.save,
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

@@ -198,7 +198,7 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
     switch (index) {
       case 0: return 'Home';
       case 1: return 'Chapters';
-      case 2: return 'Scenarios';
+      case 2: return 'Situations';
       case 3: return 'Journal';
       case 4: return 'More';
       default: return 'Unknown';

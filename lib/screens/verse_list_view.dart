@@ -171,7 +171,7 @@ class _VerseListViewState extends State<VerseListView> {
                           Text(
                             _chapter!.title ?? 'CHAPTER VERSES',
                             style: GoogleFonts.poiretOne(
-                              fontSize: 26,
+                              fontSize: MediaQuery.of(context).textScaler.scale(26),
                               fontWeight: FontWeight.w800,
                               color: theme.colorScheme.onSurface,
                               letterSpacing: 1.3,
@@ -198,7 +198,7 @@ class _VerseListViewState extends State<VerseListView> {
                           Text(
                             'Chapter ${widget.chapterId} verses from Bhagavad Gita',
                             style: GoogleFonts.poppins(
-                              fontSize: 14,
+                              fontSize: MediaQuery.of(context).textScaler.scale(14),
                               color: theme.colorScheme.onSurface.withValues(alpha:0.7),
                               letterSpacing: 0.8,
                             ),
@@ -222,7 +222,7 @@ class _VerseListViewState extends State<VerseListView> {
                           _errorMessage!,
                           style: GoogleFonts.poppins(
                             color: theme.colorScheme.error,
-                            fontSize: 16,
+                            fontSize: MediaQuery.of(context).textScaler.scale(16),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -236,7 +236,7 @@ class _VerseListViewState extends State<VerseListView> {
                           'No verses available.',
                           style: GoogleFonts.poppins(
                             color: theme.colorScheme.onSurface.withValues(alpha:0.7),
-                            fontSize: 16,
+                            fontSize: MediaQuery.of(context).textScaler.scale(16),
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -294,109 +294,94 @@ class _VerseListViewState extends State<VerseListView> {
                                 color: Colors.transparent,
                                 child: Padding(
                             padding: const EdgeInsets.all(20),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            child: Column(
                               children: [
-                                // Verse number badge
-                                Container(
-                                  width: 56,
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        theme.colorScheme.primary,
-                                        theme.colorScheme.primary.withValues(alpha:0.8),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: theme.colorScheme.primary.withValues(alpha:0.3),
-                                        blurRadius: 8,
-                                        spreadRadius: 1,
-                                      ),
-                                    ],
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      '${verse.verseId}',
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                // Verse text and bookmark
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        verse.description,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          color: theme.colorScheme.onSurface.withValues(alpha:0.9),
-                                          height: 1.5,
-                                          fontWeight: FontWeight.w500,
+                                // Top row with verse number badge and share button
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    // Verse number badge
+                                    Container(
+                                      width: 56,
+                                      height: 56,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        gradient: LinearGradient(
+                                          colors: [
+                                            theme.colorScheme.primary,
+                                            theme.colorScheme.primary.withValues(alpha:0.8),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
                                         ),
-                                      ),
-                                      const SizedBox(height: 12),
-                                      
-                                      // Audio player removed for Apple App Store compliance
-                                      // VerseAudioPlayer(
-                                      //   verse: verse,
-                                      //   chapterId: widget.chapterId,
-                                      // ),
-                                      const SizedBox(height: 8),
-                                      
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.end,
-                                        children: [
-                                          // Share Button
-                                          Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              borderRadius: BorderRadius.circular(20),
-                                              onTap: () => _showShareDialog(verse),
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(
-                                                  horizontal: 12,
-                                                  vertical: 6,
-                                                ),
-                                                decoration: BoxDecoration(
-                                                  color: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
-                                                  borderRadius: BorderRadius.circular(20),
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    Icon(
-                                                      Icons.share,
-                                                      size: 16,
-                                                      color: theme.colorScheme.onSurface.withValues(alpha:0.7),
-                                                    ),
-                                                    const SizedBox(width: 4),
-                                                    Text(
-                                                      'Share',
-                                                      style: GoogleFonts.poppins(
-                                                        fontSize: 12,
-                                                        fontWeight: FontWeight.w500,
-                                                        color: theme.colorScheme.onSurface.withValues(alpha:0.7),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: theme.colorScheme.primary.withValues(alpha:0.3),
+                                            blurRadius: 8,
+                                            spreadRadius: 1,
                                           ),
                                         ],
                                       ),
-                                    ],
+                                      child: Center(
+                                        child: Text(
+                                          '${verse.verseId}',
+                                          style: GoogleFonts.poppins(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: MediaQuery.of(context).textScaler.scale(18),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const Spacer(),
+                                    // Share Button moved to top right
+                                    Material(
+                                      color: Colors.transparent,
+                                      child: InkWell(
+                                        borderRadius: BorderRadius.circular(20),
+                                        onTap: () => _showShareDialog(verse),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(
+                                                Icons.share,
+                                                size: 20,
+                                                color: theme.colorScheme.onSurface.withValues(alpha:0.87),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                'Share',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: MediaQuery.of(context).textScaler.scale(12),
+                                                  fontWeight: FontWeight.w500,
+                                                  color: theme.colorScheme.onSurface.withValues(alpha:0.87),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                // Verse text
+                                Text(
+                                  verse.description,
+                                  style: GoogleFonts.poppins(
+                                    fontSize: MediaQuery.of(context).textScaler.scale(15),
+                                    color: theme.colorScheme.onSurface.withValues(alpha:0.9),
+                                    height: 1.5,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],

@@ -170,7 +170,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
           Tab(text: 'All'),
           Tab(text: 'Verses'),
           Tab(text: 'Chapters'),
-          Tab(text: 'Scenarios'),
+          Tab(text: 'Situations'),
         ],
         onTap: (index) {
           setState(() {
@@ -301,7 +301,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              'Start bookmarking verses, chapters, and scenarios to see them here.',
+              'Start bookmarking verses, chapters, and situations to see them here.',
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurface.withValues(alpha:0.6),

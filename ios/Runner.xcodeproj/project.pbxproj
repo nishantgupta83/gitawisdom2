@@ -13,7 +13,7 @@
 		5D570C9BBD1BA2E08438F7A4 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0415F87FBF7113A9974F8403 /* Pods_Runner.framework */; };
 		683140431DC0D3202B60B39C /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 357B14B398933BAEDE6CE1F3 /* Pods_RunnerTests.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
-		903335E42E67FB52005AAC36 /* GitaWisdomWidgetExtension.appex in CopyFiles */ = {isa = PBXBuildFile; fileRef = 9071D8AD2E5E5ABD00041E84 /* GitaWisdomWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		903335E42E67FB52005AAC36 /* GitaWisdomWidgetExtension.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 9071D8AD2E5E5ABD00041E84 /* GitaWisdomWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		9071D8AE2E5E5ABD00041E84 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9071D88C2E5E5A0800041E84 /* WidgetKit.framework */; };
 		9071D8AF2E5E5ABD00041E84 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9071D88E2E5E5A0800041E84 /* SwiftUI.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -81,6 +81,7 @@
 		9071D88E2E5E5A0800041E84 /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		9071D8AD2E5E5ABD00041E84 /* GitaWisdomWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = GitaWisdomWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9071D8C72E5E5AEF00041E84 /* GitaWisdomWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = GitaWisdomWidgetExtension.entitlements; sourceTree = "<group>"; };
+		90B3A3712E94E338009306F1 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -216,6 +217,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
+				90B3A3712E94E338009306F1 /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
@@ -598,6 +600,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = ZW6PP4YAN4;
 				ENABLE_BITCODE = NO;
@@ -906,6 +909,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = ZW6PP4YAN4;
 				ENABLE_BITCODE = NO;
@@ -931,6 +935,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = ZW6PP4YAN4;
 				ENABLE_BITCODE = NO;

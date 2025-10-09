@@ -23,7 +23,9 @@
       "Bash(grep:*)",
       "Bash(git checkout:*)",
       "Bash(pkill:*)",
-      "Bash(xcrun simctl boot:*)"
+      "Bash(xcrun simctl boot:*)",
+      "Read(//private/tmp/**)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

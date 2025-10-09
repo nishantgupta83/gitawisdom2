@@ -18,7 +18,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chaptersTab => 'Chapters';
 
   @override
-  String get scenariosTab => 'Scenarios';
+  String get scenariosTab => 'Situations';
 
   @override
   String get journalTab => 'Journal';
@@ -47,7 +47,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String viewScenarios(int count) {
-    return 'View Scenarios ($count)';
+    return 'View Situations ($count)';
   }
 
   @override
@@ -56,7 +56,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get relatedScenarios => 'Related Scenarios';
+  String get relatedScenarios => 'Related Situations';
 
   @override
   String get keyTeachings => 'Key Teachings';
@@ -66,11 +66,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String viewMoreScenarios(int count) {
-    return 'View $count more scenarios';
+    return 'View $count more situations';
   }
 
   @override
-  String get showFewerScenarios => 'Show fewer scenarios';
+  String get showFewerScenarios => 'Show fewer situations';
 
   @override
   String get loading => 'Loading...';
@@ -169,26 +169,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versesCount => 'Verses';
 
   @override
-  String get scenariosCount => 'Scenarios';
+  String get scenariosCount => 'Situations';
 
   @override
-  String get scenarios => 'SCENARIOS';
+  String get scenarios => 'SITUATIONS';
 
   @override
   String get realWorldSituations =>
       'Real-world situations guided by Gita wisdom';
 
   @override
-  String get searchScenarios => 'Search scenarios by title or description...';
+  String get searchScenarios => 'Search situations by title or description...';
 
   @override
-  String get noScenariosAvailable => 'No scenarios available';
+  String get noScenariosAvailable => 'No situations available';
 
   @override
-  String get noScenariosMatch => 'No scenarios match your search';
+  String get noScenariosMatch => 'No situations match your search';
 
   @override
-  String get failedToRefresh => 'Failed to refresh scenarios';
+  String get failedToRefresh => 'Failed to refresh situations';
 
   @override
   String get aboutGitaWisdom => 'About GitaWisdom';
@@ -198,7 +198,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDescription =>
-      'A bite-size guide to the Bhagavad Gita, offering chapters, scenarios, and reflections—now with custom themes, language support, and more.';
+      'A bite-size guide to the Bhagavad Gita, offering chapters, situations, and reflections—now with custom themes, language support, and more.';
 
   @override
   String get gitaQuote =>
@@ -265,10 +265,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get immersiveKnowledge => 'Explore Scripture, Word for Word';
 
   @override
-  String get lifeScenarios => 'LIFE\'S DAILY DILEMMA';
+  String get lifeScenarios => 'LIFE\'S DILEMMA';
 
   @override
-  String get applyGitaWisdom => 'Clarity for life\'s daily challenges';
+  String get applyGitaWisdom => 'Get clarity for your Situations';
 
   @override
   String get back => 'Back';
@@ -323,7 +323,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get categoryDailyReflection => 'Daily Reflection';
 
   @override
-  String get categoryScenarioWisdom => 'Scenario Wisdom';
+  String get categoryScenarioWisdom => 'Situation Wisdom';
 
   @override
   String get categoryChapterInsights => 'Chapter Insights';
@@ -361,7 +361,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String chapterScenarios(int chapter) {
-    return 'CHAPTER $chapter SCENARIOS';
+    return 'CHAPTER $chapter SITUATIONS';
   }
 
   @override
@@ -371,7 +371,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String showingScenariosForChapter(int chapter) {
-    return 'Showing scenarios for Chapter $chapter';
+    return 'Showing situations for Chapter $chapter';
   }
 
   @override

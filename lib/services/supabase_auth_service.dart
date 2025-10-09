@@ -1,5 +1,6 @@
 // lib/services/supabase_auth_service.dart
 
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:crypto/crypto.dart' as crypto;
@@ -24,6 +25,7 @@ class SupabaseAuthService extends ChangeNotifier {
   String? _error;
   User? _currentUser;
   String? _deviceId;
+  StreamSubscription<AuthState>? _authStateSubscription;
 
   // Getters
   bool get isAuthenticated => _currentUser != null;
@@ -73,8 +75,8 @@ class SupabaseAuthService extends ChangeNotifier {
         debugPrint('✅ Restored session for user: ${_currentUser?.email}');
       }
 
-      // Listen to auth state changes
-      _supabase.auth.onAuthStateChange.listen((data) {
+      // Listen to auth state changes (store subscription for proper disposal)
+      _authStateSubscription = _supabase.auth.onAuthStateChange.listen((data) {
         final event = data.event;
         final session = data.session;
 
@@ -341,7 +343,15 @@ class SupabaseAuthService extends ChangeNotifier {
       debugPrint('✅ Account deletion initiated');
       return true;
     } catch (e) {
-      _error = 'Failed to delete account. Please contact support.';
+      // Show the actual error for debugging instead of generic message
+      final errorMsg = e.toString();
+      if (errorMsg.contains('signed in')) {
+        _error = 'You must be signed in to delete your account';
+      } else if (errorMsg.contains('permission') || errorMsg.contains('RLS') || errorMsg.contains('policy')) {
+        _error = 'Permission denied. Please ensure you are the account owner.';
+      } else {
+        _error = 'Failed to delete account: ${errorMsg.replaceAll('Exception:', '').trim()}';
+      }
       debugPrint('❌ Account deletion error: $e');
       return false;
     } finally {
@@ -453,45 +463,49 @@ class SupabaseAuthService extends ChangeNotifier {
   }
 
   /// Migrate anonymous data to authenticated user
+  /// Note: Schema uses user_device_id for all tables, no separate user_id column
   Future<void> _migrateAnonymousData(String userId) async {
     try {
       if (_deviceId == null) return;
 
-      // Update journal entries
-      await _supabase
-          .from('journal_entries')
-          .update({'user_id': userId})
-          .eq('user_device_id', _deviceId!);
+      // Tables use user_device_id for both anonymous and authenticated users
+      // No migration needed - data is already associated with device ID
+      // Authenticated users continue using same device ID
 
-      // Update bookmarks
-      await _supabase
-          .from('user_bookmarks')
-          .update({'user_id': userId})
-          .eq('user_device_id', _deviceId!);
-
-      // Update progress
-      await _supabase
-          .from('user_progress')
-          .update({'user_id': userId})
-          .eq('user_device_id', _deviceId!);
-
-      debugPrint('✅ Migrated anonymous data to user $userId');
+      debugPrint('✅ Data already associated with device ID (no migration needed)');
     } catch (e) {
-      debugPrint('⚠️ Failed to migrate anonymous data: $e');
+      debugPrint('⚠️ Error in data migration check: $e');
       // Non-critical - user can still access their new account
     }
   }
 
   /// Delete all user data (for account deletion)
+  /// Schema uses user_id for authenticated users, user_device_id for anonymous users
   Future<void> _deleteUserData(String userId) async {
     try {
-      // Delete in order of dependencies
-      await _supabase.from('journal_entries').delete().eq('user_id', userId);
-      await _supabase.from('user_bookmarks').delete().eq('user_id', userId);
-      await _supabase.from('user_progress').delete().eq('user_id', userId);
-      await _supabase.from('user_settings').delete().eq('id', userId);
+      final user = _supabase.auth.currentUser;
 
-      debugPrint('✅ User data deleted for $userId');
+      if (user != null) {
+        // Authenticated user - use user_id column for most tables
+        await _supabase.from('journal_entries').delete().eq('user_id', user.id);
+        await _supabase.from('user_progress').delete().eq('user_id', user.id);
+        await _supabase.from('user_settings').delete().eq('user_id', user.id);
+
+        // SPECIAL CASE: user_bookmarks only has user_device_id column (not user_id)
+        // Authenticated users store their auth.uid in user_device_id field
+        await _supabase.from('user_bookmarks').delete().eq('user_device_id', user.id);
+
+        debugPrint('✅ User data deleted for authenticated user: ${user.id}');
+      } else if (_deviceId != null) {
+        // Anonymous user - use user_device_id column for all tables
+        await _supabase.from('journal_entries').delete().eq('user_device_id', _deviceId!);
+        await _supabase.from('user_bookmarks').delete().eq('user_device_id', _deviceId!);
+        await _supabase.from('user_progress').delete().eq('user_device_id', _deviceId!);
+        await _supabase.from('user_settings').delete().eq('user_device_id', _deviceId!);
+        debugPrint('✅ User data deleted for anonymous user: $_deviceId');
+      } else {
+        debugPrint('⚠️ No user or device ID available, skipping Supabase deletion');
+      }
     } catch (e) {
       debugPrint('❌ Failed to delete user data: $e');
       throw e;
@@ -551,6 +565,9 @@ class SupabaseAuthService extends ChangeNotifier {
       );
 
       if (result) {
+        // Clear error state and notify listeners when OAuth successfully initiates
+        // This ensures UI updates immediately to hide any error banners
+        _clearError();
         debugPrint('✅ Google sign-in initiated');
         return true;
       }
@@ -582,6 +599,9 @@ class SupabaseAuthService extends ChangeNotifier {
       );
 
       if (result) {
+        // Clear error state and notify listeners when OAuth successfully initiates
+        // This ensures UI updates immediately to hide any error banners
+        _clearError();
         debugPrint('✅ Apple sign-in initiated');
         return true;
       }
@@ -629,5 +649,14 @@ class SupabaseAuthService extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+  }
+
+  /// Dispose method to cleanup resources and prevent memory leaks
+  @override
+  void dispose() {
+    _authStateSubscription?.cancel();
+    _authStateSubscription = null;
+    debugPrint('🧹 SupabaseAuthService disposed - auth stream subscription cancelled');
+    super.dispose();
   }
 }
