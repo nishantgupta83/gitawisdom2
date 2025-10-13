@@ -1,8 +1,11 @@
 # GitaWisdom UI/UX Test Configuration
 # Comprehensive test specification for systematic app testing
+# Version: 2.3.1+28 (October 13, 2025)
+# Changes: Added 31 daily inspiration quotes (Upanishads, Vedas, Kabir) with date-based rotation
 
 app_config:
   name: "GitaWisdom"
+  version: "2.3.1+28"
   bundle_id: "com.hub4apps.gitawisdom"
   platforms: ["android", "ios"]
   testing_framework: "flutter_integration"

@@ -890,14 +890,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   }
 
   Widget _buildDailyInspirationCard(ThemeData theme, bool isDark) {
+    // MVP 1: Hardcoded inspirational quotes from ancient wisdom (Upanishads, Vedas)
+    // MVP 2: TODO - Move to database table for easier management
     final inspirations = [
+      // Original quotes
       "The mind is everything. What you think you become.",
       "In the depths of winter, I finally learned that within me there lay an invincible summer.",
       "The only way to make sense out of change is to plunge into it, move with it, and join the dance.",
       "What we plant in the soil of contemplation, we shall reap in the harvest of action.",
+
+      // Upanishads - Ancient Wisdom
+      "You are what your deep, driving desire is. As your desire is, so is your will.",
+      "From the unreal lead me to the real, from darkness lead me to light, from death lead me to immortality.",
+      "The Self is one. Unmoving, it moves faster than the mind.",
+      "When all desires that cling to the heart are surrendered, then a mortal becomes immortal.",
+      "The wise see knowledge and action as one; they see truly.",
+      "That which is the finest essence—this whole world has that as its soul. That is Reality. That is Atman. That art thou.",
+      "In the hearts of all living beings dwells the Lord. Under the spell of Maya, they appear to wander.",
+      "The Self is hidden in the hearts of all, as butter lies hidden in cream.",
+      "Lead me from the unreal to the Real, from darkness to Light, from death to Immortality.",
+      "The knower of the Self crosses beyond sorrow.",
+
+      // Vedas - Eternal Truths
+      "Let noble thoughts come to us from every side.",
+      "May the wind blow sweetness, may the rivers flow sweetness, may the herbs grow sweetness, for us who seek the Truth.",
+      "United be your purpose, harmonious be your feelings, collected be your mind, in the same way as all the various aspects of the universe exist in togetherness.",
+      "As is the human body, so is the cosmic body. As is the human mind, so is the cosmic mind.",
+      "What you see, you become. The light you perceive is the light you project.",
+      "He who sees all beings in his own Self, and his own Self in all beings, loses all fear.",
+      "That which cannot be expressed in words, but by which the tongue speaks—know that to be the Divine.",
+      "The soul is neither born, and nor does it die. It is without birth, eternal, immortal, and ageless.",
+      "Knowledge is structured in consciousness. The mind is the repository of infinite organizing power.",
+      "Where there is righteousness, there is victory.",
+      "Arise, awake, and stop not until the goal is reached.",
+      "Be fearless and pure; never waver in your determination to live the highest ideals.",
+
+      // Kabir - Mystic Poet (15th Century)
+      "Wherever you are, that is your entry point to the Divine. The temple and the mosque are the same, so is the Hindu worship and the Muslim prayer.",
+      "Do not go to the garden of flowers! O friend, go not there. In your body is the garden of flowers. Take your seat on the thousand petals of the lotus, and there gaze on the Infinite Beauty.",
+      "The river that flows in you also flows in me. One truth, one life, one consciousness pervades all.",
+      "I laugh when I hear that the fish in the water is thirsty. You wander restlessly from forest to forest while the Reality is within your own dwelling.",
+      "He who is meek and contented, he who has an equal vision, whose mind is filled with the fullness of acceptance and of rest—that man has found the true path.",
     ];
-    
-    final inspiration = inspirations[math.Random().nextInt(inspirations.length)];
+
+    // Generate seed from today's date - same quote all day, changes at midnight
+    final today = DateTime.now();
+    final dateSeed = today.year * 10000 + today.month * 100 + today.day;
+    final dailyRandom = math.Random(dateSeed);
+    final inspiration = inspirations[dailyRandom.nextInt(inspirations.length)];
     
     return Container(
       width: double.infinity,
