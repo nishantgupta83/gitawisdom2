@@ -12,7 +12,7 @@
 
 ## 1. Five-Agent Configuration & Setup
 
-### Agent Configuration File (Recommended: `.claude/agents.json`)
+### Agent Configuration File (Recommended: `.config/agents.json`)
 
 ```json
 {

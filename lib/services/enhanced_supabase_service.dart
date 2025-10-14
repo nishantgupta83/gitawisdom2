@@ -1078,29 +1078,28 @@ class EnhancedSupabaseService {
   Future<List<Verse>> fetchVersesByChapter(int chapterId, [String? langCode]) async {
     /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
     final language = 'en'; // MVP: English-only
-    
+
     try {
-      // Use RPC function for automatic fallback
+      // Direct query to gita_verses table (verse_translations table was deleted)
       final response = await client
-          .rpc('get_verses_with_fallback', params: {
-            'p_chapter_id': chapterId,
-            'p_lang_code': language,
-          });
-      
-      final data = response as List;
-      return data
-          .map((e) => VerseMultilingualExtensions.fromMultilingualJson(e as Map<String, dynamic>))
-          .toList();
-      
+          .from('gita_verses')
+          .select('''
+            gv_verses_id,
+            gv_chapter_id,
+            gv_verses
+          ''')
+          .eq('gv_chapter_id', chapterId)
+          .order('gv_verses_id', ascending: true);
+
+      return response.map((item) => Verse(
+        verseId: item['gv_verses_id'] as int? ?? 0,
+        chapterId: item['gv_chapter_id'] as int? ?? chapterId,
+        description: item['gv_verses'] as String? ?? '',
+      )).toList();
+
     } catch (e) {
-      debugPrint('❌ Error fetching verses for chapter $chapterId, language $language: $e');
-      
-      // Fallback to English or original method
-      if (language != 'en') {
-        return fetchVersesByChapter(chapterId, 'en');
-      }
-      
-      return _fallbackFetchVersesByChapter(chapterId);
+      debugPrint('❌ Error fetching verses for chapter $chapterId: $e');
+      return [];
     }
   }
 

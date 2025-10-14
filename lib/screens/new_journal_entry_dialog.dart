@@ -28,28 +28,12 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
   final _ctrl = TextEditingController();
   int _rating = 3; // Default rating of 3 stars for better UX
   bool _saving = false;
-  late String _selectedCategoryKey;
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  
-  static const List<String> _categoryKeys = [
-    'categoryGeneral',
-    'categoryPersonalGrowth', 
-    'categoryMeditation',
-    'categoryDailyReflection',
-    'categoryScenarioWisdom',
-    'categoryChapterInsights',
-    'categoryDharmaInsights',
-    'categoryKarmaReflections',
-    'categoryMeditationExperiences',
-    'categoryDetachmentPractice',
-  ];
 
   @override
   void initState() {
     super.initState();
-    // Set initial category (from scenario context or default)
-    _selectedCategoryKey = widget.initialCategory ?? 'categoryGeneral';
 
     // Pre-fill journal prompt if coming from scenario
     if (widget.scenarioTitle != null) {
@@ -96,7 +80,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
         reflection: text,
         rating: _rating,
         scenarioId: widget.scenarioId,
-        category: _getCategoryValue(AppLocalizations.of(context)!, _selectedCategoryKey),
+        category: 'General', // Default category since categories removed from UI
       );
 
       await widget.onSave(entry);
@@ -130,56 +114,6 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
       }
     }
   }
-  
-  String _getCategoryValue(AppLocalizations localizations, String categoryKey) {
-    switch (categoryKey) {
-      case 'categoryGeneral':
-        return localizations.categoryGeneral;
-      case 'categoryPersonalGrowth':
-        return localizations.categoryPersonalGrowth;
-      case 'categoryMeditation':
-        return localizations.categoryMeditation;
-      case 'categoryDailyReflection':
-        return localizations.categoryDailyReflection;
-      case 'categoryScenarioWisdom':
-        return localizations.categoryScenarioWisdom;
-      case 'categoryChapterInsights':
-        return localizations.categoryChapterInsights;
-      case 'categoryDharmaInsights':
-        return 'Dharma Insights';
-      case 'categoryKarmaReflections':
-        return 'Karma Reflections';
-      case 'categoryMeditationExperiences':
-        return 'Meditation Experiences';
-      case 'categoryDetachmentPractice':
-        return 'Detachment Practice';
-      default:
-        return localizations.categoryGeneral;
-    }
-  }
-
-  String _getCategoryHint(String categoryKey) {
-    switch (categoryKey) {
-      case 'categoryDharmaInsights':
-        return 'Reflections on righteous duty and moral choices';
-      case 'categoryKarmaReflections':
-        return 'Understanding action, consequence, and detachment';
-      case 'categoryMeditationExperiences':
-        return 'Spiritual practices, peace, and inner stillness';
-      case 'categoryDetachmentPractice':
-        return 'Letting go of outcomes and finding equanimity';
-      case 'categoryScenarioWisdom':
-        return 'Applying Gita teachings to life situations';
-      case 'categoryChapterInsights':
-        return 'Wisdom gained from specific Gita chapters';
-      case 'categoryPersonalGrowth':
-        return 'Self-development and character building';
-      case 'categoryDailyReflection':
-        return 'Daily thoughts and spiritual observations';
-      default:
-        return 'General thoughts and reflections';
-    }
-  }
 
   String _getRatingLabel(int rating) {
     switch (rating) {
@@ -198,22 +132,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
     }
   }
 
-  String _getRatingEmoji(int rating) {
-    switch (rating) {
-      case 1:
-        return '😞';
-      case 2:
-        return '😐';
-      case 3:
-        return '🙂';
-      case 4:
-        return '😃';
-      case 5:
-        return '🤩';
-      default:
-        return '';
-    }
-  }
+  // Removed emoji method - now using star rating
 
   @override
   Widget build(BuildContext c) {
@@ -222,24 +141,32 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
     final screenHeight = MediaQuery.of(c).size.height;
     final maxDialogHeight = screenHeight * 0.8; // Use maximum 80% of screen height
     
+    final isDark = theme.brightness == Brightness.dark;
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: Colors.transparent,
       child: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(
-            colors: [
-              Color(0xFFF3E5F5), // Lavender tint (light purple)
-              Color(0xFFE1BEE7), // Slightly deeper lavender
-              Colors.white,
-            ],
+            colors: isDark
+                ? [
+                    theme.colorScheme.surface,
+                    theme.colorScheme.surface.withValues(alpha: 0.95),
+                    theme.colorScheme.surface.withValues(alpha: 0.9),
+                  ]
+                : [
+                    Color(0xFFE0F2F1), // Soft mint (light teal)
+                    Color(0xFFB2DFDB), // Slightly deeper mint
+                    Colors.white,
+                  ],
             center: Alignment.topCenter,
             radius: 1.5,
           ),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Color(0xFF9C27B0).withValues(alpha: 0.15),
+              color: (isDark ? Colors.black : Color(0xFF26A69A)).withValues(alpha: 0.15),
               blurRadius: 24,
               offset: Offset(0, 8),
             ),
@@ -276,134 +203,43 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
                       decoration: InputDecoration(labelText: localizations.yourReflection),
                       maxLines: 4,
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
-                    // Category label
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        localizations.category,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Category Capsule Buttons
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        'categoryPersonalGrowth',
-                        'categoryDailyReflection',
-                        'categoryMeditation',
-                        'categoryGeneral',
-                      ].map((categoryKey) {
-                        final isSelected = _selectedCategoryKey == categoryKey;
-                        final categoryValue = _getCategoryValue(localizations, categoryKey);
-
-                        return Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            onTap: _saving ? null : () {
-                              setState(() => _selectedCategoryKey = categoryKey);
-                            },
-                            borderRadius: BorderRadius.circular(20),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.surfaceVariant,
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: isSelected
-                                      ? theme.colorScheme.primary
-                                      : theme.colorScheme.outline.withValues(alpha: 0.3),
-                                  width: 1.5,
-                                ),
-                              ),
-                              child: Text(
-                                categoryValue,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: isSelected
-                                      ? theme.colorScheme.onPrimary
-                                      : theme.colorScheme.onSurfaceVariant,
-                                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Rating Section with Emojis
+                    // Rating Section with Stars
                     Text(
                       localizations.rating,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.87),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 12),
 
-                    // Emoji Hints (Tappable)
+                    // Star Rating (Tappable)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (i) {
                         final rating = i + 1;
-                        final isSelected = _rating == rating;
+                        final isSelected = _rating >= rating;
                         return GestureDetector(
                           onTap: _saving ? null : () {
                             HapticFeedback.mediumImpact();
                             setState(() => _rating = rating);
                           },
-                          child: Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 6),
-                            padding: const EdgeInsets.all(8),
-                            decoration: BoxDecoration(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: Icon(
+                              isSelected ? Icons.star : Icons.star_border,
+                              size: 40,
                               color: isSelected
-                                ? theme.colorScheme.primary.withValues(alpha: 0.15)
-                                : Colors.transparent,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              _getRatingEmoji(rating),
-                              style: TextStyle(
-                                fontSize: isSelected ? 32 : 28,
-                              ),
+                                  ? Colors.amber[600]
+                                  : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                             ),
                           ),
                         );
                       }),
                     ),
                     const SizedBox(height: 12),
-
-                    // Star Rating
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(5, (i) {
-                        return IconButton(
-                          constraints: const BoxConstraints(
-                            minWidth: 44,
-                            minHeight: 44,
-                          ),
-                          icon: Icon(
-                            i < _rating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
-                            size: 28,
-                          ),
-                          onPressed: _saving ? null : () {
-                            HapticFeedback.mediumImpact();
-                            setState(() => _rating = i + 1);
-                          },
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 8),
 
                     // Dynamic Rating Label
                     Text(
@@ -507,6 +343,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -61,7 +61,7 @@ This is your SECRET WEAPON for positioning as a PM who knows technical stuff WIT
 **WHY do product managers fail at technical decision-making?
 Because they don't know WHEN to defer to specialized expertise.**
 
-After building v2 with Claude as my single AI pair programmer, I hit a wall:
+After building v2 with AI pair programming assistance, I hit a wall:
 my app worked, but I had no confidence it was OPTIMAL.
 
 Enter the Five-Agent approach:
@@ -89,7 +89,7 @@ found a critical bug before it reached users.
 
 **Why This Chapter Is Essential:**
 - Shows PMs how to USE technical expertise without HAVING technical expertise
-- Demonstrates your evolution from solo Claude user to multi-agent orchestrator
+- Demonstrates your evolution from solo AI assistance to multi-agent orchestration
 - Proves your thesis: "WHY matters more than HOW" (you know WHY to use agents)
 
 ### 2. **The Architecture-as-Product-Decision Chapter** (Enhance Chapter 6)
@@ -175,7 +175,7 @@ they know WHEN code is the right tool and WHAT good implementation looks like.
 **Chapter 1: "Why I Started Building (v1.0: The iOS Dream)"**
 - iOS-only, custom animations, 3 weeks = 37% of one platform
 
-**Chapter 3: "Why Claude Changed Everything (v2.0: The Architectural Rebirth)"**
+**Chapter 3: "Why AI Development Changed Everything (v2.0: The Architectural Rebirth)"**
 - Flutter, AI-assisted, service-oriented architecture
 - Performance breakthrough: 70% faster startup, 66% memory reduction
 
@@ -323,7 +323,7 @@ Your book references images but hasn't leveraged them. GitaWisdom provides:
 
 1. **Why I Started Building** (v1.0: iOS → Flutter pivot)
 2. **Why Defining Problems Beats Defining Solutions** (MCP framework)
-3. **Why AI Changed Everything** (v2.0: Claude collaboration)
+3. **Why AI Changed Everything** (v2.0: AI-assisted development)
 4. **Why Feature != Value** (GitaWisdom scenarios vs. generic advice)
 5. **Why Managing Tools Matters** (Platform politics: Xcode, Android Studio, Flutter)
 6. **Why Architecture Is Product** (Supabase, Hive, offline-first, encryption)
@@ -371,9 +371,9 @@ Real technical decisions that required PM judgment:
 
 **Add This Section:**
 ```markdown
-## From One Claude to Five Specialized Agents
+## From Single AI Assistant to Five Specialized Agents
 
-v2.0 taught me to work with Claude as a pair programmer.
+v2.0 taught me to work with AI as a pair programmer.
 v3.0 taught me to orchestrate MULTIPLE specialized AI agents like a PM manages a team:
 
 **The Android Performance Engineer**:
@@ -446,7 +446,7 @@ May 2024. Google Play sends an email: "Starting June 1, all apps must implement 
 
 My first thought: "We're an offline-first app. We barely have accounts."
 My second thought: "This is an engineering problem."
-My third thought (after Claude Code reminded me): "This is a PRODUCT problem that requires technical understanding."
+My third thought (after development tools reminded me): "This is a PRODUCT problem that requires technical understanding."
 
 ## The Three-Layer Compliance Challenge
 
@@ -645,7 +645,7 @@ Next up: realizing that building the product built something more valuable than 
 
 1. Why I Started Building (v1.0: The iOS Pivot)
 2. Why Defining Problems Beats Defining Solutions
-3. Why AI Changed Everything (v2.0: Claude & Architecture)
+3. Why AI Changed Everything (v2.0: AI-Assisted Architecture)
 4. Why Features Don't Equal Value
 5. Why Managing Tools Is Like Managing Stakeholders
 6. Why Architecture Choices Are Product Choices

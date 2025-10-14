@@ -106,8 +106,10 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
                           const SizedBox(height: 40),
                           _buildHeader(theme),
                           const SizedBox(height: 32),
+                          // Continue as Guest button moved to top
+                          _buildGuestButton(theme, authService),
+                          const SizedBox(height: 24),
                           _buildAuthCard(theme, authService),
-                          _buildFooter(theme, authService),
                           const SizedBox(height: 16),
                         ],
                       ),
@@ -805,48 +807,50 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   }
 
 
+  /// Build guest button widget
+  Widget _buildGuestButton(ThemeData theme, SupabaseAuthService authService) {
+    return Container(
+      width: double.infinity,
+      height: 56,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.outline.withValues(alpha:0.3),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: authService.isLoading ? null : _continueAsGuest,
+          borderRadius: BorderRadius.circular(16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.person_outline_rounded,
+                color: theme.colorScheme.onSurface.withValues(alpha:0.7),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                'Continue as Guest',
+                style: TextStyle(
+                  color: theme.colorScheme.onSurface.withValues(alpha:0.8),
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildFooter(ThemeData theme, SupabaseAuthService authService) {
     return Column(
       children: [
         const SizedBox(height: 20),
-
-        // Continue as guest button
-        Container(
-          width: double.infinity,
-          height: 56,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: theme.colorScheme.outline.withValues(alpha:0.3),
-              width: 1,
-            ),
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: authService.isLoading ? null : _continueAsGuest,
-              borderRadius: BorderRadius.circular(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.person_outline_rounded,
-                    color: theme.colorScheme.onSurface.withValues(alpha:0.7),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'Continue as Guest',
-                    style: TextStyle(
-                      color: theme.colorScheme.onSurface.withValues(alpha:0.8),
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
         
         const SizedBox(height: 16),
         

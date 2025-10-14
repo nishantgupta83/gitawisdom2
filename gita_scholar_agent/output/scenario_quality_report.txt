@@ -1,0 +1,267 @@
+================================================================================
+SCENARIO QUALITY REPORT
+================================================================================
+Generated: 2025-10-13 22:39:48
+
+SUMMARY STATISTICS
+--------------------------------------------------------------------------------
+Total Scenarios Scanned: 1226
+Scenarios with Issues: 15
+Total Issues Found: 30
+Issue Rate: 1.2%
+
+ISSUES BY TYPE
+--------------------------------------------------------------------------------
+  fragment_action_step: 14
+  very_short_action_step: 11
+  unbalanced_parentheses: 4
+  incomplete_action_step: 1
+
+ISSUES BY FIELD
+--------------------------------------------------------------------------------
+  sc_action_steps: 30
+
+DETAILED ISSUES
+================================================================================
+
+1. Scenario: Child with Learning Differences
+   ID: 3f5eddb5-384e-4868-8c4f-956700424037
+   Issues: 6
+
+   🟠 [HIGH] unbalanced_parentheses
+      Field: sc_action_steps
+      Location: step 2
+      Content: Celebrate your strengths (creativity
+      Note: Open: 1, Close: 0
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 3
+      Content: kindness
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 3
+      Content: kindness
+      Note: Likely a fragment from previous step
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 4
+      Content: etc.)
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 4
+      Content: etc.)
+      Note: Likely a fragment from previous step
+
+   🟠 [HIGH] unbalanced_parentheses
+      Field: sc_action_steps
+      Location: step 4
+      Content: etc.)
+      Note: Open: 0, Close: 1
+
+
+2. Scenario: Debilitating Exam Failure Anxiety
+   ID: f0bdf74c-0e24-4e0b-9006-c07777d59014
+   Issues: 4
+
+   🟠 [HIGH] unbalanced_parentheses
+      Field: sc_action_steps
+      Location: step 3
+      Content: Reflect on what's in your control (study
+      Note: Open: 1, Close: 0
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 4
+      Content: mindset)
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 4
+      Content: mindset)
+      Note: Likely a fragment from previous step
+
+   🟠 [HIGH] unbalanced_parentheses
+      Field: sc_action_steps
+      Location: step 4
+      Content: mindset)
+      Note: Open: 0, Close: 1
+
+
+3. Scenario: Struggling with Self-Harm Thoughts
+   ID: 843ff513-7ae4-4a26-9d95-39f24db56bfa
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: teacher
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: teacher
+      Note: Likely a fragment from previous step
+
+
+4. Scenario: Exam Pressure and Fear of Disappointing Others
+   ID: c2027e66-bfdc-4c85-a06a-48066e34a2d3
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 5
+      Content: food
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 5
+      Content: food
+      Note: Likely a fragment from previous step
+
+
+5. Scenario: Developing Underperforming Team Member
+   ID: 16afa435-374f-43fe-9e76-8e237bc3bf7e
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 3
+      Content: training
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 3
+      Content: training
+      Note: Likely a fragment from previous step
+
+
+6. Scenario: Child Grieving Grandparent's Death
+   ID: 77933762-6eaa-4d43-bba0-7e6fc8e58cc1
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 3
+      Content: prayers
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 3
+      Content: prayers
+      Note: Likely a fragment from previous step
+
+
+7. Scenario: Managing Anxiety About Team Performance Results
+   ID: 65f52ff3-82b0-4509-9f25-31d304d555aa
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 4
+      Content: support
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 4
+      Content: support
+      Note: Likely a fragment from previous step
+
+
+8. Scenario: Letting Go of Control Over Critical Project
+   ID: f93d4527-0a77-43c4-b0be-2eb4cf18a60c
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: deadlines
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: deadlines
+      Note: Likely a fragment from previous step
+
+
+9. Scenario: Dealing with Pet Loss as a Child
+   ID: 26a6861a-70f2-4274-ac30-5eb6164f30d5
+   Issues: 2
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: writing
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: writing
+      Note: Likely a fragment from previous step
+
+
+10. Scenario: Being Told You're 'Too Sensitive'
+   ID: c1d1fd47-ae94-4bd2-99df-4bdc54998abf
+   Issues: 1
+
+   🟠 [HIGH] very_short_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: not flaws
+
+
+11. Scenario: Social Media Comparison and Validation Seeking
+   ID: 353ff17d-4c05-4fab-ba8a-71cccfa28e7f
+   Issues: 1
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 5
+      Content: journaling
+      Note: Likely a fragment from previous step
+
+
+12. Scenario: Logistics of Managing Two Toddlers
+   ID: 6894a94a-6759-4aea-a02e-95d93b14dab0
+   Issues: 1
+
+   🟠 [HIGH] incomplete_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: Use tools like double strollers, shopping cart covers, etc.
+
+
+13. Scenario: Cyberbullying and Identity Crisis
+   ID: 67f27ac6-00a3-44c3-ba97-02b29be3912f
+   Issues: 1
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 5
+      Content: counselors
+      Note: Likely a fragment from previous step
+
+
+14. Scenario: Different Spiritual Paths Creating Family Tension
+   ID: 706aab64-6929-43ec-829b-8a38c3021927
+   Issues: 1
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: compassion
+      Note: Likely a fragment from previous step
+
+
+15. Scenario: Interfaith Marriage Creating Family Tension
+   ID: ba759226-a808-47e9-b791-a9c8072a6135
+   Issues: 1
+
+   🔴 [CRITICAL] fragment_action_step
+      Field: sc_action_steps
+      Location: step 2
+      Content: compassion
+      Note: Likely a fragment from previous step

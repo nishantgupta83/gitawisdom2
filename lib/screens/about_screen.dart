@@ -261,9 +261,100 @@ class AboutScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 20),
-                  
+
+                  // Content Validated Against Card
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    color: theme.colorScheme.surface,
+                    shadowColor: Colors.green.withAlpha((0.15 * 255).toInt()),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(22),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.green.shade50.withValues(alpha: 0.3),
+                            theme.colorScheme.surface,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        border: Border.all(
+                          color: Colors.green.withValues(alpha: 0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.green.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.verified,
+                                    color: Colors.green.shade700,
+                                    size: isTablet ? 24 : 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Content Validated Against',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: isTablet ? 18 : 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.green.shade700,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Our Bhagavad Gita verses and chapter interpretations have been cross-validated against these authoritative sources to ensure accuracy and authenticity. We verified verse translations, chapter themes, and structural integrity across multiple traditions.',
+                              style: GoogleFonts.poppins(
+                                fontSize: isTablet ? 14 : 13,
+                                color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+                                height: 1.5,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildSourceItem(
+                              '• ISKCON Vedabase (vedabase.io)',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildSourceItem(
+                              '• Holy Bhagavad Gita (holy-bhagavad-gita.org)',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildSourceItem(
+                              '• IIT Kanpur Gita Supersite (gitasupersite.iitk.ac.in)',
+                              theme,
+                              isTablet,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
                   // Scenario Disclaimer Card
                   Card(
                     elevation: 4,
@@ -456,6 +547,18 @@ class AboutScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildSourceItem(String text, ThemeData theme, bool isTablet) {
+    return Text(
+      text,
+      style: GoogleFonts.poppins(
+        fontSize: isTablet ? 14 : 13,
+        fontWeight: FontWeight.w500,
+        color: theme.colorScheme.onSurface,
+        height: 1.4,
+      ),
     );
   }
 }

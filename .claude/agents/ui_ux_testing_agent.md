@@ -90,7 +90,7 @@ python ui_tests/appium_test_runner.py --app gitawisdom
 ```
 
 ### 📋 **Agent Invocation**
-The agent can be invoked through Claude Code Task tool:
+The agent can be invoked through development tools:
 ```
 Use the ui-ux-testing-agent to systematically test the GitaWisdom app.
 Test all navigation flows, verify interactive elements, and generate a comprehensive report.

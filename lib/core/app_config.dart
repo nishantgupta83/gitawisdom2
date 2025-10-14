@@ -9,9 +9,10 @@ class AppConfig {
   static const String appName = 'GitaWisdom';
   static const String appTitle = 'Wisdom Guide';
   
-  // Version and Build Information
-  static const String version = '2.2.8';
-  static const int buildNumber = 21;
+  // Version and Build Information (User-facing version)
+  // Note: pubspec.yaml has store version 2.3.1+25 for Google Play/App Store
+  static const String version = '1.0.1';
+  static const int buildNumber = 1;
   
   // Timing Configuration
   static const Duration splashDuration = Duration(seconds: 3);
@@ -47,7 +48,7 @@ class AppConfig {
   static const String splashBackgroundImage = 'assets/images/app_bg.png';
   
   // Feature Flags
-  static const bool debugMode = true; // Set to false for production
+  static const bool debugMode = false; // Set to false for production
   static const bool enablePerformanceTracking = false;
   static const bool enableCrashReporting = false;
   static const bool enableAnalytics = false;

@@ -7,6 +7,7 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:device_info_plus/device_info_plus.dart';
+import '../services/journal_service.dart';
 
 /// Real authentication service using Supabase Auth
 /// Replaces SimpleAuthService with actual authentication
@@ -80,14 +81,38 @@ class SupabaseAuthService extends ChangeNotifier {
         final event = data.event;
         final session = data.session;
 
-        debugPrint('🔐 Auth state changed: $event');
+        // 🔍 DEBUG: Comprehensive auth state logging
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        debugPrint('🔐 AUTH STATE CHANGE DETECTED');
+        debugPrint('   Event: $event');
+        debugPrint('   Has session: ${session != null}');
+        if (session != null) {
+          debugPrint('   User ID: ${session.user.id}');
+          debugPrint('   User email: ${session.user.email}');
+          debugPrint('   Session valid: ${session.expiresAt != null}');
+          debugPrint('   Access token present: ${session.accessToken.isNotEmpty}');
+        }
+        debugPrint('   Previous user: ${_currentUser?.email ?? "none"}');
+
+        // Track previous user ID to detect user changes
+        final previousUserId = _currentUser?.id;
 
         if (session != null) {
           _currentUser = session.user;
+          debugPrint('   ✅ User authenticated: ${_currentUser?.email}');
+
+          // If user changed (different ID), force refresh journal to prevent data leakage
+          if (previousUserId != null && previousUserId != _currentUser!.id) {
+            debugPrint('   👤 User changed from $previousUserId to ${_currentUser!.id}');
+            _forceRefreshJournalOnUserChange();
+          }
         } else {
           _currentUser = null;
+          debugPrint('   ❌ User signed out');
         }
 
+        debugPrint('   🔔 Notifying listeners...');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         notifyListeners();
       });
 
@@ -214,6 +239,15 @@ class SupabaseAuthService extends ChangeNotifier {
     try {
       await _supabase.auth.signOut();
       _currentUser = null;
+
+      // Clear journal cache to prevent data leakage between users
+      try {
+        await JournalService.instance.clearCache();
+        debugPrint('✅ Journal cache cleared on sign-out');
+      } catch (e) {
+        debugPrint('⚠️ Failed to clear journal cache on sign-out: $e');
+      }
+
       debugPrint('👋 User signed out');
     } catch (e) {
       debugPrint('❌ Sign out error: $e');
@@ -378,6 +412,19 @@ class SupabaseAuthService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Force refresh journal when user changes (prevents data leakage)
+  void _forceRefreshJournalOnUserChange() {
+    try {
+      // Run in background to avoid blocking auth flow
+      JournalService.instance.forceRefreshOnSignIn().catchError((e) {
+        debugPrint('⚠️ Failed to force refresh journal on user change: $e');
+      });
+      debugPrint('✅ Journal refresh initiated for new user');
+    } catch (e) {
+      debugPrint('⚠️ Failed to initiate journal refresh: $e');
+    }
+  }
+
   /// Validate email format
   bool _isValidEmail(String email) {
     return RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email);
@@ -488,8 +535,8 @@ class SupabaseAuthService extends ChangeNotifier {
       if (user != null) {
         // Authenticated user - use user_id column for most tables
         await _supabase.from('journal_entries').delete().eq('user_id', user.id);
-        await _supabase.from('user_progress').delete().eq('user_id', user.id);
-        await _supabase.from('user_settings').delete().eq('user_id', user.id);
+        await _supabase.from('user_progress').delete().eq('user_device_id', user.id);
+        await _supabase.from('user_settings').delete().eq('user_device_id', user.id);
 
         // SPECIAL CASE: user_bookmarks only has user_device_id column (not user_id)
         // Authenticated users store their auth.uid in user_device_id field
@@ -557,29 +604,46 @@ class SupabaseAuthService extends ChangeNotifier {
     _setLoading(true);
     _clearError();
 
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('🔵 GOOGLE OAUTH: Starting sign-in flow');
+    debugPrint('   Timestamp: ${DateTime.now()}');
+
     try {
+      // Google requires the Supabase HTTPS callback URL, not the app deep link
+      // The deep link is handled automatically by Supabase after OAuth completes
+      debugPrint('📤 GOOGLE OAUTH: Calling Supabase.auth.signInWithOAuth');
+      debugPrint('   Provider: google');
+      debugPrint('   Launch mode: externalApplication');
+
       final result = await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: 'com.hub4apps.gitawisdom://login-callback',
         authScreenLaunchMode: LaunchMode.externalApplication,
       );
+
+      debugPrint('📥 GOOGLE OAUTH: signInWithOAuth returned');
+      debugPrint('   Result: $result');
 
       if (result) {
         // Clear error state and notify listeners when OAuth successfully initiates
         // This ensures UI updates immediately to hide any error banners
         _clearError();
-        debugPrint('✅ Google sign-in initiated');
+        debugPrint('✅ GOOGLE OAUTH: Successfully initiated - browser should open');
+        debugPrint('   Waiting for user to complete OAuth in browser...');
+        debugPrint('   Deep link callback will be handled by Supabase SDK');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
         return true;
       }
 
       throw Exception('Failed to initiate Google sign-in');
     } on AuthException catch (e) {
       _error = _handleAuthException(e);
-      debugPrint('❌ Google sign-in failed: ${e.message}');
+      debugPrint('❌ GOOGLE OAUTH: AuthException - ${e.message}');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     } catch (e) {
       _error = 'Failed to sign in with Google. Please try again.';
-      debugPrint('❌ Google sign-in error: $e');
+      debugPrint('❌ GOOGLE OAUTH: Error - $e');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     } finally {
       _setLoading(false);
@@ -592,9 +656,10 @@ class SupabaseAuthService extends ChangeNotifier {
     _clearError();
 
     try {
+      // Apple requires the Supabase HTTPS callback URL, not the app deep link
+      // The deep link is handled automatically by Supabase after OAuth completes
       final result = await _supabase.auth.signInWithOAuth(
         OAuthProvider.apple,
-        redirectTo: 'com.hub4apps.gitawisdom://login-callback',
         authScreenLaunchMode: LaunchMode.externalApplication,
       );
 
@@ -626,9 +691,10 @@ class SupabaseAuthService extends ChangeNotifier {
     _clearError();
 
     try {
+      // Facebook requires the Supabase HTTPS callback URL, not the app deep link
+      // The deep link is handled automatically by Supabase after OAuth completes
       final result = await _supabase.auth.signInWithOAuth(
         OAuthProvider.facebook,
-        redirectTo: 'com.hub4apps.gitawisdom://login-callback',
         authScreenLaunchMode: LaunchMode.externalApplication,
       );
 

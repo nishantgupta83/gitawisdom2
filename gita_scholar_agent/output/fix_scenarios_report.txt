@@ -1,0 +1,392 @@
+================================================================================
+SCENARIO FIX REPORT
+================================================================================
+Generated: 2025-10-13 22:44:41
+Total scenarios to fix: 15
+================================================================================
+
+
+================================================================================
+1. Being Told You're 'Too Sensitive'
+================================================================================
+Scenario ID: c1d1fd47-ae94-4bd2-99df-4bdc54998abf
+Issues: 1
+
+ISSUES FOUND:
+  - very_short_action_step at step 2: not flaws
+
+ORIGINAL ACTION STEPS (5):
+  1. Acknowledge your emotions as valid signals
+  2. not flaws
+  3. Set gentle boundaries without apology
+  4. Engage in practices that channel your emotions—like journaling or art
+  5. Connect with others who value emotional awareness
+
+FIXED ACTION STEPS (4):
+  1. Acknowledge your emotions as valid signals, not flaws
+  2. Set gentle boundaries without apology
+  3. Engage in practices that channel your emotions—like journaling or art
+  4. Connect with others who value emotional awareness
+
+
+================================================================================
+2. Debilitating Exam Failure Anxiety
+================================================================================
+Scenario ID: f0bdf74c-0e24-4e0b-9006-c07777d59014
+Issues: 4
+
+ISSUES FOUND:
+  - unbalanced_parentheses at step 3: Reflect on what's in your control (study
+  - very_short_action_step at step 4: mindset)
+  - fragment_action_step at step 4: mindset)
+  - unbalanced_parentheses at step 4: mindset)
+
+ORIGINAL ACTION STEPS (5):
+  1. Revise with focused effort and avoid comparison
+  2. Prioritize rest and clarity over cramming
+  3. Reflect on what's in your control (study
+  4. mindset)
+  5. Surrender anxiety through prayer or meditation
+
+FIXED ACTION STEPS (4):
+  1. Revise with focused effort and avoid comparison
+  2. Prioritize rest and clarity over cramming
+  3. Reflect on what's in your control (study, mindset)
+  4. Surrender anxiety through prayer or meditation
+
+
+================================================================================
+3. Struggling with Self-Harm Thoughts
+================================================================================
+Scenario ID: 843ff513-7ae4-4a26-9d95-39f24db56bfa
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 2: teacher
+  - fragment_action_step at step 2: teacher
+
+ORIGINAL ACTION STEPS (7):
+  1. Talk to a counselor
+  2. teacher
+  3. or loved one immediately
+  4. Create a safety plan and distraction list
+  5. Remember that emotions change—this moment will pass
+  6. Engage in activities that uplift your spirit
+  7. even if slowly
+
+FIXED ACTION STEPS (5):
+  1. Talk to a counselor, teacher, or loved one immediately
+  2. Create a safety plan and distraction list
+  3. Remember that emotions change—this moment will pass
+  4. Engage in activities that uplift your spirit
+  5. even if slowly
+
+
+================================================================================
+4. Social Media Comparison and Validation Seeking
+================================================================================
+Scenario ID: 353ff17d-4c05-4fab-ba8a-71cccfa28e7f
+Issues: 1
+
+ISSUES FOUND:
+  - fragment_action_step at step 5: journaling
+
+ORIGINAL ACTION STEPS (6):
+  1. Limit social media use with clear time boundaries.
+  2. Reflect on your inner qualities and growth.
+  3. Celebrate others without comparing yourself.
+  4. Practice silence
+  5. journaling
+  6. or meditation daily.
+
+FIXED ACTION STEPS (4):
+  1. Limit social media use with clear time boundaries.
+  2. Reflect on your inner qualities and growth.
+  3. Celebrate others without comparing yourself.
+  4. Practice silence, journaling, or meditation daily.
+
+
+================================================================================
+5. Logistics of Managing Two Toddlers
+================================================================================
+Scenario ID: 6894a94a-6759-4aea-a02e-95d93b14dab0
+Issues: 1
+
+ISSUES FOUND:
+  - incomplete_action_step at step 2: Use tools like double strollers, shopping cart covers, etc.
+
+ORIGINAL ACTION STEPS (5):
+  1. Prepare as much as possible the night before outings
+  2. Use tools like double strollers, shopping cart covers, etc.
+  3. Lower your expectations for speed and efficiency
+  4. Accept help from strangers when offered
+  5. Plan shorter trips and have realistic timelines
+
+FIXED ACTION STEPS (5):
+  1. Prepare as much as possible the night before outings
+  2. Use tools like double strollers, shopping cart covers, etc.
+  3. Lower your expectations for speed and efficiency
+  4. Accept help from strangers when offered
+  5. Plan shorter trips and have realistic timelines
+
+
+================================================================================
+6. Exam Pressure and Fear of Disappointing Others
+================================================================================
+Scenario ID: c2027e66-bfdc-4c85-a06a-48066e34a2d3
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 5: food
+  - fragment_action_step at step 5: food
+
+ORIGINAL ACTION STEPS (7):
+  1. Create a realistic study plan to reduce overwhelm.
+  2. Focus on learning
+  3. not perfection.
+  4. Practice self-care through rest
+  5. food
+  6. and faith.
+  7. Surrender anxiety through prayer or breathing exercises.
+
+FIXED ACTION STEPS (4):
+  1. Create a realistic study plan to reduce overwhelm.
+  2. Focus on learning, not perfection.
+  3. Practice self-care through rest, food, and faith.
+  4. Surrender anxiety through prayer or breathing exercises.
+
+
+================================================================================
+7. Developing Underperforming Team Member
+================================================================================
+Scenario ID: 16afa435-374f-43fe-9e76-8e237bc3bf7e
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 3: training
+  - fragment_action_step at step 3: training
+
+ORIGINAL ACTION STEPS (6):
+  1. Identify specific skills gaps and create a development plan
+  2. Provide mentoring
+  3. training
+  4. and regular feedback
+  5. Set clear milestones and timelines for improvement
+  6. Balance support for their growth with fairness to other team members
+
+FIXED ACTION STEPS (4):
+  1. Identify specific skills gaps and create a development plan
+  2. Provide mentoring, training, and regular feedback
+  3. Set clear milestones and timelines for improvement
+  4. Balance support for their growth with fairness to other team members
+
+
+================================================================================
+8. Child with Learning Differences
+================================================================================
+Scenario ID: 3f5eddb5-384e-4868-8c4f-956700424037
+Issues: 6
+
+ISSUES FOUND:
+  - unbalanced_parentheses at step 2: Celebrate your strengths (creativity
+  - very_short_action_step at step 3: kindness
+  - fragment_action_step at step 3: kindness
+  - very_short_action_step at step 4: etc.)
+  - fragment_action_step at step 4: etc.)
+  - unbalanced_parentheses at step 4: etc.)
+
+ORIGINAL ACTION STEPS (6):
+  1. Use learning tools suited to your style
+  2. Celebrate your strengths (creativity
+  3. kindness
+  4. etc.)
+  5. Talk openly with parents and teachers
+  6. Remember that your path is divine too
+
+FIXED ACTION STEPS (4):
+  1. Use learning tools suited to your style
+  2. Celebrate your strengths (creativity, kindness, etc.)
+  3. Talk openly with parents and teachers
+  4. Remember that your path is divine too
+
+
+================================================================================
+9. Cyberbullying and Identity Crisis
+================================================================================
+Scenario ID: 67f27ac6-00a3-44c3-ba97-02b29be3912f
+Issues: 1
+
+ISSUES FOUND:
+  - fragment_action_step at step 5: counselors
+
+ORIGINAL ACTION STEPS (6):
+  1. Limit time on toxic platforms and report abusive behavior
+  2. Spend time with friends and communities that affirm your worth
+  3. Reflect daily on your deeper identity beyond appearances
+  4. Seek support from parents
+  5. counselors
+  6. or spiritual mentors
+
+FIXED ACTION STEPS (4):
+  1. Limit time on toxic platforms and report abusive behavior
+  2. Spend time with friends and communities that affirm your worth
+  3. Reflect daily on your deeper identity beyond appearances
+  4. Seek support from parents, counselors, or spiritual mentors
+
+
+================================================================================
+10. Child Grieving Grandparent's Death
+================================================================================
+Scenario ID: 77933762-6eaa-4d43-bba0-7e6fc8e58cc1
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 3: prayers
+  - fragment_action_step at step 3: prayers
+
+ORIGINAL ACTION STEPS (6):
+  1. Talk to parents or elders about what happened
+  2. Create art
+  3. prayers
+  4. or memories to honor them
+  5. Ask spiritual questions when you're ready
+  6. Feel your sadness without shame
+
+FIXED ACTION STEPS (4):
+  1. Talk to parents or elders about what happened
+  2. Create art, prayers, or memories to honor them
+  3. Ask spiritual questions when you're ready
+  4. Feel your sadness without shame
+
+
+================================================================================
+11. Managing Anxiety About Team Performance Results
+================================================================================
+Scenario ID: 65f52ff3-82b0-4509-9f25-31d304d555aa
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 4: support
+  - fragment_action_step at step 4: support
+
+ORIGINAL ACTION STEPS (6):
+  1. Define excellent process and effort rather than just focusing on results
+  2. Trust your team's capabilities and avoid micromanaging from anxiety
+  3. Focus on what you can control: preparation
+  4. support
+  5. and quality of action
+  6. Practice surrendering results while maintaining full commitment to excellence
+
+FIXED ACTION STEPS (4):
+  1. Define excellent process and effort rather than just focusing on results
+  2. Trust your team's capabilities and avoid micromanaging from anxiety
+  3. Focus on what you can control: preparation, support, and quality of action
+  4. Practice surrendering results while maintaining full commitment to excellence
+
+
+================================================================================
+12. Different Spiritual Paths Creating Family Tension
+================================================================================
+Scenario ID: 706aab64-6929-43ec-829b-8a38c3021927
+Issues: 1
+
+ISSUES FOUND:
+  - fragment_action_step at step 2: compassion
+
+ORIGINAL ACTION STEPS (6):
+  1. Focus on shared spiritual values like love
+  2. compassion
+  3. and service
+  4. Create inclusive practices that honor different traditions
+  5. Educate family members about the universality of spiritual truth
+  6. Demonstrate through example that different paths can coexist harmoniously
+
+FIXED ACTION STEPS (4):
+  1. Focus on shared spiritual values like love, compassion, and service
+  2. Create inclusive practices that honor different traditions
+  3. Educate family members about the universality of spiritual truth
+  4. Demonstrate through example that different paths can coexist harmoniously
+
+
+================================================================================
+13. Letting Go of Control Over Critical Project
+================================================================================
+Scenario ID: f93d4527-0a77-43c4-b0be-2eb4cf18a60c
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 2: deadlines
+  - fragment_action_step at step 2: deadlines
+
+ORIGINAL ACTION STEPS (6):
+  1. Clearly communicate expectations
+  2. deadlines
+  3. and success criteria
+  4. Provide necessary resources and access to information
+  5. Schedule regular check-ins without micromanaging daily activities
+  6. Focus on developing their capabilities rather than controlling their methods
+
+FIXED ACTION STEPS (4):
+  1. Clearly communicate expectations, deadlines, and success criteria
+  2. Provide necessary resources and access to information
+  3. Schedule regular check-ins without micromanaging daily activities
+  4. Focus on developing their capabilities rather than controlling their methods
+
+
+================================================================================
+14. Dealing with Pet Loss as a Child
+================================================================================
+Scenario ID: 26a6861a-70f2-4274-ac30-5eb6164f30d5
+Issues: 2
+
+ISSUES FOUND:
+  - very_short_action_step at step 2: writing
+  - fragment_action_step at step 2: writing
+
+ORIGINAL ACTION STEPS (6):
+  1. Encourage the child to express feelings through art
+  2. writing
+  3. or talking
+  4. Reassure them that the pet's soul continues its journey
+  5. Share simple verses or stories from the Gita about life and death
+  6. Create a remembrance ritual to honor the pet's life
+
+FIXED ACTION STEPS (4):
+  1. Encourage the child to express feelings through art, writing, or talking
+  2. Reassure them that the pet's soul continues its journey
+  3. Share simple verses or stories from the Gita about life and death
+  4. Create a remembrance ritual to honor the pet's life
+
+
+================================================================================
+15. Interfaith Marriage Creating Family Tension
+================================================================================
+Scenario ID: ba759226-a808-47e9-b791-a9c8072a6135
+Issues: 1
+
+ISSUES FOUND:
+  - fragment_action_step at step 2: compassion
+
+ORIGINAL ACTION STEPS (6):
+  1. Focus on shared spiritual values like love
+  2. compassion
+  3. and service
+  4. Create inclusive practices that honor the essence of both traditions
+  5. Educate family members about the universal principles underlying all religions
+  6. Demonstrate through your relationship that different faiths can coexist harmoniously
+
+FIXED ACTION STEPS (4):
+  1. Focus on shared spiritual values like love, compassion, and service
+  2. Create inclusive practices that honor the essence of both traditions
+  3. Educate family members about the universal principles underlying all religions
+  4. Demonstrate through your relationship that different faiths can coexist harmoniously
+
+
+================================================================================
+SUMMARY
+================================================================================
+Total scenarios processed: 15
+Successfully fixed: 15
+Errors encountered: 0
+Total UPDATE statements: 15
+Total issues resolved: 30

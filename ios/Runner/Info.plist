@@ -78,6 +78,10 @@
 	<array>
 		<string>audio</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app does not use the microphone. This permission is required by the audio playback framework for background meditation music.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<!-- TODO: Facebook Configuration - Add your Facebook App ID -->
 	<!-- Uncomment and replace <YOUR_FACEBOOK_APP_ID> with actual ID from Facebook Developer Console -->
 	<!--
@@ -95,7 +99,5 @@
 		<string>fbshareextension</string>
 	</array>
 	-->
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app does not use the microphone. This permission is required by third-party frameworks.</string>
 </dict>
 </plist>

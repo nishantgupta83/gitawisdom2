@@ -327,5 +327,42 @@ class JournalService {
     if (validEntries.isEmpty) return 0.0;
     return validEntries.map((e) => e.rating).reduce((a, b) => a + b) / validEntries.length;
   }
+
+  /// Clear local journal cache (called on user sign-out to prevent data leakage)
+  Future<void> clearCache() async {
+    try {
+      await _ensureInitialized();
+
+      // Clear local Hive storage
+      await _box!.clear();
+
+      // Clear in-memory cache
+      _cachedEntries.clear();
+      _lastLocalFetch = null;
+
+      debugPrint('🗑️ Journal cache cleared for user sign-out');
+    } catch (e) {
+      debugPrint('❌ Error clearing journal cache: $e');
+    }
+  }
+
+  /// Force refresh from server (called on user sign-in to load new user's data)
+  Future<void> forceRefreshOnSignIn() async {
+    try {
+      debugPrint('🔄 Force refreshing journal on sign-in...');
+
+      // Clear local cache first to prevent showing old user's data
+      await clearCache();
+
+      // Fetch fresh data from server for the new user
+      await _refreshFromServer();
+
+      debugPrint('✅ Journal refreshed for new user: ${_cachedEntries.length} entries');
+    } catch (e) {
+      debugPrint('❌ Error force refreshing journal: $e');
+      // Ensure cache is clear even if refresh fails
+      _cachedEntries.clear();
+    }
+  }
 }
 
