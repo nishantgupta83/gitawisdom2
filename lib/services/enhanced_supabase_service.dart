@@ -955,33 +955,10 @@ class EnhancedSupabaseService {
       final List<Scenario> scenarios = [];
       
       for (final item in response) {
-        Map<String, dynamic> scenarioData = Map<String, dynamic>.from(item);
-        
-        // Try to get translations if not English
-        if (language != 'en') {
-          try {
-            final translationResponse = await client
-                .from('scenario_translations')
-                .select('*')
-                .eq('scenario_id', item['scenario_id'])
-                .eq('lang_code', language)
-                .maybeSingle();
-            
-            if (translationResponse != null) {
-              // Apply translations
-              if (translationResponse['title'] != null) scenarioData['sc_title'] = translationResponse['title'];
-              if (translationResponse['description'] != null) scenarioData['sc_description'] = translationResponse['description'];
-              if (translationResponse['category'] != null) scenarioData['sc_category'] = translationResponse['category'];
-              if (translationResponse['heart_response'] != null) scenarioData['sc_heart_response'] = translationResponse['heart_response'];
-              if (translationResponse['duty_response'] != null) scenarioData['sc_duty_response'] = translationResponse['duty_response'];
-              if (translationResponse['gita_wisdom'] != null) scenarioData['sc_gita_wisdom'] = translationResponse['gita_wisdom'];
-              if (translationResponse['action_steps'] != null) scenarioData['sc_action_steps'] = translationResponse['action_steps'];
-            }
-          } catch (translationError) {
-            debugPrint('⚠️ Translation not found for scenario ${item['scenario_id']} in $language, using English');
-          }
-        }
-        
+        // English-only optimization: No translation queries needed
+        // This eliminates N+1 query problem (previously 1,226 individual queries)
+        final scenarioData = item;
+
         final scenario = Scenario(
           title: scenarioData['sc_title'] as String? ?? '',
           description: scenarioData['sc_description'] as String? ?? '',

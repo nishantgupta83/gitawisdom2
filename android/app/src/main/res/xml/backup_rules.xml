@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude encrypted Hive boxes from cloud backup -->
+    <exclude domain="file" path="hive_boxes/"/>
+    
+    <!-- Exclude Flutter secure storage (contains encryption keys) -->
+    <exclude domain="sharedpref" path="FlutterSecureStorage"/>
+</full-backup-content>

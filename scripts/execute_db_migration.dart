@@ -3,9 +3,21 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 /// Execute database migration via Supabase SQL API
+/// SECURITY: Credentials must be provided via environment variables
 Future<void> main() async {
-  const supabaseUrl = 'https://wlfwdtdtiedlcczfoslt.supabase.co';
-  const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndsZndkdGR0aWVkbGNjemZvc2x0Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1MTg2NDkwMCwiZXhwIjoyMDY3NDQwOTAwfQ.VYj3RxZ_KxLqQb3HyqH0VqQEKP8EPTE8gKTOdKaKMJI'; // service_role key for admin operations
+  // Load credentials from environment variables (NEVER hardcode)
+  final supabaseUrl = Platform.environment['SUPABASE_URL'];
+  final supabaseKey = Platform.environment['SUPABASE_SERVICE_ROLE_KEY'];
+
+  if (supabaseUrl == null || supabaseKey == null) {
+    print('❌ ERROR: Missing required environment variables\n');
+    print('Please set:');
+    print('  export SUPABASE_URL=<your_supabase_url>');
+    print('  export SUPABASE_SERVICE_ROLE_KEY=<your_service_role_key>\n');
+    print('💡 Tip: Load from .env.development:');
+    print('  source .env.development && dart scripts/execute_db_migration.dart\n');
+    exit(1);
+  }
 
   print('🔧 Executing Phase 1 Database Migration...\n');
 
