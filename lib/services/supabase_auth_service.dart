@@ -685,37 +685,7 @@ class SupabaseAuthService extends ChangeNotifier {
     }
   }
 
-  /// Sign in with Facebook using Supabase OAuth
-  Future<bool> signInWithFacebook() async {
-    _setLoading(true);
-    _clearError();
-
-    try {
-      // Facebook requires the Supabase HTTPS callback URL, not the app deep link
-      // The deep link is handled automatically by Supabase after OAuth completes
-      final result = await _supabase.auth.signInWithOAuth(
-        OAuthProvider.facebook,
-        authScreenLaunchMode: LaunchMode.externalApplication,
-      );
-
-      if (result) {
-        debugPrint('✅ Facebook sign-in initiated');
-        return true;
-      }
-
-      throw Exception('Failed to initiate Facebook sign-in');
-    } on AuthException catch (e) {
-      _error = _handleAuthException(e);
-      debugPrint('❌ Facebook sign-in failed: ${e.message}');
-      return false;
-    } catch (e) {
-      _error = 'Failed to sign in with Facebook. Please try again.';
-      debugPrint('❌ Facebook sign-in error: $e');
-      return false;
-    } finally {
-      _setLoading(false);
-    }
-  }
+  // Facebook sign-in removed - not being used in production
 
   /// Dispose method to cleanup resources and prevent memory leaks
   @override

@@ -330,30 +330,18 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             Positioned(
               top: 40,
               right: 84,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.amberAccent.withValues(alpha:0.9),
-                      blurRadius: 16,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: 25,
-                  backgroundColor: theme.colorScheme.surface,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back,
-                      size: 30,
-                      color: theme.colorScheme.primary,
-                    ),
-                    splashRadius: 30,
-                    onPressed: () => Navigator.pop(context),
-                    tooltip: AppLocalizations.of(context)!.back,
+              child: CircleAvatar(
+                radius: 25,
+                backgroundColor: theme.colorScheme.surface,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    size: 30,
+                    color: theme.colorScheme.primary,
                   ),
+                  splashRadius: 30,
+                  onPressed: () => Navigator.pop(context),
+                  tooltip: AppLocalizations.of(context)!.back,
                 ),
               ),
             ),
@@ -376,33 +364,21 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             Positioned(
               top: 40,
               right: 24,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.amberAccent.withValues(alpha:0.9),
-                      blurRadius: 16,
-                      spreadRadius: 4,
-                    ),
-                  ],
-                ),
-                child: CircleAvatar(
-                  radius: 25,
-                  backgroundColor: theme.colorScheme.surface,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.home_filled,
-                      size: 30,
-                      color: theme.colorScheme.primary,
-                    ),
-                    splashRadius: 30,
-                    onPressed: () {
-                      // Use proper tab navigation to sync bottom navigation state
-                      NavigationService.instance.goToTab(0); // 0 = Home tab index
-                    },
-                    tooltip: AppLocalizations.of(context)!.home,
+              child: CircleAvatar(
+                radius: 25,
+                backgroundColor: theme.colorScheme.surface,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.home_filled,
+                    size: 30,
+                    color: theme.colorScheme.primary,
                   ),
+                  splashRadius: 30,
+                  onPressed: () {
+                    // Use proper tab navigation to sync bottom navigation state
+                    NavigationService.instance.goToTab(0); // 0 = Home tab index
+                  },
+                  tooltip: AppLocalizations.of(context)!.home,
                 ),
               ),
             ),

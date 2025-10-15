@@ -307,37 +307,25 @@ class _ChapterScreenState extends State<ChapterScreen> {
           Positioned(
             top: 26,
             right: 84,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 32,
-                  onPressed: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      // Navigate to home tab instead of trying to pop empty stack
-                      NavigationService.instance.goToTab(0);
-                    }
-                  },
-                  tooltip: AppLocalizations.of(context)!.back,
+            child: CircleAvatar(
+              radius: 26,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 32,
+                  color: theme.colorScheme.primary,
                 ),
+                splashRadius: 32,
+                onPressed: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    // Navigate to home tab instead of trying to pop empty stack
+                    NavigationService.instance.goToTab(0);
+                  }
+                },
+                tooltip: AppLocalizations.of(context)!.back,
               ),
             ),
           ),
@@ -346,33 +334,21 @@ class _ChapterScreenState extends State<ChapterScreen> {
           Positioned(
             top: 26,
             right: 24,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.home_filled,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 32,
-                  onPressed: () {
-                    // Use proper tab navigation to sync bottom navigation state
-                    NavigationService.instance.goToTab(0); // 0 = Home tab index
-                  },
-                  tooltip: AppLocalizations.of(context)!.home,
+            child: CircleAvatar(
+              radius: 26,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.home_filled,
+                  size: 32,
+                  color: theme.colorScheme.primary,
                 ),
+                splashRadius: 32,
+                onPressed: () {
+                  // Use proper tab navigation to sync bottom navigation state
+                  NavigationService.instance.goToTab(0); // 0 = Home tab index
+                },
+                tooltip: AppLocalizations.of(context)!.home,
               ),
             ),
           ),

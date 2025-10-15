@@ -243,11 +243,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                     
                     // Main content
                     SliverPadding(
-                      padding: EdgeInsets.only(
+                      padding: const EdgeInsets.only(
                         left: 20,
                         right: 20,
                         top: 20,
-                        bottom: math.max(MediaQuery.of(context).padding.bottom + 80, 100), // Ensure minimum padding
+                        bottom: 100, // Fixed padding - nav bar floats over with transparency
                       ),
                       sliver: SliverList(
                         delegate: SliverChildListDelegate([
@@ -286,11 +286,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
 
                           // Main content
                           SliverPadding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                               left: 20,
                               right: 20,
                               top: 20,
-                              bottom: math.max(MediaQuery.of(context).padding.bottom + 80, 100), // Ensure minimum padding
+                              bottom: 100, // Fixed padding - nav bar floats over with transparency
                             ),
                             sliver: SliverList(
                               delegate: SliverChildListDelegate([

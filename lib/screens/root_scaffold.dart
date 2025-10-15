@@ -246,14 +246,15 @@ class _RootScaffoldState extends State<RootScaffold> with WidgetsBindingObserver
         }
       },
       child: Scaffold(
+        extendBody: true, // Allow content to extend behind floating navigation bar
         body: IndexedStack(
           index: _currentIndex,
           sizing: StackFit.expand,
           // Lazy loading: Build pages on demand using _getPage()
           children: List.generate(5, (index) => _getPage(index)),
         ),
-        
-        // Modern bottom navigation bar
+
+        // Modern bottom navigation bar (floats over content with blur/transparency)
         bottomNavigationBar: ModernNavBar(
           currentIndex: _currentIndex,
           onTap: _selectTab,

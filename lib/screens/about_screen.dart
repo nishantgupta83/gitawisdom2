@@ -451,68 +451,58 @@ class AboutScreen extends StatelessWidget {
             ),
           ),
           
-          // Floating Back Button
-          Positioned(
-            top: 26,
-            right: 84,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
+          // Floating Back Button - wrapped in SafeArea for proper positioning
+          SafeArea(
+            child: Positioned(
+              top: 16,
+              right: 84,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () => Navigator.of(context).pop(),
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                    ),
+                    child: Icon(
+                      Icons.arrow_back,
+                      size: 28,
+                      color: theme.colorScheme.primary,
+                    ),
                   ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 32,
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Back',
                 ),
               ),
             ),
           ),
-          
-          // Floating Home Button
-          Positioned(
-            top: 26,
-            right: 24,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 26,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.home_filled,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 32,
-                  onPressed: () {
+
+          // Floating Home Button - wrapped in SafeArea for proper positioning
+          SafeArea(
+            child: Positioned(
+              top: 16,
+              right: 20,
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {
                     // Use proper tab navigation to sync bottom navigation state
                     NavigationService.instance.goToTab(0); // 0 = Home tab index
                   },
-                  tooltip: 'Home',
+                  customBorder: const CircleBorder(),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                    ),
+                    child: Icon(
+                      Icons.home_filled,
+                      size: 28,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
                 ),
               ),
             ),
