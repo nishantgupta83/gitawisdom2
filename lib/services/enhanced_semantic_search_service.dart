@@ -29,20 +29,22 @@ class EnhancedSemanticSearchService {
   final Map<String, Map<String, double>> _scenarioVectors = {};
   final Map<String, Scenario> _scenarioMap = {};
   final Map<String, double> _termFrequencies = {};
+  final Map<String, int> _documentFrequencies = {}; // Document frequency for IDF calculation
   final Map<String, Set<String>> _synonymMap = {};
+  final Map<String, Set<String>> _scenarioConcepts = {}; // Precomputed concept matches per scenario
   bool _isInitialized = false;
 
   // Spiritual and emotional concept mappings for Gita scenarios
   final Map<String, List<String>> _conceptMappings = {
     'stress': ['anxiety', 'pressure', 'tension', 'worry', 'burden', 'overwhelm', 'strain'],
     'work': ['career', 'job', 'profession', 'employment', 'business', 'duty', 'dharma'],
-    'family': ['parents', 'children', 'siblings', 'relatives', 'household', 'home'],
-    'relationships': ['love', 'marriage', 'friendship', 'partner', 'spouse', 'connection'],
+    'family': ['parents', 'children', 'siblings', 'relatives', 'household', 'home', 'kid', 'kids', 'child', 'son', 'daughter', 'wife', 'husband', 'mother', 'father', 'brother', 'sister', 'dad', 'mom', 'papa', 'mama', 'parent', 'family'],
+    'relationships': ['love', 'marriage', 'friendship', 'partner', 'spouse', 'connection', 'boyfriend', 'girlfriend', 'relationship', 'breakup', 'divorce', 'separation'],
     'purpose': ['meaning', 'dharma', 'calling', 'mission', 'goals', 'direction', 'vision'],
     'spiritual': ['meditation', 'prayer', 'divine', 'soul', 'consciousness', 'enlightenment'],
     'fear': ['afraid', 'scared', 'terror', 'phobia', 'anxiety', 'dread', 'worry'],
     'anger': ['rage', 'fury', 'irritation', 'frustration', 'annoyance', 'wrath'],
-    'confusion': ['lost', 'unclear', 'doubt', 'uncertain', 'perplexed', 'puzzled'],
+    'confusion': ['lost', 'unclear', 'doubt', 'uncertain', 'perplexed', 'puzzled', 'what to do', 'helpless', 'hopeless', 'stuck'],
     'success': ['achievement', 'accomplishment', 'victory', 'triumph', 'prosperity'],
     'failure': ['defeat', 'loss', 'setback', 'disappointment', 'mistake', 'error'],
     'money': ['wealth', 'finance', 'prosperity', 'poverty', 'income', 'financial'],
@@ -50,6 +52,31 @@ class EnhancedSemanticSearchService {
     'death': ['dying', 'mortality', 'grief', 'loss', 'bereavement', 'mourning'],
     'ethics': ['morality', 'values', 'principles', 'right', 'wrong', 'virtue'],
     'choice': ['decision', 'option', 'selection', 'dilemma', 'pick', 'choose'],
+    // Technology and modern life concepts
+    'technology': ['mobile', 'phone', 'smartphone', 'device', 'digital', 'screen', 'computer', 'tablet', 'gadget', 'electronic', 'internet', 'online', 'app', 'software'],
+    'communication': ['message', 'call', 'text', 'email', 'chat', 'talk', 'conversation', 'contact', 'social media'],
+    'social': ['facebook', 'instagram', 'twitter', 'social media', 'online', 'web', 'network', 'followers', 'likes'],
+    'distraction': ['addictive', 'compulsive', 'scrolling', 'notification', 'alert', 'temptation', 'procrastination'],
+    // Mental health concepts
+    'depression': ['depressed', 'sad', 'unhappy', 'miserable', 'hopeless', 'despair', 'melancholy', 'blues', 'down'],
+    'mental health': ['depression', 'anxiety', 'therapy', 'counseling', 'mental illness', 'psychological', 'emotional', 'trauma', 'ptsd'],
+    'crisis': ['suicide', 'suicidal', 'self harm', 'emergency', 'crisis', 'desperate', 'end it all'],
+    'trauma': ['hurt', 'pain', 'wounded', 'damaged', 'suffering', 'agony', 'torture', 'abuse', 'violence'],
+    // Support and help concepts
+    'help': ['support', 'assistance', 'guidance', 'advice', 'counsel', 'help me', 'need help', 'helpless'],
+    // Leadership and professional growth
+    'leadership': ['leader', 'ownership', 'mentor', 'manager', 'influence', 'guide', 'inspire', 'responsibility'],
+    'team': ['collaboration', 'conflict', 'colleague', 'communication', 'teamwork', 'cooperation', 'coworker', 'group'],
+    'discipline': ['routine', 'practice', 'willpower', 'self control', 'habit', 'consistency', 'dedication', 'commitment'],
+    // Spiritual practices
+    'detachment': ['letting go', 'surrender', 'equanimity', 'non attachment', 'release', 'acceptance', 'peace'],
+    'digital wellbeing': ['screen time', 'unplug', 'detox', 'disconnect', 'digital fast', 'tech free'],
+    // Life stages and roles
+    'education': ['exam', 'study', 'teacher', 'student', 'learning', 'school', 'college', 'university', 'test'],
+    'parenting': ['guidance', 'boundaries', 'support', 'values', 'children', 'parent', 'raising', 'upbringing'],
+    // Inner peace and service
+    'peace': ['calm', 'contentment', 'acceptance', 'tranquility', 'serenity', 'harmony', 'stillness'],
+    'service': ['seva', 'charity', 'volunteer', 'kindness', 'giving', 'helping', 'selfless', 'compassion'],
   };
 
   /// Initialize the enhanced semantic search with scenarios
@@ -70,7 +97,7 @@ class EnhancedSemanticSearchService {
       // Build vocabulary and term frequencies
       await _buildVocabulary(scenarios);
 
-      // Create semantic vectors for each scenario
+      // Create semantic vectors and precompute concept matches for each scenario
       for (final scenario in scenarios) {
         final scenarioId = _getScenarioId(scenario);
         _scenarioMap[scenarioId] = scenario;
@@ -78,6 +105,9 @@ class EnhancedSemanticSearchService {
         final text = _extractSearchableText(scenario);
         final vector = _createSemanticVector(text);
         _scenarioVectors[scenarioId] = vector;
+
+        // Precompute concept matches for faster querying
+        _indexScenarioConcepts(scenario, scenarioId);
       }
 
       _isInitialized = true;
@@ -91,32 +121,40 @@ class EnhancedSemanticSearchService {
     }
   }
 
-  /// Build vocabulary and calculate term frequencies across all scenarios
+  /// Build vocabulary and calculate term frequencies and document frequencies
   Future<void> _buildVocabulary(List<Scenario> scenarios) async {
     final allTerms = <String>[];
+    _documentFrequencies.clear();
 
+    // Calculate document frequency (DF) - how many documents contain each term
     for (final scenario in scenarios) {
       final text = _extractSearchableText(scenario);
       final terms = _extractTerms(text);
+      final uniqueTerms = terms.toSet(); // Get unique terms in this document
+
+      // Count document frequency
+      for (final term in uniqueTerms) {
+        _documentFrequencies[term] = (_documentFrequencies[term] ?? 0) + 1;
+      }
+
       allTerms.addAll(terms);
     }
 
-    // Calculate term frequencies (TF)
+    // Calculate term frequencies (TF) for normalization
     final termCounts = <String, int>{};
     for (final term in allTerms) {
       termCounts[term] = (termCounts[term] ?? 0) + 1;
     }
 
-    // Convert to TF-IDF weights
     final totalTerms = allTerms.length;
     for (final entry in termCounts.entries) {
       _termFrequencies[entry.key] = entry.value / totalTerms;
     }
 
-    debugPrint('📚 Built vocabulary: ${_termFrequencies.length} unique terms');
+    debugPrint('📚 Built vocabulary: ${_termFrequencies.length} unique terms from ${scenarios.length} documents');
   }
 
-  /// Create semantic vector for text using enhanced NLP techniques
+  /// Create semantic vector for text using true TF-IDF weighting
   Map<String, double> _createSemanticVector(String text) {
     final vector = <String, double>{};
     final terms = _extractTerms(text);
@@ -127,16 +165,23 @@ class EnhancedSemanticSearchService {
       termCounts[term] = (termCounts[term] ?? 0) + 1;
     }
 
-    // Create TF-IDF vector with semantic expansion
+    // Find maximum term frequency for normalization
+    final maxCount = termCounts.values.fold<int>(0, (max, count) => count > max ? count : max);
+
+    // Create true TF-IDF vector with semantic expansion
+    final numDocs = _scenarioMap.length;
     for (final entry in termCounts.entries) {
       final term = entry.key;
       final count = entry.value;
 
-      // Calculate TF-IDF score
-      final tf = count / terms.length;
-      final idf = log((_scenarioMap.length + 1) / (_termFrequencies[term] ?? 1));
-      final tfidf = tf * idf;
+      // Calculate normalized TF (0.5 + 0.5 * (count / maxCount)) for better discrimination
+      final tf = maxCount == 0 ? 0.0 : count / maxCount.toDouble();
 
+      // Calculate true IDF using document frequency
+      final docFreq = _documentFrequencies[term] ?? 1;
+      final idf = log((numDocs + 1) / (docFreq + 1)) + 1; // Add 1 to avoid zero IDF
+
+      final tfidf = tf * idf;
       vector[term] = tfidf;
 
       // Add semantic expansion using concept mappings
@@ -161,6 +206,27 @@ class EnhancedSemanticSearchService {
         vector[entry.key] = (vector[entry.key] ?? 0) + (weight * 0.8);
       }
     }
+  }
+
+  /// Precompute which concepts match this scenario (for fast concept matching during search)
+  void _indexScenarioConcepts(Scenario scenario, String scenarioId) {
+    final text = _extractSearchableText(scenario);
+    final terms = _extractTerms(text).toSet();
+    final matchedConcepts = <String>{};
+
+    // Find all concept groups that match this scenario
+    _conceptMappings.forEach((concept, words) {
+      // Check if the concept key itself appears in the text
+      if (terms.contains(concept)) {
+        matchedConcepts.add(concept);
+      }
+      // Check if any of the concept words appear in the text
+      else if (words.any((word) => terms.contains(word))) {
+        matchedConcepts.add(concept);
+      }
+    });
+
+    _scenarioConcepts[scenarioId] = matchedConcepts;
   }
 
   /// Enhanced search using multiple semantic similarity algorithms
@@ -274,38 +340,44 @@ class EnhancedSemanticSearchService {
     return min(totalOverlap / queryTerms.length, 1.0);
   }
 
-  /// Calculate concept matching score using Gita-specific knowledge
+  /// Calculate concept matching score using Gita-specific knowledge (optimized with precomputed data)
   double _calculateConceptMatching(List<String> queryTerms, Scenario scenario) {
-    double conceptScore = 0.0;
-    final scenarioText = _extractSearchableText(scenario).toLowerCase();
+    final scenarioId = _getScenarioId(scenario);
+    final scenarioConcepts = _scenarioConcepts[scenarioId] ?? {};
 
+    if (scenarioConcepts.isEmpty || queryTerms.isEmpty) return 0.0;
+
+    // Find which concepts are in the query
+    final queryConcepts = <String>{};
     for (final term in queryTerms) {
-      // Direct concept match
+      // Check if term is a concept key
       if (_conceptMappings.containsKey(term)) {
-        final relatedTerms = _conceptMappings[term]!;
-        for (final relatedTerm in relatedTerms) {
-          if (scenarioText.contains(relatedTerm)) {
-            conceptScore += 0.8;
-          }
-        }
+        queryConcepts.add(term);
       }
-
       // Check if term appears in any concept mapping
-      for (final entry in _conceptMappings.entries) {
-        if (entry.value.contains(term) && scenarioText.contains(entry.key)) {
-          conceptScore += 0.6;
+      _conceptMappings.forEach((concept, words) {
+        if (words.contains(term)) {
+          queryConcepts.add(concept);
         }
-      }
+      });
     }
 
-    return min(conceptScore / queryTerms.length, 1.0);
+    if (queryConcepts.isEmpty) return 0.0;
+
+    // Calculate overlap between query concepts and scenario concepts
+    final overlap = queryConcepts.intersection(scenarioConcepts).length;
+    return overlap / queryConcepts.length;
   }
 
   /// Check if two terms are semantically similar
   bool _areSemanticallySimilar(String term1, String term2) {
     // Simple semantic similarity checks
     if (term1 == term2) return true;
-    if (term1.contains(term2) || term2.contains(term1)) return true;
+
+    // Use word-boundary regex to avoid false positives (e.g., "dad" matching "dadly")
+    final wordBoundary1 = RegExp(r'(^|\b)' + RegExp.escape(term1) + r'(\b|$)');
+    final wordBoundary2 = RegExp(r'(^|\b)' + RegExp.escape(term2) + r'(\b|$)');
+    if (wordBoundary1.hasMatch(term2) || wordBoundary2.hasMatch(term1)) return true;
 
     // Check concept mappings
     for (final concepts in _conceptMappings.values) {
@@ -350,24 +422,34 @@ class EnhancedSemanticSearchService {
     }
   }
 
-  /// Extract and normalize terms from text
+  /// Extract and normalize terms from text (English-optimized)
   List<String> _extractTerms(String text) {
-    return text
+    // English-only optimization: simpler regex without Unicode overhead
+    final normalized = text
         .toLowerCase()
-        .replaceAll(RegExp(r'[^\w\s]'), ' ')
+        .replaceAll(RegExp(r'[^a-z0-9\s]+'), ' '); // Keep letters and numbers only
+
+    return normalized
         .split(RegExp(r'\s+'))
         .where((term) => term.length > 2) // Filter short words
         .where((term) => !_isStopWord(term)) // Filter stop words
         .toList();
   }
 
-  /// Check if a word is a stop word
+  /// Check if a word is a stop word (expanded for GitaWisdom context)
   bool _isStopWord(String word) {
     const stopWords = {
+      // Common English stop words
       'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
       'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have',
       'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
-      'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those'
+      'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those',
+      // Additional common words
+      'what', 'when', 'where', 'who', 'why', 'how', 'which', 'there',
+      'their', 'they', 'them', 'then', 'than', 'also', 'just', 'very',
+      'too', 'only', 'such', 'some', 'more', 'most', 'many', 'much',
+      // Normalized multiword phrases (underscores for matching)
+      'social_media', 'screen_time', 'let_go', 'self_control',
     };
     return stopWords.contains(word.toLowerCase());
   }
@@ -377,13 +459,15 @@ class EnhancedSemanticSearchService {
   }
 
   String _extractSearchableText(Scenario scenario) {
+    // Field weighting: repeat title 3x and category 2x to emphasize importance
     final parts = [
-      scenario.title,
+      ...List.filled(3, scenario.title),           // Title is most important
+      ...List.filled(2, scenario.category),         // Category is second most important
       scenario.description,
-      scenario.category,
       scenario.heartResponse ?? '',
       scenario.dutyResponse ?? '',
       scenario.gitaWisdom ?? '',
+      scenario.tags?.join(' ') ?? '',
     ];
 
     return parts.join(' ').toLowerCase();
@@ -396,7 +480,9 @@ class EnhancedSemanticSearchService {
     _scenarioVectors.clear();
     _scenarioMap.clear();
     _termFrequencies.clear();
+    _documentFrequencies.clear();
     _synonymMap.clear();
+    _scenarioConcepts.clear();
     _isInitialized = false;
   }
 }
