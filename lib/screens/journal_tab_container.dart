@@ -21,7 +21,8 @@ class JournalTabContainer extends StatelessWidget {
 
           final isAuthenticated = snapshot.data ?? false;
 
-          if (!isAuthenticated) {
+          // Check BOTH authenticated AND anonymous for access
+          if (!isAuthenticated && !authService.isAnonymous) {
             return _buildAuthPrompt(context);
           }
 
@@ -93,7 +94,9 @@ class JournalTabContainer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ModernAuthScreen(),
+                    builder: (_) => const ModernAuthScreen(
+                      isModal: true, // Mark as modal launch from within app
+                    ),
                     fullscreenDialog: true,
                   ),
                 );
@@ -113,7 +116,20 @@ class JournalTabContainer extends StatelessWidget {
             // Continue as guest option
             TextButton(
               onPressed: () async {
-                await authService.signInAnonymously();
+                // Use consistent method name
+                final success = await authService.signInAnonymously();
+
+                // Error handling
+                if (!success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Unable to continue as guest. Please try again.'),
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                  );
+                }
+                // Note: No navigation needed - StreamBuilder will auto-update
+                // When isAnonymous becomes true, it will show JournalScreen automatically
               },
               child: Text(
                 'Continue as Guest',

@@ -213,9 +213,12 @@ class SupabaseAuthService extends ChangeNotifier {
   }
 
   /// Sign in anonymously (device-based)
+  /// Sign in anonymously (guest mode)
+  /// Used by journal_tab_container.dart auth prompt
   Future<bool> signInAnonymously() async {
     _setLoading(true);
     _clearError();
+    notifyListeners(); // Notify UI loading started
 
     try {
       // For anonymous users, we just use device ID
@@ -224,13 +227,17 @@ class SupabaseAuthService extends ChangeNotifier {
       _deviceId = await _generateDeviceId();
 
       debugPrint('✅ Continuing as anonymous with device ID: $_deviceId');
+
+      _setLoading(false);
+      notifyListeners(); // Notify UI of success
       return true;
     } catch (e) {
       _error = 'Failed to continue as guest';
       debugPrint('❌ Anonymous sign in failed: $e');
-      return false;
-    } finally {
+
       _setLoading(false);
+      notifyListeners(); // Notify UI of error
+      return false;
     }
   }
 
@@ -580,21 +587,29 @@ class SupabaseAuthService extends ChangeNotifier {
   }
 
   /// Continue as anonymous user without authentication
+  /// Used by modern_auth_screen.dart guest button
+  /// Unified with signInAnonymously() for consistency
   Future<bool> continueAsAnonymous() async {
     try {
       _setLoading(true);
       clearError();
+      notifyListeners(); // Notify UI loading started
 
       // Generate device ID for anonymous mode
       _deviceId = await _generateDeviceId();
+      _currentUser = null; // Ensure user is cleared
+
       debugPrint('✅ Continuing as anonymous user with device ID: $_deviceId');
 
       _setLoading(false);
+      notifyListeners(); // Notify UI of success
       return true;
     } catch (e) {
       debugPrint('❌ Failed to continue as anonymous: $e');
       _error = 'Failed to continue as anonymous user';
+
       _setLoading(false);
+      notifyListeners(); // Notify UI of error
       return false;
     }
   }

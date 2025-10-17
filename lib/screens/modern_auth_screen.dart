@@ -8,7 +8,12 @@ import 'root_scaffold.dart';
 import '../widgets/social_auth_buttons.dart';
 
 class ModernAuthScreen extends StatefulWidget {
-  const ModernAuthScreen({super.key});
+  final bool isModal; // Track if launched as modal from within app
+
+  const ModernAuthScreen({
+    super.key,
+    this.isModal = false, // Default false for initial launch
+  });
 
   @override
   State<ModernAuthScreen> createState() => _ModernAuthScreenState();
@@ -909,44 +914,91 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
 
   void _handleSignIn() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final authService = context.read<SupabaseAuthService>();
     final success = await authService.signInWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
     );
-    
+
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
-      );
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+
+      // Context-aware navigation
+      if (widget.isModal) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
     }
   }
 
   void _handleSignUp() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final authService = context.read<SupabaseAuthService>();
     final success = await authService.signUpWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
       _nameController.text.trim().isEmpty ? 'User' : _nameController.text.trim(),
     );
-    
+
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
-      );
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+
+      // Context-aware navigation
+      if (widget.isModal) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
     }
   }
 
   void _continueAsGuest() async {
     final authService = context.read<SupabaseAuthService>();
-    final success = await authService.continueAsAnonymous();
-    
+
+    // Add timeout protection for iPad
+    final success = await authService.continueAsAnonymous().timeout(
+      const Duration(seconds: 5),
+      onTimeout: () {
+        debugPrint('⚠️ Guest sign-in timed out on iPad');
+        return false;
+      },
+    );
+
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
+      // Small delay for state propagation
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!mounted) return;
+
+      // Context-aware navigation
+      if (widget.isModal) {
+        // Launched from within app (e.g., Journal tab) - just close modal
+        debugPrint('🔙 Guest login success - closing auth modal');
+        Navigator.of(context).pop();
+      } else {
+        // Initial launch - replace with home screen
+        debugPrint('🏠 Guest login success - navigating to home');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
+    } else if (mounted) {
+      // User feedback for failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Unable to continue as guest. Please try again.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }

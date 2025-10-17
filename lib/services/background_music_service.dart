@@ -8,6 +8,19 @@ import '../models/simple_meditation.dart' show MusicTheme;
 
 /// Service for handling background ambient music during reading and meditation
 /// Separate from narration for independent control and audio ducking
+///
+/// ⚠️ FOREGROUND-ONLY AUDIO (Apple Guideline 2.5.4 Compliance)
+/// - Music runs ONLY when app is in foreground
+/// - Automatically pauses when app goes to background (AppLifecycleManager)
+/// - Automatically resumes when app returns to foreground (if enabled)
+/// - We do NOT declare UIBackgroundModes audio capability
+/// - This is intentional: GitaWisdom is NOT an audio app per Apple's definition
+/// - Music is an optional enhancement, not the primary app feature
+///
+/// Technical Implementation:
+/// - AppLifecycleManager.didChangeAppLifecycleState() handles pause/resume
+/// - iOS: AVAudioSession interruption handlers manage phone calls/Siri
+/// - Android: AudioSession with duckOthers for notification sounds
 class BackgroundMusicService extends ChangeNotifier {
   static final BackgroundMusicService _instance = BackgroundMusicService._internal();
   factory BackgroundMusicService() => _instance;
