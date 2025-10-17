@@ -15,7 +15,6 @@ import '../../services/supabase_auth_service.dart';
 import '../../services/bookmark_service.dart';
 import '../../services/background_music_service.dart';
 import '../../services/settings_service.dart';
-import '../../screens/root_scaffold.dart';
 
 /// Main app widget - clean MaterialApp configuration
 /// Replaces the complex 200+ line build method from main.dart

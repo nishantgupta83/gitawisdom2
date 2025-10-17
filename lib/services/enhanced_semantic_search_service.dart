@@ -29,22 +29,20 @@ class EnhancedSemanticSearchService {
   final Map<String, Map<String, double>> _scenarioVectors = {};
   final Map<String, Scenario> _scenarioMap = {};
   final Map<String, double> _termFrequencies = {};
-  final Map<String, int> _documentFrequencies = {}; // Document frequency for IDF calculation
   final Map<String, Set<String>> _synonymMap = {};
-  final Map<String, Set<String>> _scenarioConcepts = {}; // Precomputed concept matches per scenario
   bool _isInitialized = false;
 
   // Spiritual and emotional concept mappings for Gita scenarios
   final Map<String, List<String>> _conceptMappings = {
     'stress': ['anxiety', 'pressure', 'tension', 'worry', 'burden', 'overwhelm', 'strain'],
     'work': ['career', 'job', 'profession', 'employment', 'business', 'duty', 'dharma'],
-    'family': ['parents', 'children', 'siblings', 'relatives', 'household', 'home', 'kid', 'kids', 'child', 'son', 'daughter', 'wife', 'husband', 'mother', 'father', 'brother', 'sister', 'dad', 'mom', 'papa', 'mama', 'parent', 'family'],
-    'relationships': ['love', 'marriage', 'friendship', 'partner', 'spouse', 'connection', 'boyfriend', 'girlfriend', 'relationship', 'breakup', 'divorce', 'separation'],
+    'family': ['parents', 'children', 'siblings', 'relatives', 'household', 'home'],
+    'relationships': ['love', 'marriage', 'friendship', 'partner', 'spouse', 'connection'],
     'purpose': ['meaning', 'dharma', 'calling', 'mission', 'goals', 'direction', 'vision'],
     'spiritual': ['meditation', 'prayer', 'divine', 'soul', 'consciousness', 'enlightenment'],
     'fear': ['afraid', 'scared', 'terror', 'phobia', 'anxiety', 'dread', 'worry'],
     'anger': ['rage', 'fury', 'irritation', 'frustration', 'annoyance', 'wrath'],
-    'confusion': ['lost', 'unclear', 'doubt', 'uncertain', 'perplexed', 'puzzled', 'what to do', 'helpless', 'hopeless', 'stuck'],
+    'confusion': ['lost', 'unclear', 'doubt', 'uncertain', 'perplexed', 'puzzled'],
     'success': ['achievement', 'accomplishment', 'victory', 'triumph', 'prosperity'],
     'failure': ['defeat', 'loss', 'setback', 'disappointment', 'mistake', 'error'],
     'money': ['wealth', 'finance', 'prosperity', 'poverty', 'income', 'financial'],
@@ -52,31 +50,6 @@ class EnhancedSemanticSearchService {
     'death': ['dying', 'mortality', 'grief', 'loss', 'bereavement', 'mourning'],
     'ethics': ['morality', 'values', 'principles', 'right', 'wrong', 'virtue'],
     'choice': ['decision', 'option', 'selection', 'dilemma', 'pick', 'choose'],
-    // Technology and modern life concepts
-    'technology': ['mobile', 'phone', 'smartphone', 'device', 'digital', 'screen', 'computer', 'tablet', 'gadget', 'electronic', 'internet', 'online', 'app', 'software'],
-    'communication': ['message', 'call', 'text', 'email', 'chat', 'talk', 'conversation', 'contact', 'social media'],
-    'social': ['facebook', 'instagram', 'twitter', 'social media', 'online', 'web', 'network', 'followers', 'likes'],
-    'distraction': ['addictive', 'compulsive', 'scrolling', 'notification', 'alert', 'temptation', 'procrastination'],
-    // Mental health concepts
-    'depression': ['depressed', 'sad', 'unhappy', 'miserable', 'hopeless', 'despair', 'melancholy', 'blues', 'down'],
-    'mental health': ['depression', 'anxiety', 'therapy', 'counseling', 'mental illness', 'psychological', 'emotional', 'trauma', 'ptsd'],
-    'crisis': ['suicide', 'suicidal', 'self harm', 'emergency', 'crisis', 'desperate', 'end it all'],
-    'trauma': ['hurt', 'pain', 'wounded', 'damaged', 'suffering', 'agony', 'torture', 'abuse', 'violence'],
-    // Support and help concepts
-    'help': ['support', 'assistance', 'guidance', 'advice', 'counsel', 'help me', 'need help', 'helpless'],
-    // Leadership and professional growth
-    'leadership': ['leader', 'ownership', 'mentor', 'manager', 'influence', 'guide', 'inspire', 'responsibility'],
-    'team': ['collaboration', 'conflict', 'colleague', 'communication', 'teamwork', 'cooperation', 'coworker', 'group'],
-    'discipline': ['routine', 'practice', 'willpower', 'self control', 'habit', 'consistency', 'dedication', 'commitment'],
-    // Spiritual practices
-    'detachment': ['letting go', 'surrender', 'equanimity', 'non attachment', 'release', 'acceptance', 'peace'],
-    'digital wellbeing': ['screen time', 'unplug', 'detox', 'disconnect', 'digital fast', 'tech free'],
-    // Life stages and roles
-    'education': ['exam', 'study', 'teacher', 'student', 'learning', 'school', 'college', 'university', 'test'],
-    'parenting': ['guidance', 'boundaries', 'support', 'values', 'children', 'parent', 'raising', 'upbringing'],
-    // Inner peace and service
-    'peace': ['calm', 'contentment', 'acceptance', 'tranquility', 'serenity', 'harmony', 'stillness'],
-    'service': ['seva', 'charity', 'volunteer', 'kindness', 'giving', 'helping', 'selfless', 'compassion'],
   };
 
   /// Initialize the enhanced semantic search with scenarios
@@ -97,7 +70,7 @@ class EnhancedSemanticSearchService {
       // Build vocabulary and term frequencies
       await _buildVocabulary(scenarios);
 
-      // Create semantic vectors and precompute concept matches for each scenario
+      // Create semantic vectors for each scenario
       for (final scenario in scenarios) {
         final scenarioId = _getScenarioId(scenario);
         _scenarioMap[scenarioId] = scenario;
@@ -105,9 +78,6 @@ class EnhancedSemanticSearchService {
         final text = _extractSearchableText(scenario);
         final vector = _createSemanticVector(text);
         _scenarioVectors[scenarioId] = vector;
-
-        // Precompute concept matches for faster querying
-        _indexScenarioConcepts(scenario, scenarioId);
       }
 
       _isInitialized = true;
@@ -121,40 +91,32 @@ class EnhancedSemanticSearchService {
     }
   }
 
-  /// Build vocabulary and calculate term frequencies and document frequencies
+  /// Build vocabulary and calculate term frequencies across all scenarios
   Future<void> _buildVocabulary(List<Scenario> scenarios) async {
     final allTerms = <String>[];
-    _documentFrequencies.clear();
 
-    // Calculate document frequency (DF) - how many documents contain each term
     for (final scenario in scenarios) {
       final text = _extractSearchableText(scenario);
       final terms = _extractTerms(text);
-      final uniqueTerms = terms.toSet(); // Get unique terms in this document
-
-      // Count document frequency
-      for (final term in uniqueTerms) {
-        _documentFrequencies[term] = (_documentFrequencies[term] ?? 0) + 1;
-      }
-
       allTerms.addAll(terms);
     }
 
-    // Calculate term frequencies (TF) for normalization
+    // Calculate term frequencies (TF)
     final termCounts = <String, int>{};
     for (final term in allTerms) {
       termCounts[term] = (termCounts[term] ?? 0) + 1;
     }
 
+    // Convert to TF-IDF weights
     final totalTerms = allTerms.length;
     for (final entry in termCounts.entries) {
       _termFrequencies[entry.key] = entry.value / totalTerms;
     }
 
-    debugPrint('📚 Built vocabulary: ${_termFrequencies.length} unique terms from ${scenarios.length} documents');
+    debugPrint('📚 Built vocabulary: ${_termFrequencies.length} unique terms');
   }
 
-  /// Create semantic vector for text using true TF-IDF weighting
+  /// Create semantic vector for text using enhanced NLP techniques
   Map<String, double> _createSemanticVector(String text) {
     final vector = <String, double>{};
     final terms = _extractTerms(text);
@@ -165,23 +127,16 @@ class EnhancedSemanticSearchService {
       termCounts[term] = (termCounts[term] ?? 0) + 1;
     }
 
-    // Find maximum term frequency for normalization
-    final maxCount = termCounts.values.fold<int>(0, (max, count) => count > max ? count : max);
-
-    // Create true TF-IDF vector with semantic expansion
-    final numDocs = _scenarioMap.length;
+    // Create TF-IDF vector with semantic expansion
     for (final entry in termCounts.entries) {
       final term = entry.key;
       final count = entry.value;
 
-      // Calculate normalized TF (0.5 + 0.5 * (count / maxCount)) for better discrimination
-      final tf = maxCount == 0 ? 0.0 : count / maxCount.toDouble();
-
-      // Calculate true IDF using document frequency
-      final docFreq = _documentFrequencies[term] ?? 1;
-      final idf = log((numDocs + 1) / (docFreq + 1)) + 1; // Add 1 to avoid zero IDF
-
+      // Calculate TF-IDF score
+      final tf = count / terms.length;
+      final idf = log((_scenarioMap.length + 1) / (_termFrequencies[term] ?? 1));
       final tfidf = tf * idf;
+
       vector[term] = tfidf;
 
       // Add semantic expansion using concept mappings
@@ -208,27 +163,6 @@ class EnhancedSemanticSearchService {
     }
   }
 
-  /// Precompute which concepts match this scenario (for fast concept matching during search)
-  void _indexScenarioConcepts(Scenario scenario, String scenarioId) {
-    final text = _extractSearchableText(scenario);
-    final terms = _extractTerms(text).toSet();
-    final matchedConcepts = <String>{};
-
-    // Find all concept groups that match this scenario
-    _conceptMappings.forEach((concept, words) {
-      // Check if the concept key itself appears in the text
-      if (terms.contains(concept)) {
-        matchedConcepts.add(concept);
-      }
-      // Check if any of the concept words appear in the text
-      else if (words.any((word) => terms.contains(word))) {
-        matchedConcepts.add(concept);
-      }
-    });
-
-    _scenarioConcepts[scenarioId] = matchedConcepts;
-  }
-
   /// Enhanced search using multiple semantic similarity algorithms
   Future<List<SemanticSearchResult>> search(String query, {int maxResults = 50}) async {
     if (!_isInitialized || _scenarioVectors.isEmpty) {
@@ -241,35 +175,17 @@ class EnhancedSemanticSearchService {
     try {
       final queryVector = _createSemanticVector(query);
       final queryTerms = _extractTerms(query);
-      final similarities = <String, _SimilarityScore>{};
 
-      // Calculate semantic similarities using multiple algorithms
-      for (final entry in _scenarioVectors.entries) {
-        final scenarioId = entry.key;
-        final scenarioVector = entry.value;
+      // Run expensive computation in background isolate using compute()
+      final searchParams = _SearchParams(
+        queryVector: queryVector,
+        queryTerms: queryTerms,
+        scenarioVectors: _scenarioVectors,
+        scenarioMap: _scenarioMap,
+        conceptMappings: _conceptMappings,
+      );
 
-        // 1. Cosine similarity
-        final cosineSim = _calculateCosineSimilarity(queryVector, scenarioVector);
-
-        // 2. Semantic overlap score
-        final overlapSim = _calculateSemanticOverlap(queryTerms, scenarioVector);
-
-        // 3. Concept matching score
-        final conceptSim = _calculateConceptMatching(queryTerms, _scenarioMap[scenarioId]!);
-
-        // Combined score with weights
-        final combinedScore = (cosineSim * 0.4) + (overlapSim * 0.4) + (conceptSim * 0.2);
-
-        if (combinedScore > 0.1) { // Lower threshold for more results
-          similarities[scenarioId] = _SimilarityScore(
-            score: combinedScore,
-            cosineSimilarity: cosineSim,
-            semanticOverlap: overlapSim,
-            conceptMatching: conceptSim,
-            matchedTerms: _findMatchedTerms(queryTerms, scenarioVector),
-          );
-        }
-      }
+      final similarities = await compute(_computeSearchSimilarities, searchParams);
 
       // Sort by combined score
       final sortedEntries = similarities.entries
@@ -340,44 +256,38 @@ class EnhancedSemanticSearchService {
     return min(totalOverlap / queryTerms.length, 1.0);
   }
 
-  /// Calculate concept matching score using Gita-specific knowledge (optimized with precomputed data)
+  /// Calculate concept matching score using Gita-specific knowledge
   double _calculateConceptMatching(List<String> queryTerms, Scenario scenario) {
-    final scenarioId = _getScenarioId(scenario);
-    final scenarioConcepts = _scenarioConcepts[scenarioId] ?? {};
+    double conceptScore = 0.0;
+    final scenarioText = _extractSearchableText(scenario).toLowerCase();
 
-    if (scenarioConcepts.isEmpty || queryTerms.isEmpty) return 0.0;
-
-    // Find which concepts are in the query
-    final queryConcepts = <String>{};
     for (final term in queryTerms) {
-      // Check if term is a concept key
+      // Direct concept match
       if (_conceptMappings.containsKey(term)) {
-        queryConcepts.add(term);
-      }
-      // Check if term appears in any concept mapping
-      _conceptMappings.forEach((concept, words) {
-        if (words.contains(term)) {
-          queryConcepts.add(concept);
+        final relatedTerms = _conceptMappings[term]!;
+        for (final relatedTerm in relatedTerms) {
+          if (scenarioText.contains(relatedTerm)) {
+            conceptScore += 0.8;
+          }
         }
-      });
+      }
+
+      // Check if term appears in any concept mapping
+      for (final entry in _conceptMappings.entries) {
+        if (entry.value.contains(term) && scenarioText.contains(entry.key)) {
+          conceptScore += 0.6;
+        }
+      }
     }
 
-    if (queryConcepts.isEmpty) return 0.0;
-
-    // Calculate overlap between query concepts and scenario concepts
-    final overlap = queryConcepts.intersection(scenarioConcepts).length;
-    return overlap / queryConcepts.length;
+    return min(conceptScore / queryTerms.length, 1.0);
   }
 
   /// Check if two terms are semantically similar
   bool _areSemanticallySimilar(String term1, String term2) {
     // Simple semantic similarity checks
     if (term1 == term2) return true;
-
-    // Use word-boundary regex to avoid false positives (e.g., "dad" matching "dadly")
-    final wordBoundary1 = RegExp(r'(^|\b)' + RegExp.escape(term1) + r'(\b|$)');
-    final wordBoundary2 = RegExp(r'(^|\b)' + RegExp.escape(term2) + r'(\b|$)');
-    if (wordBoundary1.hasMatch(term2) || wordBoundary2.hasMatch(term1)) return true;
+    if (term1.contains(term2) || term2.contains(term1)) return true;
 
     // Check concept mappings
     for (final concepts in _conceptMappings.values) {
@@ -422,34 +332,24 @@ class EnhancedSemanticSearchService {
     }
   }
 
-  /// Extract and normalize terms from text (English-optimized)
+  /// Extract and normalize terms from text
   List<String> _extractTerms(String text) {
-    // English-only optimization: simpler regex without Unicode overhead
-    final normalized = text
+    return text
         .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9\s]+'), ' '); // Keep letters and numbers only
-
-    return normalized
+        .replaceAll(RegExp(r'[^\w\s]'), ' ')
         .split(RegExp(r'\s+'))
         .where((term) => term.length > 2) // Filter short words
         .where((term) => !_isStopWord(term)) // Filter stop words
         .toList();
   }
 
-  /// Check if a word is a stop word (expanded for GitaWisdom context)
+  /// Check if a word is a stop word
   bool _isStopWord(String word) {
     const stopWords = {
-      // Common English stop words
       'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
       'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'have',
       'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should',
-      'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those',
-      // Additional common words
-      'what', 'when', 'where', 'who', 'why', 'how', 'which', 'there',
-      'their', 'they', 'them', 'then', 'than', 'also', 'just', 'very',
-      'too', 'only', 'such', 'some', 'more', 'most', 'many', 'much',
-      // Normalized multiword phrases (underscores for matching)
-      'social_media', 'screen_time', 'let_go', 'self_control',
+      'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those'
     };
     return stopWords.contains(word.toLowerCase());
   }
@@ -459,15 +359,13 @@ class EnhancedSemanticSearchService {
   }
 
   String _extractSearchableText(Scenario scenario) {
-    // Field weighting: repeat title 3x and category 2x to emphasize importance
     final parts = [
-      ...List.filled(3, scenario.title),           // Title is most important
-      ...List.filled(2, scenario.category),         // Category is second most important
+      scenario.title,
       scenario.description,
+      scenario.category,
       scenario.heartResponse ?? '',
       scenario.dutyResponse ?? '',
       scenario.gitaWisdom ?? '',
-      scenario.tags?.join(' ') ?? '',
     ];
 
     return parts.join(' ').toLowerCase();
@@ -480,9 +378,7 @@ class EnhancedSemanticSearchService {
     _scenarioVectors.clear();
     _scenarioMap.clear();
     _termFrequencies.clear();
-    _documentFrequencies.clear();
     _synonymMap.clear();
-    _scenarioConcepts.clear();
     _isInitialized = false;
   }
 }
@@ -502,4 +398,193 @@ class _SimilarityScore {
     required this.conceptMatching,
     required this.matchedTerms,
   });
+}
+
+/// Parameters for isolate-based search computation
+class _SearchParams {
+  final Map<String, double> queryVector;
+  final List<String> queryTerms;
+  final Map<String, Map<String, double>> scenarioVectors;
+  final Map<String, Scenario> scenarioMap;
+  final Map<String, List<String>> conceptMappings;
+
+  _SearchParams({
+    required this.queryVector,
+    required this.queryTerms,
+    required this.scenarioVectors,
+    required this.scenarioMap,
+    required this.conceptMappings,
+  });
+}
+
+/// Top-level function for computing search similarities in isolate
+/// This runs in a background thread to avoid blocking the UI
+Map<String, _SimilarityScore> _computeSearchSimilarities(_SearchParams params) {
+  final similarities = <String, _SimilarityScore>{};
+
+  // Calculate semantic similarities using multiple algorithms
+  for (final entry in params.scenarioVectors.entries) {
+    final scenarioId = entry.key;
+    final scenarioVector = entry.value;
+
+    // 1. Cosine similarity
+    final cosineSim = _computeCosineSimilarity(params.queryVector, scenarioVector);
+
+    // 2. Semantic overlap score
+    final overlapSim = _computeSemanticOverlap(params.queryTerms, scenarioVector, params.conceptMappings);
+
+    // 3. Concept matching score
+    final conceptSim = _computeConceptMatching(params.queryTerms, params.scenarioMap[scenarioId]!, params.conceptMappings);
+
+    // Combined score with weights
+    final combinedScore = (cosineSim * 0.4) + (overlapSim * 0.4) + (conceptSim * 0.2);
+
+    if (combinedScore > 0.1) { // Lower threshold for more results
+      similarities[scenarioId] = _SimilarityScore(
+        score: combinedScore,
+        cosineSimilarity: cosineSim,
+        semanticOverlap: overlapSim,
+        conceptMatching: conceptSim,
+        matchedTerms: _computeFindMatchedTerms(params.queryTerms, scenarioVector, params.conceptMappings),
+      );
+    }
+  }
+
+  return similarities;
+}
+
+/// Calculate cosine similarity (static version for isolate)
+double _computeCosineSimilarity(Map<String, double> a, Map<String, double> b) {
+  if (a.isEmpty || b.isEmpty) return 0.0;
+
+  final allTerms = {...a.keys, ...b.keys};
+  double dotProduct = 0.0;
+  double magnitudeA = 0.0;
+  double magnitudeB = 0.0;
+
+  for (final term in allTerms) {
+    final valueA = a[term] ?? 0.0;
+    final valueB = b[term] ?? 0.0;
+
+    dotProduct += valueA * valueB;
+    magnitudeA += valueA * valueA;
+    magnitudeB += valueB * valueB;
+  }
+
+  if (magnitudeA == 0.0 || magnitudeB == 0.0) return 0.0;
+
+  return dotProduct / (sqrt(magnitudeA) * sqrt(magnitudeB));
+}
+
+/// Calculate semantic overlap (static version for isolate)
+double _computeSemanticOverlap(
+  List<String> queryTerms,
+  Map<String, double> scenarioVector,
+  Map<String, List<String>> conceptMappings,
+) {
+  if (queryTerms.isEmpty || scenarioVector.isEmpty) return 0.0;
+
+  double totalOverlap = 0.0;
+  for (final term in queryTerms) {
+    if (scenarioVector.containsKey(term)) {
+      totalOverlap += scenarioVector[term]! * 2.0; // Direct match gets higher weight
+    }
+
+    // Check for semantic related terms
+    for (final scenarioTerm in scenarioVector.keys) {
+      if (_computeAreSemanticallySimilar(term, scenarioTerm, conceptMappings)) {
+        totalOverlap += scenarioVector[scenarioTerm]! * 0.5;
+      }
+    }
+  }
+
+  return min(totalOverlap / queryTerms.length, 1.0);
+}
+
+/// Calculate concept matching (static version for isolate)
+double _computeConceptMatching(
+  List<String> queryTerms,
+  Scenario scenario,
+  Map<String, List<String>> conceptMappings,
+) {
+  double conceptScore = 0.0;
+  final scenarioText = _extractSearchableTextStatic(scenario).toLowerCase();
+
+  for (final term in queryTerms) {
+    // Direct concept match
+    if (conceptMappings.containsKey(term)) {
+      final relatedTerms = conceptMappings[term]!;
+      for (final relatedTerm in relatedTerms) {
+        if (scenarioText.contains(relatedTerm)) {
+          conceptScore += 0.8;
+        }
+      }
+    }
+
+    // Check if term appears in any concept mapping
+    for (final entry in conceptMappings.entries) {
+      if (entry.value.contains(term) && scenarioText.contains(entry.key)) {
+        conceptScore += 0.6;
+      }
+    }
+  }
+
+  return min(conceptScore / queryTerms.length, 1.0);
+}
+
+/// Check semantic similarity (static version for isolate)
+bool _computeAreSemanticallySimilar(
+  String term1,
+  String term2,
+  Map<String, List<String>> conceptMappings,
+) {
+  if (term1 == term2) return true;
+  if (term1.contains(term2) || term2.contains(term1)) return true;
+
+  // Check concept mappings
+  for (final concepts in conceptMappings.values) {
+    if (concepts.contains(term1) && concepts.contains(term2)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/// Find matched terms (static version for isolate)
+List<String> _computeFindMatchedTerms(
+  List<String> queryTerms,
+  Map<String, double> scenarioVector,
+  Map<String, List<String>> conceptMappings,
+) {
+  final matched = <String>[];
+
+  for (final term in queryTerms) {
+    if (scenarioVector.containsKey(term)) {
+      matched.add(term);
+    }
+
+    // Add semantically related terms
+    for (final scenarioTerm in scenarioVector.keys) {
+      if (_computeAreSemanticallySimilar(term, scenarioTerm, conceptMappings)) {
+        matched.add(scenarioTerm);
+      }
+    }
+  }
+
+  return matched.toSet().toList(); // Remove duplicates
+}
+
+/// Extract searchable text (static version for isolate)
+String _extractSearchableTextStatic(Scenario scenario) {
+  final parts = [
+    scenario.title,
+    scenario.description,
+    scenario.category,
+    scenario.heartResponse ?? '',
+    scenario.dutyResponse ?? '',
+    scenario.gitaWisdom ?? '',
+  ];
+
+  return parts.join(' ').toLowerCase();
 }

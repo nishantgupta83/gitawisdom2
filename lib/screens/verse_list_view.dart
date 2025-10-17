@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
 
 import '../models/chapter.dart';
 import '../models/verse.dart';
@@ -15,7 +14,6 @@ import '../services/service_locator.dart';
 // import '../models/bookmark.dart';
 import '../widgets/app_background.dart';
 import '../core/navigation/navigation_service.dart';
-import '../widgets/expandable_text.dart';
 import '../widgets/share_card_widget.dart';
 // Audio player removed for Apple App Store compliance
 // import '../widgets/verse_audio_player.dart';
@@ -404,65 +402,41 @@ class _VerseListViewState extends State<VerseListView> {
           Positioned(
             top: 50,
             right: 84,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent.withValues(alpha:0.9),
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 25,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 30,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 30,
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Back',
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 30,
+                  color: theme.colorScheme.primary,
                 ),
+                splashRadius: 30,
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Back',
               ),
             ),
           ),
-          
+
           // Floating Home Button
           Positioned(
             top: 50,
             right: 24,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent.withValues(alpha:0.9),
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 25,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.home_filled,
-                    size: 30,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 30,
-                  onPressed: () {
-                    // Use proper tab navigation to sync bottom navigation state
-                    NavigationService.instance.goToTab(0); // 0 = Home tab index
-                  },
-                  tooltip: 'Home',
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.home_filled,
+                  size: 30,
+                  color: theme.colorScheme.primary,
                 ),
+                splashRadius: 30,
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  NavigationService.instance.goToTab(0);
+                },
+                tooltip: 'Home',
               ),
             ),
           ),

@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../models/chapter_summary.dart';
 import '../services/service_locator.dart';
 import 'chapters_detail_view.dart';
-import '../main.dart';
 import '../l10n/app_localizations.dart';
 import '../core/navigation/navigation_service.dart';
 import '../widgets/app_background.dart';

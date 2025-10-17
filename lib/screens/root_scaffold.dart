@@ -1,7 +1,6 @@
 // lib/screens/root_scaffold.dart
 
 import 'package:flutter/material.dart';
-import '../core/app_config.dart';
 import '../core/navigation/navigation_service.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/modern_nav_bar.dart';

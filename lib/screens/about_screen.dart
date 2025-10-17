@@ -331,19 +331,37 @@ class AboutScreen extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             _buildSourceItem(
-                              '• ISKCON Vedabase (vedabase.io)',
+                              'ISKCON Vedabase',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 4),
+                            _buildSubSourceItem(
+                              'vedabase.io',
                               theme,
                               isTablet,
                             ),
                             const SizedBox(height: 8),
                             _buildSourceItem(
-                              '• Holy Bhagavad Gita (holy-bhagavad-gita.org)',
+                              'Holy Bhagavad Gita',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 4),
+                            _buildSubSourceItem(
+                              'holy-bhagavad-gita.org',
                               theme,
                               isTablet,
                             ),
                             const SizedBox(height: 8),
                             _buildSourceItem(
-                              '• IIT Kanpur Gita Supersite (gitasupersite.iitk.ac.in)',
+                              'IIT Kanpur Gita Supersite',
+                              theme,
+                              isTablet,
+                            ),
+                            const SizedBox(height: 4),
+                            _buildSubSourceItem(
+                              'gitasupersite.iitk.ac.in',
                               theme,
                               isTablet,
                             ),
@@ -450,58 +468,70 @@ class AboutScreen extends StatelessWidget {
               ),
             ),
           ),
-          
-          // Floating Back Button - wrapped in SafeArea for proper positioning
-          SafeArea(
-            child: Positioned(
-              top: 16,
-              right: 84,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () => Navigator.of(context).pop(),
-                  customBorder: const CircleBorder(),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.colorScheme.surface.withValues(alpha: 0.95),
-                    ),
-                    child: Icon(
-                      Icons.arrow_back,
-                      size: 28,
-                      color: theme.colorScheme.primary,
-                    ),
+
+          // Floating Back Button - positioned in top right corner
+          Positioned(
+            top: 50,
+            right: 84,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                customBorder: const CircleBorder(),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.arrow_back,
+                    size: 24,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ),
             ),
           ),
 
-          // Floating Home Button - wrapped in SafeArea for proper positioning
-          SafeArea(
-            child: Positioned(
-              top: 16,
-              right: 20,
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: () {
-                    // Use proper tab navigation to sync bottom navigation state
-                    NavigationService.instance.goToTab(0); // 0 = Home tab index
-                  },
-                  customBorder: const CircleBorder(),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.colorScheme.surface.withValues(alpha: 0.95),
-                    ),
-                    child: Icon(
-                      Icons.home_filled,
-                      size: 28,
-                      color: theme.colorScheme.primary,
-                    ),
+          // Floating Home Button - positioned in top right corner
+          Positioned(
+            top: 50,
+            right: 20,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () {
+                  // Use proper tab navigation to sync bottom navigation state
+                  NavigationService.instance.goToTab(0); // 0 = Home tab index
+                },
+                customBorder: const CircleBorder(),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.surface.withValues(alpha: 0.95),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 8,
+                        spreadRadius: 0,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Icon(
+                    Icons.home_filled,
+                    size: 24,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
               ),
@@ -541,13 +571,60 @@ class AboutScreen extends StatelessWidget {
   }
 
   Widget _buildSourceItem(String text, ThemeData theme, bool isTablet) {
-    return Text(
-      text,
-      style: GoogleFonts.poppins(
-        fontSize: isTablet ? 14 : 13,
-        fontWeight: FontWeight.w500,
-        color: theme.colorScheme.onSurface,
-        height: 1.4,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          margin: const EdgeInsets.only(top: 6, right: 12),
+          width: 6,
+          height: 6,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: theme.colorScheme.primary,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: GoogleFonts.poppins(
+              fontSize: isTablet ? 14 : 13,
+              fontWeight: FontWeight.w500,
+              color: theme.colorScheme.onSurface,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSubSourceItem(String text, ThemeData theme, bool isTablet) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 24),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: const EdgeInsets.only(top: 6, right: 12),
+            width: 4,
+            height: 4,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: theme.colorScheme.primary.withValues(alpha: 0.6),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              text,
+              style: GoogleFonts.poppins(
+                fontSize: isTablet ? 13 : 12,
+                fontWeight: FontWeight.w400,
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

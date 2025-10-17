@@ -45,7 +45,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-    
+
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
@@ -53,7 +53,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
       parent: _fadeController,
       curve: Curves.easeInOut,
     ));
-    
+
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.3),
       end: Offset.zero,
@@ -61,14 +61,46 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
       parent: _slideController,
       curve: Curves.easeOutCubic,
     ));
-    
+
     // Start animations
     _fadeController.forward();
     _slideController.forward();
+
+    // Listen for OAuth completion (when app returns from browser)
+    // This handles the case where OAuth redirects back and the auth screen is still active
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authService = context.read<SupabaseAuthService>();
+      authService.addListener(_handleAuthStateChange);
+    });
+  }
+
+  void _handleAuthStateChange() {
+    final authService = context.read<SupabaseAuthService>();
+
+    // If user becomes authenticated and this screen is still mounted, navigate away
+    if (mounted && (authService.isAuthenticated || authService.isAnonymous) && !authService.isLoading) {
+      // Small delay to ensure state is fully updated
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted) {
+          debugPrint('🔄 OAuth completed - auto-navigating from auth screen to home');
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const RootScaffold()),
+          );
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
+    // Remove auth state listener
+    try {
+      final authService = context.read<SupabaseAuthService>();
+      authService.removeListener(_handleAuthStateChange);
+    } catch (e) {
+      debugPrint('⚠️ Could not remove auth listener: $e');
+    }
+
     _fadeController.dispose();
     _slideController.dispose();
     _emailController.dispose();

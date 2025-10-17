@@ -11,7 +11,6 @@ import '../services/intelligent_scenario_search.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import 'scenario_detail_view.dart';
 import '../core/navigation/navigation_service.dart';
-import '../screens/root_scaffold.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/share_card_widget.dart';
 import '../widgets/app_background.dart';
@@ -711,18 +710,18 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(30),
-                        gradient: _aiSearchEnabled ? LinearGradient(
+                        gradient: LinearGradient(
                           colors: [
                             theme.colorScheme.primary.withValues(alpha:0.2),
                             theme.colorScheme.secondary.withValues(alpha:0.2),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                        ) : null,
-                        border: _aiSearchEnabled ? Border.all(
+                        ),
+                        border: Border.all(
                           color: theme.colorScheme.primary.withValues(alpha:0.5),
                           width: 2,
-                        ) : null,
+                        ),
                         boxShadow: _searchFocusNode.hasFocus
                             ? [
                                 BoxShadow(
@@ -743,49 +742,24 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
                         focusNode: _searchFocusNode,
                         onChanged: _onSearchChanged,
                         decoration: InputDecoration(
-                          hintText: _aiSearchEnabled
-                              ? '✨ AI Search: Try "feeling stressed at work"'
-                              : (localizations?.searchScenarios ?? 'Search scenarios...'),
+                          hintText: '✨ AI Search: Try "feeling stressed at work"',
                           hintStyle: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurface.withValues(alpha:0.6),
                           ),
                           prefixIcon: Icon(
-                            _aiSearchEnabled ? Icons.auto_awesome : Icons.search,
-                            color: _aiSearchEnabled ? theme.colorScheme.primary : null,
+                            Icons.psychology,
+                            color: theme.colorScheme.primary,
+                            size: 26,
                           ),
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // AI Toggle Button
-                              IconButton(
-                                icon: Icon(
-                                  Icons.psychology,
-                                  color: _aiSearchEnabled
-                                      ? theme.colorScheme.primary
-                                      : theme.colorScheme.onSurface.withValues(alpha:0.5),
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _aiSearchEnabled = !_aiSearchEnabled;
-                                  });
-                                  // Re-run search if there's a query
-                                  if (_search.isNotEmpty) {
-                                    _onSearchChanged(_search);
-                                  }
-                                },
-                                tooltip: _aiSearchEnabled ? 'Disable AI Search' : 'Enable AI Search',
-                              ),
-                              // Clear Button
-                              if (_search.isNotEmpty)
-                                IconButton(
+                          suffixIcon: _search.isNotEmpty
+                              ? IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () {
                                     _searchController.clear();
                                     _onSearchChanged('');
                                   },
-                                ),
-                            ],
-                          ),
+                                )
+                              : null,
                           filled: true,
                           fillColor: theme.colorScheme.surface.withValues(alpha:.85),
                           contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
@@ -949,81 +923,47 @@ class _ScenariosScreenState extends State<ScenariosScreen> {
         Positioned(
           top: 40,
           right: 84,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.amberAccent.withValues(alpha:0.9),
-                  blurRadius: 16,
-                  spreadRadius: 4,
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 25,
-              backgroundColor: theme.colorScheme.surface,
-              child: IconButton(
-                icon: Icon(
-                  Icons.arrow_back,
-                  size: 30,
-                  color: theme.colorScheme.primary,
-                ),
-                splashRadius: 30,
-                onPressed: () {
-                  if (Navigator.canPop(context)) {
-                    Navigator.pop(context);
-                  } else {
-                    // Navigate to home tab instead of trying to pop empty stack
-                    NavigationService.instance.goToTab(0);
-                  }
-                },
-                tooltip: AppLocalizations.of(context)!.back,
+          child: CircleAvatar(
+            radius: 25,
+            backgroundColor: theme.colorScheme.surface,
+            child: IconButton(
+              icon: Icon(
+                Icons.arrow_back,
+                size: 30,
+                color: theme.colorScheme.primary,
               ),
+              splashRadius: 30,
+              onPressed: () {
+                if (Navigator.canPop(context)) {
+                  Navigator.pop(context);
+                } else {
+                  NavigationService.instance.goToTab(0);
+                }
+              },
+              tooltip: AppLocalizations.of(context)!.back,
             ),
           ),
         ),
-        
+
         // Floating Home Button
         Positioned(
           top: 40,
           right: 24,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.amberAccent.withValues(alpha:0.9),
-                  blurRadius: 16,
-                  spreadRadius: 4,
-                ),
-              ],
-            ),
-            child: CircleAvatar(
-              radius: 25,
-              backgroundColor: theme.colorScheme.surface,
-              child: IconButton(
-                icon: Icon(
-                  Icons.home_filled,
-                  size: 30,
-                  color: theme.colorScheme.primary,
-                ),
-                splashRadius: 30,
-                onPressed: () {
-                  // Use proper tab navigation to sync bottom navigation state
-                  try {
-                    NavigationService.instance.goToTab(0); // 0 = Home tab index
-                  } catch (e) {
-                    debugPrint('Home button error: $e');
-                    // Fallback navigation
-                    Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const RootScaffold()),
-                      (route) => false,
-                    );
-                  }
-                },
-                tooltip: AppLocalizations.of(context)!.home,
+          child: CircleAvatar(
+            radius: 25,
+            backgroundColor: theme.colorScheme.surface,
+            child: IconButton(
+              icon: Icon(
+                Icons.home_filled,
+                size: 30,
+                color: theme.colorScheme.primary,
               ),
+              splashRadius: 30,
+              onPressed: () {
+                Navigator.of(context).popUntil((route) => route.isFirst);
+                NavigationService.instance.goToTab(0);
+              },
+              tooltip: AppLocalizations.of(context)!.home,
             ),
           ),
         ),

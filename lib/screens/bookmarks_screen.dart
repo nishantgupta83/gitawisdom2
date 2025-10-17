@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../services/bookmark_service.dart';
 import '../models/bookmark.dart';
 import '../widgets/bookmark_card.dart';
-import '../widgets/bookmark_filter_chip.dart';
 
 class BookmarksScreen extends StatefulWidget {
   const BookmarksScreen({super.key});

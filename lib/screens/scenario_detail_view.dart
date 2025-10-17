@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../models/scenario.dart';
-import '../models/journal_entry.dart';
 import '../screens/scenarios_screen.dart';
-import '../screens/new_journal_entry_dialog.dart';
-import '../screens/home_screen.dart';
-import '../services/journal_service.dart';
 import '../services/app_sharing_service.dart';
 import '../core/navigation/navigation_service.dart';
 // import '../services/favorites_service.dart'; // COMMENTED OUT: User-specific features disabled
 import '../l10n/app_localizations.dart';
 import '../widgets/app_background.dart';
+import '../widgets/modern_nav_bar.dart';
 
 class ScenarioDetailView extends StatefulWidget {
   final Scenario scenario;
@@ -136,6 +133,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
+        extendBody: true, // Allow content to extend behind floating navigation bar
         body: Stack(
           children: [
             // Unified gradient background
@@ -166,17 +164,47 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                       ),
                       child: Column(
                         children: [
-                          Text(
-                            AppLocalizations.of(context)!.modernScenario,
-                            style: GoogleFonts.poiretOne().copyWith(
-                              fontSize: theme.textTheme.headlineLarge?.fontSize,
-                              fontWeight: FontWeight.w800,
-                              color: theme.colorScheme.onSurface,
-                              letterSpacing: 1.3,
-                            ),
-                            textAlign: TextAlign.center,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  AppLocalizations.of(context)!.modernScenario,
+                                  style: GoogleFonts.poiretOne().copyWith(
+                                    fontSize: theme.textTheme.headlineLarge?.fontSize,
+                                    fontWeight: FontWeight.w800,
+                                    color: theme.colorScheme.onSurface,
+                                    letterSpacing: 1.3,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              if (widget.scenario.tags != null && widget.scenario.tags!.isNotEmpty)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: theme.colorScheme.primaryContainer,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    widget.scenario.tags!.first,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                            ],
                           ),
                           const SizedBox(height: 12),
                           Container(
@@ -219,51 +247,89 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
                         child: Padding(
                           padding: const EdgeInsets.all(20),
-                          child: Row(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: Text(
-                                  widget.scenario.title,
-                                  style: GoogleFonts.poppins().copyWith(
-                                    fontSize: theme.textTheme.titleLarge?.fontSize,
-                                    fontWeight: FontWeight.w600,
-                                    color: theme.colorScheme.primary,
+                              // Title and Share button row
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      widget.scenario.title,
+                                      style: GoogleFonts.poppins().copyWith(
+                                        fontSize: theme.textTheme.titleLarge?.fontSize,
+                                        fontWeight: FontWeight.w600,
+                                        color: theme.colorScheme.primary,
+                                      ),
+                                      // Allow multiple lines for long titles but prevent overflow
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
                                   ),
-                                  // Allow multiple lines for long titles but prevent overflow
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                                  const SizedBox(width: 12),
+                                  // Share button
+                                  SizedBox(
+                                    width: 48,
+                                    height: 48,
+                                    child: IconButton(
+                                      onPressed: () async {
+                                        try {
+                                          await AppSharingService().shareScenario(
+                                            widget.scenario.title,
+                                            widget.scenario.heartResponse,
+                                            widget.scenario.dutyResponse,
+                                            '', // Remove Gita wisdom references as requested
+                                            actionSteps: widget.scenario.actionSteps,
+                                          );
+                                        } catch (e) {
+                                          if (mounted) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              SnackBar(content: Text('Failed to share: $e')),
+                                            );
+                                          }
+                                        }
+                                      },
+                                      icon: Icon(
+                                        Icons.share,
+                                        color: theme.colorScheme.primary,
+                                        size: 28,
+                                      ),
+                                      tooltip: 'Share this wisdom',
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 12),
-                              // Share button
-                              SizedBox(
-                                width: 48,
-                                height: 48,
-                                child: IconButton(
-                                  onPressed: () async {
-                                    try {
-                                      await AppSharingService().shareScenario(
-                                        widget.scenario.title,
-                                        widget.scenario.heartResponse,
-                                        widget.scenario.dutyResponse,
-                                        '', // Remove Gita wisdom references as requested
-                                        actionSteps: widget.scenario.actionSteps,
-                                      );
-                                    } catch (e) {
-                                      if (mounted) {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(content: Text('Failed to share: $e')),
-                                        );
-                                      }
-                                    }
-                                  },
-                                  icon: Icon(
-                                    Icons.share,
-                                    color: theme.colorScheme.primary,
-                                    size: 28,
+                              // Category pill
+                              const SizedBox(height: 12),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(
+                                    color: theme.colorScheme.primary.withAlpha((0.3 * 255).toInt()),
+                                    width: 1,
                                   ),
-                                  tooltip: 'Share this wisdom',
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.local_offer,
+                                      size: 16,
+                                      color: theme.colorScheme.onPrimaryContainer,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      widget.scenario.category ?? 'General',
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onPrimaryContainer,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                               // COMMENTED OUT: User-specific favorites feature disabled
@@ -326,6 +392,41 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
               ),
             ),
             
+            // Category tag on top left
+            if (widget.scenario.tags != null && widget.scenario.tags!.isNotEmpty)
+              Positioned(
+                top: 40,
+                left: 20,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.primaryContainer.withValues(alpha: 0.95),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: theme.colorScheme.primary.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Text(
+                    widget.scenario.tags!.first,
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+
             // Floating Back Button
             Positioned(
               top: 40,
@@ -375,12 +476,54 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                   ),
                   splashRadius: 30,
                   onPressed: () {
-                    // Use proper tab navigation to sync bottom navigation state
-                    NavigationService.instance.goToTab(0); // 0 = Home tab index
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    NavigationService.instance.goToTab(0);
                   },
                   tooltip: AppLocalizations.of(context)!.home,
                 ),
               ),
+            ),
+          ],
+        ),
+
+        // Bottom navigation bar (same as main app for consistency)
+        bottomNavigationBar: ModernNavBar(
+          currentIndex: 2, // Scenarios tab (current context)
+          onTap: (index) {
+            // Pop back to root first, then navigate to the selected tab
+            Navigator.of(context).popUntil((route) => route.isFirst);
+            NavigationService.instance.goToTab(index);
+          },
+          items: [
+            ModernNavBarItem(
+              icon: Icons.home_outlined,
+              selectedIcon: Icons.home,
+              label: AppLocalizations.of(context)!.homeTab,
+              color: Colors.blue,
+            ),
+            ModernNavBarItem(
+              icon: Icons.menu_book_outlined,
+              selectedIcon: Icons.menu_book,
+              label: AppLocalizations.of(context)!.chaptersTab,
+              color: Colors.indigo,
+            ),
+            ModernNavBarItem(
+              icon: Icons.psychology_outlined,
+              selectedIcon: Icons.psychology,
+              label: AppLocalizations.of(context)!.scenariosTab,
+              color: Colors.purple,
+            ),
+            ModernNavBarItem(
+              icon: Icons.book_outlined,
+              selectedIcon: Icons.book,
+              label: AppLocalizations.of(context)!.journalTab,
+              color: Colors.green,
+            ),
+            ModernNavBarItem(
+              icon: Icons.more_horiz_outlined,
+              selectedIcon: Icons.more_horiz,
+              label: AppLocalizations.of(context)!.moreTab,
+              color: Colors.orange,
             ),
           ],
         ),

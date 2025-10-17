@@ -50,39 +50,18 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
   /// Initialize the service and start critical loading
   Future<void> initialize() async {
-    // Thread-safe initialization check
-    if (_isInitialized) {
-      debugPrint('🧠 IntelligentCachingService already initialized');
-      return;
-    }
+    if (_isInitialized) return;
 
     try {
-      debugPrint('🧠 Initializing IntelligentCachingService...');
-
-      // Initialize hybrid storage
       await _hybridStorage.initialize();
-
-      // Check cache version and clear if architecture changed
       await _checkAndUpdateCacheVersion();
-
-      // Set up user activity monitoring
       WidgetsBinding.instance.addObserver(this);
       _startActivityMonitoring();
-
-      // Mark as initialized before starting async operations
       _isInitialized = true;
-
-      // Start critical loading immediately for home screen
       await _loadCriticalScenariosForStartup();
-
-      // Schedule background loading after UI settles
       _scheduleBackgroundLoading();
-
-      debugPrint('✅ IntelligentCachingService initialized successfully');
-
     } catch (e) {
       debugPrint('❌ Error initializing IntelligentCachingService: $e');
-      // Reset initialization state on error
       _isInitialized = false;
       rethrow;
     }
@@ -99,21 +78,13 @@ class IntelligentCachingService with WidgetsBindingObserver {
       return;
     }
 
-    // Check if we already have critical scenarios cached BEFORE setting loading state
-    if (_hybridStorage.hasDataAtLevel(CacheLevel.critical)) {
-      debugPrint('⚡ Critical scenarios already cached - instant startup!');
-      return;
-    }
+    if (_hybridStorage.hasDataAtLevel(CacheLevel.critical)) return;
 
     _isLoadingCritical = true;
-    // Create a new completer for this loading operation
     _criticalLoadCompleter = Completer<void>();
     _loadingStartTime = DateTime.now();
 
     try {
-      debugPrint('🚀 Loading critical scenarios for immediate startup...');
-
-      // Load critical scenarios from server with high priority
       final criticalScenarios = await _loadScenariosBatch(
         offset: 0,
         limit: CacheLevel.critical.count,
@@ -121,18 +92,12 @@ class IntelligentCachingService with WidgetsBindingObserver {
       );
 
       if (criticalScenarios.isNotEmpty) {
-        // Store in critical cache for instant access
         final scenarioMap = <String, Scenario>{};
         for (int i = 0; i < criticalScenarios.length; i++) {
           scenarioMap['critical_$i'] = criticalScenarios[i];
         }
-
         await _hybridStorage.storeBatch(scenarioMap, CacheLevel.critical);
-
-        final loadTime = DateTime.now().difference(_loadingStartTime!);
-        debugPrint('✅ Critical scenarios loaded in ${loadTime.inMilliseconds}ms');
       }
-
     } catch (e) {
       debugPrint('❌ Error loading critical scenarios: $e');
     } finally {
@@ -162,21 +127,13 @@ class IntelligentCachingService with WidgetsBindingObserver {
     if (_isBackgroundLoading) return;
 
     _isBackgroundLoading = true;
-    debugPrint('🔄 Starting progressive background loading...');
-
     try {
-      // Load frequent scenarios first
       if (!_hybridStorage.hasDataAtLevel(CacheLevel.frequent)) {
         await _loadLevelProgressively(CacheLevel.frequent);
       }
-
-      // Then load complete dataset
       if (!_hybridStorage.hasDataAtLevel(CacheLevel.complete)) {
         await _loadLevelProgressively(CacheLevel.complete);
       }
-
-      debugPrint('🎉 Progressive background loading completed!');
-
     } catch (e) {
       debugPrint('❌ Error in background loading: $e');
     } finally {
@@ -186,24 +143,17 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
   /// Load scenarios for a specific cache level progressively
   Future<void> _loadLevelProgressively(CacheLevel level) async {
-    debugPrint('📦 Loading ${level.name} scenarios progressively...');
-
     _currentLoadingLevel = level;
     _currentBatch = 0;
     _totalBatches = (level.count / _batchSize).ceil();
 
     for (int batch = 0; batch < _totalBatches; batch++) {
-      // Check if user became active - pause loading
       if (_shouldPauseLoading()) {
-        debugPrint('⏸️ Pausing background loading - user is active');
         await _waitForUserIdle();
-        if (_shouldPauseLoading()) continue; // Still active, skip this batch
+        if (_shouldPauseLoading()) continue;
       }
-
       await _loadBatchForLevel(level, batch);
       _currentBatch = batch + 1;
-
-      // Breathing room between batches
       if (batch < _totalBatches - 1) {
         await Future.delayed(_batchDelay);
       }
@@ -216,15 +166,9 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
     try {
       final offset = batchNumber * _batchSize;
-      final limit = _batchSize;
-
-      // All levels load from offset 0 - they're cumulative (critical ⊂ frequent ⊂ complete)
-      // Critical: 0-49, Frequent: 0-299, Complete: 0-1225
-      final adjustedOffset = offset;
-
       final scenarios = await _loadScenariosBatch(
-        offset: adjustedOffset,
-        limit: limit,
+        offset: offset,
+        limit: _batchSize,
         priority: level.name
       );
 
@@ -233,15 +177,9 @@ class IntelligentCachingService with WidgetsBindingObserver {
         for (int i = 0; i < scenarios.length; i++) {
           scenarioMap['${level.name}_${offset + i}'] = scenarios[i];
         }
-
         await _hybridStorage.storeBatch(scenarioMap, level);
-
-        final batchTime = DateTime.now().difference(batchStartTime);
-        _batchLoadTimes.add(batchTime);
-
-        debugPrint('📦 Loaded batch ${batchNumber + 1}/${_totalBatches} for ${level.name} (${scenarios.length} scenarios in ${batchTime.inMilliseconds}ms)');
+        _batchLoadTimes.add(DateTime.now().difference(batchStartTime));
       }
-
     } catch (e) {
       debugPrint('❌ Error loading batch $batchNumber for ${level.name}: $e');
     }
@@ -254,14 +192,7 @@ class IntelligentCachingService with WidgetsBindingObserver {
     required String priority
   }) async {
     try {
-      final scenarios = await _supabaseService.fetchScenarios(
-        offset: offset,
-        limit: limit
-      );
-
-      debugPrint('🌐 Loaded ${scenarios.length} scenarios from server (offset: $offset, priority: $priority)');
-      return scenarios;
-
+      return await _supabaseService.fetchScenarios(offset: offset, limit: limit);
     } catch (e) {
       debugPrint('❌ Error loading scenarios batch: $e');
       return [];
@@ -334,9 +265,7 @@ class IntelligentCachingService with WidgetsBindingObserver {
   /// Get critical scenarios synchronously (for immediate UI access)
   List<Scenario> getCriticalScenariosSync() {
     try {
-      final scenarios = _hybridStorage.getCriticalScenariosSync();
-      debugPrint('⚡ Got ${scenarios.length} critical scenarios synchronously');
-      return scenarios;
+      return _hybridStorage.getCriticalScenariosSync();
     } catch (e) {
       debugPrint('❌ Error getting critical scenarios sync: $e');
       return [];
@@ -348,13 +277,10 @@ class IntelligentCachingService with WidgetsBindingObserver {
     try {
       final allScenarios = await _hybridStorage.getAllScenarios();
       final countsByChapter = <int, int>{};
-
       for (final scenario in allScenarios) {
         final chapter = scenario.chapter ?? 0;
         countsByChapter[chapter] = (countsByChapter[chapter] ?? 0) + 1;
       }
-
-      debugPrint('📊 Calculated scenario counts for ${countsByChapter.length} chapters');
       return countsByChapter;
     } catch (e) {
       debugPrint('❌ Error getting scenario counts by chapter: $e');
@@ -410,7 +336,7 @@ class IntelligentCachingService with WidgetsBindingObserver {
       return results.take(maxResults).toList();
     }
 
-    debugPrint('📊 Search returned ${results.length} unique scenarios (${seenTitles.length} titles)');
+    // Log removed - was spamming console on every search/navigation
     return results;
   }
 
@@ -443,30 +369,19 @@ class IntelligentCachingService with WidgetsBindingObserver {
 
   /// Force refresh from server
   Future<void> refreshFromServer() async {
-    debugPrint('🔄 Force refreshing scenarios from server...');
-
-    // Clear existing caches
     for (final level in CacheLevel.values) {
       await _hybridStorage.clearLevel(level);
     }
-
-    // Restart critical loading
     await _loadCriticalScenariosForStartup();
-
-    // Restart background loading
     _scheduleBackgroundLoading();
   }
 
   /// Dispose resources
   Future<void> dispose() async {
     WidgetsBinding.instance.removeObserver(this);
-
     _backgroundTimer?.cancel();
     _activityMonitorTimer?.cancel();
-
     await _hybridStorage.dispose();
-
-    debugPrint('🧠 IntelligentCachingService disposed');
   }
 
   /// Check cache version and clear if outdated
@@ -476,18 +391,10 @@ class IntelligentCachingService with WidgetsBindingObserver {
       final storedVersion = box.get(_VERSION_KEY, defaultValue: 0) as int;
 
       if (storedVersion < _CACHE_VERSION) {
-        debugPrint('🔄 Cache version outdated ($storedVersion < $_CACHE_VERSION) - clearing all caches');
-
-        // Clear all cache levels
         for (final level in CacheLevel.values) {
           await _hybridStorage.clearLevel(level);
         }
-
-        // Update version
         await box.put(_VERSION_KEY, _CACHE_VERSION);
-        debugPrint('✅ Cache version updated to $_CACHE_VERSION');
-      } else {
-        debugPrint('✅ Cache version current: $_CACHE_VERSION');
       }
     } catch (e) {
       debugPrint('⚠️ Error checking cache version: $e');

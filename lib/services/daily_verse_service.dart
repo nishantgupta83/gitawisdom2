@@ -24,7 +24,6 @@ class DailyVerseService {
       } else {
         _box = Hive.box<DailyVerseSet>(boxName);
       }
-      debugPrint('✅ DailyVerseService initialized');
     } catch (e) {
       debugPrint('❌ Error initializing DailyVerseService: $e');
     }
@@ -34,54 +33,30 @@ class DailyVerseService {
   Future<List<Verse>> getTodaysVerses() async {
     try {
       await _ensureInitialized();
-      
+
       final today = DailyVerseSet.getTodayString();
       final cachedSet = _box?.get(today);
-      
+
       if (cachedSet != null && cachedSet.isToday) {
-        debugPrint('📖 Using cached verses for $today');
         return cachedSet.verses;
       }
-      
-      debugPrint('📖 Generating new verses for $today');
+
       return await _generateVersesForToday();
-      
     } catch (e) {
       debugPrint('❌ Error getting today\'s verses: $e');
-      // Fallback: try to get any cached verses or empty list
-      return _box?.values.isNotEmpty == true 
-          ? _box!.values.first.verses 
-          : [];
+      return _box?.values.isNotEmpty == true ? _box!.values.first.verses : [];
     }
   }
 
   /// Generate new verse set for today
   Future<List<Verse>> _generateVersesForToday() async {
     try {
-      // Generate random chapter IDs (1-18)
-      final chapterIds = List.generate(
-        verseCount, 
-        (_) => math.Random().nextInt(18) + 1
-      );
-      
-      // Fetch verses from each chapter
-      final futures = chapterIds
-          .map((id) => _supabaseService.fetchRandomVerseByChapter(id))
-          .toList();
-      
+      final chapterIds = List.generate(verseCount, (_) => math.Random().nextInt(18) + 1);
+      final futures = chapterIds.map((id) => _supabaseService.fetchRandomVerseByChapter(id)).toList();
       final verses = await Future.wait(futures);
-      
-      // Create and cache the verse set
-      final verseSet = DailyVerseSet.forToday(
-        verses: verses,
-        chapterIds: chapterIds,
-      );
-      
+      final verseSet = DailyVerseSet.forToday(verses: verses, chapterIds: chapterIds);
       await _cacheVerseSet(verseSet);
-      debugPrint('✅ Generated and cached ${verses.length} verses for today');
-      
       return verses;
-      
     } catch (e) {
       debugPrint('❌ Error generating verses for today: $e');
       rethrow;
@@ -106,44 +81,30 @@ class DailyVerseService {
   Future<void> _cleanupOldVerses() async {
     try {
       if (_box == null) return;
-      
+
       final now = DateTime.now();
       final sevenDaysAgo = now.subtract(const Duration(days: 7));
-      
       final keysToDelete = <String>[];
-      
+
       for (final key in _box!.keys) {
         if (key is String) {
           try {
-            // Parse date string (YYYY-MM-DD)
             final parts = key.split('-');
             if (parts.length == 3) {
-              final date = DateTime(
-                int.parse(parts[0]),
-                int.parse(parts[1]),
-                int.parse(parts[2]),
-              );
-              
+              final date = DateTime(int.parse(parts[0]), int.parse(parts[1]), int.parse(parts[2]));
               if (date.isBefore(sevenDaysAgo)) {
                 keysToDelete.add(key);
               }
             }
           } catch (e) {
-            // Invalid date format, mark for deletion
             keysToDelete.add(key);
           }
         }
       }
-      
-      // Delete old entries
+
       for (final key in keysToDelete) {
         await _box!.delete(key);
       }
-      
-      if (keysToDelete.isNotEmpty) {
-        debugPrint('🧹 Cleaned up ${keysToDelete.length} old verse sets');
-      }
-      
     } catch (e) {
       debugPrint('❌ Error cleaning up old verses: $e');
     }
@@ -153,13 +114,9 @@ class DailyVerseService {
   Future<List<Verse>> refreshTodaysVerses() async {
     try {
       await _ensureInitialized();
-      
       final today = DailyVerseSet.getTodayString();
       await _box?.delete(today);
-      
-      debugPrint('🔄 Force refreshing verses for $today');
       return await _generateVersesForToday();
-      
     } catch (e) {
       debugPrint('❌ Error refreshing today\'s verses: $e');
       rethrow;
@@ -180,7 +137,6 @@ class DailyVerseService {
     try {
       await _ensureInitialized();
       await _box?.clear();
-      debugPrint('🗑️ Cleared all cached daily verses');
     } catch (e) {
       debugPrint('❌ Error clearing verse cache: $e');
     }

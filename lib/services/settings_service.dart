@@ -20,16 +20,13 @@ class SettingsService extends ChangeNotifier {
       await Hive.openBox(boxName);
     }
     
-    // Set default settings only on first app install (not every startup)
     final box = Hive.box(boxName);
     const firstRunKey = 'first_run_completed';
-    
+
     if (!box.containsKey(firstRunKey)) {
-      // First time app is installed - set preferred defaults
-      await box.put(darkKey, false);  // Start in light mode
-      await box.put(musicKey, true);  // Start with music enabled
-      await box.put(firstRunKey, true);  // Mark first run as completed
-      debugPrint('🎯 First app install - set default: light mode, music enabled');
+      await box.put(darkKey, false);
+      await box.put(musicKey, true);
+      await box.put(firstRunKey, true);
     }
   }
 
@@ -68,15 +65,12 @@ class SettingsService extends ChangeNotifier {
   }
 
   set isDarkMode(bool v) {
-    // Immediate UI update
     _cachedDarkMode = v;
     notifyListeners();
 
-    // Debounced storage save
     _saveTimer?.cancel();
     _saveTimer = Timer(_debounceDuration, () {
       box.put(darkKey, v);
-      debugPrint('💾 Dark mode saved: $v');
     });
   }
 
@@ -158,7 +152,6 @@ class SettingsService extends ChangeNotifier {
     _shadowSaveTimer?.cancel();
     _shadowSaveTimer = Timer(_debounceDuration, () {
       box.put(shadowKey, v);
-      debugPrint('💾 Text shadow saved: $v');
     });
   }
 

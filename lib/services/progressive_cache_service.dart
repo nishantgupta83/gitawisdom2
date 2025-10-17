@@ -54,19 +54,14 @@ class HybridStorage {
     if (_isInitialized) return;
 
     try {
-      debugPrint('🔥 Initializing HybridStorage with tiered caching...');
-
-      // Initialize warm caches for each level
       for (final level in CacheLevel.values) {
         if (!Hive.isBoxOpen(level.boxName)) {
           _warmCaches[level] = await Hive.openBox<Scenario>(level.boxName);
         } else {
           _warmCaches[level] = Hive.box<Scenario>(level.boxName);
         }
-        debugPrint('📦 Opened ${level.boxName}: ${_warmCaches[level]?.length ?? 0} scenarios');
       }
 
-      // Initialize cold cache for compressed storage
       if (!Hive.isBoxOpen(_coldCacheBoxName)) {
         _coldCache = await Hive.openBox<String>(_coldCacheBoxName);
       } else {
@@ -74,8 +69,6 @@ class HybridStorage {
       }
 
       _isInitialized = true;
-      debugPrint('✅ HybridStorage initialized successfully');
-
     } catch (e) {
       debugPrint('❌ Error initializing HybridStorage: $e');
       rethrow;
@@ -85,39 +78,29 @@ class HybridStorage {
   /// Get scenario with intelligent cache hierarchy
   Future<Scenario?> getScenario(String id) async {
     await _ensureInitialized();
-
-    // Track access for intelligence
     _recordAccess(id);
 
-    // Try hot cache first (instant)
     if (_hotCache.containsKey(id)) {
-      debugPrint('🔥 Hot cache hit for scenario: $id');
       return _hotCache[id];
     }
 
-    // Try warm caches (fast) - check in priority order
     for (final level in CacheLevel.values) {
       final box = _warmCaches[level];
       if (box != null && box.isOpen) {
         final scenario = box.get(id);
         if (scenario != null) {
-          debugPrint('📦 Warm cache hit (${level.name}) for scenario: $id');
           _promoteToHot(id, scenario);
           return scenario;
         }
       }
     }
 
-    // Try cold cache (slower but still local)
     if (_coldCache != null && _coldCache!.isOpen) {
       final compressed = _coldCache!.get(id);
       if (compressed != null) {
         try {
           final scenarioJson = jsonDecode(compressed);
           final scenario = Scenario.fromJson(scenarioJson);
-          debugPrint('🧊 Cold cache hit for scenario: $id');
-
-          // Promote to warm cache based on access frequency
           await _promoteToWarm(id, scenario);
           return scenario;
         } catch (e) {
@@ -126,7 +109,6 @@ class HybridStorage {
       }
     }
 
-    debugPrint('❌ Cache miss for scenario: $id');
     return null;
   }
 
@@ -138,7 +120,7 @@ class HybridStorage {
     if (box == null || !box.isOpen) return [];
 
     final scenarios = box.values.toList();
-    debugPrint('📊 Retrieved ${scenarios.length} scenarios from ${level.name} cache');
+    // Log removed - was spamming console on every navigation
     return scenarios;
   }
 
@@ -147,25 +129,19 @@ class HybridStorage {
     await _ensureInitialized();
 
     try {
-      // Store in warm cache for the specified level
       final box = _warmCaches[level];
       if (box != null && box.isOpen) {
         await box.put(id, scenario);
       }
 
-      // Also store in cold cache for completeness
       final compressed = jsonEncode(scenario.toJson());
       if (_coldCache != null && _coldCache!.isOpen) {
         await _coldCache!.put(id, compressed);
       }
 
-      // If it's frequently accessed, promote to hot cache
       if (_isFrequentlyAccessed(id)) {
         _promoteToHot(id, scenario);
       }
-
-      debugPrint('💾 Stored scenario $id in ${level.name} cache');
-
     } catch (e) {
       debugPrint('❌ Error storing scenario $id: $e');
     }
@@ -179,10 +155,8 @@ class HybridStorage {
       final box = _warmCaches[level];
       if (box != null && box.isOpen) {
         await box.putAll(scenarios);
-        debugPrint('📦 Stored ${scenarios.length} scenarios in ${level.name} cache');
       }
 
-      // Also store in cold cache
       final compressedMap = <String, String>{};
       for (final entry in scenarios.entries) {
         compressedMap[entry.key] = jsonEncode(entry.value.toJson());
@@ -190,7 +164,6 @@ class HybridStorage {
       if (_coldCache != null && _coldCache!.isOpen) {
         await _coldCache!.putAll(compressedMap);
       }
-
     } catch (e) {
       debugPrint('❌ Error storing scenario batch: $e');
     }
@@ -217,7 +190,6 @@ class HybridStorage {
     final box = _warmCaches[level];
     if (box != null && box.isOpen) {
       await box.clear();
-      debugPrint('🗑️ Cleared ${level.name} cache');
     }
   }
 
@@ -328,7 +300,6 @@ class HybridStorage {
   void _evictLeastRecentlyUsed() {
     if (_lastAccessed.isEmpty) return;
 
-    // Find least recently used item
     String? oldestId;
     DateTime? oldestTime;
 
@@ -341,7 +312,6 @@ class HybridStorage {
 
     if (oldestId != null) {
       _hotCache.remove(oldestId);
-      debugPrint('🗑️ Evicted $oldestId from hot cache');
     }
   }
 
@@ -350,10 +320,5 @@ class HybridStorage {
     _hotCache.clear();
     _accessFrequency.clear();
     _lastAccessed.clear();
-
-    // Don't close Hive boxes as they might be used elsewhere
-    // _warmCaches remain open for other parts of the app
-
-    debugPrint('🔥 HybridStorage disposed');
   }
 }

@@ -40,54 +40,57 @@ class TextThemeBuilder {
 
   /// Create platform-specific header shadows
   /// iOS gets stronger shadows for better visual hierarchy
+  /// Android shadows disabled (transparent) to prevent unwanted rendering artifacts
   static List<Shadow> _getHeaderShadows() {
     return [
       Shadow(
-        color: Platform.isIOS 
-            ? Colors.black.withValues(alpha:0.6) 
-            : Colors.black45, // Stronger for headers on iOS
-        offset: Platform.isIOS 
-            ? const Offset(1.5, 1.5) 
-            : const Offset(1.0, 1.0),
-        blurRadius: Platform.isIOS 
-            ? AppConfig.iOSHeaderShadowBlur 
-            : AppConfig.androidHeaderShadowBlur,
+        color: Platform.isIOS
+            ? Colors.black.withValues(alpha:0.6)
+            : Colors.transparent, // Disabled on Android - prevents shadow artifacts
+        offset: Platform.isIOS
+            ? const Offset(1.5, 1.5)
+            : const Offset(0.0, 0.0),
+        blurRadius: Platform.isIOS
+            ? AppConfig.iOSHeaderShadowBlur
+            : 0.0,
       ),
     ];
   }
 
   /// Create platform-specific body text shadows
   /// Balanced shadow intensity for optimal readability
+  /// Android shadows disabled (transparent) to prevent unwanted rendering artifacts
   static List<Shadow> _getBodyShadows() {
     return [
       Shadow(
-        color: Platform.isIOS 
-            ? Colors.black.withValues(alpha:0.5) 
-            : Colors.black38, // Lighter for body text on iOS
-        offset: Platform.isIOS 
-            ? const Offset(1.0, 1.0) 
-            : const Offset(0.8, 0.8),
-        blurRadius: Platform.isIOS 
-            ? AppConfig.iOSBodyShadowBlur 
-            : AppConfig.androidBodyShadowBlur,
+        color: Platform.isIOS
+            ? Colors.black.withValues(alpha:0.5)
+            : Colors.transparent, // Disabled on Android - prevents shadow artifacts
+        offset: Platform.isIOS
+            ? const Offset(1.0, 1.0)
+            : const Offset(0.0, 0.0),
+        blurRadius: Platform.isIOS
+            ? AppConfig.iOSBodyShadowBlur
+            : 0.0,
       ),
     ];
   }
 
   /// Create platform-specific label shadows
   /// Subtle shadows for labels and small text elements
+  /// Android shadows disabled (transparent) to prevent unwanted rendering artifacts
   static List<Shadow> _getLabelShadows() {
     return [
       Shadow(
-        color: Platform.isIOS 
-            ? Colors.black45 
-            : Colors.black.withValues(alpha:0.3), // Subtle for labels on iOS
-        offset: Platform.isIOS 
-            ? const Offset(0.8, 0.8) 
-            : const Offset(0.5, 0.5),
-        blurRadius: Platform.isIOS 
-            ? AppConfig.iOSLabelShadowBlur 
-            : AppConfig.androidLabelShadowBlur,
+        color: Platform.isIOS
+            ? Colors.black45
+            : Colors.transparent, // Disabled on Android - prevents shadow artifacts
+        offset: Platform.isIOS
+            ? const Offset(0.8, 0.8)
+            : const Offset(0.0, 0.0),
+        blurRadius: Platform.isIOS
+            ? AppConfig.iOSLabelShadowBlur
+            : 0.0,
       ),
     ];
   }

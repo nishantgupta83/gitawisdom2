@@ -200,7 +200,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
                   children: [
                     TextField(
                       controller: _ctrl,
-                      decoration: InputDecoration(labelText: localizations.yourReflection),
+                      decoration: const InputDecoration(),
                       maxLines: 4,
                     ),
                     const SizedBox(height: 24),

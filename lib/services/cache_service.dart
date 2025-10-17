@@ -8,7 +8,6 @@ import '../models/chapter_summary.dart';
 import '../models/journal_entry.dart';
 import '../models/chapter.dart';
 import '../models/scenario.dart';
-import '../services/settings_service.dart';
 
 class CacheService {
   static final CacheService instance = CacheService._();

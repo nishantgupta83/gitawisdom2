@@ -160,6 +160,41 @@ class _MoreScreenState extends State<MoreScreen> {
 
     return ListView(
         children: [
+          // Account section - only shown for authenticated users
+          Consumer<SupabaseAuthService>(
+            builder: (context, authService, child) {
+              if (authService.isAuthenticated) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                      child: Text('Account', style: theme.textTheme.titleMedium),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.account_circle),
+                      title: Text(authService.displayName ?? 'User'),
+                      subtitle: Text(authService.userEmail ?? ''),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.logout),
+                      title: const Text('Sign Out'),
+                      subtitle: const Text('Sign out of your account'),
+                      onTap: () => _handleSignOut(context, authService),
+                    ),
+                    ListTile(
+                      leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
+                      title: Text('Delete Account', style: TextStyle(color: theme.colorScheme.error)),
+                      subtitle: const Text('Permanently delete your account and all data'),
+                      onTap: () => _showDeleteAccountDialog(context, authService),
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+
           // Appearance section
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -221,43 +256,6 @@ class _MoreScreenState extends State<MoreScreen> {
                   },
                 ),
               );
-            },
-          ),
-
-          // Account section - expandable, only shown for authenticated users
-          Consumer<SupabaseAuthService>(
-            builder: (context, authService, child) {
-              if (authService.isAuthenticated) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                      child: Text('Account', style: theme.textTheme.titleMedium),
-                    ),
-                    ExpansionTile(
-                      leading: const Icon(Icons.account_circle),
-                      title: Text(authService.displayName ?? 'User'),
-                      subtitle: Text(authService.userEmail ?? ''),
-                      children: [
-                        ListTile(
-                          leading: const Icon(Icons.logout),
-                          title: const Text('Sign Out'),
-                          subtitle: const Text('Sign out of your account'),
-                          onTap: () => _handleSignOut(context, authService),
-                        ),
-                        ListTile(
-                          leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
-                          title: Text('Delete Account', style: TextStyle(color: theme.colorScheme.error)),
-                          subtitle: const Text('Permanently delete your account and all data'),
-                          onTap: () => _showDeleteAccountDialog(context, authService),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              }
-              return const SizedBox.shrink();
             },
           ),
 

@@ -6,7 +6,6 @@ import '../models/verse.dart';
 import '../services/service_locator.dart';
 import '../screens/scenario_detail_view.dart';
 import '../screens/verse_list_view.dart';
-import '../screens/home_screen.dart';
 import '../core/navigation/navigation_service.dart';
 import '../l10n/app_localizations.dart';
 import '../widgets/app_background.dart';
@@ -524,12 +523,18 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
                                                                 }
                                                               });
                                                             },
-                                                            child: Text(
-                                                              _expandedScenarios.contains(index) ? 'Read less' : 'Read more',
-                                                              style: theme.textTheme.bodySmall?.copyWith(
-                                                                color: Colors.white,
-                                                                fontWeight: FontWeight.w600,
-                                                                decoration: TextDecoration.underline,
+                                                            child: Container(
+                                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.white.withValues(alpha: 0.2),
+                                                                borderRadius: BorderRadius.circular(20),
+                                                              ),
+                                                              child: Text(
+                                                                _expandedScenarios.contains(index) ? 'Read less' : 'Read more',
+                                                                style: theme.textTheme.bodySmall?.copyWith(
+                                                                  color: Colors.white,
+                                                                  fontWeight: FontWeight.w600,
+                                                                ),
                                                               ),
                                                             ),
                                                           ),
@@ -586,30 +591,18 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
           Positioned(
             top: 40,
             right: 84,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 25,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 30,
-                  onPressed: () => Navigator.pop(context),
-                  tooltip: 'Back',
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.arrow_back,
+                  size: 32,
+                  color: theme.colorScheme.primary,
                 ),
+                splashRadius: 30,
+                onPressed: () => Navigator.pop(context),
+                tooltip: 'Back',
               ),
             ),
           ),
@@ -618,32 +611,21 @@ class _ChapterDetailViewState extends State<ChapterDetailView> {
           Positioned(
             top: 40,
             right: 24,
-            child: Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.amberAccent,
-                    blurRadius: 16,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              child: CircleAvatar(
-                radius: 25,
-                backgroundColor: theme.colorScheme.surface,
-                child: IconButton(
-                  icon: Icon(
-                    Icons.home_filled,
-                    size: 32,
-                    color: theme.colorScheme.primary,
-                  ),
-                  splashRadius: 30,
-                  onPressed: () {
-                    NavigationService.instance.goToTab(0); // Use navigation service for proper tab switching
-                  },
-                  tooltip: 'Home',
+            child: CircleAvatar(
+              radius: 25,
+              backgroundColor: theme.colorScheme.surface,
+              child: IconButton(
+                icon: Icon(
+                  Icons.home_filled,
+                  size: 32,
+                  color: theme.colorScheme.primary,
                 ),
+                splashRadius: 30,
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                  NavigationService.instance.goToTab(0);
+                },
+                tooltip: 'Home',
               ),
             ),
           ),

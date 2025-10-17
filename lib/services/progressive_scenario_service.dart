@@ -18,20 +18,11 @@ class ProgressiveScenarioService {
 
   /// Initialize the progressive service - instant startup with critical scenarios
   Future<void> initialize() async {
-    if (_isInitialized) {
-      debugPrint('📚 ProgressiveScenarioService already initialized');
-      return;
-    }
+    if (_isInitialized) return;
 
     try {
-      debugPrint('📚 Initializing ProgressiveScenarioService with instant startup...');
-
-      // Initialize intelligent caching service
       await _cachingService.initialize();
-
       _isInitialized = true;
-      debugPrint('✅ ProgressiveScenarioService initialized - app ready for use!');
-
     } catch (e) {
       debugPrint('❌ Error initializing ProgressiveScenarioService: $e');
       rethrow;
@@ -65,23 +56,11 @@ class ProgressiveScenarioService {
   /// Get scenarios instantly from all available cache levels for home screen
   List<Scenario> _getInstantScenarios({int? maxResults}) {
     try {
-      // Get all available scenarios from cache (synchronous for instant access)
       final allScenarios = _getAllLoadedScenariosSync();
+      if (allScenarios.isEmpty) return [];
 
-      if (allScenarios.isNotEmpty) {
-        // Shuffle for variety and limit results only if maxResults is specified
-        final shuffled = List<Scenario>.from(allScenarios)..shuffle();
-        final results = maxResults != null
-            ? shuffled.take(maxResults).toList()
-            : shuffled;
-
-        debugPrint('⚡ Instant scenarios: ${results.length} from ${allScenarios.length} available scenarios');
-        return results;
-      }
-
-      debugPrint('⚠️ No scenarios available yet - background loading in progress');
-      return [];
-
+      final shuffled = List<Scenario>.from(allScenarios)..shuffle();
+      return maxResults != null ? shuffled.take(maxResults).toList() : shuffled;
     } catch (e) {
       debugPrint('❌ Error getting instant scenarios: $e');
       return [];
@@ -102,12 +81,7 @@ class ProgressiveScenarioService {
   /// Get ALL loaded scenarios synchronously from ALL cache levels
   List<Scenario> _getAllLoadedScenariosSync() {
     try {
-      // For now, return critical scenarios to ensure functionality
-      // The main fix is in getAllScenarios() which uses async search
-      final criticalScenarios = _getCriticalScenariosSync();
-      debugPrint('📊 Sync method returning ${criticalScenarios.length} critical scenarios (async search provides full dataset)');
-      return criticalScenarios;
-
+      return _getCriticalScenariosSync();
     } catch (e) {
       debugPrint('❌ Error getting all loaded scenarios sync: $e');
       return [];
@@ -117,22 +91,11 @@ class ProgressiveScenarioService {
   /// Search in currently loaded scenarios (synchronous with available data)
   List<Scenario> _searchInLoadedScenarios(String query, {int? maxResults}) {
     try {
-      debugPrint('🔍 Searching in loaded scenarios for: "$query"');
-
-      // Get ALL available scenarios from ALL cache levels (not just critical)
       final allAvailable = _getAllLoadedScenariosSync();
-
-      // Filter by search query
       final filteredResults = _filterScenariosByQuery(allAvailable, query);
-
-      // Apply maxResults limit only if specified
-      final finalResults = maxResults != null && maxResults > 0
+      return maxResults != null && maxResults > 0
           ? filteredResults.take(maxResults).toList()
           : filteredResults;
-
-      debugPrint('🔍 Search completed: ${finalResults.length} results for "$query" from ${allAvailable.length} total scenarios');
-      return finalResults;
-
     } catch (e) {
       debugPrint('❌ Error searching scenarios: $e');
       return [];
@@ -182,7 +145,6 @@ class ProgressiveScenarioService {
   /// Force refresh all scenarios from server
   Future<void> refreshFromServer() async {
     try {
-      debugPrint('🔄 Force refreshing scenarios...');
       await _cachingService.refreshFromServer();
     } catch (e) {
       debugPrint('❌ Error refreshing from server: $e');
@@ -198,22 +160,8 @@ class ProgressiveScenarioService {
   /// Check if new scenarios are available on server
   Future<bool> hasNewScenariosAvailable() async {
     try {
-      debugPrint('🔍 Checking for new scenarios on server...');
-
-      // Get current local count
       final localCount = scenarioCount;
-
-      // Get server count (simplified check)
-      // In real implementation, this would make a lightweight API call
-      // For now, we assume there might be new scenarios if local count is low
-      if (localCount < 1000) {
-        debugPrint('📊 Local scenarios ($localCount) < 1000, might have new content');
-        return true;
-      }
-
-      debugPrint('📊 Local scenarios ($localCount) seems complete');
-      return false;
-
+      return localCount < 1000;
     } catch (e) {
       debugPrint('❌ Error checking for new scenarios: $e');
       return false;
@@ -221,25 +169,17 @@ class ProgressiveScenarioService {
   }
 
   /// Background sync - non-blocking refresh check
-  /// Optional onComplete callback is called when sync finishes (success or failure)
   Future<void> backgroundSync({VoidCallback? onComplete}) async {
     try {
-      // Check if refresh is needed and start background loading if necessary
-      // This is non-blocking and won't affect UI performance
       final hasNew = await hasNewScenariosAvailable();
       if (hasNew) {
-        debugPrint('🔄 Starting background sync...');
-        // Start background refresh without blocking
         refreshFromServer().then((_) {
-          debugPrint('✅ Background sync completed successfully');
           onComplete?.call();
         }).catchError((e) {
           debugPrint('❌ Background refresh failed: $e');
-          onComplete?.call(); // Still call callback on error so UI can update
+          onComplete?.call();
         });
       } else {
-        debugPrint('⏭️ Background sync skipped - cache is still valid');
-        // Cache is valid, but still call callback so UI knows data is ready
         onComplete?.call();
       }
     } catch (e) {
@@ -256,16 +196,9 @@ class ProgressiveScenarioService {
   /// Clear all caches (for testing/development)
   Future<void> clearAllCaches() async {
     try {
-      debugPrint('🗑️ Clearing all scenario caches...');
-
-      // Clear each cache level through the intelligent caching service
-      await _cachingService.refreshFromServer(); // This clears and refreshes all caches
-
-      // Force re-initialization
+      await _cachingService.refreshFromServer();
       _isInitialized = false;
       await initialize();
-
-      debugPrint('✅ All caches cleared and re-initialized');
     } catch (e) {
       debugPrint('❌ Error clearing caches: $e');
       rethrow;
@@ -275,7 +208,6 @@ class ProgressiveScenarioService {
   /// Dispose resources
   Future<void> dispose() async {
     await _cachingService.dispose();
-    debugPrint('📚 ProgressiveScenarioService disposed');
   }
 }
 

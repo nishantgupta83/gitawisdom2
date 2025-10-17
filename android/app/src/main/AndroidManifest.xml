@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <!-- Internet permission required for Supabase connection -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -8,7 +9,12 @@
 
     <!-- Notification permissions for Android 13+ (API level 33+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
+
+    <!-- Advertising ID declaration: App does NOT use advertising ID -->
+    <!-- This prevents Google Play from blocking releases targeting Android 13+ -->
+    <uses-permission android:name="com.google.android.gms.permission.AD_ID"
+        tools:node="remove" />
+
     <!-- Device compatibility features - Optimized for maximum compatibility -->
     <uses-feature 
         android:name="android.hardware.touchscreen" 

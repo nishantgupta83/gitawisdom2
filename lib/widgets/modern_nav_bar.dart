@@ -387,7 +387,7 @@ class ModernNavBar extends StatelessWidget {
             builder: (context, constraints) {
               // Responsive sizing based on available width
               final iconSize = math.min(
-                isSelected ? 22.0 : 20.0,
+                isSelected ? 30.0 : 28.0,
                 constraints.maxWidth * 0.4, // Max 40% of width
               ).toDouble();
               final fontSize = math.min(

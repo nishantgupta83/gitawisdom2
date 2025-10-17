@@ -53,7 +53,7 @@ class _JournalScreenState extends State<JournalScreen> {
           // Unified gradient background
           AppBackground(isDark: isDark),
 
-          // Main content
+          // Main content with bottom padding for nav bar
           SafeArea(
             child: RefreshIndicator(
               onRefresh: () async {
@@ -64,7 +64,7 @@ class _JournalScreenState extends State<JournalScreen> {
                 builder: (context, constraints) {
                   return Padding(
                     padding: EdgeInsets.only(
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+                      bottom: MediaQuery.of(context).viewInsets.bottom + 20, // Padding for nav bar only
                     ),
                     child: ListView.builder(
                       padding: EdgeInsets.zero,
@@ -76,34 +76,40 @@ class _JournalScreenState extends State<JournalScreen> {
               ),
             ),
           ),
+
+          // Add button positioned in top-right below "My Journal" card
+          Positioned(
+            top: 120,
+            right: 24,
+            child: SafeArea(
+              child: FloatingActionButton(
+                onPressed: _loading
+                    ? null
+                    : () => showDialog(
+                          context: context,
+                          builder: (_) => NewJournalEntryDialog(
+                            onSave: (entry) async {
+                              try {
+                                await _service.createEntry(entry);
+                                // No need to reload - createEntry already adds to cache
+                                // This prevents duplication
+                                setState(() {}); // Just trigger UI refresh
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('${localizations.failedToSaveEntry}: $e')),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                child: const Icon(Icons.add),
+                tooltip: localizations.addJournalEntry,
+              ),
+            ),
+          ),
         ],
-      ),
-      
-      // Floating Action Button for adding new entries
-      floatingActionButton: FloatingActionButton(
-        onPressed: _loading
-            ? null
-            : () => showDialog(
-                  context: context,
-                  builder: (_) => NewJournalEntryDialog(
-                    onSave: (entry) async {
-                      try {
-                        await _service.createEntry(entry);
-                        // No need to reload - createEntry already adds to cache
-                        // This prevents duplication
-                        setState(() {}); // Just trigger UI refresh
-                      } catch (e) {
-                        if (mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('${localizations.failedToSaveEntry}: $e')),
-                          );
-                        }
-                      }
-                    },
-                  ),
-                ),
-        child: const Icon(Icons.add),
-        tooltip: localizations.addJournalEntry,
       ),
     );
   }

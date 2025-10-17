@@ -266,9 +266,11 @@ class SupabaseAuthService extends ChangeNotifier {
         throw Exception('Please enter a valid email address');
       }
 
+      // Use Supabase's default password reset without custom redirect
+      // The email will contain a link that users can open in their browser
+      // After resetting password there, they can return to the app and sign in
       await _supabase.auth.resetPasswordForEmail(
         email.toLowerCase().trim(),
-        redirectTo: 'com.hub4apps.gitawisdom://reset-password',
       );
 
       debugPrint('📧 Password reset email sent to: $email');

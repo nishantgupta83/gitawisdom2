@@ -9,7 +9,6 @@ import '../models/verse.dart';
 import '../models/chapter.dart';
 import '../models/scenario.dart';
 import '../services/service_locator.dart';
-import '../services/daily_verse_service.dart';
 import '../services/supabase_auth_service.dart';
 import '../services/progressive_scenario_service.dart';
 import '../core/theme/theme_provider.dart';
@@ -353,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 80, 24, 4),
+            padding: const EdgeInsets.fromLTRB(24, 24, 24, 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -584,7 +583,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       {
         'title': 'Journal',
         'subtitle': 'Daily spiritual growth',
-        'icon': Icons.self_improvement,
+        'icon': Icons.book_outlined,
         'color': Colors.green,
         'onTap': () => widget.onTabChange?.call(3),
       },
@@ -1417,7 +1416,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                   color: Colors.white.withValues(alpha:0.9),
                   height: 1.4,
                 ),
-                maxLines: 4,
+                maxLines: 5,
                 overflow: TextOverflow.ellipsis,
               ),
             ),

@@ -178,21 +178,21 @@ class _SplashScreenState extends State<SplashScreen> {
 
   /// Build splash screen content
   Widget _buildSplashContent() {
-    return SizedBox(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      child: Container(
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage(AppConfig.splashBackgroundImage),
-            fit: BoxFit.cover,
-          ),
+    return Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: const BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage(AppConfig.splashBackgroundImage),
+          fit: BoxFit.cover,
+          alignment: Alignment.center,
         ),
-        child: SafeArea(
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
+      ),
+      child: SafeArea(
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
                 // App logo
                 const Icon(
                   Icons.auto_stories,
@@ -244,8 +244,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     ),
                   ),
                 ],
-              ],
-            ),
+            ],
           ),
         ),
       ),

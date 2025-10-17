@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter/services.dart';
 
 /// Service for sharing the app with proper store links
 /// 
@@ -16,16 +15,16 @@ class AppSharingService {
   factory AppSharingService() => _instance;
   AppSharingService._internal();
   
-  /// Store URLs - UPDATE THESE AFTER PUBLISHING! 🚨
+  /// Store URLs
   static const String _playStoreUrl = 'https://play.google.com/store/apps/details?id=com.hub4apps.gitawisdom';
-  static const String _appStoreUrl = 'https://apps.apple.com/app/gitawisdom/id[YOUR_APP_ID]'; // Update with actual App Store ID
-  
+  static const String _appStoreUrl = 'https://apps.apple.com'; // App Store search until published
+
   /// Fallback website URL
   static const String _websiteUrl = 'https://hub4apps.com';
-  
-  /// Development/testing URLs (used when stores aren't available yet)
-  static const String _devPlayStoreUrl = 'https://play.google.com/store/search?q=gitawisdom&c=apps';
-  static const String _devAppStoreUrl = 'https://apps.apple.com/search?term=gitawisdom';
+
+  /// Development/testing URLs
+  static const String _devPlayStoreUrl = 'https://play.google.com/store/apps/details?id=com.hub4apps.gitawisdom';
+  static const String _devAppStoreUrl = 'https://apps.apple.com';
   
   /// App information
   static const String _appName = 'GitaWisdom';
@@ -41,43 +40,23 @@ class AppSharingService {
     } else if (Platform.isIOS) {
       return _isDevelopment ? _devAppStoreUrl : _appStoreUrl;
     } else {
-      // Web or other platforms - fallback to website
       return _websiteUrl;
     }
   }
   
-  /// Get platform-specific store name
-  String _getStoreName() {
-    if (Platform.isAndroid) {
-      return 'Play Store';
-    } else if (Platform.isIOS) {
-      return 'App Store';
-    } else {
-      return 'our website';
-    }
-  }
-  
   /// Share the app with friends
-  /// 
-  /// [context] - Optional context for additional customization
-  /// [customMessage] - Optional custom message to include
   Future<void> shareApp({String? customMessage}) async {
-    final storeUrl = _getStoreUrl();
-    final storeName = _getStoreName();
-    
-    final message = customMessage ?? _buildDefaultShareMessage(storeName);
-    final fullMessage = '$message\n\n$storeUrl';
-    
+    final message = customMessage ?? _buildDefaultShareMessage();
+    final storeLink = _isDevelopment ? _devPlayStoreUrl : _playStoreUrl;
+
     try {
       await Share.share(
-        fullMessage,
+        '$message\n\n📱 Download GitaWisdom:\n$storeLink',
         subject: '$_appName – Your Daily Spiritual Guide',
       );
-      
-      debugPrint('📤 Shared app: $storeName');
+      debugPrint('📤 Shared app link');
     } catch (e) {
       debugPrint('❌ Error sharing app: $e');
-      // Fallback: try to open the URL directly
       await _openStoreDirectly();
     }
   }
@@ -289,32 +268,15 @@ ${_getStoreUrl()}''';
   }
   
   /// Build the default share message
-  String _buildDefaultShareMessage(String storeName) {
-    if (_isDevelopment) {
-      return '''
-Discover $_appName – Ancient Wisdom for Modern Life
-
-Experience the timeless teachings of the Bhagavad Gita applied to contemporary situations.
-
-✨ Features:
-• Heart vs Duty guidance for real-life dilemmas
-• 18 complete Gita chapters with modern applications  
-• Daily verses for inspiration
-
-🔍 Search for "$_appName" on the $storeName (Coming Soon!)''';
-    } else {
-      return '''
-Discover $_appName – Ancient Wisdom for Modern Life
+  String _buildDefaultShareMessage() {
+    return '''Discover $_appName – Ancient Wisdom for Modern Life
 
 $_appDescription
 
 ✨ Features:
 • Heart vs Duty guidance for real-life dilemmas
-• 18 complete Gita chapters with modern applications  
-• Daily verses for inspiration
-
-Download now on the $storeName:''';
-    }
+• 18 complete Gita chapters with modern applications
+• Daily verses for inspiration''';
   }
   
   /// Get share analytics (for future implementation)

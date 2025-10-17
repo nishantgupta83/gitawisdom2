@@ -44,9 +44,14 @@ class ShareCardService {
 
       await Share.shareXFiles(
         [XFile(imagePath)],
-        text: 'Bhagavad Gita Chapter ${verse.chapterId}, Verse ${verse.verseId}\n\n${verse.description}\n\n🌿 Shared from GitaWisdom App',
+        text: '''Bhagavad Gita Chapter ${verse.chapterId}, Verse ${verse.verseId}
+
+${verse.description}
+
+🌿 Get GitaWisdom App:
+📱 https://play.google.com/store/apps/details?id=com.hub4apps.gitawisdom''',
         subject: 'Wisdom from Bhagavad Gita',
-        sharePositionOrigin: const Rect.fromLTWH(0, 0, 200, 200), // Fix for iPad
+        sharePositionOrigin: const Rect.fromLTWH(0, 0, 200, 200),
       );
 
       return true;
@@ -66,9 +71,14 @@ class ShareCardService {
 
       await Share.shareXFiles(
         [XFile(imagePath)],
-        text: '${scenario.title}\n\n${scenario.description}\n\n🌿 Wisdom for modern life from GitaWisdom',
+        text: '''${scenario.title}
+
+${scenario.description}
+
+🌿 Get GitaWisdom - Ancient wisdom for modern life:
+📱 https://play.google.com/store/apps/details?id=com.hub4apps.gitawisdom''',
         subject: 'Gita Wisdom for Daily Life',
-        sharePositionOrigin: const Rect.fromLTWH(0, 0, 200, 200), // Fix for iPad
+        sharePositionOrigin: const Rect.fromLTWH(0, 0, 200, 200),
       );
 
       return true;
@@ -178,25 +188,6 @@ class ShareCardService {
     
     final verseY = (size.height - versePainter.height) / 2;
     versePainter.paint(canvas, Offset(60, verseY));
-    
-    // Draw decorative spa symbol
-    final spaPainter = TextPainter(
-      text: const TextSpan(
-        text: '🌿',
-        style: TextStyle(
-          fontSize: 60,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    spaPainter.layout();
-    spaPainter.paint(
-      canvas, 
-      Offset(
-        (size.width - spaPainter.width) / 2,
-        size.height * 0.85,
-      ),
-    );
   }
 
   /// Draw scenario content on card

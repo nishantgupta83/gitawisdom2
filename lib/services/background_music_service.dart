@@ -38,32 +38,24 @@ class BackgroundMusicService extends ChangeNotifier {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Prevent concurrent initialization with timeout to avoid ANR
     if (_isInitializing) {
-      debugPrint('⏳ Background music initialization already in progress, waiting...');
-
-      // Wait for initialization to complete with 5-second timeout
       final startTime = DateTime.now().millisecondsSinceEpoch;
-      const timeoutMs = 5000; // 5 seconds
+      const timeoutMs = 5000;
 
       while (_isInitializing && !_isInitialized) {
         final elapsed = DateTime.now().millisecondsSinceEpoch - startTime;
-
         if (elapsed >= timeoutMs) {
           debugPrint('❌ Background music initialization timed out after ${timeoutMs}ms');
-          _isInitializing = false; // Reset flag to allow retry
+          _isInitializing = false;
           return;
         }
-
         await Future.delayed(const Duration(milliseconds: 100));
       }
-
       return;
     }
 
     _isInitializing = true;
     try {
-      // Configure AVAudioSession for iOS (required for proper background playback)
       if (Platform.isIOS) {
         final session = await AudioSession.instance;
         await session.configure(const AudioSessionConfiguration(
@@ -80,7 +72,6 @@ class BackgroundMusicService extends ChangeNotifier {
           androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
           androidWillPauseWhenDucked: true,
         ));
-        debugPrint('✅ iOS AVAudioSession configured for background music');
       }
 
       _player = AudioPlayer();
@@ -98,36 +89,29 @@ class BackgroundMusicService extends ChangeNotifier {
       });
 
       _player!.playerStateStream.listen((playerState) {
-        debugPrint('🎵 Background music state: ${playerState.processingState}');
+        // Monitor state changes without logging
       });
 
       // Handle audio interruptions (phone calls, Siri, alarms) - iOS requirement
       if (Platform.isIOS) {
         final session = await AudioSession.instance;
 
-        // Handle interruptions (phone calls, Siri, alarms)
         session.interruptionEventStream.listen((event) {
           if (event.begin) {
             pauseMusic();
-            debugPrint('🎵 Background music paused due to interruption');
           } else {
-            // Resume music when interruption ends if music was enabled
             if (_isEnabled && !_isPlaying) {
               resumeMusic();
-              debugPrint('🎵 Background music resumed after interruption');
             }
           }
         });
 
-        // Handle headphones unplugged
         session.becomingNoisyEventStream.listen((_) {
           pauseMusic();
-          debugPrint('🎵 Background music paused (headphones unplugged)');
         });
       }
 
       _isInitialized = true;
-      debugPrint('✅ BackgroundMusicService initialized');
       notifyListeners();
     } catch (e) {
       debugPrint('❌ Failed to initialize BackgroundMusicService: $e');
@@ -147,10 +131,7 @@ class BackgroundMusicService extends ChangeNotifier {
     }
 
     try {
-      // For now, we'll use a simple sine wave generator
-      // In a real implementation, you'd load actual music files
       await _playThemeMusic(_currentTheme);
-      debugPrint('🎵 Started background music: $_currentTheme');
     } catch (e) {
       debugPrint('❌ Failed to start background music: $e');
     }
@@ -160,7 +141,6 @@ class BackgroundMusicService extends ChangeNotifier {
   Future<void> stopMusic() async {
     if (_player != null) {
       await _player!.stop();
-      debugPrint('🎵 Stopped background music');
     }
   }
 
@@ -168,7 +148,6 @@ class BackgroundMusicService extends ChangeNotifier {
   Future<void> pauseMusic() async {
     if (_player != null && _isPlaying) {
       await _player!.pause();
-      debugPrint('🎵 Paused background music');
     }
   }
 
@@ -176,35 +155,28 @@ class BackgroundMusicService extends ChangeNotifier {
   Future<void> resumeMusic() async {
     if (_player != null && !_isPlaying && _isEnabled) {
       await _player!.play();
-      debugPrint('🎵 Resumed background music');
     }
   }
 
   /// Enable or disable background music
   Future<void> setEnabled(bool enabled) async {
     _isEnabled = enabled;
-    
     if (enabled) {
       await startMusic();
     } else {
       await stopMusic();
     }
-    
     notifyListeners();
-    debugPrint('🎵 Background music enabled: $enabled');
   }
 
   /// Set background music volume
   Future<void> setVolume(double volume) async {
     _volume = volume.clamp(0.0, 1.0);
-    
     if (_player != null) {
       final actualVolume = _isDucking ? _duckingVolume : _volume;
       await _player!.setVolume(actualVolume);
     }
-    
     notifyListeners();
-    debugPrint('🎵 Background music volume: $_volume');
   }
 
   /// Duck audio (lower volume) when narration is playing
@@ -213,7 +185,6 @@ class BackgroundMusicService extends ChangeNotifier {
       _isDucking = true;
       await _player!.setVolume(_duckingVolume);
       notifyListeners();
-      debugPrint('🎵 Background music ducked');
     }
   }
 
@@ -223,23 +194,19 @@ class BackgroundMusicService extends ChangeNotifier {
       _isDucking = false;
       await _player!.setVolume(_volume);
       notifyListeners();
-      debugPrint('🎵 Background music unducked');
     }
   }
 
   /// Change music theme
   Future<void> setTheme(MusicTheme theme) async {
     if (_currentTheme == theme) return;
-    
+
     _currentTheme = theme;
-    
     if (_isEnabled && _isPlaying) {
       await stopMusic();
       await startMusic();
     }
-    
     notifyListeners();
-    debugPrint('🎵 Background music theme: $theme');
   }
 
   /// Get theme display name
@@ -285,7 +252,6 @@ class BackgroundMusicService extends ChangeNotifier {
       if (assetPath != null) {
         await _player!.setAsset(assetPath);
         await _player!.play();
-        debugPrint('🎵 Playing theme music: $theme ($assetPath)');
       }
     } catch (e) {
       debugPrint('❌ Failed to play theme music: $e');
@@ -300,19 +266,16 @@ class BackgroundMusicService extends ChangeNotifier {
       await _player!.dispose();
     }
 
-    // CRITICAL: Deactivate AVAudioSession on iOS (App Store requirement)
     if (Platform.isIOS && _isInitialized) {
       try {
         final session = await AudioSession.instance;
         await session.setActive(false);
-        debugPrint('✅ iOS AVAudioSession deactivated');
       } catch (e) {
         debugPrint('⚠️ AVAudioSession deactivation error: $e');
       }
     }
 
     _isInitialized = false;
-    debugPrint('🎵 BackgroundMusicService disposed');
     super.dispose();
   }
 }
