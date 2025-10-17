@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/supabase_auth_service.dart';
 import 'journal_screen.dart';
 import 'modern_auth_screen.dart';
@@ -12,17 +13,12 @@ class JournalTabContainer extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: StreamBuilder<bool>(
-        stream: authService.authStateChanges,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return _buildLoadingState(context);
-          }
+      body: Consumer<SupabaseAuthService>(
+        builder: (context, auth, child) {
+          // Check if user is authenticated OR has explicitly chosen guest mode
+          final hasAccess = auth.isAuthenticated || auth.isAnonymous;
 
-          final isAuthenticated = snapshot.data ?? false;
-
-          // Check BOTH authenticated AND anonymous for access
-          if (!isAuthenticated && !authService.isAnonymous) {
+          if (!hasAccess) {
             return _buildAuthPrompt(context);
           }
 
