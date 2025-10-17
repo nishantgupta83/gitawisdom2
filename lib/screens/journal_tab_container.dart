@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../services/supabase_auth_service.dart';
 import 'journal_screen.dart';
 import 'modern_auth_screen.dart';
@@ -13,12 +12,16 @@ class JournalTabContainer extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      body: Consumer<SupabaseAuthService>(
-        builder: (context, auth, child) {
-          // Check if user is authenticated OR has explicitly chosen guest mode
-          final hasAccess = auth.isAuthenticated || auth.isAnonymous;
+      body: StreamBuilder<bool>(
+        stream: authService.authStateChanges,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return _buildLoadingState(context);
+          }
 
-          if (!hasAccess) {
+          final isAuthenticated = snapshot.data ?? false;
+
+          if (!isAuthenticated) {
             return _buildAuthPrompt(context);
           }
 
@@ -112,8 +115,14 @@ class JournalTabContainer extends StatelessWidget {
             // Continue as guest option
             TextButton(
               onPressed: () async {
-                // Use consistent method name
-                final success = await authService.signInAnonymously();
+                // Use consistent method name with timeout protection
+                final success = await authService.signInAnonymously().timeout(
+                  const Duration(seconds: 5),
+                  onTimeout: () {
+                    debugPrint('⚠️ Guest sign-in timed out on iPad');
+                    return false;
+                  },
+                );
 
                 // Error handling
                 if (!success && context.mounted) {
@@ -125,7 +134,7 @@ class JournalTabContainer extends StatelessWidget {
                   );
                 }
                 // Note: No navigation needed - StreamBuilder will auto-update
-                // When isAnonymous becomes true, it will show JournalScreen automatically
+                // when auth state changes (even for anonymous users via notifyListeners)
               },
               child: Text(
                 'Continue as Guest',
