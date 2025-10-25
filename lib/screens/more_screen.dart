@@ -11,6 +11,7 @@ import '../services/supabase_auth_service.dart';
 import 'package:provider/provider.dart';
 import '../screens/about_screen.dart';
 import '../screens/search_screen.dart';
+import '../screens/web_view_screen.dart';
 
 class MoreScreen extends StatefulWidget {
   const MoreScreen({Key? key}) : super(key: key);
@@ -51,15 +52,15 @@ class _MoreScreenState extends State<MoreScreen> {
     }
   }
 
-  Future<void> _launchUrl(String url) async {
-    final uri = Uri.parse(url);
-    try {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not open link: $url')),
-      );
-    }
+  void _openWebView(String url, String title) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => WebViewScreen(
+          url: url,
+          title: title,
+        ),
+      ),
+    );
   }
 
   void _sendFeedback() {
@@ -352,12 +353,12 @@ class _MoreScreenState extends State<MoreScreen> {
           ListTile(
             leading: const Icon(Icons.privacy_tip_outlined),
             title: const Text('Privacy Policy'),
-            onTap: () => _launchUrl('https://hub4apps.com/privacy.html'),
+            onTap: () => _openWebView('https://hub4apps.com/privacy.html', 'Privacy Policy'),
           ),
           ListTile(
             leading: const Icon(Icons.article_outlined),
             title: const Text('Terms of Service'),
-            onTap: () => _launchUrl('https://hub4apps.com/terms.html'),
+            onTap: () => _openWebView('https://hub4apps.com/terms.html', 'Terms of Service'),
           ),
         ],
       );
@@ -488,21 +489,59 @@ class _MoreScreenState extends State<MoreScreen> {
               const Text('Delete Account?'),
             ],
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.errorContainer.withValues(alpha: 0.3),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: theme.colorScheme.error,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'This action is immediate and cannot be undone.',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          color: theme.colorScheme.error,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'All your data will be permanently deleted:',
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+              ),
+              const SizedBox(height: 12),
+              const Text('• Journal entries and reflections'),
+              const Text('• Bookmarks and saved verses'),
+              const Text('• Progress tracking data'),
+              const Text('• Account credentials and information'),
+              const SizedBox(height: 16),
               Text(
-                'This action cannot be undone. All your data will be permanently deleted:',
+                'Your account will be deleted from our servers immediately. If you signed in with Apple or Google, you may need to revoke access separately in your account settings.',
+                style: TextStyle(
+                  fontSize: 13,
+                  color: theme.textTheme.bodySmall?.color,
+                ),
+              ),
+              const SizedBox(height: 12),
+              const Text(
+                'Are you absolutely sure you want to delete your account?',
                 style: TextStyle(fontWeight: FontWeight.w600),
               ),
-              SizedBox(height: 12),
-              Text('• Journal entries'),
-              Text('• Bookmarks'),
-              Text('• Progress tracking'),
-              Text('• Account information'),
-              SizedBox(height: 12),
-              Text('Are you sure you want to continue?'),
             ],
           ),
           actions: [
