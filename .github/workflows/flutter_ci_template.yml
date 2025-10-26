@@ -39,7 +39,7 @@ on:
 # ============================================================================
 env:
   # Flutter Configuration
-  FLUTTER_VERSION: '3.24.0'                # Update to match your pubspec.yaml
+  FLUTTER_VERSION: '3.35.7'                # Update to match your pubspec.yaml
   JAVA_VERSION: '17'
 
   # Project Type (determines which jobs run)
