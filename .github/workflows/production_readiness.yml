@@ -549,20 +549,29 @@ jobs:
 
       - name: 💬 Comment on PR
         if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v6
         with:
           script: |
+            const staticAnalysis = '${{ needs.static-analysis.result }}';
+            const unitTests = '${{ needs.unit-tests.result }}';
+            const securityScan = '${{ needs.security-scan.result }}';
+            const androidBuild = '${{ needs.android-build.result }}';
+            const iosBuild = '${{ needs.ios-build.result }}';
+
+            const allSuccess = androidBuild === 'success' && iosBuild === 'success';
+            const status = allSuccess ? '✅ All checks passed! Ready for production.' : '⚠️ Some checks failed. Please review.';
+
             const output = `## 🎯 Production Readiness Check
 
             | Component | Status |
             |-----------|--------|
-            | Static Analysis | ${{ needs.static-analysis.result }} |
-            | Unit Tests | ${{ needs.unit-tests.result }} |
-            | Security Scan | ${{ needs.security-scan.result }} |
-            | Android Build | ${{ needs.android-build.result }} |
-            | iOS Build | ${{ needs.ios-build.result }} |
+            | Static Analysis | ${staticAnalysis} |
+            | Unit Tests | ${unitTests} |
+            | Security Scan | ${securityScan} |
+            | Android Build | ${androidBuild} |
+            | iOS Build | ${iosBuild} |
 
-            ${needs.android-build.result === 'success' && needs.ios-build.result === 'success' ? '✅ All checks passed! Ready for production.' : '⚠️ Some checks failed. Please review.'}
+            ${status}
             `;
 
             github.rest.issues.createComment({
