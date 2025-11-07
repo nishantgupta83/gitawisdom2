@@ -178,76 +178,82 @@ class _SplashScreenState extends State<SplashScreen> {
 
   /// Build splash screen content
   Widget _buildSplashContent() {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage(AppConfig.splashBackgroundImage),
-          fit: BoxFit.cover,
-          alignment: Alignment.center,
-        ),
-      ),
-      child: SafeArea(
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-                // App logo
-                const Icon(
-                  Icons.auto_stories,
-                  size: 80,
-                  color: AppConfig.splashIconColor,
-                ),
-                const SizedBox(height: 20),
-                
-                // App name
-                Text(
-                  AppConfig.appName,
-                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: AppConfig.splashIconColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 40),
-
-                // Loading progress bar
-                SizedBox(
-                  width: 250,
-                  child: Column(
-                    children: [
-                      LinearProgressIndicator(
-                        value: _loadingProgress > 0 ? _loadingProgress : null,
-                        valueColor: const AlwaysStoppedAnimation<Color>(AppConfig.splashIconColor),
-                        backgroundColor: AppConfig.splashIconColor.withValues(alpha: 0.3),
-                        minHeight: 4,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _loadingMessage,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppConfig.splashIconColor.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                // Version info (only in debug mode)
-                if (AppConfig.isDebugMode) ...[
-                  const SizedBox(height: 20),
-                  Text(
-                    'Version ${AppConfig.fullVersion}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppConfig.splashIconColor.withValues(alpha:0.8),
-                    ),
-                  ),
-                ],
-            ],
+    return Stack(
+      children: [
+        // Background image - fill entire screen (outside SafeArea)
+        Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage(AppConfig.splashBackgroundImage),
+              fit: BoxFit.cover,
+              alignment: Alignment.center,
+            ),
           ),
         ),
-      ),
+        // Content - respects safe area
+        SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                  // App logo
+                  const Icon(
+                    Icons.auto_stories,
+                    size: 80,
+                    color: AppConfig.splashIconColor,
+                  ),
+                  const SizedBox(height: 20),
+
+                  // App name
+                  Text(
+                    AppConfig.appName,
+                    style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                      color: AppConfig.splashIconColor,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Loading progress bar
+                  SizedBox(
+                    width: 250,
+                    child: Column(
+                      children: [
+                        LinearProgressIndicator(
+                          value: _loadingProgress > 0 ? _loadingProgress : null,
+                          valueColor: const AlwaysStoppedAnimation<Color>(AppConfig.splashIconColor),
+                          backgroundColor: AppConfig.splashIconColor.withValues(alpha: 0.3),
+                          minHeight: 4,
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          _loadingMessage,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: AppConfig.splashIconColor.withValues(alpha: 0.9),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // Version info (only in debug mode)
+                  if (AppConfig.isDebugMode) ...[
+                    const SizedBox(height: 20),
+                    Text(
+                      'Version ${AppConfig.fullVersion}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppConfig.splashIconColor.withValues(alpha:0.8),
+                      ),
+                    ),
+                  ],
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

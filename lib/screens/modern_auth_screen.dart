@@ -26,17 +26,20 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   late Animation<Offset> _slideAnimation;
 
   final _formKey = GlobalKey<FormState>();
-  
+
   // Form controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   int _currentPage = 0; // 0 = Sign In, 1 = Sign Up
   bool _rememberMe = false;
+
+  // Store auth service reference to avoid context access after dispose
+  SupabaseAuthService? _authService;
 
 
   @override
@@ -74,16 +77,18 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     // Listen for OAuth completion (when app returns from browser)
     // This handles the case where OAuth redirects back and the auth screen is still active
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authService = context.read<SupabaseAuthService>();
-      authService.addListener(_handleAuthStateChange);
+      _authService = context.read<SupabaseAuthService>();
+      _authService?.addListener(_handleAuthStateChange);
     });
   }
 
   void _handleAuthStateChange() {
-    final authService = context.read<SupabaseAuthService>();
+    // Use stored reference instead of reading from context
+    final authService = _authService;
+    if (authService == null || !mounted) return;
 
     // If user becomes authenticated and this screen is still mounted, navigate away
-    if (mounted && (authService.isAuthenticated || authService.isAnonymous) && !authService.isLoading) {
+    if ((authService.isAuthenticated || authService.isAnonymous) && !authService.isLoading) {
       // Small delay to ensure state is fully updated
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
@@ -98,13 +103,9 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
 
   @override
   void dispose() {
-    // Remove auth state listener
-    try {
-      final authService = context.read<SupabaseAuthService>();
-      authService.removeListener(_handleAuthStateChange);
-    } catch (e) {
-      debugPrint('⚠️ Could not remove auth listener: $e');
-    }
+    // Remove auth state listener using stored reference
+    _authService?.removeListener(_handleAuthStateChange);
+    _authService = null;
 
     _fadeController.dispose();
     _slideController.dispose();
@@ -416,7 +417,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   Widget _buildTabIndicator(ThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(4),
@@ -791,7 +792,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha:0.1),
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha:0.1),
       ),
     );
   }

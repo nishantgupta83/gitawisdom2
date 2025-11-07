@@ -52,7 +52,6 @@ class AppSharingService {
     try {
       await Share.share(
         '$message\n\n📱 Download GitaWisdom:\n$storeLink',
-        subject: '$_appName – Your Daily Spiritual Guide',
       );
       debugPrint('📤 Shared app link');
     } catch (e) {
@@ -62,7 +61,7 @@ class AppSharingService {
   }
   
   /// Share a specific feature or content
-  /// 
+  ///
   /// [featureName] - Name of the feature being shared
   /// [content] - Specific content to share
   Future<void> shareFeature(String featureName, String content) async {
@@ -73,13 +72,12 @@ $content
 Discover more wisdom with $_appName - $featureName and 18 Gita chapters with modern applications.
 
 Download: $storeUrl''';
-    
+
     try {
       await Share.share(
         message,
-        subject: '$_appName – $featureName',
       );
-      
+
       debugPrint('📤 Shared feature: $featureName');
     } catch (e) {
       debugPrint('❌ Error sharing feature: $e');
@@ -151,14 +149,14 @@ Find daily inspiration and 700+ verses with $_appName.''';
       } else {
         debugPrint('❌ WhatsApp not installed or URL cannot be launched');
         // Fallback to regular sharing
-        await Share.share(message, subject: '$_appName - Shared via WhatsApp');
+        await Share.share(message);
         return false;
       }
     } catch (e) {
       debugPrint('❌ Error sharing to WhatsApp: $e');
       // Fallback to regular sharing
       try {
-        await Share.share(message, subject: '$_appName - Shared via WhatsApp');
+        await Share.share(message);
         return false;
       } catch (shareError) {
         debugPrint('❌ Fallback sharing also failed: $shareError');

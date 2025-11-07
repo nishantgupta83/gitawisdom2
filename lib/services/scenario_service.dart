@@ -32,7 +32,7 @@ class ScenarioService {
   // SEARCH_CACHE: Memory optimization for repeated search queries
   final Map<String, List<Scenario>> _searchCache = {};
   final Map<String, DateTime> _searchCacheTimestamps = {};
-  static const Duration _searchCacheValidDuration = Duration(minutes: 15);
+  static const Duration _searchCacheValidDuration = Duration(days: 30);
   static const int _maxSearchCacheEntries = 50; // Limit cache size
 
   /// Initialize the service and open Hive box
@@ -300,10 +300,10 @@ class ScenarioService {
     }
     
     _isProcessingInBackground = true;
-    
+
     try {
       debugPrint('🚀 Starting optimized scenario refresh from server...');
-      
+
       // Fetch all scenarios from server (limit 2000 for performance)
       final serverScenarios = await _supabaseService.fetchScenarios(limit: _maxMemoryScenarios);
       
@@ -350,7 +350,10 @@ class ScenarioService {
     
     // SEARCH_CACHE: Clear search cache when scenarios are updated
     _clearSearchCache();
-    
+
+    // CHAPTER_SUMMARY_CACHE: Clear chapter summary cache to force recalculation of scenario counts
+    await _clearChapterSummaryCache();
+
     // Update last sync timestamp
     try {
       Box settingsBox;
@@ -417,7 +420,10 @@ class ScenarioService {
       
       // SEARCH_CACHE: Clear search cache when scenarios are updated
       _clearSearchCache();
-      
+
+      // CHAPTER_SUMMARY_CACHE: Clear chapter summary cache to force recalculation of scenario counts
+      await _clearChapterSummaryCache();
+
       // Update last sync timestamp
       try {
         Box settingsBox;
@@ -686,7 +692,25 @@ class ScenarioService {
     _searchCacheTimestamps.clear();
     debugPrint('🗑️ Search cache cleared');
   }
-  
+
+  /// Clear chapter summary cache to force recalculation of scenario counts
+  Future<void> _clearChapterSummaryCache() async {
+    try {
+      if (Hive.isBoxOpen('chapter_summaries_permanent')) {
+        final box = Hive.box('chapter_summaries_permanent');
+        await box.clear();
+        await box.flush(); // Ensure data is written to disk
+        debugPrint('✅ Chapter summary cache cleared successfully');
+      } else {
+        debugPrint('⚠️ Chapter summary cache box not open - skipping clear');
+      }
+    } catch (e, stackTrace) {
+      debugPrint('❌ CRITICAL: Failed to clear chapter summary cache: $e');
+      debugPrint('Stack trace: $stackTrace');
+      rethrow; // Let caller handle the error
+    }
+  }
+
   /// Ensure the service is initialized
   Future<void> _ensureInitialized() async {
     if (!_isInitialized) {

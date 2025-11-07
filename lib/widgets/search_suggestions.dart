@@ -79,7 +79,7 @@ class SearchSuggestions extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant.withValues(alpha: 0.5),
+            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: theme.colorScheme.outline.withValues(alpha: 0.2),

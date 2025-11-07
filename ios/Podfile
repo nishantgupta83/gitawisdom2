@@ -43,6 +43,10 @@ post_install do |installer|
     # Force iOS 13.0 minimum deployment target for all pods
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+
+      # Suppress Swift compiler warnings in pods for App Store submission
+      # This fixes non-exhaustive switch warning in sign_in_with_apple package
+      config.build_settings['SWIFT_SUPPRESS_WARNINGS'] = 'YES'
     end
   end
 end

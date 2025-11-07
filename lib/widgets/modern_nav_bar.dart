@@ -399,8 +399,8 @@ class ModernNavBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Icon with animated glow for Situations tab (formerly Scenarios)
-                  if (item.label == 'Situations' || item.label == 'Scenarios')
+                  // Icon with animated glow for Dilemmas tab (formerly Scenarios/Situations)
+                  if (item.label == 'Dilemmas' || item.label == 'Scenarios')
                     _PulsatingGlowIcon(
                       isSelected: isSelected,
                       iconSize: iconSize,

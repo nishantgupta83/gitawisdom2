@@ -93,9 +93,7 @@ class JournalTabContainer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const ModernAuthScreen(
-                      isModal: true, // Mark as modal launch from within app
-                    ),
+                    builder: (_) => const ModernAuthScreen(),
                     fullscreenDialog: true,
                   ),
                 );
@@ -106,41 +104,6 @@ class JournalTabContainer extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Continue as guest option
-            TextButton(
-              onPressed: () async {
-                // Use consistent method name with timeout protection
-                final success = await authService.signInAnonymously().timeout(
-                  const Duration(seconds: 5),
-                  onTimeout: () {
-                    debugPrint('⚠️ Guest sign-in timed out on iPad');
-                    return false;
-                  },
-                );
-
-                // Error handling
-                if (!success && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text('Unable to continue as guest. Please try again.'),
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                  );
-                }
-                // Note: No navigation needed - StreamBuilder will auto-update
-                // when auth state changes (even for anonymous users via notifyListeners)
-              },
-              child: Text(
-                'Continue as Guest',
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),

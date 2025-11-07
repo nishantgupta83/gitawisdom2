@@ -112,10 +112,10 @@ abstract class AppLocalizations {
   /// **'Chapters'**
   String get chaptersTab;
 
-  /// Situations tab label in bottom navigation
+  /// Dilemmas tab label in bottom navigation
   ///
   /// In en, this message translates to:
-  /// **'Situations'**
+  /// **'Dilemmas'**
   String get scenariosTab;
 
   /// Journal tab label in bottom navigation
@@ -166,10 +166,10 @@ abstract class AppLocalizations {
   /// **'Win Daily Battle of life choices by bite sized guidance'**
   String get applyGitaTeaching;
 
-  /// Button text to view all scenarios with count
+  /// Button text to view all dilemmas with count
   ///
   /// In en, this message translates to:
-  /// **'View Situations ({count})'**
+  /// **'View Dilemmas ({count})'**
   String viewScenarios(int count);
 
   /// Button text to read all verses with count
@@ -178,10 +178,10 @@ abstract class AppLocalizations {
   /// **'Read All Verses ({count})'**
   String readAllVerses(int count);
 
-  /// Section title for related scenarios in chapter detail
+  /// Section title for related dilemmas in chapter detail
   ///
   /// In en, this message translates to:
-  /// **'Related Situations'**
+  /// **'Related Dilemmas'**
   String get relatedScenarios;
 
   /// Section title for key teachings in chapter detail
@@ -196,10 +196,10 @@ abstract class AppLocalizations {
   /// **'Explore This Chapter'**
   String get exploreChapter;
 
-  /// Button text to expand scenario list
+  /// Button text to expand dilemma list
   ///
   /// In en, this message translates to:
-  /// **'View {count} more situations'**
+  /// **'View {count} more dilemmas'**
   String viewMoreScenarios(int count);
 
   /// Button text to collapse scenario list
@@ -400,46 +400,46 @@ abstract class AppLocalizations {
   /// **'Verses'**
   String get versesCount;
 
-  /// Label for scenario count
+  /// Label for dilemma count
   ///
   /// In en, this message translates to:
-  /// **'Situations'**
+  /// **'Dilemmas'**
   String get scenariosCount;
 
-  /// Main title for scenarios screen
+  /// Main title for dilemmas screen
   ///
   /// In en, this message translates to:
-  /// **'SITUATIONS'**
+  /// **'DILEMMAS'**
   String get scenarios;
 
-  /// Subtitle for scenarios screen
+  /// Subtitle for dilemmas screen
   ///
   /// In en, this message translates to:
-  /// **'Real-world situations guided by Gita wisdom'**
+  /// **'Real-world dilemmas guided by Gita wisdom'**
   String get realWorldSituations;
 
-  /// Search hint text for scenarios
+  /// Search hint text for dilemmas
   ///
   /// In en, this message translates to:
-  /// **'Search situations by title or description...'**
+  /// **'Search dilemmas by title or description...'**
   String get searchScenarios;
 
-  /// Empty state when no scenarios exist
+  /// Empty state when no dilemmas exist
   ///
   /// In en, this message translates to:
-  /// **'No situations available'**
+  /// **'No dilemmas available'**
   String get noScenariosAvailable;
 
   /// Empty state when search has no results
   ///
   /// In en, this message translates to:
-  /// **'No situations match your search'**
+  /// **'No dilemmas match your search'**
   String get noScenariosMatch;
 
   /// Error message when refresh fails
   ///
   /// In en, this message translates to:
-  /// **'Failed to refresh situations'**
+  /// **'Failed to refresh dilemmas'**
   String get failedToRefresh;
 
   /// Title for About screen
@@ -586,10 +586,10 @@ abstract class AppLocalizations {
   /// **'LIFE\'S DILEMMA'**
   String get lifeScenarios;
 
-  /// Subtitle for scenarios screen
+  /// Subtitle for dilemmas screen
   ///
   /// In en, this message translates to:
-  /// **'Get clarity for your Situations'**
+  /// **'Get clarity for your Dilemmas'**
   String get applyGitaWisdom;
 
   /// Back button tooltip
@@ -688,10 +688,10 @@ abstract class AppLocalizations {
   /// **'Daily Reflection'**
   String get categoryDailyReflection;
 
-  /// Scenario Wisdom category option
+  /// Dilemma category option
   ///
   /// In en, this message translates to:
-  /// **'Situation Wisdom'**
+  /// **'Dilemma'**
   String get categoryScenarioWisdom;
 
   /// Chapter Insights category option
@@ -760,22 +760,22 @@ abstract class AppLocalizations {
   /// **'Please select a rating'**
   String get pleaseSelectRating;
 
-  /// Title for chapter-specific scenarios screen
+  /// Title for chapter-specific dilemmas screen
   ///
   /// In en, this message translates to:
-  /// **'CHAPTER {chapter} SITUATIONS'**
+  /// **'CHAPTER {chapter} DILEMMAS'**
   String chapterScenarios(int chapter);
 
-  /// Subtitle for chapter-specific scenarios
+  /// Subtitle for chapter-specific dilemmas
   ///
   /// In en, this message translates to:
-  /// **'Scenarios from Bhagavad Gita Chapter {chapter}'**
+  /// **'Dilemmas from Bhagavad Gita Chapter {chapter}'**
   String chapterScenariosSubtitle(int chapter);
 
-  /// Filter status message for chapter scenarios
+  /// Filter status message for chapter dilemmas
   ///
   /// In en, this message translates to:
-  /// **'Showing situations for Chapter {chapter}'**
+  /// **'Showing dilemmas for Chapter {chapter}'**
   String showingScenariosForChapter(int chapter);
 
   /// Filter status message for tag-filtered scenarios

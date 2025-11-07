@@ -133,7 +133,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
     return Container(
       margin: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
         borderRadius: BorderRadius.circular(12),
       ),
       child: TextField(

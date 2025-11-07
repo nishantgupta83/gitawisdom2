@@ -56,7 +56,7 @@ class BookmarkFilterChip extends StatelessWidget {
       selected: isSelected,
       onSelected: (_) => onSelected(isSelected ? null : filterType),
       selectedColor: theme.colorScheme.primaryContainer,
-      backgroundColor: theme.colorScheme.surfaceVariant.withValues(alpha: 0.3),
+      backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       side: BorderSide(
         color: isSelected 
             ? theme.colorScheme.primary

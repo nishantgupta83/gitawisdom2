@@ -23,6 +23,7 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
   final ScrollController _ctrl = ScrollController();
   final GlobalKey _actionsKey = GlobalKey();
   bool _showActions = false;
+  bool _isLoadingGuidance = false; // Loading state for AI guidance button
   // bool _isFavorited = false; // COMMENTED OUT: User-specific features disabled
   // bool _favoriteLoading = false; // COMMENTED OUT: User-specific features disabled
 
@@ -114,8 +115,18 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
   }
   */
 
-  void _revealActions() {
-    setState(() => _showActions = true);
+  void _revealActions() async {
+    if (_isLoadingGuidance) return; // Prevent double-tap
+
+    setState(() => _isLoadingGuidance = true);
+    await Future.delayed(const Duration(milliseconds: 900)); // AI loading delay
+
+    if (!mounted) return;
+    setState(() {
+      _isLoadingGuidance = false;
+      _showActions = true;
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Scrollable.ensureVisible(_actionsKey.currentContext!, duration: const Duration(milliseconds: 350));
     });
@@ -126,10 +137,13 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
-    return WillPopScope(
-      onWillPop: () async {
+    return PopScope(
+      canPop: true,
+      onPopInvokedWithResult: (bool didPop, dynamic result) {
+        if (didPop) {
+          return;
+        }
         Navigator.of(context).pop();
-        return false;
       },
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -1091,27 +1105,43 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
             message: AppLocalizations.of(context)!.getGuidanceTooltip,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 18),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.auto_awesome, size: 28, color: Colors.white),
-                  const SizedBox(width: 12),
-                  Text(
-                    '🔮 ${AppLocalizations.of(context)!.getGuidance}',
-                    style: GoogleFonts.poppins(
-                      fontSize: theme.textTheme.titleLarge?.fontSize,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.2,
+              child: _isLoadingGuidance
+                  ? const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                        SizedBox(width: 12),
+                        Icon(Icons.auto_awesome, size: 28, color: Colors.white),
+                      ],
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.auto_awesome, size: 28, color: Colors.white),
+                        const SizedBox(width: 12),
+                        Text(
+                          '🔮 ${AppLocalizations.of(context)!.getGuidance}',
+                          style: GoogleFonts.poppins(
+                            fontSize: theme.textTheme.titleLarge?.fontSize,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            letterSpacing: 1.2,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
+                        ),
+                        const SizedBox(width: 12),
+                        const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white), // Solid white for WCAG AA compliance (4.5:1 contrast)
+                      ],
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: true,
-                  ),
-                  const SizedBox(width: 12),
-                  const Icon(Icons.arrow_forward_ios, size: 20, color: Colors.white), // Solid white for WCAG AA compliance (4.5:1 contrast)
-                ],
-              ),
             ),
           ),
         ),
