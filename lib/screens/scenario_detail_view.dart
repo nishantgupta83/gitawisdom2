@@ -696,17 +696,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Heart response text - full width below
-              Text(
-                widget.scenario.heartResponse,
-                style: GoogleFonts.poppins(
-                  fontSize: theme.textTheme.bodyMedium?.fontSize,
-                  color: theme.colorScheme.onSurface.withValues(alpha:0.8),
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.visible,
-              ),
+              // Heart response text - split into scannable sentences
+              _buildScannableText(widget.scenario.heartResponse, theme),
             ],
           ),
         ),
@@ -828,17 +819,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Duty response text - full width below
-              Text(
-                widget.scenario.dutyResponse,
-                style: GoogleFonts.poppins(
-                  fontSize: theme.textTheme.bodyMedium?.fontSize,
-                  color: theme.colorScheme.onSurface.withValues(alpha:0.8),
-                  height: 1.5,
-                ),
-                textAlign: TextAlign.start,
-                overflow: TextOverflow.visible,
-              ),
+              // Duty response text - split into scannable sentences
+              _buildScannableText(widget.scenario.dutyResponse, theme),
             ],
           ),
         ),
@@ -1234,6 +1216,38 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
+    );
+  }
+
+  /// Build response text split into scannable sentences with improved typography
+  Widget _buildScannableText(String text, ThemeData theme) {
+    final sentences = text
+        .split(RegExp(r'(?<=[.!?])\s+'))
+        .where((s) => s.trim().isNotEmpty)
+        .toList();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: sentences.asMap().entries.map((entry) {
+        int index = entry.key;
+        String sentence = entry.value.trim();
+
+        return Padding(
+          padding: EdgeInsets.only(bottom: index < sentences.length - 1 ? 12 : 0),
+          child: Text(
+            sentence,
+            style: GoogleFonts.poppins(
+              fontSize: theme.textTheme.bodyMedium?.fontSize,
+              fontWeight: FontWeight.w400,
+              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
+              height: 1.65,
+              letterSpacing: 0.2,
+            ),
+            textAlign: TextAlign.start,
+            overflow: TextOverflow.visible,
+          ),
+        );
+      }).toList(),
     );
   }
 }
