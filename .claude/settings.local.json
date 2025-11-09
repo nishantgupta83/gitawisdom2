@@ -129,7 +129,14 @@
       "Bash(codesign:*)",
       "Bash(curl:*)",
       "WebFetch(domain:kdp.amazon.com)",
-      "WebFetch(domain:db.jnzzwknjzigvupwfzfhq.supabase.co)"
+      "WebFetch(domain:db.jnzzwknjzigvupwfzfhq.supabase.co)",
+      "Bash(rm:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_close",
+      "Bash(/tmp/android_screenshot.png)",
+      "Bash(perl:*)",
+      "Bash(xcrun xcode-select:*)",
+      "Bash(timeout 30 flutter run:*)"
     ],
     "deny": [],
     "additionalDirectories": [

@@ -1,7 +1,7 @@
 // lib/core/app_initializer.dart
 
 import 'dart:io' show Platform;
-import 'dart:async' show TimeoutException;
+import 'dart:async' show TimeoutException, unawaited;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -178,8 +178,36 @@ class AppInitializer {
     // Changed from unawaited() to await - scenarios load before home screen
     await _initializeHeavyServicesInBackground();
 
+    // Load all verses in background (static content - cache them for instant access)
+    unawaited(_preloadAllVersesInBackground());
+
     // Initialize search indexing in background to prevent UI blocking on search screen access
     // unawaited(IntelligentScenarioSearch.instance.initialize()); // Temporarily disabled for auth testing
+  }
+
+  /// Pre-load all 18 chapter verses in background during app startup
+  /// This ensures verses are cached and available instantly when user navigates to chapter
+  static Future<void> _preloadAllVersesInBackground() async {
+    try {
+      debugPrint('📖 Starting background verse pre-loading...');
+      final supabaseService = ServiceLocator.instance.enhancedSupabaseService;
+
+      // Load all 18 chapters verses in parallel to minimize load time
+      final versesFutures = List.generate(
+        18,
+        (i) => supabaseService.fetchVersesByChapter(i + 1).catchError((e) {
+          debugPrint('⚠️ Failed to pre-load chapter ${i + 1} verses: $e');
+          return <Verse>[]; // Continue even if one fails
+        }),
+      );
+
+      final results = await Future.wait(versesFutures);
+      final totalVerses = results.fold<int>(0, (sum, verses) => sum + verses.length);
+      debugPrint('✅ Pre-loaded $totalVerses verses across all chapters in background');
+    } catch (e) {
+      debugPrint('⚠️ Background verse pre-loading failed (non-critical): $e');
+      // Continue - verses will load on-demand if pre-loading fails
+    }
   }
   
   /// Initialize heavy services in background with proper thread management

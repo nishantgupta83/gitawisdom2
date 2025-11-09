@@ -3,7 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:GitaWisdom/services/journal_service.dart';
 import 'package:GitaWisdom/models/journal_entry.dart';
-import 'test_setup.dart';
+import '../test_setup.dart';
 
 void main() {
   setUpAll(() async {
@@ -27,34 +27,30 @@ void main() {
         expect(identical(journalService, JournalService.instance), isTrue);
       });
 
-      test('service should provide journal entries stream', () {
-        expect(journalService.journalEntries, isA<Stream>());
-      });
-
       test('service should have async initialization', () {
         expect(journalService.initialize, isA<Function>());
       });
     });
 
     group('Journal Entry Management', () {
-      test('should provide method to add journal entry', () {
-        expect(journalService.addJournalEntry, isA<Function>());
+      test('should provide method to create journal entry', () {
+        expect(journalService.createEntry, isA<Function>());
       });
 
-      test('should provide method to update journal entry', () {
-        expect(journalService.updateJournalEntry, isA<Function>());
+      test('should provide method to fetch entries', () {
+        expect(journalService.fetchEntries, isA<Function>());
       });
 
       test('should provide method to delete journal entry', () {
-        expect(journalService.deleteJournalEntry, isA<Function>());
-      });
-
-      test('should provide method to get all entries', () {
-        expect(journalService.getAllEntries, isA<Function>());
+        expect(journalService.deleteEntry, isA<Function>());
       });
 
       test('should provide method to search entries', () {
         expect(journalService.searchEntries, isA<Function>());
+      });
+
+      test('should provide totalEntries getter', () {
+        expect(journalService.totalEntries, isA<int>());
       });
     });
 
@@ -76,14 +72,17 @@ void main() {
 
     group('Error Handling', () {
       test('should handle invalid journal entries gracefully', () {
-        // Should not throw when given null or invalid data
-        expect(() => journalService.deleteJournalEntry('nonexistent'),
-               isA<Function>());
+        // Should not throw when deleting nonexistent entry
+        expect(journalService.deleteEntry('nonexistent'),
+               completes);
       });
 
-      test('should validate entry data before storage', () {
-        // JournalEntry model should have validation
-        expect(JournalEntry, isNotNull);
+      test('should provide averageRating getter', () {
+        expect(journalService.averageRating, isA<double>());
+      });
+
+      test('should have clearCache method for cleanup', () {
+        expect(journalService.clearCache, isA<Function>());
       });
     });
   });

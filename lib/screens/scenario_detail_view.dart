@@ -264,25 +264,55 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Title and Share button row
+                              // Title
+                              Text(
+                                widget.scenario.title,
+                                style: GoogleFonts.poppins().copyWith(
+                                  fontSize: theme.textTheme.titleLarge?.fontSize,
+                                  fontWeight: FontWeight.w600,
+                                  color: theme.colorScheme.primary,
+                                ),
+                                // Allow multiple lines for long titles but prevent overflow
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              // Category pill and Share button row
+                              const SizedBox(height: 12),
                               Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      widget.scenario.title,
-                                      style: GoogleFonts.poppins().copyWith(
-                                        fontSize: theme.textTheme.titleLarge?.fontSize,
-                                        fontWeight: FontWeight.w600,
-                                        color: theme.colorScheme.primary,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: theme.colorScheme.primaryContainer,
+                                      borderRadius: BorderRadius.circular(20),
+                                      border: Border.all(
+                                        color: theme.colorScheme.primary.withAlpha((0.3 * 255).toInt()),
+                                        width: 1,
                                       ),
-                                      // Allow multiple lines for long titles but prevent overflow
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.local_offer,
+                                          size: 16,
+                                          color: theme.colorScheme.onPrimaryContainer,
+                                        ),
+                                        const SizedBox(width: 6),
+                                        Text(
+                                          widget.scenario.category ?? 'General',
+                                          style: theme.textTheme.bodySmall?.copyWith(
+                                            color: theme.colorScheme.onPrimaryContainer,
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
-                                  // Share button
+                                  // Share button - aligned with TAG
                                   SizedBox(
                                     width: 48,
                                     height: 48,
@@ -313,38 +343,6 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                                     ),
                                   ),
                                 ],
-                              ),
-                              // Category pill
-                              const SizedBox(height: 12),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(
-                                    color: theme.colorScheme.primary.withAlpha((0.3 * 255).toInt()),
-                                    width: 1,
-                                  ),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(
-                                      Icons.local_offer,
-                                      size: 16,
-                                      color: theme.colorScheme.onPrimaryContainer,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      widget.scenario.category ?? 'General',
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onPrimaryContainer,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
                               ),
                               // COMMENTED OUT: User-specific favorites feature disabled
                               /*
@@ -387,8 +385,8 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                         ),
                       ),
                     ),
-                    
-                    _card('Description', widget.scenario.description, theme),
+
+                    _buildDilemmaSection(theme),
                     _buildHeartSection(theme),
                     _buildDutySection(theme),
                     
@@ -550,156 +548,142 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
       style: t.textTheme.headlineMedium
   );
 
-  Widget _card(String title, String body, ThemeData theme) => Padding(
-    padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
-    child: Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(22),
+  Widget _buildDilemmaSection(ThemeData theme) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: theme.colorScheme.surface,
+        border: Border(
+          left: BorderSide(
+            color: theme.colorScheme.outlineVariant,
+            width: 4,
+          ),
+        ),
       ),
-      color: theme.colorScheme.surface,
-      shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
-            style: GoogleFonts.poppins().copyWith(
-              fontSize: theme.textTheme.bodyLarge?.fontSize,
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurface,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row with icon and title
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.fork_right,
+                    color: theme.colorScheme.onSurface,
+                    size: 20,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'Dilemma',
+                    style: GoogleFonts.poppins(
+                      fontSize: theme.textTheme.titleLarge?.fontSize,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-          const SizedBox(height: 12),
-          Text(body,
-            style: GoogleFonts.poppins().copyWith(
-              fontSize: theme.textTheme.bodyMedium?.fontSize,
-              color: theme.colorScheme.onSurface.withValues(alpha:0.8),
-              height: 1.5,
-            ),
-          ),
-        ]),
+            const SizedBox(height: 16),
+            // Dilemma description text - split into scannable sentences with markers
+            _buildScannableText(widget.scenario.description, theme, cardType: 'default'),
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 
   Widget _buildHeartSection(ThemeData theme) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: [
-            Colors.pink.shade400.withValues(alpha:0.32),
-            Colors.pink.shade300.withValues(alpha:0.32),
-            Colors.pink.shade200.withValues(alpha:0.24),
-            Colors.pink.shade100.withValues(alpha:0.24),
-          ],
-          stops: const [0.0, 0.3, 0.7, 1.0],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: theme.colorScheme.surface,
+        border: Border(
+          left: BorderSide(
+            color: Colors.pink.shade400,
+            width: 4,
+          ),
         ),
         boxShadow: [
-          // Outermost glow - strongest and largest
           BoxShadow(
-            color: Colors.pink.withValues(alpha:0.456),
-            blurRadius: 25,
-            spreadRadius: 6,
-            offset: const Offset(0, 8),
-          ),
-          // Middle glow - medium intensity
-          BoxShadow(
-            color: Colors.pink.shade300.withValues(alpha:0.304),
-            blurRadius: 18,
-            spreadRadius: 3,
-            offset: const Offset(0, 4),
-          ),
-          // Inner glow - subtle and close
-          BoxShadow(
-            color: Colors.pink.shade200.withValues(alpha:0.228),
-            blurRadius: 12,
-            spreadRadius: 1,
+            color: Colors.pink.withValues(alpha: 0.08),
+            blurRadius: 6,
             offset: const Offset(0, 2),
-          ),
-          // Accent glow - pink shimmer
-          BoxShadow(
-            color: Colors.pinkAccent.withValues(alpha:0.38),
-            blurRadius: 30,
-            spreadRadius: 8,
-            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Container(
-        margin: const EdgeInsets.all(3), // Creates enhanced border effect
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          color: theme.colorScheme.surface,
-          border: Border.all(
-            color: Colors.pink.withValues(alpha:0.2),
-            width: 1,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header row with icon and title
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.pink.shade300, Colors.pink.shade400],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row with icon and title
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.pink.shade300, Colors.pink.shade400],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.pink.withValues(alpha:0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.pink.withValues(alpha:0.3),
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.favorite,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.heartSays,
-                      style: GoogleFonts.poppins(
-                        fontSize: theme.textTheme.titleLarge?.fontSize,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
+                  child: Icon(
+                    Icons.favorite,
+                    color: Colors.white,
+                    size: 20,
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Explanation text - full width below header
-              Text(
-                AppLocalizations.of(context)!.heartSaysExplanation,
-                style: GoogleFonts.poppins(
-                  fontSize: theme.textTheme.bodySmall?.fontSize,
-                  color: Colors.pink.shade600,
-                  fontWeight: FontWeight.w500,
-                  fontStyle: FontStyle.italic,
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.heartSays,
+                    style: GoogleFonts.poppins(
+                      fontSize: theme.textTheme.titleLarge?.fontSize,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Explanation text - full width below header
+            Text(
+              AppLocalizations.of(context)!.heartSaysExplanation,
+              style: GoogleFonts.poppins(
+                fontSize: theme.textTheme.bodySmall?.fontSize,
+                color: Colors.pink.shade600,
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
               ),
-              const SizedBox(height: 16),
-              // Heart response text - split into scannable sentences
-              _buildScannableText(widget.scenario.heartResponse, theme),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            // Heart response text - split into scannable sentences with markers
+            _buildScannableText(widget.scenario.heartResponse, theme, cardType: 'heart'),
+          ],
         ),
       ),
     );
@@ -707,122 +691,84 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
 
   Widget _buildDutySection(ThemeData theme) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 12), // Negative top to overlap Heart card
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
-        gradient: LinearGradient(
-          colors: [
-            Colors.blue.shade400.withValues(alpha:0.32),
-            Colors.blue.shade300.withValues(alpha:0.32),
-            Colors.blue.shade200.withValues(alpha:0.24),
-            Colors.blue.shade100.withValues(alpha:0.24),
-          ],
-          stops: const [0.0, 0.3, 0.7, 1.0],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+        color: theme.colorScheme.surface,
+        border: Border(
+          left: BorderSide(
+            color: Colors.blue.shade400,
+            width: 4,
+          ),
         ),
         boxShadow: [
-          // Outermost glow - strongest and largest
           BoxShadow(
-            color: Colors.blue.withValues(alpha:0.456),
-            blurRadius: 25,
-            spreadRadius: 6,
-            offset: const Offset(0, 8),
-          ),
-          // Middle glow - medium intensity
-          BoxShadow(
-            color: Colors.blue.shade300.withValues(alpha:0.304),
-            blurRadius: 18,
-            spreadRadius: 3,
-            offset: const Offset(0, 4),
-          ),
-          // Inner glow - subtle and close
-          BoxShadow(
-            color: Colors.blue.shade200.withValues(alpha:0.228),
-            blurRadius: 12,
-            spreadRadius: 1,
+            color: Colors.blue.withValues(alpha: 0.08),
+            blurRadius: 6,
             offset: const Offset(0, 2),
-          ),
-          // Accent glow - blue shimmer
-          BoxShadow(
-            color: Colors.blueAccent.withValues(alpha:0.38),
-            blurRadius: 30,
-            spreadRadius: 8,
-            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Container(
-        margin: const EdgeInsets.all(3), // Creates enhanced border effect
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          color: theme.colorScheme.surface,
-          border: Border.all(
-            color: Colors.blue.withValues(alpha:0.2),
-            width: 1,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header row with icon and title
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.blue.shade300, Colors.blue.shade400],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row with icon and title
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blue.shade300, Colors.blue.shade400],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withValues(alpha:0.3),
+                        blurRadius: 8,
+                        spreadRadius: 1,
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withValues(alpha:0.3),
-                          blurRadius: 8,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.balance,
-                      color: Colors.white,
-                      size: 20,
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.dutySays,
-                      style: GoogleFonts.poppins(
-                        fontSize: theme.textTheme.titleLarge?.fontSize,
-                        fontWeight: FontWeight.w600,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
+                  child: Icon(
+                    Icons.balance,
+                    color: Colors.white,
+                    size: 20,
                   ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              // Explanation text - full width below header
-              Text(
-                AppLocalizations.of(context)!.dutySaysExplanation,
-                style: GoogleFonts.poppins(
-                  fontSize: theme.textTheme.bodySmall?.fontSize,
-                  color: Colors.blue.shade600,
-                  fontWeight: FontWeight.w500,
-                  fontStyle: FontStyle.italic,
                 ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.dutySays,
+                    style: GoogleFonts.poppins(
+                      fontSize: theme.textTheme.titleLarge?.fontSize,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Explanation text - full width below header
+            Text(
+              AppLocalizations.of(context)!.dutySaysExplanation,
+              style: GoogleFonts.poppins(
+                fontSize: theme.textTheme.bodySmall?.fontSize,
+                color: Colors.blue.shade600,
+                fontWeight: FontWeight.w500,
+                fontStyle: FontStyle.italic,
               ),
-              const SizedBox(height: 16),
-              // Duty response text - split into scannable sentences
-              _buildScannableText(widget.scenario.dutyResponse, theme),
-            ],
-          ),
+            ),
+            const SizedBox(height: 16),
+            // Duty response text - split into scannable sentences with markers
+            _buildScannableText(widget.scenario.dutyResponse, theme, cardType: 'duty'),
+          ],
         ),
       ),
     );
@@ -890,107 +836,66 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
           curve: Curves.easeInOut,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            gradient: LinearGradient(
-              colors: [
-                Colors.amber.shade400.withValues(alpha:0.4),
-                Colors.orange.shade500.withValues(alpha:0.4),
-                Colors.deepOrange.shade400.withValues(alpha:0.4),
-                Colors.amber.shade300.withValues(alpha:0.3),
-              ],
-              stops: const [0.0, 0.3, 0.7, 1.0],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+            color: theme.colorScheme.surface,
+            border: Border(
+              left: BorderSide(
+                color: Colors.amber.shade400,
+                width: 4,
+              ),
             ),
             boxShadow: [
-              // Outermost glow - strongest and largest
               BoxShadow(
-                color: Colors.amber.withValues(alpha:0.54),
-                blurRadius: 25,
-                spreadRadius: 6,
-                offset: const Offset(0, 8),
-              ),
-              // Middle glow - medium intensity
-              BoxShadow(
-                color: Colors.orange.withValues(alpha:0.36),
-                blurRadius: 18,
-                spreadRadius: 3,
-                offset: const Offset(0, 4),
-              ),
-              // Inner glow - subtle and close
-              BoxShadow(
-                color: Colors.deepOrange.withValues(alpha:0.27),
-                blurRadius: 12,
-                spreadRadius: 1,
+                color: Colors.amber.withValues(alpha: 0.08),
+                blurRadius: 6,
                 offset: const Offset(0, 2),
-              ),
-              // Accent glow - golden shimmer
-              BoxShadow(
-                color: Colors.amberAccent.withValues(alpha:0.4),
-                blurRadius: 30,
-                spreadRadius: 8,
-                offset: const Offset(0, 10),
               ),
             ],
           ),
-          child: Container(
-            margin: const EdgeInsets.all(3), // Creates enhanced border effect
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              color: theme.colorScheme.surface,
-              border: Border.all(
-                color: Colors.amber.withValues(alpha:0.2),
-                width: 1,
-              ),
-            ),
-            child: Card(
-              margin: EdgeInsets.zero,
-              elevation: 0,
-              color: Colors.transparent,
-              child: Padding(
-                padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: Padding(
+            padding: EdgeInsets.all(isTablet ? 24.0 : 20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [Colors.amber.shade300, Colors.orange.shade400],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.amber.withValues(alpha:0.3),
-                                blurRadius: 8,
-                                spreadRadius: 1,
-                              ),
-                            ],
-                          ),
-                          child: Icon(
-                            Icons.auto_awesome,
-                            color: Colors.white,
-                            size: isTablet ? 24 : 20,
-                          ),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.amber.shade300, Colors.orange.shade400],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            AppLocalizations.of(context)!.wisdomSteps,
-                            style: GoogleFonts.poppins(
-                              fontSize: theme.textTheme.titleLarge?.fontSize,
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.primary,
-                            ),
+                        borderRadius: BorderRadius.circular(8),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.amber.withValues(alpha:0.3),
+                            blurRadius: 8,
+                            spreadRadius: 1,
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: Icon(
+                        Icons.auto_awesome,
+                        color: Colors.white,
+                        size: isTablet ? 24 : 20,
+                      ),
                     ),
-                    const SizedBox(height: 16),
-                    ...?widget.scenario.actionSteps?.asMap().entries.map((entry) => Container(
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        AppLocalizations.of(context)!.wisdomSteps,
+                        style: GoogleFonts.poppins(
+                          fontSize: theme.textTheme.titleLarge?.fontSize,
+                          fontWeight: FontWeight.w600,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ...?widget.scenario.actionSteps?.asMap().entries.map((entry) => Container(
                       margin: const EdgeInsets.only(bottom: 8),
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1042,8 +947,6 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
                 ),
               ),
             ),
-          ),
-        ),
       );
     },
   );
@@ -1219,32 +1122,64 @@ class _ScenarioDetailViewState extends State<ScenarioDetailView> {
     );
   }
 
-  /// Build response text split into scannable sentences with improved typography
-  Widget _buildScannableText(String text, ThemeData theme) {
+  /// Build response text split into scannable sentences with visual rhythm and typography hierarchy
+  Widget _buildScannableText(String text, ThemeData theme, {String? cardType}) {
     final sentences = text
         .split(RegExp(r'(?<=[.!?])\s+'))
         .where((s) => s.trim().isNotEmpty)
         .toList();
+
+    // Determine accent color for micro-icon
+    final accentColor = cardType == 'heart' ? Colors.pink.shade400 :
+                       cardType == 'duty' ? Colors.blue.shade400 :
+                       cardType == 'dilemma' ? Colors.amber.shade400 :
+                       theme.colorScheme.primary;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: sentences.asMap().entries.map((entry) {
         int index = entry.key;
         String sentence = entry.value.trim();
+        bool isLeadSentence = index == 0;
+
+        // Determine if this is a secondary sentence (lower opacity)
+        bool isSecondary = index > 1;
 
         return Padding(
-          padding: EdgeInsets.only(bottom: index < sentences.length - 1 ? 12 : 0),
-          child: Text(
-            sentence,
-            style: GoogleFonts.poppins(
-              fontSize: theme.textTheme.bodyMedium?.fontSize,
-              fontWeight: FontWeight.w400,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.8),
-              height: 1.65,
-              letterSpacing: 0.2,
-            ),
-            textAlign: TextAlign.start,
-            overflow: TextOverflow.visible,
+          padding: EdgeInsets.only(bottom: index < sentences.length - 1 ? 16 : 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Micro-icon/marker (6pt dot)
+              Padding(
+                padding: const EdgeInsets.only(right: 12, top: 8),
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: accentColor.withValues(alpha: 0.4),
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              // Text content with hierarchy
+              Expanded(
+                child: Text(
+                  sentence,
+                  style: GoogleFonts.poppins(
+                    fontSize: theme.textTheme.bodyMedium?.fontSize,
+                    fontWeight: FontWeight.w600, // All sentences bold
+                    color: theme.colorScheme.onSurface.withValues(
+                      alpha: isSecondary ? 0.65 : 0.8,
+                    ),
+                    height: 1.65,
+                    letterSpacing: 0.2,
+                  ),
+                  textAlign: TextAlign.start,
+                  overflow: TextOverflow.visible,
+                ),
+              ),
+            ],
           ),
         );
       }).toList(),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io' show Platform;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,8 @@ import '../services/settings_service.dart';
 import '../services/background_music_service.dart';
 import '../services/app_sharing_service.dart';
 import '../services/supabase_auth_service.dart';
+import '../services/cache_refresh_service.dart';
+import '../services/enhanced_supabase_service.dart';
 import 'package:provider/provider.dart';
 import '../screens/about_screen.dart';
 import '../screens/search_screen.dart';
@@ -161,40 +164,93 @@ class _MoreScreenState extends State<MoreScreen> {
 
     return ListView(
         children: [
-          // Account section - only shown for authenticated users
-          Consumer<SupabaseAuthService>(
-            builder: (context, authService, child) {
-              if (authService.isAuthenticated) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                      child: Text('Account', style: theme.textTheme.titleMedium),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.account_circle),
-                      title: Text(authService.displayName ?? 'User'),
-                      subtitle: Text(authService.userEmail ?? ''),
-                    ),
-                    ListTile(
-                      leading: const Icon(Icons.logout),
-                      title: const Text('Sign Out'),
-                      subtitle: const Text('Sign out of your account'),
-                      onTap: () => _handleSignOut(context, authService),
-                    ),
-                    ListTile(
-                      leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
-                      title: Text('Delete Account', style: TextStyle(color: theme.colorScheme.error)),
-                      subtitle: const Text('Permanently delete your account and all data'),
-                      onTap: () => _showDeleteAccountDialog(context, authService),
-                    ),
-                  ],
+          // Account section - collapsed design (iOS-style with Card)
+          Selector<SupabaseAuthService, bool>(
+            selector: (context, authService) => authService.isAuthenticated,
+            builder: (context, isAuthenticated, child) {
+              if (isAuthenticated) {
+                return Consumer<SupabaseAuthService>(
+                  builder: (context, authService, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                          child: Text('ACCOUNT', style: theme.textTheme.titleSmall?.copyWith(
+                            letterSpacing: 0.5,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          )),
+                        ),
+                        Card(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          child: ExpansionTile(
+                            leading: Icon(Icons.account_circle, color: theme.colorScheme.primary),
+                            title: Text(
+                              authService.displayName ?? 'User',
+                              style: theme.textTheme.titleSmall,
+                            ),
+                            subtitle: Text(
+                              authService.userEmail ?? '',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                            collapsedBackgroundColor: theme.colorScheme.surface,
+                            backgroundColor: theme.colorScheme.surface,
+                            children: [
+                              const Divider(height: 1),
+                              ListTile(
+                                leading: const Icon(Icons.logout),
+                                title: const Text('Sign Out'),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => _handleSignOut(context, authService),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
+                            title: Text(
+                              'Delete Account',
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                              trailing: Icon(Icons.chevron_right, color: theme.colorScheme.error),
+                              onTap: () => _showDeleteAccountDialog(context, authService),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    );
+                  },
                 );
               }
               return const SizedBox.shrink();
             },
           ),
+
+          // Cache Management section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: Text('CACHE MANAGEMENT', style: theme.textTheme.titleSmall?.copyWith(
+              letterSpacing: 0.5,
+              color: theme.colorScheme.onSurfaceVariant,
+            )),
+          ),
+          if (Platform.isIOS)
+            Card(
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              child: ListTile(
+                leading: const Icon(Icons.cached),
+                title: const Text('Refresh All Data'),
+                subtitle: const Text('Clear and reload chapters, verses & scenarios'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _handleRefreshCache(context),
+              ),
+            )
+          else
+            ListTile(
+              leading: const Icon(Icons.cached),
+              title: const Text('Refresh All Data'),
+              subtitle: const Text('Clear and reload chapters, verses & scenarios'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _handleRefreshCache(context),
+            ),
 
           // Appearance section
           Padding(
@@ -657,6 +713,116 @@ class _MoreScreenState extends State<MoreScreen> {
         SnackBar(
           content: Text('Failed to delete account: $e'),
           backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  /// Handle cache refresh with progress indicator
+  Future<void> _handleRefreshCache(BuildContext context) async {
+    if (!mounted) return;
+
+    // Use a ValueNotifier to track progress across dialog rebuilds
+    final progressNotifier = ValueNotifier<double>(0.0);
+    final messageNotifier = ValueNotifier<String>('Clearing cache...');
+    final isCompleteNotifier = ValueNotifier<bool>(false);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        return ValueListenableBuilder<double>(
+          valueListenable: progressNotifier,
+          builder: (context, progress, _) {
+            return ValueListenableBuilder<String>(
+              valueListenable: messageNotifier,
+              builder: (context, message, _) {
+                return ValueListenableBuilder<bool>(
+                  valueListenable: isCompleteNotifier,
+                  builder: (context, isComplete, _) {
+                    return AlertDialog(
+                      title: const Text('Refreshing Cache'),
+                      content: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 6,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            message,
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          if (isComplete) ...[
+                            const SizedBox(height: 16),
+                            Icon(
+                              Icons.check_circle,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 48,
+                            ),
+                          ],
+                        ],
+                      ),
+                      actions: isComplete
+                          ? [
+                              ElevatedButton(
+                                onPressed: () => Navigator.of(dialogContext).pop(),
+                                child: const Text('Done'),
+                              ),
+                            ]
+                          : [],
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+
+    try {
+      final cacheRefreshService = CacheRefreshService(
+        supabaseService: EnhancedSupabaseService(),
+      );
+
+      // Refresh with progress callback - updates ValueNotifiers for instant UI updates
+      await cacheRefreshService.refreshAllCaches(
+        onProgress: (message, progress) {
+          debugPrint('📊 $message - Progress: ${(progress * 100).toStringAsFixed(0)}%');
+
+          // Update ValueNotifiers safely
+          if (mounted) {
+            messageNotifier.value = message;
+            progressNotifier.value = progress;
+            if (progress >= 1.0) {
+              isCompleteNotifier.value = true;
+            }
+          }
+        },
+      );
+
+      if (!mounted) return;
+
+      // Dialog stays open for user to tap "Done" - manual close ensures visibility
+    } catch (e) {
+      debugPrint('❌ Cache refresh error: $e');
+
+      if (!mounted) return;
+
+      // Update error state in dialog
+      messageNotifier.value = 'Cache refresh failed!\n${e.toString()}';
+      isCompleteNotifier.value = true;
+      progressNotifier.value = 1.0;
+
+      // Show additional snackbar for visibility
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Cache refresh failed: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
         ),
       );
     }

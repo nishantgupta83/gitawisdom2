@@ -1051,13 +1051,64 @@ class EnhancedSupabaseService {
   /// MULTILINGUAL VERSE METHODS
   /// ========================================================================
 
-  /// Fetch verses with multilingual support
+  /// Fetch verses with Hive caching (static content - users don't need real-time updates)
+  /// Verses are permanent Gita content, so cache them indefinitely
   Future<List<Verse>> fetchVersesByChapter(int chapterId, [String? langCode]) async {
-    /* MULTILANG_TODO: final language = langCode ?? _currentLanguage; */
     final language = 'en'; // MVP: English-only
 
     try {
-      // Direct query to gita_verses table (verse_translations table was deleted)
+      // Get verses box (open once, keep open for app lifetime)
+      final versesBox = Hive.box<Map<dynamic, dynamic>>('gita_verses_cache');
+      final cacheKey = 'chapter_$chapterId';
+
+      // Check cache first - instant load for static content
+      if (versesBox.containsKey(cacheKey)) {
+        final cached = versesBox.get(cacheKey) as Map<dynamic, dynamic>?;
+        if (cached != null && cached['verses'] is List) {
+          final verses = (cached['verses'] as List)
+              .whereType<Map<dynamic, dynamic>>()
+              .map((itemMap) {
+            return Verse(
+              verseId: (itemMap['gv_verses_id'] as num?)?.toInt() ?? 0,
+              chapterId: (itemMap['gv_chapter_id'] as num?)?.toInt() ?? chapterId,
+              description: itemMap['gv_verses'] as String? ?? '',
+            );
+          }).toList();
+
+          debugPrint('📖 Loaded ${verses.length} verses for chapter $chapterId from cache (instant)');
+          return verses;
+        }
+      }
+
+      // No cache - fetch from network
+      debugPrint('📡 Fetching verses from network for chapter $chapterId...');
+      final verses = await _fetchVersesFromNetwork(chapterId, language);
+
+      // Cache for next time
+      if (verses.isNotEmpty) {
+        await versesBox.put(cacheKey, {
+          'verses': verses.map((v) => {
+            'gv_verses_id': v.verseId,
+            'gv_chapter_id': v.chapterId,
+            'gv_verses': v.description,
+          }).toList(),
+          'cached_at': DateTime.now().toIso8601String(),
+        });
+        debugPrint('💾 Cached ${verses.length} verses for chapter $chapterId');
+      }
+
+      return verses;
+
+    } catch (e) {
+      debugPrint('❌ Error fetching verses for chapter $chapterId: $e');
+      return [];
+    }
+  }
+
+  /// Fetch verses from network (helper for batch loading)
+  Future<List<Verse>> _fetchVersesFromNetwork(int chapterId, String language) async {
+    try {
+      // Single query per chapter (not per verse) = minimal API calls
       final response = await client
           .from('gita_verses')
           .select('''
@@ -1075,7 +1126,7 @@ class EnhancedSupabaseService {
       )).toList();
 
     } catch (e) {
-      debugPrint('❌ Error fetching verses for chapter $chapterId: $e');
+      debugPrint('❌ Error fetching verses from network for chapter $chapterId: $e');
       return [];
     }
   }

@@ -367,8 +367,8 @@ class _VerseListViewState extends State<VerseListView> {
                                         onTap: () => _showShareDialog(verse),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
+                                            horizontal: 13,
+                                            vertical: 7,
                                           ),
                                           decoration: BoxDecoration(
                                             color: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
@@ -379,14 +379,14 @@ class _VerseListViewState extends State<VerseListView> {
                                             children: [
                                               Icon(
                                                 Icons.share,
-                                                size: 20,
+                                                size: 22,
                                                 color: theme.colorScheme.onSurface.withValues(alpha:0.87),
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
                                                 'Share',
                                                 style: GoogleFonts.poppins(
-                                                  fontSize: MediaQuery.of(context).textScaler.scale(12),
+                                                  fontSize: MediaQuery.of(context).textScaler.scale(13),
                                                   fontWeight: FontWeight.w500,
                                                   color: theme.colorScheme.onSurface.withValues(alpha:0.87),
                                                 ),

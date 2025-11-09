@@ -106,5 +106,22 @@
 		<string>fbshareextension</string>
 	</array>
 	-->
+	<!-- App Transport Security Configuration for Supabase -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Allow specific Supabase domain -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>db.jnzzwknjzigvupwfzfhq.supabase.co</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

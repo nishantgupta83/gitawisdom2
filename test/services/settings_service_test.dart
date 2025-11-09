@@ -3,7 +3,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:GitaWisdom/services/settings_service.dart';
-import 'test_setup.dart';
+import '../test_setup.dart';
 
 void main() {
   group('SettingsService', () {
