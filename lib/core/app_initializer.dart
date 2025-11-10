@@ -135,6 +135,9 @@ class AppInitializer {
       }
     });
 
+    // Initialize all required Hive boxes at startup
+    await _initializeAllHiveBoxes();
+
     // Initialize core services in parallel where possible
     await Future.wait([
       Future.microtask(() => _initializeCoreServices()),
@@ -292,5 +295,47 @@ class AppInitializer {
     }
   }
 
+  /// Initialize all required Hive boxes at app startup
+  /// This ensures all boxes are opened before services try to access them
+  static Future<void> _initializeAllHiveBoxes() async {
+    final requiredBoxes = [
+      'settings',
+      'journal_entries',
+      'bookmarks',
+      'daily_verses',
+      'search_cache',
+      'app_metadata',
+      'chapters',
+      'chapter_summaries_permanent',
+      'gita_verses_cache',
+      'scenarios',
+      'scenarios_critical',
+      'scenarios_frequent',
+      'language_cache',
+    ];
+
+    try {
+      debugPrint('📦 Initializing Hive boxes...');
+
+      for (final boxName in requiredBoxes) {
+        try {
+          if (!Hive.isBoxOpen(boxName)) {
+            await Hive.openBox(boxName);
+            debugPrint('✅ Opened Hive box: $boxName');
+          } else {
+            debugPrint('⏭️ Box already open: $boxName');
+          }
+        } catch (boxError) {
+          debugPrint('⚠️ Warning: Could not open box "$boxName": $boxError');
+          // Continue with other boxes even if one fails
+        }
+      }
+
+      debugPrint('✅ All Hive boxes initialized successfully');
+    } catch (e) {
+      debugPrint('❌ Critical: Hive box initialization failed: $e');
+      // Continue - individual services will handle missing boxes
+    }
+  }
 
 }

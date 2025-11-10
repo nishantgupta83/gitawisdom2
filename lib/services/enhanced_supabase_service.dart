@@ -154,16 +154,28 @@ class EnhancedSupabaseService {
           .toList();
       
       // Cache languages for offline use
+      if (!Hive.isBoxOpen(_languageCacheBox)) {
+        await Hive.openBox(_languageCacheBox);
+      }
       final cacheBox = Hive.box(_languageCacheBox);
-      await cacheBox.put('supported_languages', 
+      await cacheBox.put('supported_languages',
           _supportedLanguages.map((lang) => lang.toJson()).toList());
       
       debugPrint('📥 Loaded ${_supportedLanguages.length} languages from server');
       
     } catch (e) {
       debugPrint('⚠️ Failed to load languages from server: $e');
-      
+
       // Try to load from cache
+      if (!Hive.isBoxOpen(_languageCacheBox)) {
+        try {
+          await Hive.openBox(_languageCacheBox);
+        } catch (boxError) {
+          debugPrint('❌ Failed to open language cache box: $boxError');
+          _supportedLanguages = SupportedLanguage.defaultLanguages;
+          return;
+        }
+      }
       final cacheBox = Hive.box(_languageCacheBox);
       final cachedLanguages = cacheBox.get('supported_languages');
       
@@ -338,57 +350,79 @@ class EnhancedSupabaseService {
         await Hive.openBox<ChapterSummary>('chapter_summaries_permanent');
       }
       final cacheBox = Hive.box<ChapterSummary>('chapter_summaries_permanent');
-      
+
       // Check permanent cache first
       if (cacheBox.isNotEmpty) {
         final cachedSummaries = cacheBox.values.toList();
-        // Using permanently cached chapter summaries
+        debugPrint('📦 Using cached chapter summaries: ${cachedSummaries.length} chapters');
         return cachedSummaries;
       }
-      
-      // Fetching fresh chapter summaries for permanent cache
-      
+
+      debugPrint('🔄 Fetching fresh chapter summaries for permanent cache');
+
       // Direct query from chapters table - reliable and simple
       final chaptersResponse = await client
           .from('chapters')
           .select('ch_chapter_id, ch_title, ch_subtitle, ch_verse_count')
           .order('ch_chapter_id', ascending: true);
-      
-      debugPrint('📊 Found ${chaptersResponse.length} chapters');
-      
+
+      debugPrint('📊 Found ${chaptersResponse.length} chapters from Supabase');
+
       final List<ChapterSummary> summaries = [];
-      
+
       for (final chapter in chaptersResponse) {
-        // Get real-time scenario count from scenarios table
-        final scenarioCountResponse = await client
-            .from('scenarios')
-            .select('scenario_id')
-            .eq('sc_chapter', chapter['ch_chapter_id'])
-            .count();
-        
-        final summary = ChapterSummary(
-          chapterId: chapter['ch_chapter_id'] as int,
-          title: chapter['ch_title'] as String,
-          subtitle: chapter['ch_subtitle'] as String?,
-          verseCount: (chapter['ch_verse_count'] as int?) ?? 0,
-          scenarioCount: scenarioCountResponse.count,
-        );
-        
-        summaries.add(summary);
-        debugPrint('✅ Chapter ${summary.chapterId}: ${summary.scenarioCount} scenarios');
+        try {
+          // Get real-time scenario count from scenarios table
+          final scenarioCountResponse = await client
+              .from('scenarios')
+              .select('scenario_id')
+              .eq('sc_chapter', chapter['ch_chapter_id'])
+              .count();
+
+          final summary = ChapterSummary(
+            chapterId: chapter['ch_chapter_id'] as int,
+            title: chapter['ch_title'] as String,
+            subtitle: chapter['ch_subtitle'] as String?,
+            verseCount: (chapter['ch_verse_count'] as int?) ?? 0,
+            scenarioCount: scenarioCountResponse.count,
+          );
+
+          summaries.add(summary);
+          debugPrint('✅ Chapter ${summary.chapterId}: ${summary.scenarioCount} scenarios');
+        } catch (e) {
+          debugPrint('⚠️ Error loading scenarios for chapter ${chapter['ch_chapter_id']}: $e');
+          // Continue with other chapters
+        }
       }
-      
+
       // Permanently cache the results
       await cacheBox.clear();
       for (int i = 0; i < summaries.length; i++) {
         await cacheBox.put(summaries[i].chapterId, summaries[i]);
       }
-      
-      // Successfully loaded and permanently cached chapter summaries
+
+      debugPrint('✅ Successfully loaded and cached ${summaries.length} chapter summaries');
       return summaries;
-      
+
     } catch (e) {
-      // Error fetching chapter summaries
+      debugPrint('❌ CRITICAL ERROR fetching chapter summaries: $e');
+      debugPrint('📝 Error type: ${e.runtimeType}');
+      debugPrint('📝 Error details: ${e.toString()}');
+
+      // Try to use cache as fallback
+      try {
+        if (Hive.isBoxOpen('chapter_summaries_permanent')) {
+          final cacheBox = Hive.box<ChapterSummary>('chapter_summaries_permanent');
+          if (cacheBox.isNotEmpty) {
+            debugPrint('⚠️ Using fallback cached summaries: ${cacheBox.length} chapters');
+            return cacheBox.values.toList();
+          }
+        }
+      } catch (cacheError) {
+        debugPrint('❌ Even cache fallback failed: $cacheError');
+      }
+
+      // Return empty list only if all else fails
       return [];
     }
   }
@@ -1057,7 +1091,12 @@ class EnhancedSupabaseService {
     final language = 'en'; // MVP: English-only
 
     try {
-      // Get verses box (open once, keep open for app lifetime)
+      // Open verses box if not already open
+      if (!Hive.isBoxOpen('gita_verses_cache')) {
+        await Hive.openBox<Map<dynamic, dynamic>>('gita_verses_cache');
+        debugPrint('📦 Opened gita_verses_cache box');
+      }
+
       final versesBox = Hive.box<Map<dynamic, dynamic>>('gita_verses_cache');
       final cacheKey = 'chapter_$chapterId';
 
@@ -1100,7 +1139,21 @@ class EnhancedSupabaseService {
       return verses;
 
     } catch (e) {
-      debugPrint('❌ Error fetching verses for chapter $chapterId: $e');
+      debugPrint('❌ CRITICAL ERROR fetching verses for chapter $chapterId');
+      debugPrint('📝 Error: $e');
+      debugPrint('📝 Error type: ${e.runtimeType}');
+
+      // Try fallback to network if cache is unavailable
+      try {
+        final verses = await _fetchVersesFromNetwork(chapterId, language);
+        if (verses.isNotEmpty) {
+          debugPrint('⚠️ Fallback network fetch succeeded: ${verses.length} verses');
+          return verses;
+        }
+      } catch (fallbackError) {
+        debugPrint('❌ Fallback also failed: $fallbackError');
+      }
+
       return [];
     }
   }
@@ -1108,6 +1161,8 @@ class EnhancedSupabaseService {
   /// Fetch verses from network (helper for batch loading)
   Future<List<Verse>> _fetchVersesFromNetwork(int chapterId, String language) async {
     try {
+      debugPrint('🔄 Fetching verses from network for chapter $chapterId (language: $language)');
+
       // Single query per chapter (not per verse) = minimal API calls
       final response = await client
           .from('gita_verses')
@@ -1119,6 +1174,8 @@ class EnhancedSupabaseService {
           .eq('gv_chapter_id', chapterId)
           .order('gv_verses_id', ascending: true);
 
+      debugPrint('✅ Fetched ${response.length} verses from network for chapter $chapterId');
+
       return response.map((item) => Verse(
         verseId: item['gv_verses_id'] as int? ?? 0,
         chapterId: item['gv_chapter_id'] as int? ?? chapterId,
@@ -1126,7 +1183,9 @@ class EnhancedSupabaseService {
       )).toList();
 
     } catch (e) {
-      debugPrint('❌ Error fetching verses from network for chapter $chapterId: $e');
+      debugPrint('❌ CRITICAL ERROR fetching verses from network for chapter $chapterId');
+      debugPrint('📝 Error: $e');
+      debugPrint('📝 Error type: ${e.runtimeType}');
       return [];
     }
   }
