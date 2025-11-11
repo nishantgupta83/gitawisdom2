@@ -255,65 +255,72 @@ class _MoreScreenState extends State<MoreScreen> {
           // Appearance section
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('Appearance', style: theme.textTheme.titleMedium),
+            child: Text('APPEARANCE', style: theme.textTheme.titleSmall?.copyWith(letterSpacing: 0.5, color: theme.colorScheme.onSurfaceVariant)),
           ),
-          _buildSafeConsumer<SettingsService>(
-            builder: (context, settingsService, child) {
-              return SwitchListTile(
-                title: const Text('Dark Mode'),
-                value: settingsService.isDarkMode,
-                onChanged: (v) {
-                  settingsService.isDarkMode = v;
-                  debugPrint('🌓 Dark mode changed to: $v');
-                },
-              );
-            },
-            fallback: _buildLoadingListTile('Dark Mode', 'Loading theme settings...'),
-          ),
-          // Background Music
-          Consumer<BackgroundMusicService>(
-            builder: (context, musicService, child) {
-              return SwitchListTile(
-                title: const Text('Background Music'),
-                subtitle: const Text('Enable ambient meditation music'),
-                value: musicService.isEnabled,
-                onChanged: (v) async {
-                  try {
-                    await musicService.setEnabled(v);
-                    debugPrint('🎵 Background music ${v ? 'enabled' : 'disabled'}');
-                  } catch (e) {
-                    debugPrint('⚠️ Failed to toggle background music: $e');
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Failed to toggle music: $e')),
-                      );
-                    }
-                  }
-                },
-              );
-            },
-          ),
-          // Font Size
-          Consumer<SettingsService>(
-            builder: (context, settingsService, child) {
-              return ListTile(
-                title: const Text('Font Size'),
-                trailing: DropdownButton<String>(
-                  value: settingsService.fontSize,
-                  items: const [
-                    DropdownMenuItem(value: 'small', child: Text('Small')),
-                    DropdownMenuItem(value: 'medium', child: Text('Medium')),
-                    DropdownMenuItem(value: 'large', child: Text('Large')),
-                  ],
-                  onChanged: (v) {
-                    if (v != null) {
-                      settingsService.fontSize = v;
-                      debugPrint('📝 Font size changed to: $v');
-                    }
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              children: [
+                _buildSafeConsumer<SettingsService>(
+                  builder: (context, settingsService, child) {
+                    return SwitchListTile(
+                      title: const Text('Dark Mode'),
+                      value: settingsService.isDarkMode,
+                      onChanged: (v) {
+                        settingsService.isDarkMode = v;
+                        debugPrint('🌓 Dark mode changed to: $v');
+                      },
+                    );
+                  },
+                  fallback: _buildLoadingListTile('Dark Mode', 'Loading theme settings...'),
+                ),
+                const Divider(height: 1),
+                Consumer<BackgroundMusicService>(
+                  builder: (context, musicService, child) {
+                    return SwitchListTile(
+                      title: const Text('Background Music'),
+                      subtitle: const Text('Enable ambient meditation music'),
+                      value: musicService.isEnabled,
+                      onChanged: (v) async {
+                        try {
+                          await musicService.setEnabled(v);
+                          debugPrint('🎵 Background music ${v ? 'enabled' : 'disabled'}');
+                        } catch (e) {
+                          debugPrint('⚠️ Failed to toggle background music: $e');
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Failed to toggle music: $e')),
+                            );
+                          }
+                        }
+                      },
+                    );
                   },
                 ),
-              );
-            },
+                const Divider(height: 1),
+                Consumer<SettingsService>(
+                  builder: (context, settingsService, child) {
+                    return ListTile(
+                      title: const Text('Font Size'),
+                      trailing: DropdownButton<String>(
+                        value: settingsService.fontSize,
+                        items: const [
+                          DropdownMenuItem(value: 'small', child: Text('Small')),
+                          DropdownMenuItem(value: 'medium', child: Text('Medium')),
+                          DropdownMenuItem(value: 'large', child: Text('Large')),
+                        ],
+                        onChanged: (v) {
+                          if (v != null) {
+                            settingsService.fontSize = v;
+                            debugPrint('📝 Font size changed to: $v');
+                          }
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
 
           // Content section
@@ -385,36 +392,48 @@ class _MoreScreenState extends State<MoreScreen> {
           // Resources
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('Resources', style: theme.textTheme.titleMedium),
+            child: Text('RESOURCES', style: theme.textTheme.titleSmall?.copyWith(letterSpacing: 0.5, color: theme.colorScheme.onSurfaceVariant)),
           ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('About'),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const AboutScreen()),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: ListTile(
+              leading: const Icon(Icons.info_outline),
+              title: const Text('About'),
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const AboutScreen()),
+              ),
             ),
           ),
 
           // Support & Legal
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('Support & Legal', style: theme.textTheme.titleMedium),
+            child: Text('SUPPORT & LEGAL', style: theme.textTheme.titleSmall?.copyWith(letterSpacing: 0.5, color: theme.colorScheme.onSurfaceVariant)),
           ),
-          ListTile(
-            leading: const Icon(Icons.feedback_outlined),
-            title: const Text('Send Feedback'),
-            onTap: _sendFeedback,
-          ),
-          ListTile(
-            leading: const Icon(Icons.privacy_tip_outlined),
-            title: const Text('Privacy Policy'),
-            onTap: () => _openWebView('https://hub4apps.com/privacy.html', 'Privacy Policy'),
-          ),
-          ListTile(
-            leading: const Icon(Icons.article_outlined),
-            title: const Text('Terms of Service'),
-            onTap: () => _openWebView('https://hub4apps.com/terms.html', 'Terms of Service'),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.feedback_outlined),
+                  title: const Text('Send Feedback'),
+                  onTap: _sendFeedback,
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.privacy_tip_outlined),
+                  title: const Text('Privacy Policy'),
+                  onTap: () => _openWebView('https://hub4apps.com/privacy.html', 'Privacy Policy'),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.article_outlined),
+                  title: const Text('Terms of Service'),
+                  onTap: () => _openWebView('https://hub4apps.com/terms.html', 'Terms of Service'),
+                ),
+              ],
+            ),
           ),
         ],
       );
