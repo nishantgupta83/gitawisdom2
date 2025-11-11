@@ -15,15 +15,15 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}📦 GitaWisdom Production Build Script${NC}"
 echo ""
 
-# Check if .env.development exists (production uses same Supabase)
-if [ ! -f ".env.development" ]; then
-    echo -e "${RED}❌ Error: .env.development not found${NC}"
-    echo "Please create .env.development with your Supabase credentials"
+# Check if .env exists (production uses same Supabase)
+if [ ! -f ".env" ]; then
+    echo -e "${RED}❌ Error: .env not found${NC}"
+    echo "Please create .env with your Supabase credentials"
     exit 1
 fi
 
 # Load environment variables
-source .env.development
+source .env
 
 # Validate required variables
 if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
@@ -63,21 +63,41 @@ BUILD_TARGET=${1:-all}
 
 case $BUILD_TARGET in
     apk)
-        echo -e "${BLUE}🔨 Building production APK...${NC}"
-        flutter build apk --release "${DART_DEFINES[@]}"
+        echo -e "${BLUE}🔨 Building production APK (with split-per-abi)...${NC}"
+        echo -e "${YELLOW}📦 Optimization: Creating device-specific APKs to reduce download size${NC}"
+        flutter build apk --release \
+            --split-per-abi \
+            --obfuscate \
+            --split-debug-info=build/debug-symbols \
+            "${DART_DEFINES[@]}"
 
-        APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
-        if [ -f "$APK_PATH" ]; then
-            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-            echo ""
-            echo -e "${GREEN}✅ APK built successfully: $APK_SIZE${NC}"
-            echo -e "${YELLOW}📍 Location: $APK_PATH${NC}"
+        echo ""
+        echo -e "${GREEN}✅ APK built successfully!${NC}"
+        echo ""
+
+        # Report split APK sizes
+        for abi in arm64-v8a armeabi-v7a x86_64; do
+            APK_PATH="build/app/outputs/flutter-apk/app-${abi}-release.apk"
+            if [ -f "$APK_PATH" ]; then
+                APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+                echo -e "${YELLOW}📱 $abi${NC}: $APK_SIZE"
+            fi
+        done
+
+        SYMBOLS_PATH="build/debug-symbols"
+        if [ -d "$SYMBOLS_PATH" ]; then
+            SYMBOLS_SIZE=$(du -sh "$SYMBOLS_PATH" | cut -f1)
+            echo -e "${YELLOW}🔍 Debug symbols${NC}: $SYMBOLS_SIZE (${SYMBOLS_PATH})"
         fi
         ;;
 
     aab)
         echo -e "${BLUE}🔨 Building production App Bundle (AAB)...${NC}"
-        flutter build appbundle --release "${DART_DEFINES[@]}"
+        echo -e "${YELLOW}🔐 Optimizations: Obfuscation enabled for security${NC}"
+        flutter build appbundle --release \
+            --obfuscate \
+            --split-debug-info=build/debug-symbols \
+            "${DART_DEFINES[@]}"
 
         AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
         if [ -f "$AAB_PATH" ]; then
@@ -87,27 +107,44 @@ case $BUILD_TARGET in
             echo -e "${YELLOW}📍 Location: $AAB_PATH${NC}"
             echo -e "${BLUE}ℹ️  Ready for Google Play Store upload${NC}"
         fi
+
+        SYMBOLS_PATH="build/debug-symbols"
+        if [ -d "$SYMBOLS_PATH" ]; then
+            SYMBOLS_SIZE=$(du -sh "$SYMBOLS_PATH" | cut -f1)
+            echo -e "${YELLOW}🔍 Debug symbols${NC}: $SYMBOLS_SIZE (${SYMBOLS_PATH})"
+        fi
         ;;
 
     all)
         echo -e "${BLUE}🔨 Building production APK and AAB...${NC}"
+        echo -e "${YELLOW}🔐 Applying optimizations: split-per-abi, obfuscation, split debug info${NC}"
         echo ""
 
-        # Build APK
-        echo -e "${YELLOW}📦 Building APK...${NC}"
-        flutter build apk --release "${DART_DEFINES[@]}"
+        # Build APK with split-per-abi
+        echo -e "${YELLOW}📦 Building optimized APK (split-per-abi)...${NC}"
+        flutter build apk --release \
+            --split-per-abi \
+            --obfuscate \
+            --split-debug-info=build/debug-symbols \
+            "${DART_DEFINES[@]}"
 
-        APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
-        if [ -f "$APK_PATH" ]; then
-            APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-            echo -e "${GREEN}✅ APK: $APK_SIZE${NC}"
-        fi
+        echo -e "${GREEN}✅ Split APKs created:${NC}"
+        for abi in arm64-v8a armeabi-v7a x86_64; do
+            APK_PATH="build/app/outputs/flutter-apk/app-${abi}-release.apk"
+            if [ -f "$APK_PATH" ]; then
+                APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+                echo -e "  📱 $abi: $APK_SIZE"
+            fi
+        done
 
         echo ""
 
         # Build AAB
-        echo -e "${YELLOW}📦 Building AAB...${NC}"
-        flutter build appbundle --release "${DART_DEFINES[@]}"
+        echo -e "${YELLOW}📦 Building optimized AAB...${NC}"
+        flutter build appbundle --release \
+            --obfuscate \
+            --split-debug-info=build/debug-symbols \
+            "${DART_DEFINES[@]}"
 
         AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
         if [ -f "$AAB_PATH" ]; then
@@ -115,12 +152,19 @@ case $BUILD_TARGET in
             echo -e "${GREEN}✅ AAB: $AAB_SIZE${NC}"
         fi
 
+        SYMBOLS_PATH="build/debug-symbols"
+        if [ -d "$SYMBOLS_PATH" ]; then
+            SYMBOLS_SIZE=$(du -sh "$SYMBOLS_PATH" | cut -f1)
+            echo -e "${YELLOW}🔍 Debug symbols: $SYMBOLS_SIZE${NC}"
+        fi
+
         echo ""
         echo -e "${GREEN}✅ Production builds complete!${NC}"
         echo ""
         echo -e "${YELLOW}📦 Build artifacts:${NC}"
-        echo -e "  APK: $APK_PATH ($APK_SIZE)"
-        echo -e "  AAB: $AAB_PATH ($AAB_SIZE)"
+        echo -e "  APK (split-per-abi): build/app/outputs/flutter-apk/"
+        echo -e "  AAB: $AAB_PATH"
+        echo -e "  Debug symbols: $SYMBOLS_PATH"
         ;;
 
     *)
