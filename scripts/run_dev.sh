@@ -14,23 +14,23 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}🚀 GitaWisdom Development Launcher${NC}"
 echo ""
 
-# Check if .env.development exists
-if [ ! -f ".env.development" ]; then
-    echo -e "${RED}❌ Error: .env.development not found${NC}"
-    echo "Please create .env.development with your Supabase credentials"
+# Check if .env exists
+if [ ! -f ".env" ]; then
+    echo -e "${RED}❌ Error: .env not found${NC}"
+    echo "Please create .env with your Supabase credentials"
     exit 1
 fi
 
 # Load environment variables
-source .env.development
+source .env
 
 # Validate required variables
 if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-    echo -e "${RED}❌ Error: Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env.development${NC}"
+    echo -e "${RED}❌ Error: Missing SUPABASE_URL or SUPABASE_ANON_KEY in .env${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✅ Credentials loaded from .env.development${NC}"
+echo -e "${GREEN}✅ Credentials loaded from .env${NC}"
 echo ""
 
 # Build dart-define flags
