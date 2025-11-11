@@ -52,7 +52,6 @@ class AppSharingService {
     try {
       await Share.share(
         '$message\n\n📱 Download GitaWisdom:\n$storeLink',
-        subject: '$_appName – Your Daily Spiritual Guide',
       );
       debugPrint('📤 Shared app link');
     } catch (e) {
@@ -62,7 +61,7 @@ class AppSharingService {
   }
   
   /// Share a specific feature or content
-  /// 
+  ///
   /// [featureName] - Name of the feature being shared
   /// [content] - Specific content to share
   Future<void> shareFeature(String featureName, String content) async {
@@ -73,40 +72,61 @@ $content
 Discover more wisdom with $_appName - $featureName and 18 Gita chapters with modern applications.
 
 Download: $storeUrl''';
-    
+
     try {
       await Share.share(
         message,
-        subject: '$_appName – $featureName',
       );
-      
+
       debugPrint('📤 Shared feature: $featureName');
     } catch (e) {
       debugPrint('❌ Error sharing feature: $e');
     }
   }
   
+  /// Format text into scannable sentences for better readability
+  String _formatScannableText(String text) {
+    // Split by sentence boundaries (periods, exclamation marks, question marks)
+    final sentences = text.split(RegExp(r'(?<=[.!?])\s+'));
+    final formattedSentences = sentences
+        .where((s) => s.isNotEmpty)
+        .map((s) => s.trim())
+        .toList();
+
+    // Join with newlines for better readability in shared content
+    return formattedSentences.join('\n• ');
+  }
+
   /// Share a specific scenario with heart vs duty guidance and wisdom steps
   Future<void> shareScenario(String scenarioTitle, String heartResponse, String dutyResponse, String wisdom, {List<String>? actionSteps}) async {
+    // Format heart and duty responses with sentence breakdown
+    final formattedHeart = _formatScannableText(heartResponse);
+    final formattedDuty = _formatScannableText(dutyResponse);
+    final formattedWisdom = _formatScannableText(wisdom);
+
     String message = '''
 🎭 Modern Dilemma: $scenarioTitle
 
-❤️ Heart says: $heartResponse
+❤️ Heart says:
+• $formattedHeart
 
-⚖️ Duty demands: $dutyResponse
+⚖️ Duty demands:
+• $formattedDuty
 
+🔮 Wisdom Guidance:
+• $formattedWisdom
 ''';
 
     // Add guidance steps if available
     if (actionSteps != null && actionSteps.isNotEmpty) {
-      message += '\n\n🔮 Guidance Steps:';
+      message += '\n🎯 Action Steps:';
       for (int i = 0; i < actionSteps.length; i++) {
         message += '\n${i + 1}. ${actionSteps[i]}';
       }
     }
 
     message += '\n\nExplore more scenarios and find guidance with $_appName.';
-    
+
     await shareFeature('Heart vs Duty Guidance', message);
   }
   
@@ -151,14 +171,14 @@ Find daily inspiration and 700+ verses with $_appName.''';
       } else {
         debugPrint('❌ WhatsApp not installed or URL cannot be launched');
         // Fallback to regular sharing
-        await Share.share(message, subject: '$_appName - Shared via WhatsApp');
+        await Share.share(message);
         return false;
       }
     } catch (e) {
       debugPrint('❌ Error sharing to WhatsApp: $e');
       // Fallback to regular sharing
       try {
-        await Share.share(message, subject: '$_appName - Shared via WhatsApp');
+        await Share.share(message);
         return false;
       } catch (shareError) {
         debugPrint('❌ Fallback sharing also failed: $shareError');

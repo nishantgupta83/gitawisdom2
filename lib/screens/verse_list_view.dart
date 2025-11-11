@@ -53,12 +53,12 @@ class _VerseListViewState extends State<VerseListView> {
 
   Future<void> _loadVersesAndChapter() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
-    
+
     // Track chapter started - defer to prevent setState during build
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -69,7 +69,7 @@ class _VerseListViewState extends State<VerseListView> {
       // Permanent caching for verses since they never change
       final versesBoxName = 'verses_chapter_${widget.chapterId}';
       final chapterBoxName = 'chapter_${widget.chapterId}';
-      
+
       // Open cache boxes for permanent storage
       if (!Hive.isBoxOpen(versesBoxName)) {
         await Hive.openBox<Verse>(versesBoxName);
@@ -77,39 +77,51 @@ class _VerseListViewState extends State<VerseListView> {
       if (!Hive.isBoxOpen(chapterBoxName)) {
         await Hive.openBox<Chapter>(chapterBoxName);
       }
-      
+
       final versesCache = Hive.box<Verse>(versesBoxName);
       final chapterCache = Hive.box<Chapter>(chapterBoxName);
-      
+
       // Check permanent cache first
       List<Verse> verses;
       Chapter? chapter;
-      
+
       if (versesCache.isNotEmpty && chapterCache.isNotEmpty) {
         verses = versesCache.values.toList();
         chapter = chapterCache.values.first;
         debugPrint('📖 Using permanently cached verses for chapter ${widget.chapterId} (${verses.length} verses)');
       } else {
         debugPrint('🎯 Fetching fresh verses for chapter ${widget.chapterId} for permanent cache');
-        
+
         // Fetch fresh data
         verses = await _service.fetchVersesByChapter(widget.chapterId);
         chapter = await _service.fetchChapterById(widget.chapterId);
-        
-        // Permanently cache the results
-        await versesCache.clear();
-        for (int i = 0; i < verses.length; i++) {
-          await versesCache.put(i, verses[i]);
+
+        // If fetch succeeded, cache the results
+        if (verses.isNotEmpty) {
+          await versesCache.clear();
+          for (int i = 0; i < verses.length; i++) {
+            await versesCache.put(i, verses[i]);
+          }
+
+          if (chapter != null) {
+            await chapterCache.clear();
+            await chapterCache.put(0, chapter);
+          }
+
+          debugPrint('✅ Permanently cached ${verses.length} verses for chapter ${widget.chapterId}');
+        } else {
+          // Fetch failed (likely no internet) - show friendly message
+          debugPrint('⚠️ Could not fetch verses for chapter ${widget.chapterId} (no internet?)');
+          if (mounted) {
+            setState(() {
+              _errorMessage = 'Verses require internet connection to load for the first time.\nPlease try again when connected.';
+              _isLoading = false;
+            });
+          }
+          return;
         }
-        
-        if (chapter != null) {
-          await chapterCache.clear();
-          await chapterCache.put(0, chapter);
-        }
-        
-        debugPrint('✅ Permanently cached ${verses.length} verses for chapter ${widget.chapterId}');
       }
-      
+
       if (mounted) {
         setState(() {
           _verses = verses;
@@ -120,7 +132,7 @@ class _VerseListViewState extends State<VerseListView> {
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to load verses.';
+          _errorMessage = 'Failed to load verses. Please check your internet connection and try again.';
           _isLoading = false;
         });
       }
@@ -216,13 +228,28 @@ class _VerseListViewState extends State<VerseListView> {
                     Padding(
                       padding: const EdgeInsets.all(40),
                       child: Center(
-                        child: Text(
-                          _errorMessage!,
-                          style: GoogleFonts.poppins(
-                            color: theme.colorScheme.error,
-                            fontSize: MediaQuery.of(context).textScaler.scale(16),
-                          ),
-                          textAlign: TextAlign.center,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _errorMessage!,
+                              style: GoogleFonts.poppins(
+                                color: theme.colorScheme.error,
+                                fontSize: MediaQuery.of(context).textScaler.scale(16),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 24),
+                            ElevatedButton.icon(
+                              onPressed: _loadVersesAndChapter,
+                              icon: const Icon(Icons.refresh),
+                              label: Text('Retry', style: GoogleFonts.poppins()),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -340,11 +367,11 @@ class _VerseListViewState extends State<VerseListView> {
                                         onTap: () => _showShareDialog(verse),
                                         child: Container(
                                           padding: const EdgeInsets.symmetric(
-                                            horizontal: 12,
-                                            vertical: 6,
+                                            horizontal: 13,
+                                            vertical: 7,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
+                                            color: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
                                             borderRadius: BorderRadius.circular(20),
                                           ),
                                           child: Row(
@@ -352,14 +379,14 @@ class _VerseListViewState extends State<VerseListView> {
                                             children: [
                                               Icon(
                                                 Icons.share,
-                                                size: 20,
+                                                size: 22,
                                                 color: theme.colorScheme.onSurface.withValues(alpha:0.87),
                                               ),
                                               const SizedBox(width: 4),
                                               Text(
                                                 'Share',
                                                 style: GoogleFonts.poppins(
-                                                  fontSize: MediaQuery.of(context).textScaler.scale(12),
+                                                  fontSize: MediaQuery.of(context).textScaler.scale(13),
                                                   fontWeight: FontWeight.w500,
                                                   color: theme.colorScheme.onSurface.withValues(alpha:0.87),
                                                 ),

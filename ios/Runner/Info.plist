@@ -73,15 +73,22 @@
 				<string>com.hub4apps.gitawisdom</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>GoogleSignIn</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.152831727829-e0p8ng29aq5nujidl4o0frffnq910ugt</string>
+			</array>
+		</dict>
 	</array>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>audio</string>
-	</array>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app does not use the microphone. This permission is required by the audio playback framework for background meditation music.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>GitaWisdom does not use the microphone. This permission is required by a third-party library but microphone access is never requested or used in the app.</string>
+	<!-- Google Sign-In Configuration -->
+	<key>GIDClientID</key>
+	<string>152831727829-e0p8ng29aq5nujidl4o0frffnq910ugt.apps.googleusercontent.com</string>
 	<!-- TODO: Facebook Configuration - Add your Facebook App ID -->
 	<!-- Uncomment and replace <YOUR_FACEBOOK_APP_ID> with actual ID from Facebook Developer Console -->
 	<!--
@@ -99,5 +106,22 @@
 		<string>fbshareextension</string>
 	</array>
 	-->
+	<!-- App Transport Security Configuration for Supabase -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<!-- Allow specific Supabase domain -->
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>db.jnzzwknjzigvupwfzfhq.supabase.co</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<false/>
+				<key>NSExceptionMinimumTLSVersion</key>
+				<string>TLSv1.2</string>
+			</dict>
+		</dict>
+	</dict>
 </dict>
 </plist>

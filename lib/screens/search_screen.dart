@@ -144,7 +144,7 @@ class _SearchScreenState extends State<SearchScreen> {
                     )
                   : null,
               filled: true,
-              fillColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
+              fillColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(25),
                 borderSide: BorderSide(
@@ -475,7 +475,7 @@ class _SearchScreenState extends State<SearchScreen> {
         _searchController.text = label;
         _performSearch();
       },
-      backgroundColor: theme.colorScheme.surfaceVariant.withValues(alpha:0.5),
+      backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.5),
     );
   }
 

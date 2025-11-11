@@ -38,7 +38,18 @@ class IOSAudioSessionManager {
     try {
       // Configure audio session for spiritual content
       // This ensures proper audio behavior during meditation and verse listening
-      await AudioPlayer.clearAssetCache();
+
+      // Handle iOS 26+ stricter filesystem permissions
+      // Cache directory may not exist on first launch
+      try {
+        await AudioPlayer.clearAssetCache();
+      } on PathNotFoundException catch (e) {
+        // Cache directory doesn't exist yet - this is normal on first launch
+        if (kDebugMode) {
+          print('iOS Audio Session: Cache directory not found (first launch): $e');
+        }
+        // Continue initialization - cache will be created when first audio plays
+      }
 
       _isConfigured = true;
 

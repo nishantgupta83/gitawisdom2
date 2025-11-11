@@ -1,0 +1,607 @@
+name: Flutter CI/CD Template (Reusable)
+
+# ============================================================================
+# REUSABLE FLUTTER CI/CD TEMPLATE
+# ============================================================================
+# This workflow can be copied to any Flutter project (mobile, web, fullstack)
+# Customize the 'env' section below for your project's specific needs
+#
+# Usage:
+# 1. Copy this file to your repo's .github/workflows/ folder
+# 2. Update the 'env' configuration section
+# 3. Add required secrets to GitHub repo settings
+# 4. Commit and push to trigger the workflow
+#
+# Required Secrets (add in GitHub repo settings):
+# - SUPABASE_URL (if using Supabase)
+# - SUPABASE_ANON_KEY (if using Supabase)
+# - Any other project-specific API keys
+# ============================================================================
+
+on:
+  push:
+    branches: [main, master, develop, staging]
+  pull_request:
+    branches: [main, master, develop, staging]
+  workflow_dispatch:
+    inputs:
+      skip_builds:
+        description: 'Skip platform builds (testing only)'
+        required: false
+        default: 'false'
+      enable_debug:
+        description: 'Enable debug logging'
+        required: false
+        default: 'false'
+
+# ============================================================================
+# CONFIGURATION - CUSTOMIZE FOR YOUR PROJECT
+# ============================================================================
+env:
+  # Flutter Configuration
+  FLUTTER_VERSION: '3.35.7'                # Update to match your pubspec.yaml
+  JAVA_VERSION: '17'
+
+  # Project Type (determines which jobs run)
+  PROJECT_TYPE: 'mobile'                   # Options: mobile | web | backend | fullstack
+
+  # Platform Build Toggles
+  ENABLE_IOS_BUILD: 'true'                 # Set to 'false' if no iOS support
+  ENABLE_ANDROID_BUILD: 'true'             # Set to 'false' if no Android support
+  ENABLE_WEB_BUILD: 'false'                # Set to 'true' for web projects
+
+  # Testing Configuration
+  MIN_COVERAGE_PERCENT: 60                 # Minimum test coverage required
+  ENABLE_INTEGRATION_TESTS: 'true'         # Run integration tests if available
+
+  # Performance Limits (in bytes)
+  MAX_ANDROID_APK_SIZE: 100000000          # 100MB
+  MAX_ANDROID_AAB_SIZE: 80000000           # 80MB
+  MAX_IOS_APP_SIZE: 120000000              # 120MB
+  MAX_WEB_BUILD_SIZE: 50000000             # 50MB
+
+  # Security Scanning
+  ENABLE_SECRET_SCAN: 'true'               # Scan for hardcoded secrets
+  ENABLE_DEPENDENCY_AUDIT: 'true'          # Check for vulnerable dependencies
+
+  # Artifact Upload (only on main branch to save storage)
+  UPLOAD_ARTIFACTS: 'false'                # Set to 'true' to upload build artifacts
+
+# ============================================================================
+# JOBS
+# ============================================================================
+
+jobs:
+  # --------------------------------------------------------------------------
+  # JOB 1: Setup and Cache
+  # --------------------------------------------------------------------------
+  setup:
+    name: 📦 Setup & Cache
+    runs-on: ubuntu-latest
+    outputs:
+      flutter-version: ${{ steps.flutter-setup.outputs.FLUTTER_VERSION }}
+      cache-key: ${{ steps.cache-key.outputs.key }}
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        id: flutter-setup
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+          cache-key: flutter-${{ env.FLUTTER_VERSION }}-${{ hashFiles('**/pubspec.lock') }}
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🏗️ Generate Code (if build_runner exists)
+        run: |
+          if grep -q "build_runner" pubspec.yaml; then
+            echo "📝 Running build_runner..."
+            flutter packages pub run build_runner build --delete-conflicting-outputs
+          else
+            echo "⏭️  No build_runner found, skipping..."
+          fi
+
+      - name: 🔑 Generate Cache Key
+        id: cache-key
+        run: echo "key=flutter-${{ env.FLUTTER_VERSION }}-${{ hashFiles('**/pubspec.lock') }}" >> $GITHUB_OUTPUT
+
+      - name: ✅ Setup Complete
+        run: echo "Setup completed successfully"
+
+  # --------------------------------------------------------------------------
+  # JOB 2: Static Analysis
+  # --------------------------------------------------------------------------
+  static-analysis:
+    name: 🔍 Static Analysis
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🔍 Run Flutter Analyze
+        run: |
+          echo "Running static analysis..."
+          flutter analyze --no-fatal-infos --no-fatal-warnings
+          echo "✅ Static analysis passed"
+
+      - name: 📊 Check for Linter Issues
+        run: |
+          ISSUES=$(flutter analyze 2>&1 | grep -c "info •\|warning •\|error •" || true)
+          echo "Found $ISSUES linter issues"
+          if [ $ISSUES -gt 50 ]; then
+            echo "⚠️  Warning: High number of linter issues ($ISSUES). Consider addressing them."
+          fi
+
+  # --------------------------------------------------------------------------
+  # JOB 3: Unit Tests with Coverage
+  # --------------------------------------------------------------------------
+  unit-tests:
+    name: 🧪 Unit Tests
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🧪 Run Unit Tests
+        run: |
+          if [ -d "test" ]; then
+            echo "Running unit tests with coverage..."
+            flutter test --coverage --reporter=expanded
+            echo "✅ Unit tests completed"
+          else
+            echo "⏭️  No test directory found, skipping unit tests"
+          fi
+
+      - name: 📊 Generate Coverage Report
+        if: hashFiles('coverage/lcov.info') != ''
+        run: |
+          if [ -f "coverage/lcov.info" ]; then
+            # Install lcov for coverage reporting
+            sudo apt-get update
+            sudo apt-get install -y lcov
+
+            # Generate HTML coverage report
+            genhtml coverage/lcov.info -o coverage/html
+
+            # Calculate coverage percentage
+            COVERAGE=$(lcov --summary coverage/lcov.info 2>&1 | grep "lines" | awk '{print $2}' | sed 's/%//')
+            echo "Coverage: $COVERAGE%"
+            echo "COVERAGE_PERCENT=$COVERAGE" >> $GITHUB_ENV
+
+            # Check minimum coverage
+            if (( $(echo "$COVERAGE < ${{ env.MIN_COVERAGE_PERCENT }}" | bc -l) )); then
+              echo "❌ Coverage $COVERAGE% is below minimum ${{ env.MIN_COVERAGE_PERCENT }}%"
+              exit 1
+            else
+              echo "✅ Coverage $COVERAGE% meets minimum ${{ env.MIN_COVERAGE_PERCENT }}%"
+            fi
+          fi
+
+      - name: 📤 Upload Coverage Report
+        if: hashFiles('coverage/lcov.info') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # --------------------------------------------------------------------------
+  # JOB 4: Integration Tests
+  # --------------------------------------------------------------------------
+  integration-tests:
+    name: 🎯 Integration Tests
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🎯 Run Integration Tests
+        run: |
+          if [ -d "integration_test" ]; then
+            echo "Running integration tests..."
+            flutter test integration_test --reporter=expanded
+            echo "✅ Integration tests completed"
+          else
+            echo "⏭️  No integration_test directory found, skipping"
+          fi
+
+  # --------------------------------------------------------------------------
+  # JOB 5: Security Scanning
+  # --------------------------------------------------------------------------
+  security-scan:
+    name: 🔒 Security Scan
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🔍 Scan for Hardcoded Secrets
+        run: |
+          echo "🔍 Scanning for hardcoded credentials..."
+
+          # Check for common secret patterns
+          if grep -rn "password\s*=\s*['\"]" lib/ --include="*.dart" | grep -v "// "; then
+            echo "❌ Found potential hardcoded passwords"
+            exit 1
+          fi
+
+          if grep -rn "api[_-]?key\s*=\s*['\"][^$]" lib/ --include="*.dart" | grep -v "// "; then
+            echo "❌ Found potential hardcoded API keys"
+            exit 1
+          fi
+
+          if grep -rn "secret\s*=\s*['\"]" lib/ --include="*.dart" | grep -v "// "; then
+            echo "❌ Found potential hardcoded secrets"
+            exit 1
+          fi
+
+          echo "✅ No hardcoded secrets detected"
+
+      - name: 🔍 Check for .env Files in Git
+        run: |
+          echo "🔍 Checking for accidentally committed .env files..."
+
+          if git ls-files | grep -E "\.env$|\.env\.production$"; then
+            echo "❌ CRITICAL: .env files found in git repository"
+            echo "These files may contain secrets and should be in .gitignore"
+            exit 1
+          fi
+
+          echo "✅ No .env files in repository"
+
+      - name: 🔍 Validate Keystore Not Committed
+        run: |
+          echo "🔍 Checking for keystore files..."
+
+          if git ls-files | grep -E "\.jks$|\.keystore$|keystore\.properties$"; then
+            echo "❌ CRITICAL: Keystore files found in git repository"
+            echo "These should be in .gitignore and stored securely"
+            exit 1
+          fi
+
+          echo "✅ No keystore files in repository"
+
+      - name: 🔍 Dependency Audit
+        run: |
+          echo "🔍 Checking dependencies for known vulnerabilities..."
+
+          # Check if pub outdated shows any issues
+          flutter pub outdated --mode=null-safety --json > outdated.json || true
+
+          # Check for critical dependency issues
+          if grep -q "resolvable.*false" outdated.json; then
+            echo "⚠️  Warning: Some dependencies have resolution issues"
+          fi
+
+          echo "✅ Dependency audit completed"
+
+  # --------------------------------------------------------------------------
+  # JOB 6: Android Build
+  # --------------------------------------------------------------------------
+  android-build:
+    name: 🤖 Android Build
+    runs-on: ubuntu-latest
+    needs: [static-analysis, unit-tests]
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🏗️ Build APK (Debug)
+        run: |
+          echo "🔧 Building debug APK..."
+          flutter build apk --debug \
+            ${{ secrets.SUPABASE_URL && format('--dart-define=SUPABASE_URL={0}', secrets.SUPABASE_URL) || '' }} \
+            ${{ secrets.SUPABASE_ANON_KEY && format('--dart-define=SUPABASE_ANON_KEY={0}', secrets.SUPABASE_ANON_KEY) || '' }}
+          echo "✅ Debug APK built"
+
+      - name: 🏗️ Build APK (Release)
+        if: github.event.inputs.skip_builds != 'true'
+        run: |
+          echo "🚀 Building release APK..."
+          flutter build apk --release \
+            ${{ secrets.SUPABASE_URL && format('--dart-define=SUPABASE_URL={0}', secrets.SUPABASE_URL) || '' }} \
+            ${{ secrets.SUPABASE_ANON_KEY && format('--dart-define=SUPABASE_ANON_KEY={0}', secrets.SUPABASE_ANON_KEY) || '' }}
+          echo "✅ Release APK built"
+
+      - name: 🏗️ Build App Bundle (AAB)
+        if: github.event.inputs.skip_builds != 'true'
+        run: |
+          echo "📦 Building app bundle..."
+          flutter build appbundle --release \
+            ${{ secrets.SUPABASE_URL && format('--dart-define=SUPABASE_URL={0}', secrets.SUPABASE_URL) || '' }} \
+            ${{ secrets.SUPABASE_ANON_KEY && format('--dart-define=SUPABASE_ANON_KEY={0}', secrets.SUPABASE_ANON_KEY) || '' }}
+          echo "✅ App bundle built"
+
+      - name: 📊 Validate Build Artifacts
+        run: |
+          echo "📊 Validating Android build artifacts..."
+
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+          AAB_PATH="build/app/outputs/bundle/release/app-release.aab"
+
+          if [ -f "$APK_PATH" ]; then
+            APK_SIZE=$(stat -c%s "$APK_PATH")
+            APK_SIZE_MB=$((APK_SIZE / 1024 / 1024))
+            echo "✅ APK: ${APK_SIZE_MB}MB"
+
+            if [ $APK_SIZE -gt ${{ env.MAX_ANDROID_APK_SIZE }} ]; then
+              echo "⚠️  Warning: APK size exceeds maximum ($APK_SIZE_MB MB)"
+            fi
+          fi
+
+          if [ -f "$AAB_PATH" ]; then
+            AAB_SIZE=$(stat -c%s "$AAB_PATH")
+            AAB_SIZE_MB=$((AAB_SIZE / 1024 / 1024))
+            echo "✅ AAB: ${AAB_SIZE_MB}MB"
+
+            if [ $AAB_SIZE -gt ${{ env.MAX_ANDROID_AAB_SIZE }} ]; then
+              echo "⚠️  Warning: AAB size exceeds maximum ($AAB_SIZE_MB MB)"
+            fi
+          fi
+
+      - name: 📤 Upload Android Artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-builds
+          path: |
+            build/app/outputs/flutter-apk/app-release.apk
+            build/app/outputs/bundle/release/app-release.aab
+          retention-days: 14
+
+  # --------------------------------------------------------------------------
+  # JOB 7: iOS Build
+  # --------------------------------------------------------------------------
+  ios-build:
+    name: 🍎 iOS Build
+    runs-on: macos-latest
+    needs: [static-analysis, unit-tests]
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🍎 Install CocoaPods
+        run: |
+          cd ios
+          pod install
+          cd ..
+
+      - name: 🏗️ Build iOS App (No Signing)
+        run: |
+          echo "🔧 Building iOS app (no codesign)..."
+          flutter build ios --release --no-codesign \
+            ${{ secrets.SUPABASE_URL && format('--dart-define=SUPABASE_URL={0}', secrets.SUPABASE_URL) || '' }} \
+            ${{ secrets.SUPABASE_ANON_KEY && format('--dart-define=SUPABASE_ANON_KEY={0}', secrets.SUPABASE_ANON_KEY) || '' }}
+          echo "✅ iOS build completed"
+
+      - name: 📊 Validate iOS Build
+        run: |
+          echo "📊 Validating iOS build..."
+
+          APP_PATH="build/ios/iphoneos/Runner.app"
+
+          if [ -d "$APP_PATH" ]; then
+            APP_SIZE=$(du -sk "$APP_PATH" | cut -f1)
+            APP_SIZE_MB=$((APP_SIZE / 1024))
+            echo "✅ iOS App: ${APP_SIZE_MB}MB"
+
+            if [ $((APP_SIZE * 1024)) -gt ${{ env.MAX_IOS_APP_SIZE }} ]; then
+              echo "⚠️  Warning: iOS app size exceeds maximum ($APP_SIZE_MB MB)"
+            fi
+          else
+            echo "❌ iOS build not found at expected path"
+            exit 1
+          fi
+
+      - name: 🔍 Validate Info.plist Configuration
+        run: |
+          echo "🔍 Checking Info.plist configuration..."
+
+          INFO_PLIST="ios/Runner/Info.plist"
+
+          # Check for required keys
+          if ! grep -q "CFBundleDisplayName" "$INFO_PLIST"; then
+            echo "⚠️  Warning: CFBundleDisplayName not found"
+          fi
+
+          if ! grep -q "CFBundleIdentifier" "$INFO_PLIST"; then
+            echo "❌ CFBundleIdentifier missing from Info.plist"
+            exit 1
+          fi
+
+          echo "✅ Info.plist validation passed"
+
+      - name: 📤 Upload iOS Artifacts
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-build
+          path: build/ios/iphoneos/Runner.app
+          retention-days: 14
+
+  # --------------------------------------------------------------------------
+  # JOB 8: Web Build
+  # --------------------------------------------------------------------------
+  web-build:
+    name: 🌐 Web Build
+    runs-on: ubuntu-latest
+    needs: [static-analysis, unit-tests]
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🌐 Build Web App
+        run: |
+          echo "🔧 Building web app..."
+          flutter build web --release \
+            ${{ secrets.SUPABASE_URL && format('--dart-define=SUPABASE_URL={0}', secrets.SUPABASE_URL) || '' }} \
+            ${{ secrets.SUPABASE_ANON_KEY && format('--dart-define=SUPABASE_ANON_KEY={0}', secrets.SUPABASE_ANON_KEY) || '' }}
+          echo "✅ Web build completed"
+
+      - name: 📊 Validate Web Build Size
+        run: |
+          echo "📊 Checking web build size..."
+
+          WEB_SIZE=$(du -sk build/web | cut -f1)
+          WEB_SIZE_MB=$((WEB_SIZE / 1024))
+          echo "✅ Web Build: ${WEB_SIZE_MB}MB"
+
+          if [ $((WEB_SIZE * 1024)) -gt ${{ env.MAX_WEB_BUILD_SIZE }} ]; then
+            echo "⚠️  Warning: Web build size exceeds maximum ($WEB_SIZE_MB MB)"
+          fi
+
+      - name: 📤 Upload Web Build
+        if: github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: build/web/
+          retention-days: 14
+
+  # --------------------------------------------------------------------------
+  # JOB 9: Performance Analysis
+  # --------------------------------------------------------------------------
+  performance-check:
+    name: ⚡ Performance Check
+    runs-on: ubuntu-latest
+    needs: [android-build]
+    if: always() && env.ENABLE_ANDROID_BUILD == 'true'
+
+    steps:
+      - name: 📥 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📊 Analyze APK Composition
+        run: |
+          echo "📊 Analyzing APK composition..."
+
+          APK_PATH="build/app/outputs/flutter-apk/app-release.apk"
+
+          if [ -f "$APK_PATH" ]; then
+            # Extract APK contents
+            unzip -q "$APK_PATH" -d apk_contents
+
+            # Analyze lib sizes (native code)
+            echo "Native libraries:"
+            du -h apk_contents/lib/* 2>/dev/null | sort -h || echo "No native libs"
+
+            # Analyze assets
+            echo "Assets:"
+            du -h apk_contents/assets/* 2>/dev/null | sort -h || echo "No assets"
+
+            # Find largest files
+            echo "Top 10 largest files:"
+            find apk_contents -type f -exec du -h {} + | sort -rh | head -10
+          else
+            echo "⏭️  APK not found, skipping analysis"
+          fi
+
+  # --------------------------------------------------------------------------
+  # JOB 10: Generate Report
+  # --------------------------------------------------------------------------
+  report:
+    name: 📋 Generate Report
+    runs-on: ubuntu-latest
+    needs: [static-analysis, unit-tests, security-scan, android-build, ios-build, web-build]
+    if: always()
+
+    steps:
+      - name: 📋 Create Summary Report
+        run: |
+          echo "# 🎯 CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Repository**: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Flutter Version**: ${{ env.FLUTTER_VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "## Job Status" >> $GITHUB_STEP_SUMMARY
+          echo "| Job | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Static Analysis | ${{ needs.static-analysis.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit-tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Security Scan | ${{ needs.security-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Android Build | ${{ needs.android-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| iOS Build | ${{ needs.ios-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Web Build | ${{ needs.web-build.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          echo "✅ Pipeline completed" >> $GITHUB_STEP_SUMMARY

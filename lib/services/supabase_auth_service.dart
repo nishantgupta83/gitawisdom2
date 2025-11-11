@@ -7,6 +7,9 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'dart:convert';
 import 'dart:io' show Platform;
 import 'package:device_info_plus/device_info_plus.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:http/http.dart' as http;
 import '../services/journal_service.dart';
 
 /// Real authentication service using Supabase Auth
@@ -213,9 +216,12 @@ class SupabaseAuthService extends ChangeNotifier {
   }
 
   /// Sign in anonymously (device-based)
+  /// Sign in anonymously (guest mode)
+  /// Used by journal_tab_container.dart auth prompt
   Future<bool> signInAnonymously() async {
     _setLoading(true);
     _clearError();
+    notifyListeners(); // Notify UI loading started
 
     try {
       // For anonymous users, we just use device ID
@@ -224,13 +230,17 @@ class SupabaseAuthService extends ChangeNotifier {
       _deviceId = await _generateDeviceId();
 
       debugPrint('✅ Continuing as anonymous with device ID: $_deviceId');
+
+      _setLoading(false);
+      notifyListeners(); // Notify UI of success
       return true;
     } catch (e) {
       _error = 'Failed to continue as guest';
       debugPrint('❌ Anonymous sign in failed: $e');
-      return false;
-    } finally {
+
       _setLoading(false);
+      notifyListeners(); // Notify UI of error
+      return false;
     }
   }
 
@@ -358,37 +368,65 @@ class SupabaseAuthService extends ChangeNotifier {
     }
   }
 
-  /// Delete user account
+  /// Delete user account (Apple 5.1.1(v) compliant)
+  /// Calls Supabase Edge Function to delete all user data server-side
   Future<bool> deleteAccount() async {
     _setLoading(true);
     _clearError();
+
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('🗑️ ACCOUNT DELETION: Starting deletion process');
+    debugPrint('   Timestamp: ${DateTime.now()}');
 
     try {
       if (_currentUser == null) {
         throw Exception('You must be signed in to delete account');
       }
 
-      // Delete user data from database first
-      await _deleteUserData(_currentUser!.id);
+      final token = _supabase.auth.currentSession?.accessToken;
+      if (token == null) {
+        throw Exception('No valid session found');
+      }
 
-      // Then delete the auth account
-      // Note: This requires service role key on server side
-      // For now, we'll just sign out
+      debugPrint('📤 ACCOUNT DELETION: Calling database function');
+      debugPrint('   User ID: ${_currentUser!.id}');
+
+      // Call PostgreSQL function to delete user data server-side
+      // Function will:
+      // 1. Delete user data from all tables (journal, bookmarks, progress, settings)
+      // 2. Delete the auth user
+      // 3. Return success/error response
+
+      final response = await _supabase.rpc('delete_user_account');
+
+      debugPrint('📥 ACCOUNT DELETION: Database function response');
+      debugPrint('   Response: $response');
+
+      // Check if deletion was successful
+      if (response['success'] != true) {
+        throw Exception('Server deletion failed: ${response['error'] ?? 'Unknown error'}');
+      }
+
+      // Sign out locally after successful server deletion
       await signOut();
 
-      debugPrint('✅ Account deletion initiated');
+      debugPrint('✅ ACCOUNT DELETION: Completed successfully');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return true;
     } catch (e) {
-      // Show the actual error for debugging instead of generic message
+      // Show the actual error for debugging
       final errorMsg = e.toString();
       if (errorMsg.contains('signed in')) {
         _error = 'You must be signed in to delete your account';
       } else if (errorMsg.contains('permission') || errorMsg.contains('RLS') || errorMsg.contains('policy')) {
         _error = 'Permission denied. Please ensure you are the account owner.';
+      } else if (errorMsg.contains('Server deletion failed')) {
+        _error = 'Server error during deletion. Please try again.';
       } else {
         _error = 'Failed to delete account: ${errorMsg.replaceAll('Exception:', '').trim()}';
       }
-      debugPrint('❌ Account deletion error: $e');
+      debugPrint('❌ ACCOUNT DELETION: Error - $e');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     } finally {
       _setLoading(false);
@@ -580,71 +618,118 @@ class SupabaseAuthService extends ChangeNotifier {
   }
 
   /// Continue as anonymous user without authentication
+  /// Used by modern_auth_screen.dart guest button
+  /// Unified with signInAnonymously() for consistency
   Future<bool> continueAsAnonymous() async {
     try {
       _setLoading(true);
       clearError();
+      notifyListeners(); // Notify UI loading started
 
       // Generate device ID for anonymous mode
       _deviceId = await _generateDeviceId();
+      _currentUser = null; // Ensure user is cleared
+
       debugPrint('✅ Continuing as anonymous user with device ID: $_deviceId');
 
       _setLoading(false);
+      notifyListeners(); // Notify UI of success
       return true;
     } catch (e) {
       debugPrint('❌ Failed to continue as anonymous: $e');
       _error = 'Failed to continue as anonymous user';
+
       _setLoading(false);
+      notifyListeners(); // Notify UI of error
       return false;
     }
   }
 
   // ============= Social Authentication Methods =============
 
-  /// Sign in with Google using Supabase OAuth
+  /// Sign in with Google using native SDK (Apple App Store compliant)
+  /// Uses google_sign_in package to stay in-app instead of opening external browser
+  /// NOTE: Google Sign-In requires a real iOS device - simulators are not supported
   Future<bool> signInWithGoogle() async {
     _setLoading(true);
     _clearError();
 
     debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    debugPrint('🔵 GOOGLE OAUTH: Starting sign-in flow');
+    debugPrint('🔵 GOOGLE NATIVE: Starting sign-in flow');
     debugPrint('   Timestamp: ${DateTime.now()}');
 
     try {
-      // Google requires the Supabase HTTPS callback URL, not the app deep link
-      // The deep link is handled automatically by Supabase after OAuth completes
-      debugPrint('📤 GOOGLE OAUTH: Calling Supabase.auth.signInWithOAuth');
-      debugPrint('   Provider: google');
-      debugPrint('   Launch mode: externalApplication');
-
-      final result = await _supabase.auth.signInWithOAuth(
-        OAuthProvider.google,
-        authScreenLaunchMode: LaunchMode.externalApplication,
+      // Initialize Google Sign-In with required scopes
+      final GoogleSignIn googleSignIn = GoogleSignIn(
+        scopes: ['email', 'profile'],
       );
 
-      debugPrint('📥 GOOGLE OAUTH: signInWithOAuth returned');
-      debugPrint('   Result: $result');
+      debugPrint('📤 GOOGLE NATIVE: Presenting native account picker');
 
-      if (result) {
-        // Clear error state and notify listeners when OAuth successfully initiates
-        // This ensures UI updates immediately to hide any error banners
-        _clearError();
-        debugPrint('✅ GOOGLE OAUTH: Successfully initiated - browser should open');
-        debugPrint('   Waiting for user to complete OAuth in browser...');
-        debugPrint('   Deep link callback will be handled by Supabase SDK');
+      // Present native Google account picker (stays in-app)
+      final googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        // User cancelled the sign-in flow
+        debugPrint('⚠️ GOOGLE NATIVE: User cancelled sign-in');
         debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        return true;
+        _setLoading(false);
+        return false;
       }
 
-      throw Exception('Failed to initiate Google sign-in');
+      debugPrint('📥 GOOGLE NATIVE: User selected account: ${googleUser.email}');
+      debugPrint('📤 GOOGLE NATIVE: Getting authentication tokens');
+
+      // Get authentication tokens from Google
+      final googleAuth = await googleUser.authentication;
+
+      if (googleAuth.idToken == null || googleAuth.accessToken == null) {
+        throw Exception('Failed to get Google authentication tokens');
+      }
+
+      debugPrint('📤 GOOGLE NATIVE: Exchanging tokens with Supabase');
+
+      // Exchange Google tokens with Supabase using signInWithIdToken
+      // Note: Only idToken is required for Google Sign-In
+      final response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: googleAuth.idToken!,
+      );
+
+      if (response.user == null) {
+        throw Exception('Supabase authentication failed');
+      }
+
+      _currentUser = response.user;
+
+      // Migrate any anonymous data to this authenticated user
+      await _migrateAnonymousData(response.user!.id);
+
+      debugPrint('✅ GOOGLE NATIVE: Sign-in successful');
+      debugPrint('   User ID: ${response.user!.id}');
+      debugPrint('   Email: ${response.user!.email}');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      return true;
     } on AuthException catch (e) {
       _error = _handleAuthException(e);
-      debugPrint('❌ GOOGLE OAUTH: AuthException - ${e.message}');
+      debugPrint('❌ GOOGLE NATIVE: AuthException - ${e.message}');
       debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
-    } catch (e) {
-      _error = 'Failed to sign in with Google. Please try again.';
-      debugPrint('❌ GOOGLE OAUTH: Error - $e');
+    } catch (e, stackTrace) {
+      final errorString = e.toString();
+
+      // Check if this is a simulator limitation error
+      if (errorString.contains('presenting view controller') ||
+          errorString.contains('NSException') ||
+          errorString.contains('Simulator')) {
+        _error = 'Google Sign-In requires a real device. Please test on a physical iPhone or use Apple Sign-In in the simulator.';
+        debugPrint('⚠️ GOOGLE NATIVE: Simulator limitation detected');
+      } else {
+        _error = 'Failed to sign in with Google. Please try again.';
+      }
+
+      debugPrint('❌ GOOGLE NATIVE: Error - $e');
+      debugPrint('   Stack trace: ${stackTrace.toString().split('\n').take(3).join('\n')}');
       debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     } finally {
@@ -652,35 +737,89 @@ class SupabaseAuthService extends ChangeNotifier {
     }
   }
 
-  /// Sign in with Apple using Supabase OAuth
+  /// Sign in with Apple using native SDK (Apple App Store compliant)
+  /// Uses sign_in_with_apple package to present native modal instead of browser
   Future<bool> signInWithApple() async {
     _setLoading(true);
     _clearError();
 
+    debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+    debugPrint('🍎 APPLE NATIVE: Starting sign-in flow');
+    debugPrint('   Timestamp: ${DateTime.now()}');
+
     try {
-      // Apple requires the Supabase HTTPS callback URL, not the app deep link
-      // The deep link is handled automatically by Supabase after OAuth completes
-      final result = await _supabase.auth.signInWithOAuth(
-        OAuthProvider.apple,
-        authScreenLaunchMode: LaunchMode.externalApplication,
+      // Generate nonce for security (prevents replay attacks)
+      final rawNonce = _supabase.auth.generateRawNonce();
+      final hashedNonce = crypto.sha256.convert(utf8.encode(rawNonce)).toString();
+
+      debugPrint('📤 APPLE NATIVE: Presenting native Sign in with Apple modal');
+
+      // Present native Apple Sign-In modal (stays in-app)
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: hashedNonce,
+        // Required for Android - uses web authentication
+        webAuthenticationOptions: WebAuthenticationOptions(
+          clientId: 'com.hub4apps.gitawisdom',
+          redirectUri: Uri.parse(
+            'https://db.jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback',
+          ),
+        ),
       );
 
-      if (result) {
-        // Clear error state and notify listeners when OAuth successfully initiates
-        // This ensures UI updates immediately to hide any error banners
-        _clearError();
-        debugPrint('✅ Apple sign-in initiated');
-        return true;
+      if (credential.identityToken == null) {
+        throw Exception('Failed to get Apple identity token');
       }
 
-      throw Exception('Failed to initiate Apple sign-in');
+      debugPrint('📥 APPLE NATIVE: Received Apple credentials');
+      debugPrint('   User ID: ${credential.userIdentifier}');
+      debugPrint('📤 APPLE NATIVE: Exchanging tokens with Supabase');
+
+      // Exchange Apple tokens with Supabase using signInWithIdToken
+      final response = await _supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: credential.identityToken!,
+        nonce: rawNonce,
+      );
+
+      if (response.user == null) {
+        throw Exception('Supabase authentication failed');
+      }
+
+      _currentUser = response.user;
+
+      // Migrate any anonymous data to this authenticated user
+      await _migrateAnonymousData(response.user!.id);
+
+      debugPrint('✅ APPLE NATIVE: Sign-in successful');
+      debugPrint('   User ID: ${response.user!.id}');
+      debugPrint('   Email: ${response.user!.email ?? "(not provided)"}');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      return true;
     } on AuthException catch (e) {
       _error = _handleAuthException(e);
-      debugPrint('❌ Apple sign-in failed: ${e.message}');
+      debugPrint('❌ APPLE NATIVE: AuthException - ${e.message}');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      return false;
+    } on SignInWithAppleAuthorizationException catch (e) {
+      // Handle Apple-specific errors (user cancelled, etc.)
+      if (e.code == AuthorizationErrorCode.canceled) {
+        debugPrint('⚠️ APPLE NATIVE: User cancelled sign-in');
+        debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        _setLoading(false);
+        return false;
+      }
+      _error = 'Apple sign-in failed: ${e.message}';
+      debugPrint('❌ APPLE NATIVE: Authorization error - ${e.message}');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     } catch (e) {
       _error = 'Failed to sign in with Apple. Please try again.';
-      debugPrint('❌ Apple sign-in error: $e');
+      debugPrint('❌ APPLE NATIVE: Error - $e');
+      debugPrint('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
       return false;
     } finally {
       _setLoading(false);

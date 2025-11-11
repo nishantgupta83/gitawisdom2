@@ -107,22 +107,6 @@ class JournalTabContainer extends StatelessWidget {
                 ),
               ),
             ),
-
-            const SizedBox(height: 16),
-
-            // Continue as guest option
-            TextButton(
-              onPressed: () async {
-                await authService.signInAnonymously();
-              },
-              child: Text(
-                'Continue as Guest',
-                style: TextStyle(
-                  color: theme.colorScheme.primary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
           ],
         ),
       ),

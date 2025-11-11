@@ -25,6 +25,13 @@ class ShareCardWidget extends StatefulWidget {
 
 class _ShareCardWidgetState extends State<ShareCardWidget> {
   bool _isSharing = false;
+  bool _isCancelled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _isCancelled = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -327,7 +334,10 @@ class _ShareCardWidgetState extends State<ShareCardWidget> {
           child: SizedBox(
             height: 56,
             child: OutlinedButton(
-              onPressed: _isSharing ? null : () => Navigator.of(context).pop(),
+              onPressed: _isSharing ? null : () {
+                setState(() => _isCancelled = true);
+                Navigator.of(context).pop();
+              },
               style: OutlinedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),
@@ -460,7 +470,8 @@ class _ShareCardWidgetState extends State<ShareCardWidget> {
           );
         }
       } else {
-        if (mounted) {
+        // Only show error if not cancelled
+        if (mounted && !_isCancelled) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Failed to share card. Please try again.'),
@@ -471,7 +482,8 @@ class _ShareCardWidgetState extends State<ShareCardWidget> {
       }
     } catch (e) {
       debugPrint('❌ Share card error: $e');
-      if (mounted) {
+      // Only show error if not cancelled
+      if (mounted && !_isCancelled) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Something went wrong. Please try again.'),

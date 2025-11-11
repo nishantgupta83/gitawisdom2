@@ -32,7 +32,7 @@ class SearchResultCard extends StatelessWidget {
               gradient: LinearGradient(
                 colors: [
                   theme.colorScheme.surface,
-                  theme.colorScheme.surfaceVariant.withValues(alpha: 0.3),
+                  theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,

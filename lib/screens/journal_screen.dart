@@ -15,6 +15,7 @@ class _JournalScreenState extends State<JournalScreen> {
   final JournalService _service = JournalService.instance;
   List<JournalEntry> _entries = [];
   bool _loading = true;
+  bool _isFetching = false; // Prevent duplicate fetches
 
   @override
   void initState() {
@@ -24,18 +25,28 @@ class _JournalScreenState extends State<JournalScreen> {
 
   Future<void> _reload() async {
     if (!mounted) return;
-    
+
+    // Prevent duplicate simultaneous fetches
+    if (_isFetching) {
+      debugPrint('⚠️ Journal fetch already in progress, skipping duplicate call');
+      return;
+    }
+
+    _isFetching = true;
     setState(() => _loading = true);
     try {
+      debugPrint('📔 Starting journal fetch...');
       _entries = await _service.fetchEntries();
-      
+      debugPrint('✅ Journal fetch completed: ${_entries.length} entries');
+
       // Start background sync if needed (non-blocking)
       _service.backgroundSync();
-      
+
     } catch (e) {
       debugPrint('Error loading journal entries: $e');
       // Keep existing entries on error
     } finally {
+      _isFetching = false;
       if (mounted) setState(() => _loading = false);
     }
   }

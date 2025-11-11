@@ -16,9 +16,9 @@
     "description": "Chapters tab label in bottom navigation"
   },
   
-  "scenariosTab": "Situations",
+  "scenariosTab": "Dilemmas",
   "@scenariosTab": {
-    "description": "Situations tab label in bottom navigation"
+    "description": "Dilemmas tab label in bottom navigation"
   },
   
   "journalTab": "Journal",
@@ -61,9 +61,9 @@
     "description": "Subtitle text describing app purpose"
   },
   
-  "viewScenarios": "View Situations ({count})",
+  "viewScenarios": "View Dilemmas ({count})",
   "@viewScenarios": {
-    "description": "Button text to view all scenarios with count",
+    "description": "Button text to view all dilemmas with count",
     "placeholders": {
       "count": {
         "type": "int",
@@ -83,9 +83,9 @@
     }
   },
   
-  "relatedScenarios": "Related Situations",
+  "relatedScenarios": "Related Dilemmas",
   "@relatedScenarios": {
-    "description": "Section title for related scenarios in chapter detail"
+    "description": "Section title for related dilemmas in chapter detail"
   },
   
   "keyTeachings": "Key Teachings",
@@ -98,9 +98,9 @@
     "description": "Section title for chapter exploration buttons"
   },
   
-  "viewMoreScenarios": "View {count} more situations",
+  "viewMoreScenarios": "View {count} more dilemmas",
   "@viewMoreScenarios": {
-    "description": "Button text to expand scenario list",
+    "description": "Button text to expand dilemma list",
     "placeholders": {
       "count": {
         "type": "int", 
@@ -108,12 +108,12 @@
       }
     }
   },
-  
-  "showFewerScenarios": "Show fewer situations",
+
+  "showFewerScenarios": "Show fewer dilemmas",
   "@showFewerScenarios": {
-    "description": "Button text to collapse scenario list"
+    "description": "Button text to collapse dilemma list"
   },
-  
+
   "loading": "Loading...",
   "@loading": {
     "description": "Loading state text"
@@ -274,37 +274,37 @@
     "description": "Label for verse count"
   },
 
-  "scenariosCount": "Situations",
+  "scenariosCount": "Dilemmas",
   "@scenariosCount": {
-    "description": "Label for scenario count"
+    "description": "Label for dilemma count"
   },
 
-  "scenarios": "SITUATIONS",
+  "scenarios": "DILEMMAS",
   "@scenarios": {
-    "description": "Main title for scenarios screen"
+    "description": "Main title for dilemmas screen"
   },
 
-  "realWorldSituations": "Real-world situations guided by Gita wisdom",
+  "realWorldSituations": "Real-world dilemmas guided by Gita wisdom",
   "@realWorldSituations": {
-    "description": "Subtitle for scenarios screen"
+    "description": "Subtitle for dilemmas screen"
   },
 
-  "searchScenarios": "Search situations by title or description...",
+  "searchScenarios": "Search dilemmas by title or description...",
   "@searchScenarios": {
-    "description": "Search hint text for scenarios"
+    "description": "Search hint text for dilemmas"
   },
 
-  "noScenariosAvailable": "No situations available",
+  "noScenariosAvailable": "No dilemmas available",
   "@noScenariosAvailable": {
-    "description": "Empty state when no scenarios exist"
+    "description": "Empty state when no dilemmas exist"
   },
 
-  "noScenariosMatch": "No situations match your search",
+  "noScenariosMatch": "No dilemmas match your search",
   "@noScenariosMatch": {
     "description": "Empty state when search has no results"
   },
 
-  "failedToRefresh": "Failed to refresh situations",
+  "failedToRefresh": "Failed to refresh dilemmas",
   "@failedToRefresh": {
     "description": "Error message when refresh fails"
   },
@@ -439,9 +439,9 @@
     "description": "Header title for scenarios screen"
   },
 
-  "applyGitaWisdom": "Get clarity for your Situations",
+  "applyGitaWisdom": "Get clarity for your Dilemmas",
   "@applyGitaWisdom": {
-    "description": "Subtitle for scenarios screen"
+    "description": "Subtitle for dilemmas screen"
   },
 
   "back": "Back",
@@ -536,9 +536,9 @@
     "description": "Daily Reflection category option"
   },
 
-  "categoryScenarioWisdom": "Situation Wisdom",
+  "categoryScenarioWisdom": "Dilemma",
   "@categoryScenarioWisdom": {
-    "description": "Scenario Wisdom category option"
+    "description": "Dilemma category option"
   },
 
   "categoryChapterInsights": "Chapter Insights",
@@ -596,9 +596,9 @@
     "description": "Validation message when no rating is selected"
   },
 
-  "chapterScenarios": "CHAPTER {chapter} SITUATIONS",
+  "chapterScenarios": "CHAPTER {chapter} DILEMMAS",
   "@chapterScenarios": {
-    "description": "Title for chapter-specific scenarios screen",
+    "description": "Title for chapter-specific dilemmas screen",
     "placeholders": {
       "chapter": {
         "type": "int",
@@ -607,9 +607,9 @@
     }
   },
 
-  "chapterScenariosSubtitle": "Scenarios from Bhagavad Gita Chapter {chapter}",
+  "chapterScenariosSubtitle": "Dilemmas from Bhagavad Gita Chapter {chapter}",
   "@chapterScenariosSubtitle": {
-    "description": "Subtitle for chapter-specific scenarios",
+    "description": "Subtitle for chapter-specific dilemmas",
     "placeholders": {
       "chapter": {
         "type": "int",
@@ -618,9 +618,9 @@
     }
   },
 
-  "showingScenariosForChapter": "Showing situations for Chapter {chapter}",
+  "showingScenariosForChapter": "Showing dilemmas for Chapter {chapter}",
   "@showingScenariosForChapter": {
-    "description": "Filter status message for chapter scenarios",
+    "description": "Filter status message for chapter dilemmas",
     "placeholders": {
       "chapter": {
         "type": "int",

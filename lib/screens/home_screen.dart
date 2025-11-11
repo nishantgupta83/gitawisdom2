@@ -88,10 +88,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   Future<Verse>? _verseFuture;
   Future<List<Chapter>>? _chaptersFuture;
   Future<List<Scenario>>? _dilemmasFuture;
-  
+
   int _currentPage = 0;
   int _currentDilemmaPage = 0;
   bool _showGreeting = true;
+  bool _dilemmasLoadRetried = false; // Track if we've retried loading dilemmas
 
   @override
   void initState() {
@@ -334,10 +335,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       expandedHeight: 220,
       floating: false,
       pinned: true,
+      automaticallyImplyLeading: false, // Prevent back button in tab navigation
       backgroundColor: Colors.transparent,
       elevation: 0,
-      systemOverlayStyle: isDark 
-          ? SystemUiOverlayStyle.light 
+      systemOverlayStyle: isDark
+          ? SystemUiOverlayStyle.light
           : SystemUiOverlayStyle.dark,
       flexibleSpace: FlexibleSpaceBar(
         background: Container(
@@ -534,9 +536,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                   Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: isDark 
+                      color: isDark
                           ? Colors.white.withValues(alpha:0.05)
-                          : theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
+                          : theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
                         color: isDark 
@@ -567,7 +569,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   Widget _buildQuickActionsGrid(ThemeData theme, bool isDark) {
     final actions = [
       {
-        'title': 'Situations',
+        'title': 'Dilemmas',
         'subtitle': 'Real-life guidance',
         'icon': Icons.psychology,
         'color': Colors.purple,
@@ -1270,9 +1272,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
         if (_dilemmasFuture == null || snapshot.connectionState == ConnectionState.waiting) {
           return _buildLoadingCard(theme, isDark, 'Loading life dilemmas...');
         }
-        
-        if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+
+        // Check for actual error
+        if (snapshot.hasError) {
+          debugPrint('❌ Error loading dilemmas: ${snapshot.error}');
           return _buildErrorCard(theme, isDark, 'Could not load dilemmas');
+        }
+
+        // Check if data is available
+        if (!snapshot.hasData) {
+          return _buildLoadingCard(theme, isDark, 'Initializing scenarios...');
+        }
+
+        // If empty list, it means service is still loading - show loading indicator
+        if (snapshot.data!.isEmpty) {
+          debugPrint('⏳ Scenarios still loading in background - showing loading state');
+
+          // Retry loading dilemmas after a delay (only once)
+          if (!_dilemmasLoadRetried && mounted) {
+            _dilemmasLoadRetried = true;
+            debugPrint('📍 Scheduling retry to load dilemmas after scenarios finish loading');
+            Future.delayed(const Duration(seconds: 2), () {
+              if (mounted) {
+                setState(() {
+                  _dilemmasFuture = _getParentingAndRelationshipDilemmas();
+                });
+                debugPrint('🔄 Retrying dilemmas load after delay');
+              }
+            });
+          }
+
+          return _buildLoadingCard(theme, isDark, 'Loading scenarios from server...');
         }
 
         final dilemmas = snapshot.data!;

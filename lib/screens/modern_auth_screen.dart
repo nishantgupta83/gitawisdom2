@@ -8,7 +8,12 @@ import 'root_scaffold.dart';
 import '../widgets/social_auth_buttons.dart';
 
 class ModernAuthScreen extends StatefulWidget {
-  const ModernAuthScreen({super.key});
+  final bool isModal; // Track if launched as modal from within app
+
+  const ModernAuthScreen({
+    super.key,
+    this.isModal = false, // Default false for initial launch
+  });
 
   @override
   State<ModernAuthScreen> createState() => _ModernAuthScreenState();
@@ -21,17 +26,20 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   late Animation<Offset> _slideAnimation;
 
   final _formKey = GlobalKey<FormState>();
-  
+
   // Form controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  
+
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   int _currentPage = 0; // 0 = Sign In, 1 = Sign Up
   bool _rememberMe = false;
+
+  // Store auth service reference to avoid context access after dispose
+  SupabaseAuthService? _authService;
 
 
   @override
@@ -69,16 +77,18 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     // Listen for OAuth completion (when app returns from browser)
     // This handles the case where OAuth redirects back and the auth screen is still active
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final authService = context.read<SupabaseAuthService>();
-      authService.addListener(_handleAuthStateChange);
+      _authService = context.read<SupabaseAuthService>();
+      _authService?.addListener(_handleAuthStateChange);
     });
   }
 
   void _handleAuthStateChange() {
-    final authService = context.read<SupabaseAuthService>();
+    // Use stored reference instead of reading from context
+    final authService = _authService;
+    if (authService == null || !mounted) return;
 
     // If user becomes authenticated and this screen is still mounted, navigate away
-    if (mounted && (authService.isAuthenticated || authService.isAnonymous) && !authService.isLoading) {
+    if ((authService.isAuthenticated || authService.isAnonymous) && !authService.isLoading) {
       // Small delay to ensure state is fully updated
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
@@ -93,13 +103,9 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
 
   @override
   void dispose() {
-    // Remove auth state listener
-    try {
-      final authService = context.read<SupabaseAuthService>();
-      authService.removeListener(_handleAuthStateChange);
-    } catch (e) {
-      debugPrint('⚠️ Could not remove auth listener: $e');
-    }
+    // Remove auth state listener using stored reference
+    _authService?.removeListener(_handleAuthStateChange);
+    _authService = null;
 
     _fadeController.dispose();
     _slideController.dispose();
@@ -411,7 +417,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   Widget _buildTabIndicator(ThemeData theme) {
     return Container(
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceVariant.withValues(alpha:0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha:0.3),
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(4),
@@ -786,7 +792,7 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         filled: true,
-        fillColor: Theme.of(context).colorScheme.surfaceVariant.withValues(alpha:0.1),
+        fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha:0.1),
       ),
     );
   }
@@ -909,44 +915,91 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
 
   void _handleSignIn() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final authService = context.read<SupabaseAuthService>();
     final success = await authService.signInWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
     );
-    
+
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
-      );
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+
+      // Context-aware navigation
+      if (widget.isModal) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
     }
   }
 
   void _handleSignUp() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     final authService = context.read<SupabaseAuthService>();
     final success = await authService.signUpWithEmail(
       _emailController.text.trim(),
       _passwordController.text,
       _nameController.text.trim().isEmpty ? 'User' : _nameController.text.trim(),
     );
-    
+
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
-      );
+      await Future.delayed(const Duration(milliseconds: 100));
+      if (!mounted) return;
+
+      // Context-aware navigation
+      if (widget.isModal) {
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
     }
   }
 
   void _continueAsGuest() async {
     final authService = context.read<SupabaseAuthService>();
-    final success = await authService.continueAsAnonymous();
-    
+
+    // Add timeout protection for iPad
+    final success = await authService.continueAsAnonymous().timeout(
+      const Duration(seconds: 5),
+      onTimeout: () {
+        debugPrint('⚠️ Guest sign-in timed out on iPad');
+        return false;
+      },
+    );
+
     if (success && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const RootScaffold()),
+      // Small delay for state propagation
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      if (!mounted) return;
+
+      // Context-aware navigation
+      if (widget.isModal) {
+        // Launched from within app (e.g., Journal tab) - just close modal
+        debugPrint('🔙 Guest login success - closing auth modal');
+        Navigator.of(context).pop();
+      } else {
+        // Initial launch - replace with home screen
+        debugPrint('🏠 Guest login success - navigating to home');
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const RootScaffold()),
+        );
+      }
+    } else if (mounted) {
+      // User feedback for failure
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Unable to continue as guest. Please try again.'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 3),
+        ),
       );
     }
   }

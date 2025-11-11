@@ -42,7 +42,7 @@ class ShareCardService {
       final cardImage = await _generateVerseCard(verse, ShareCardTheme.minimalist);
       final imagePath = await _saveCardToTemp(cardImage, 'verse_card');
 
-      await Share.shareXFiles(
+      final result = await Share.shareXFiles(
         [XFile(imagePath)],
         text: '''Bhagavad Gita Chapter ${verse.chapterId}, Verse ${verse.verseId}
 
@@ -54,7 +54,10 @@ ${verse.description}
         sharePositionOrigin: const Rect.fromLTWH(0, 0, 200, 200),
       );
 
-      return true;
+      // Check if share was actually completed (not cancelled)
+      final isSuccess = result.status == ShareResultStatus.success;
+      debugPrint(isSuccess ? '📤 Verse card shared successfully' : '❌ Share cancelled by user');
+      return isSuccess;
     } catch (e) {
       debugPrint('❌ Error sharing verse card: $e');
       return false;
@@ -69,7 +72,7 @@ ${verse.description}
       final cardImage = await _generateScenarioCard(scenario, ShareCardTheme.minimalist);
       final imagePath = await _saveCardToTemp(cardImage, 'scenario_card');
 
-      await Share.shareXFiles(
+      final result = await Share.shareXFiles(
         [XFile(imagePath)],
         text: '''${scenario.title}
 
@@ -81,7 +84,10 @@ ${scenario.description}
         sharePositionOrigin: const Rect.fromLTWH(0, 0, 200, 200),
       );
 
-      return true;
+      // Check if share was actually completed (not cancelled)
+      final isSuccess = result.status == ShareResultStatus.success;
+      debugPrint(isSuccess ? '📤 Scenario card shared successfully' : '❌ Share cancelled by user');
+      return isSuccess;
     } catch (e) {
       debugPrint('❌ Error sharing scenario card: $e');
       return false;

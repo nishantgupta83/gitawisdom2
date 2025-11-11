@@ -115,25 +115,6 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
     }
   }
 
-  String _getRatingLabel(int rating) {
-    switch (rating) {
-      case 1:
-        return 'Feeling Challenged';
-      case 2:
-        return 'Somewhat Neutral';
-      case 3:
-        return 'Feeling Centered';
-      case 4:
-        return 'Feeling Grateful';
-      case 5:
-        return 'Truly Blessed';
-      default:
-        return 'No rating';
-    }
-  }
-
-  // Removed emoji method - now using star rating
-
   @override
   Widget build(BuildContext c) {
     final theme = Theme.of(c);
@@ -200,55 +181,19 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
                   children: [
                     TextField(
                       controller: _ctrl,
-                      decoration: const InputDecoration(),
-                      maxLines: 4,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Rating Section with Stars
-                    Text(
-                      localizations.rating,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurface.withValues(alpha: 0.87),
-                        fontWeight: FontWeight.w600,
+                      decoration: InputDecoration(
+                        hintText: 'Write your thoughts and reflections here...',
+                        hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        contentPadding: const EdgeInsets.all(16),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Star Rating (Tappable)
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(5, (i) {
-                        final rating = i + 1;
-                        final isSelected = _rating >= rating;
-                        return GestureDetector(
-                          onTap: _saving ? null : () {
-                            HapticFeedback.mediumImpact();
-                            setState(() => _rating = rating);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(
-                              isSelected ? Icons.star : Icons.star_border,
-                              size: 40,
-                              color: isSelected
-                                  ? Colors.amber[600]
-                                  : theme.colorScheme.onSurface.withValues(alpha: 0.3),
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Dynamic Rating Label
-                    Text(
-                      _getRatingLabel(_rating),
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.primary,
-                        fontWeight: FontWeight.w600,
-                        fontStyle: FontStyle.italic,
-                      ),
+                      maxLines: 10,
+                      minLines: 6,
+                      onChanged: (_) => setState(() {}), // Trigger rebuild to update button state
                     ),
                     const SizedBox(height: 16), // Extra spacing to prevent bottom overflow
                   ],
@@ -309,7 +254,7 @@ class _NewJournalEntryDialogState extends State<NewJournalEntryDialog> with Sing
                           ],
                         ),
                         child: ElevatedButton(
-                          onPressed: _saving ? null : _doSave,
+                          onPressed: (_saving || _ctrl.text.trim().isEmpty) ? null : _doSave,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.transparent,
