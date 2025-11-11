@@ -183,6 +183,14 @@ class _MoreScreenState extends State<MoreScreen> {
                         ),
                         Card(
                           margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          elevation: 6,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
                           child: ExpansionTile(
                             leading: Icon(Icons.account_circle, color: theme.colorScheme.primary),
                             title: Text(
@@ -232,25 +240,24 @@ class _MoreScreenState extends State<MoreScreen> {
               color: theme.colorScheme.onSurfaceVariant,
             )),
           ),
-          if (Platform.isIOS)
-            Card(
-              margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: ListTile(
-                leading: const Icon(Icons.cached),
-                title: const Text('Refresh All Data'),
-                subtitle: const Text('Clear and reload chapters, verses & scenarios'),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => _handleRefreshCache(context),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
               ),
-            )
-          else
-            ListTile(
+            ),
+            child: ListTile(
               leading: const Icon(Icons.cached),
               title: const Text('Refresh All Data'),
               subtitle: const Text('Clear and reload chapters, verses & scenarios'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _handleRefreshCache(context),
             ),
+          ),
 
           // Appearance section
           Padding(
@@ -259,6 +266,14 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
           Card(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
             child: Column(
               children: [
                 _buildSafeConsumer<SettingsService>(
@@ -326,42 +341,65 @@ class _MoreScreenState extends State<MoreScreen> {
           // Content section
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('Content', style: theme.textTheme.titleMedium),
+            child: Text('CONTENT', style: theme.textTheme.titleSmall?.copyWith(
+              letterSpacing: 0.5,
+              color: theme.colorScheme.onSurfaceVariant,
+            )),
           ),
-          ListTile(
-            leading: const Icon(Icons.search),
-            title: const Text('Search'),
-            subtitle: const Text('Find life situations and wisdom'),
-            onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SearchScreen()),
-              );
-            },
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.search),
+              title: const Text('Search'),
+              subtitle: const Text('Find life situations and wisdom'),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const SearchScreen()),
+                );
+              },
+            ),
           ),
 
           // Extras section
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('Extras', style: theme.textTheme.titleMedium),
+            child: Text('EXTRAS', style: theme.textTheme.titleSmall?.copyWith(
+              letterSpacing: 0.5,
+              color: theme.colorScheme.onSurfaceVariant,
+            )),
           ),
-          ListTile(
-            leading: const Icon(Icons.share),
-            title: const Text('Share This App'),
-            onTap: () async => await AppSharingService().shareApp(),
-          ),
-    //      ListTile(
-    //        leading: const Icon(Icons.star_rate),
-    //        title: const Text('Rate & Review'),
-    //        onTap: () => _launchUrl('https://your.app.store.link'),
-    //      ),
-    //      ListTile(
-    //        leading: const Icon(Icons.clear_all),
-    //        title: const Text('Clear Cache'),
-    //        onTap: _clearCache,
-    //      ),
-          ListTile(
-            title: const Text('App Version'),
-            trailing: Text(_version, style: theme.textTheme.bodySmall),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.share),
+                  title: const Text('Share This App'),
+                  onTap: () async => await AppSharingService().shareApp(),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: const Text('App Version'),
+                  trailing: Text(_version, style: theme.textTheme.bodySmall),
+                ),
+              ],
+            ),
           ),
 
           // Language section
@@ -396,6 +434,14 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
           Card(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
             child: ListTile(
               leading: const Icon(Icons.info_outline),
               title: const Text('About'),
@@ -413,6 +459,14 @@ class _MoreScreenState extends State<MoreScreen> {
           ),
           Card(
             margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
             child: Column(
               children: [
                 ListTile(
