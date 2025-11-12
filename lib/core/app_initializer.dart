@@ -297,41 +297,86 @@ class AppInitializer {
 
   /// Initialize all required Hive boxes at app startup
   /// This ensures all boxes are opened before services try to access them
+  /// CRITICAL: Each box must be opened with correct type parameter to avoid Box<dynamic> mismatch errors
   static Future<void> _initializeAllHiveBoxes() async {
-    final requiredBoxes = [
-      'settings',
-      'journal_entries',
-      'bookmarks',
-      'daily_verses',
-      'search_cache',
-      'app_metadata',
-      'chapters',
-      'chapter_summaries_permanent',
-      'gita_verses_cache',
-      'scenarios',
-      'scenarios_critical',
-      'scenarios_frequent',
-      'language_cache',
-    ];
-
     try {
-      debugPrint('📦 Initializing Hive boxes...');
+      debugPrint('📦 Initializing Hive boxes with proper types...');
 
-      for (final boxName in requiredBoxes) {
-        try {
-          if (!Hive.isBoxOpen(boxName)) {
-            await Hive.openBox(boxName);
-            debugPrint('✅ Opened Hive box: $boxName');
-          } else {
-            debugPrint('⏭️ Box already open: $boxName');
-          }
-        } catch (boxError) {
-          debugPrint('⚠️ Warning: Could not open box "$boxName": $boxError');
-          // Continue with other boxes even if one fails
-        }
+      // Settings box (untyped - stores key-value pairs)
+      if (!Hive.isBoxOpen('settings')) {
+        await Hive.openBox('settings');
+        debugPrint('✅ Opened: settings (untyped)');
       }
 
-      debugPrint('✅ All Hive boxes initialized successfully');
+      // Journal entries - handled by JournalService with encryption, skip here
+
+      // Bookmarks box (typed)
+      if (!Hive.isBoxOpen('bookmarks')) {
+        await Hive.openBox<Bookmark>('bookmarks');
+        debugPrint('✅ Opened: bookmarks (typed<Bookmark>)');
+      }
+
+      // Daily verses box (typed)
+      if (!Hive.isBoxOpen('daily_verses')) {
+        await Hive.openBox<DailyVerseSet>('daily_verses');
+        debugPrint('✅ Opened: daily_verses (typed<DailyVerseSet>)');
+      }
+
+      // Search cache (untyped - key-value store)
+      if (!Hive.isBoxOpen('search_cache')) {
+        await Hive.openBox('search_cache');
+        debugPrint('✅ Opened: search_cache (untyped)');
+      }
+
+      // App metadata (untyped - key-value store)
+      if (!Hive.isBoxOpen('app_metadata')) {
+        await Hive.openBox('app_metadata');
+        debugPrint('✅ Opened: app_metadata (untyped)');
+      }
+
+      // Chapters box (typed)
+      if (!Hive.isBoxOpen('chapters')) {
+        await Hive.openBox<Chapter>('chapters');
+        debugPrint('✅ Opened: chapters (typed<Chapter>)');
+      }
+
+      // Chapter summaries box (typed)
+      if (!Hive.isBoxOpen('chapter_summaries_permanent')) {
+        await Hive.openBox<ChapterSummary>('chapter_summaries_permanent');
+        debugPrint('✅ Opened: chapter_summaries_permanent (typed<ChapterSummary>)');
+      }
+
+      // Gita verses cache box (typed)
+      if (!Hive.isBoxOpen('gita_verses_cache')) {
+        await Hive.openBox<Verse>('gita_verses_cache');
+        debugPrint('✅ Opened: gita_verses_cache (typed<Verse>)');
+      }
+
+      // Scenarios box (typed)
+      if (!Hive.isBoxOpen('scenarios')) {
+        await Hive.openBox<Scenario>('scenarios');
+        debugPrint('✅ Opened: scenarios (typed<Scenario>)');
+      }
+
+      // Scenarios critical cache (typed)
+      if (!Hive.isBoxOpen('scenarios_critical')) {
+        await Hive.openBox<Scenario>('scenarios_critical');
+        debugPrint('✅ Opened: scenarios_critical (typed<Scenario>)');
+      }
+
+      // Scenarios frequent cache (typed)
+      if (!Hive.isBoxOpen('scenarios_frequent')) {
+        await Hive.openBox<Scenario>('scenarios_frequent');
+        debugPrint('✅ Opened: scenarios_frequent (typed<Scenario>)');
+      }
+
+      // Language cache (untyped - simple key-value)
+      if (!Hive.isBoxOpen('language_cache')) {
+        await Hive.openBox('language_cache');
+        debugPrint('✅ Opened: language_cache (untyped)');
+      }
+
+      debugPrint('✅ All Hive boxes initialized with correct types');
     } catch (e) {
       debugPrint('❌ Critical: Hive box initialization failed: $e');
       // Continue - individual services will handle missing boxes
