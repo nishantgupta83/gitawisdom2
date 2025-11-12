@@ -396,6 +396,7 @@ class SupabaseAuthService extends ChangeNotifier {
       // The function returns immediately (200 OK) while deletion happens in background
       // This prevents UI freeze and provides instant feedback to user
       dynamic responseData;
+      bool isTimeout = false;
       try {
         responseData = await _supabase.functions.invoke(
           'delete_account',
@@ -404,26 +405,27 @@ class SupabaseAuthService extends ChangeNotifier {
           },
         ).timeout(
           const Duration(seconds: 2),
-          onTimeout: () {
-            // If timeout occurs, treat as success since backend will complete deletion asynchronously
-            // This can happen on slow networks, but the backend will still process the deletion
-            debugPrint('⚠️ ACCOUNT DELETION: Request timeout (expected on slow networks)');
-            debugPrint('   Backend deletion will continue in background');
-            return 'timeout'; // Return a simple marker for timeout
-          },
         );
+      } on TimeoutException {
+        // If timeout occurs, treat as success since backend will complete deletion asynchronously
+        // This can happen on slow networks, but the backend will still process the deletion
+        debugPrint('⚠️ ACCOUNT DELETION: Request timeout (expected on slow networks)');
+        debugPrint('   Backend deletion will continue in background');
+        isTimeout = true;
+        responseData = null;
       } catch (e) {
         // If any error occurs, treat as timeout since deletion will happen in backend
         debugPrint('⚠️ ACCOUNT DELETION: Request error (expected on slow networks): $e');
-        responseData = 'timeout';
+        isTimeout = true;
+        responseData = null;
       }
 
       debugPrint('📥 ACCOUNT DELETION: Edge Function response (async initiated)');
-      debugPrint('   Response: $responseData');
+      debugPrint('   Response: $responseData (timeout: $isTimeout)');
 
       // Check if deletion was initiated successfully (or timed out, which is expected)
       // For async deletion, we always succeed because the backend will complete the deletion
-      if (responseData != 'timeout' && responseData != true) {
+      if (!isTimeout && responseData != true) {
         // If we got actual data back, try to check for errors
         if (responseData is Map && responseData['success'] != true) {
           throw Exception('Server deletion failed: ${responseData['error'] ?? responseData['message'] ?? 'Unknown error'}');
