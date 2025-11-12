@@ -218,20 +218,53 @@ class AppInitializer {
 
   /// Pre-load all 18 chapters in background during app startup
   /// This ensures chapters are cached and available instantly on Home screen
-  /// CRITICAL FIX: Chapters were not being cached, causing "no chapters" on home screen
+  /// CRITICAL FIX: Cache-first, network-second approach for offline support
   static Future<void> _preloadAllChaptersInBackground() async {
     try {
       debugPrint('📚 Starting background chapters pre-loading...');
-      final supabaseService = ServiceLocator.instance.enhancedSupabaseService;
       final chaptersBox = Hive.box<Chapter>('chapters');
 
-      // Load all 18 chapters in parallel
+      // Step 1: Check if chapters already cached
+      if (chaptersBox.isNotEmpty) {
+        debugPrint('✅ Chapters already cached (${chaptersBox.length}), skipping network fetch');
+        return; // Use existing cache
+      }
+
+      // Step 2: Only fetch from network if cache is empty
+      final supabaseService = ServiceLocator.instance.enhancedSupabaseService;
+
+      // Add timeout to prevent hanging on no internet
+      final results = await Future.any([
+        _fetchAllChaptersFromNetwork(supabaseService, chaptersBox),
+        Future.delayed(const Duration(seconds: 8)).then((_) {
+          debugPrint('⏰ Chapters pre-load timed out after 8 seconds');
+          return 0;
+        }),
+      ]).catchError((e) {
+        debugPrint('⚠️ Network fetch failed (using cache if available): $e');
+        return 0;
+      });
+
+      debugPrint('✅ Pre-loaded and cached $results chapters in background');
+    } catch (e) {
+      debugPrint('⚠️ Background chapters pre-loading failed (non-critical): $e');
+      // Continue - app will use whatever is in cache or load on-demand
+    }
+  }
+
+  /// Helper: Fetch all chapters from network and cache them
+  static Future<int> _fetchAllChaptersFromNetwork(
+    dynamic supabaseService,
+    Box<Chapter> chaptersBox,
+  ) async {
+    try {
+      // Load all 18 chapters in parallel with timeout per chapter
       final chaptersFutures = List.generate(
         18,
-        (i) => supabaseService.fetchChapter(i + 1).catchError((e) {
-          debugPrint('⚠️ Failed to pre-load chapter ${i + 1}: $e');
-          return null; // Continue even if one fails
-        }),
+        (i) => Future.any([
+          supabaseService.fetchChapter(i + 1),
+          Future.delayed(const Duration(seconds: 5)).then((_) => null),
+        ]).catchError((_) => null),
       );
 
       final results = await Future.wait(chaptersFutures);
@@ -245,10 +278,13 @@ class AppInitializer {
         }
       }
 
-      debugPrint('✅ Pre-loaded and cached $cachedCount chapters in background');
+      if (cachedCount > 0) {
+        debugPrint('✅ Fetched and cached $cachedCount chapters from network');
+      }
+      return cachedCount;
     } catch (e) {
-      debugPrint('⚠️ Background chapters pre-loading failed (non-critical): $e');
-      // Continue - chapters will load on-demand if pre-loading fails
+      debugPrint('⚠️ Network chapter fetch failed: $e');
+      return 0;
     }
   }
   
