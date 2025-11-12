@@ -46,10 +46,36 @@ serve(async (req) => {
     }
 
     const userId = user.id
-    console.log(`Deleting account for user: ${userId}`)
+    console.log(`[ASYNC] Deleting account for user: ${userId}`)
+
+    // ✅ RETURN IMMEDIATELY to client (async architecture)
+    // The actual deletion happens in the background
+    const response = new Response(
+      JSON.stringify({ success: true, message: 'Account deletion initiated' }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+
+    // ✅ FIRE-AND-FORGET: Run deletion in background without waiting
+    // This returns to client immediately while Deno handles the cleanup
+    performDeletionInBackground(userId, token, supabaseAdmin, user)
+
+    return response
+
+  } catch (error) {
+    console.error('Unexpected error:', error)
+    return new Response(
+      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+})
+
+// ✅ Background deletion function (runs after response is sent to client)
+async function performDeletionInBackground(userId: string, token: string, supabaseAdmin: any, user: any) {
+  try {
+    console.log(`[BACKGROUND] Starting account deletion for user: ${userId}`)
 
     // Delete user data from all tables (if they exist in your schema)
-    // Adjust table names based on your actual database schema
     try {
       // Delete journal entries
       const { error: journalError } = await supabaseAdmin
@@ -58,7 +84,9 @@ serve(async (req) => {
         .eq('user_id', userId)
 
       if (journalError && journalError.code !== 'PGRST116') { // PGRST116 = table not found
-        console.error('Error deleting journal entries:', journalError)
+        console.error(`[BACKGROUND] Error deleting journal entries for ${userId}:`, journalError)
+      } else {
+        console.log(`[BACKGROUND] Deleted journal entries for ${userId}`)
       }
 
       // Delete bookmarks
@@ -68,7 +96,9 @@ serve(async (req) => {
         .eq('user_id', userId)
 
       if (bookmarksError && bookmarksError.code !== 'PGRST116') {
-        console.error('Error deleting bookmarks:', bookmarksError)
+        console.error(`[BACKGROUND] Error deleting bookmarks for ${userId}:`, bookmarksError)
+      } else {
+        console.log(`[BACKGROUND] Deleted bookmarks for ${userId}`)
       }
 
       // Delete user progress
@@ -78,7 +108,9 @@ serve(async (req) => {
         .eq('user_id', userId)
 
       if (progressError && progressError.code !== 'PGRST116') {
-        console.error('Error deleting progress:', progressError)
+        console.error(`[BACKGROUND] Error deleting progress for ${userId}:`, progressError)
+      } else {
+        console.log(`[BACKGROUND] Deleted user progress for ${userId}`)
       }
 
       // Delete user settings
@@ -88,23 +120,25 @@ serve(async (req) => {
         .eq('user_id', userId)
 
       if (settingsError && settingsError.code !== 'PGRST116') {
-        console.error('Error deleting settings:', settingsError)
+        console.error(`[BACKGROUND] Error deleting settings for ${userId}:`, settingsError)
+      } else {
+        console.log(`[BACKGROUND] Deleted user settings for ${userId}`)
       }
 
-      console.log('User data deleted from all tables')
+      console.log(`[BACKGROUND] User data deleted from all tables for ${userId}`)
     } catch (dbError) {
-      console.error('Error deleting user data:', dbError)
+      console.error(`[BACKGROUND] Error deleting user data for ${userId}:`, dbError)
       // Continue with auth deletion even if some tables don't exist
     }
 
     // Revoke Apple refresh token if user signed in with Apple
     if (user.app_metadata?.provider === 'apple' && user.user_metadata?.apple_refresh_token) {
       try {
-        // Apple token revocation endpoint
         const appleClientId = Deno.env.get('APPLE_CLIENT_ID') || 'com.hub4apps.gitawisdom'
         const appleClientSecret = Deno.env.get('APPLE_CLIENT_SECRET')
 
         if (appleClientSecret) {
+          console.log(`[BACKGROUND] Revoking Apple token for ${userId}`)
           const revokeResponse = await fetch('https://appleid.apple.com/auth/revoke', {
             method: 'POST',
             headers: {
@@ -119,40 +153,27 @@ serve(async (req) => {
           })
 
           if (revokeResponse.ok) {
-            console.log('Apple refresh token revoked successfully')
+            console.log(`[BACKGROUND] Apple refresh token revoked for ${userId}`)
           } else {
-            console.warn('Failed to revoke Apple token:', await revokeResponse.text())
+            console.warn(`[BACKGROUND] Failed to revoke Apple token for ${userId}:`, await revokeResponse.text())
           }
         }
       } catch (appleError) {
-        console.error('Error revoking Apple token:', appleError)
-        // Continue with account deletion even if token revocation fails
+        console.error(`[BACKGROUND] Error revoking Apple token for ${userId}:`, appleError)
       }
     }
 
     // Delete the auth user (this also removes from auth.users table)
+    console.log(`[BACKGROUND] Deleting auth user ${userId}`)
     const { error: deleteUserError } = await supabaseAdmin.auth.admin.deleteUser(userId)
 
     if (deleteUserError) {
-      console.error('Error deleting auth user:', deleteUserError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to delete user account', details: deleteUserError.message }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+      console.error(`[BACKGROUND] Error deleting auth user ${userId}:`, deleteUserError)
+    } else {
+      console.log(`[BACKGROUND] Account deleted successfully for user: ${userId}`)
     }
 
-    console.log(`Account deleted successfully for user: ${userId}`)
-
-    return new Response(
-      JSON.stringify({ success: true, message: 'Account deleted successfully' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-
   } catch (error) {
-    console.error('Unexpected error:', error)
-    return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    console.error(`[BACKGROUND] Unexpected error deleting account for ${userId}:`, error)
   }
-})
+}
