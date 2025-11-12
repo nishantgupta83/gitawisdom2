@@ -259,12 +259,12 @@ class AppInitializer {
   ) async {
     try {
       // Load all 18 chapters in parallel with timeout per chapter
-      final chaptersFutures = List.generate(
+      final chaptersFutures = List<Future<Chapter?>>.generate(
         18,
-        (i) => Future.any([
-          supabaseService.fetchChapter(i + 1),
-          Future.delayed(const Duration(seconds: 5)).then((_) => null),
-        ]).catchError((_) => null),
+        (i) => supabaseService
+            .fetchChapter(i + 1)
+            .timeout(const Duration(seconds: 5))
+            .catchError((_) => null),
       );
 
       final results = await Future.wait(chaptersFutures);

@@ -150,9 +150,13 @@ class AboutScreen extends StatelessWidget {
                   
                   // Main content card with enhanced design
                   Card(
-                    elevation: 4,
+                    elevation: 6,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
+                      side: BorderSide(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
                     color: theme.colorScheme.surface,
                     shadowColor: theme.colorScheme.primary.withAlpha((0.12 * 255).toInt()),
@@ -266,9 +270,13 @@ class AboutScreen extends StatelessWidget {
 
                   // Content Validated Against Card
                   Card(
-                    elevation: 4,
+                    elevation: 6,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
+                      side: BorderSide(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
                     color: theme.colorScheme.surface,
                     shadowColor: Colors.green.withAlpha((0.15 * 255).toInt()),
@@ -282,10 +290,6 @@ class AboutScreen extends StatelessWidget {
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                        ),
-                        border: Border.all(
-                          color: Colors.green.withValues(alpha: 0.2),
-                          width: 1,
                         ),
                       ),
                       child: Padding(
@@ -375,9 +379,13 @@ class AboutScreen extends StatelessWidget {
 
                   // Scenario Disclaimer Card
                   Card(
-                    elevation: 4,
+                    elevation: 6,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(22),
+                      side: BorderSide(
+                        color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                        width: 1,
+                      ),
                     ),
                     color: theme.colorScheme.surface,
                     shadowColor: Colors.orange.withAlpha((0.15 * 255).toInt()),
@@ -391,10 +399,6 @@ class AboutScreen extends StatelessWidget {
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                        ),
-                        border: Border.all(
-                          color: Colors.orange.withValues(alpha: 0.2),
-                          width: 1,
                         ),
                       ),
                       child: Padding(

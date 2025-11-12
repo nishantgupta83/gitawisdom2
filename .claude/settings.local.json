@@ -136,7 +136,18 @@
       "Bash(/tmp/android_screenshot.png)",
       "Bash(perl:*)",
       "Bash(xcrun xcode-select:*)",
-      "Bash(timeout 30 flutter run:*)"
+      "Bash(timeout 30 flutter run:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(__NEW_LINE__ source .env.production)",
+      "Bash(__NEW_LINE__ cd /Users/nishantgupta/Documents/GitaGyan/OldWisdom export SUPABASE_URL=\"https://jnzzwknjzigvupwfzfhq.supabase.co\" export SUPABASE_ANON_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impuenpza25qemlndnVwd2Z6ZmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI3ODY5NjAsImV4cCI6MjAwODM4Njk2MH0.9d6eXXLDHt5g3i-TqFMkqh6zfJ7T9rG0aF2zJ9P1YVA\")",
+      "Bash(__NEW_LINE__ ls -lh build/ios/ipa/GitaWisdom.ipa)",
+      "Bash(__NEW_LINE__ flutter build ios --release --dart-define=SUPABASE_URL=\"https://jnzzwknjzigvupwfzfhq.supabase.co\" --dart-define=SUPABASE_ANON_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Impuenpza25qemlndnVwd2Z6ZmhxIiwicm9sZSI6ImFub24iLCJpYXQiOjE2OTI3ODY5NjAsImV4cCI6MjAwODM4Njk2MH0.9d6eXXLDHt5g3i-TqFMkqh6zfJ7T9rG0aF2zJ9P1YVA\" --dart-define=APP_ENV=production)",
+      "Bash(__NEW_LINE__ cd /Users/nishantgupta/Documents/GitaGyan/OldWisdom)",
+      "Bash(dig:*)",
+      "Bash(__NEW_LINE__ echo \"Testing DNS with nslookup (local):\")",
+      "Bash(__NEW_LINE__ echo \"Testing DNS with Cloudflare (1.1.1.1):\")",
+      "Bash(__NEW_LINE__ echo \"Testing DNS with Google (8.8.8.8):\")",
+      "Bash(__NEW_LINE__ echo \"=== CHECKING SUPABASE CONFIGURATION ===\" echo \"\" echo \"Project Reference in use: jnzzwknjzigvupwfzfhq\" echo \"\" echo \"Expected format: {project-ref}.supabase.co\" echo \"\" echo \"Let me verify from your .env file:\" cat .env)"
     ],
     "deny": [],
     "additionalDirectories": [

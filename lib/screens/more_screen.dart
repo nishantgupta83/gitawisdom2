@@ -93,9 +93,87 @@ class _MoreScreenState extends State<MoreScreen> {
 
  //);
 
-  launchUrl(Uri.parse(url));
+    _openWebView('https://hub4apps.com/feedback.html', 'Send Feedback');
+  }
 
- // _launchUrl(uri.toString());
+  /// Show in-app feedback dialog (kept for reference, no longer used)
+  void _showFeedbackDialog() {
+    final feedbackController = TextEditingController();
+    final theme = Theme.of(context);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.feedback_rounded, color: theme.colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('Send Feedback'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Help us improve GitaWisdom! Share your thoughts, suggestions, or report issues.',
+                  style: TextStyle(fontSize: 12),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: feedbackController,
+                  maxLines: 5,
+                  minLines: 3,
+                  decoration: InputDecoration(
+                    hintText: 'Enter your feedback here...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    contentPadding: const EdgeInsets.all(12),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final feedback = feedbackController.text.trim();
+                if (feedback.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter your feedback'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                Navigator.of(dialogContext).pop();
+
+                // Show success message
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Thank you for your feedback! We appreciate it.'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                feedbackController.dispose();
+              },
+              child: const Text('Submit'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Removed problematic _clearCache method that manually accessed Hive boxes
@@ -427,7 +505,7 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
           ), */
 
-          // Resources
+          // Resources section (About, Feedback, Privacy & Legal)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
             child: Text('RESOURCES', style: theme.textTheme.titleSmall?.copyWith(letterSpacing: 0.5, color: theme.colorScheme.onSurfaceVariant)),
@@ -442,48 +520,36 @@ class _MoreScreenState extends State<MoreScreen> {
                 width: 1,
               ),
             ),
-            child: ListTile(
-              leading: const Icon(Icons.info_outline),
-              title: const Text('About'),
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const AboutScreen()),
-              ),
-            ),
-          ),
-
-          // Support & Legal
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('SUPPORT & LEGAL', style: theme.textTheme.titleSmall?.copyWith(letterSpacing: 0.5, color: theme.colorScheme.onSurfaceVariant)),
-          ),
-          Card(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
             child: Column(
               children: [
                 ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: const Text('About'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AboutScreen()),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(Icons.feedback_outlined),
                   title: const Text('Send Feedback'),
+                  trailing: const Icon(Icons.chevron_right),
                   onTap: _sendFeedback,
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: const Text('Privacy Policy'),
+                  trailing: const Icon(Icons.chevron_right),
                   onTap: () => _openWebView('https://hub4apps.com/privacy.html', 'Privacy Policy'),
                 ),
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.article_outlined),
                   title: const Text('Terms of Service'),
+                  trailing: const Icon(Icons.chevron_right),
                   onTap: () => _openWebView('https://hub4apps.com/terms.html', 'Terms of Service'),
                 ),
               ],
@@ -549,6 +615,9 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (confirmed != true || !mounted) return;
 
+    // Save navigator for use after async operation
+    final navigator = Navigator.of(context);
+
     // Show loading indicator
     showDialog(
       context: context,
@@ -575,15 +644,13 @@ class _MoreScreenState extends State<MoreScreen> {
       await authService.signOut();
 
       if (!mounted) return;
-      Navigator.of(context).pop(); // Close loading dialog
 
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Signed out successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      // Use saved navigator reference instead of context
+      try {
+        navigator.pop(); // Close loading dialog
+      } catch (e) {
+        debugPrint('⚠️ Could not close dialog: $e');
+      }
 
       // Navigation is handled automatically by auth state listener
       // in main.dart - user will be redirected to home/auth screen
@@ -591,14 +658,20 @@ class _MoreScreenState extends State<MoreScreen> {
       debugPrint('❌ Sign out error: $e');
       if (!mounted) return;
 
-      Navigator.of(context).pop(); // Close loading dialog
+      try {
+        navigator.pop(); // Close loading dialog
+      } catch (popError) {
+        debugPrint('⚠️ Could not close dialog: $popError');
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to sign out: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to sign out: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -698,21 +771,29 @@ class _MoreScreenState extends State<MoreScreen> {
   /// Perform account deletion with Hive data clearing
   Future<void> _performAccountDeletion(BuildContext context, SupabaseAuthService authService) async {
     try {
-      // Show loading indicator
+      // Use ValueNotifier to track progress and update UI without blocking
+      final messageNotifier = ValueNotifier<String>('Deleting account...');
+
+      // Show loading indicator with dynamic progress message
       if (!mounted) return;
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(
+        builder: (context) => Center(
           child: Card(
             child: Padding(
-              padding: EdgeInsets.all(24.0),
+              padding: const EdgeInsets.all(24.0),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text('Deleting account...'),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  ValueListenableBuilder<String>(
+                    valueListenable: messageNotifier,
+                    builder: (context, message, _) {
+                      return Text(message);
+                    },
+                  ),
                 ],
               ),
             ),
@@ -739,19 +820,52 @@ class _MoreScreenState extends State<MoreScreen> {
         // 'search_cache',        // REMOVED: shared content (can keep for performance)
       ];
 
-      for (final boxName in boxesToDelete) {
+      // Delete boxes with progress updates and timeout protection
+      int deletedCount = 0;
+      for (int i = 0; i < boxesToDelete.length; i++) {
+        final boxName = boxesToDelete[i];
+
+        // Update progress message
+        messageNotifier.value = 'Clearing $boxName... (${i + 1}/${boxesToDelete.length})';
+
         try {
-          await Hive.deleteBoxFromDisk(boxName);
+          // Use timeout to prevent hanging on any single box deletion
+          await Hive.deleteBoxFromDisk(boxName).timeout(
+            const Duration(seconds: 3),
+            onTimeout: () {
+              debugPrint('⏰ Timeout deleting box $boxName');
+            },
+          );
+          deletedCount++;
           debugPrint('🗑️ Deleted Hive box: $boxName');
         } catch (e) {
           debugPrint('⚠️ Could not delete box $boxName: $e');
+          // Continue with next box even if this one fails
         }
+
+        // Small delay to allow UI to update between operations
+        await Future.delayed(const Duration(milliseconds: 100));
       }
 
-      debugPrint('✅ Local Hive data cleared');
+      debugPrint('✅ Local Hive data cleared ($deletedCount boxes)');
 
-      // Delete account from Supabase
-      final success = await authService.deleteAccount();
+      // Update message before deleting account
+      messageNotifier.value = 'Deleting account from server...';
+
+      // Delete account from Supabase with timeout
+      final success = await authService
+          .deleteAccount()
+          .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              debugPrint('⏰ Account deletion timed out');
+              return false;
+            },
+          )
+          .catchError((e) {
+            debugPrint('❌ Account deletion error: $e');
+            return false;
+          });
 
       if (!mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
