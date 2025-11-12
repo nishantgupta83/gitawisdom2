@@ -184,6 +184,9 @@ class AppInitializer {
     // Load all verses in background (static content - cache them for instant access)
     unawaited(_preloadAllVersesInBackground());
 
+    // Load all chapters in background (static content - cache them for instant access)
+    unawaited(_preloadAllChaptersInBackground());
+
     // Initialize search indexing in background to prevent UI blocking on search screen access
     // unawaited(IntelligentScenarioSearch.instance.initialize()); // Temporarily disabled for auth testing
   }
@@ -210,6 +213,42 @@ class AppInitializer {
     } catch (e) {
       debugPrint('⚠️ Background verse pre-loading failed (non-critical): $e');
       // Continue - verses will load on-demand if pre-loading fails
+    }
+  }
+
+  /// Pre-load all 18 chapters in background during app startup
+  /// This ensures chapters are cached and available instantly on Home screen
+  /// CRITICAL FIX: Chapters were not being cached, causing "no chapters" on home screen
+  static Future<void> _preloadAllChaptersInBackground() async {
+    try {
+      debugPrint('📚 Starting background chapters pre-loading...');
+      final supabaseService = ServiceLocator.instance.enhancedSupabaseService;
+      final chaptersBox = Hive.box<Chapter>('chapters');
+
+      // Load all 18 chapters in parallel
+      final chaptersFutures = List.generate(
+        18,
+        (i) => supabaseService.fetchChapter(i + 1).catchError((e) {
+          debugPrint('⚠️ Failed to pre-load chapter ${i + 1}: $e');
+          return null; // Continue even if one fails
+        }),
+      );
+
+      final results = await Future.wait(chaptersFutures);
+
+      // Cache chapters that loaded successfully
+      int cachedCount = 0;
+      for (int i = 0; i < results.length; i++) {
+        if (results[i] != null) {
+          await chaptersBox.put(i + 1, results[i]!);
+          cachedCount++;
+        }
+      }
+
+      debugPrint('✅ Pre-loaded and cached $cachedCount chapters in background');
+    } catch (e) {
+      debugPrint('⚠️ Background chapters pre-loading failed (non-critical): $e');
+      // Continue - chapters will load on-demand if pre-loading fails
     }
   }
   
