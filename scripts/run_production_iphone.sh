@@ -56,10 +56,13 @@ echo -e "${YELLOW}🧹 Cleaning previous build...${NC}"
 flutter clean
 flutter pub get
 
-# Build for release
-echo -e "${YELLOW}🔨 Building production release...${NC}"
+# Build for release with obfuscation
+echo -e "${YELLOW}🔨 Building production release with obfuscation...${NC}"
+echo -e "${BLUE}🔐 Security: Code obfuscation enabled${NC}"
 flutter build ios --release \
   -d "$DEVICE_ID" \
+  --obfuscate \
+  --split-debug-info=build/ios-debug-symbols \
   --dart-define=SUPABASE_URL="$SUPABASE_URL" \
   --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
   --dart-define=APP_ENV=production
@@ -68,6 +71,8 @@ flutter build ios --release \
 echo -e "${YELLOW}🚀 Installing on iPhone...${NC}"
 flutter run --release \
   -d "$DEVICE_ID" \
+  --obfuscate \
+  --split-debug-info=build/ios-debug-symbols \
   --dart-define=SUPABASE_URL="$SUPABASE_URL" \
   --dart-define=SUPABASE_ANON_KEY="$SUPABASE_ANON_KEY" \
   --dart-define=APP_ENV=production
