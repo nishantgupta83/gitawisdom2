@@ -394,6 +394,18 @@ class MockSettingsService extends _i1.Mock implements _i7.SettingsService {
       );
 
   @override
+  bool get canRefreshCache => (super.noSuchMethod(
+        Invocation.getter(#canRefreshCache),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  int get daysUntilNextRefresh => (super.noSuchMethod(
+        Invocation.getter(#daysUntilNextRefresh),
+        returnValue: 0,
+      ) as int);
+
+  @override
   bool get hasListeners => (super.noSuchMethod(
         Invocation.getter(#hasListeners),
         returnValue: false,
@@ -431,6 +443,15 @@ class MockSettingsService extends _i1.Mock implements _i7.SettingsService {
         Invocation.method(
           #setFontSize,
           [size],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void setLastCacheRefreshDate(DateTime? date) => super.noSuchMethod(
+        Invocation.method(
+          #setLastCacheRefreshDate,
+          [date],
         ),
         returnValueForMissingStub: null,
       );
