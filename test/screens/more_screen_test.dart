@@ -7,6 +7,7 @@ import 'package:GitaWisdom/screens/more_screen.dart';
 import 'package:GitaWisdom/services/supabase_auth_service.dart';
 import 'package:GitaWisdom/services/settings_service.dart';
 import 'package:GitaWisdom/services/background_music_service.dart';
+import 'package:GitaWisdom/core/theme/theme_provider.dart';
 
 import 'more_screen_test.mocks.dart';
 
@@ -14,16 +15,19 @@ import 'more_screen_test.mocks.dart';
   SupabaseAuthService,
   SettingsService,
   BackgroundMusicService,
+  ThemeProvider,
 ])
 void main() {
   late MockSupabaseAuthService mockAuthService;
   late MockSettingsService mockSettingsService;
   late MockBackgroundMusicService mockMusicService;
+  late MockThemeProvider mockThemeProvider;
 
   setUp(() {
     mockAuthService = MockSupabaseAuthService();
     mockSettingsService = MockSettingsService();
     mockMusicService = MockBackgroundMusicService();
+    mockThemeProvider = MockThemeProvider();
 
     // Setup default mocks
     when(mockAuthService.isAuthenticated).thenReturn(false);
@@ -32,6 +36,15 @@ void main() {
     when(mockSettingsService.isDarkMode).thenReturn(false);
     when(mockSettingsService.fontSize).thenReturn('medium');
     when(mockMusicService.isEnabled).thenReturn(false);
+    when(mockThemeProvider.isDark).thenReturn(false);
+    when(mockThemeProvider.fontPref).thenReturn('medium');
+    when(mockThemeProvider.shadowEnabled).thenReturn(false);
+    when(mockThemeProvider.backgroundOpacity).thenReturn(0.8);
+    when(mockThemeProvider.textScale).thenReturn(1.0);
+    when(mockThemeProvider.themeMode).thenReturn(ThemeMode.light);
+    when(mockThemeProvider.lightTheme).thenReturn(ThemeData.light());
+    when(mockThemeProvider.darkTheme).thenReturn(ThemeData.dark());
+    when(mockThemeProvider.currentTheme).thenReturn(ThemeData.light());
   });
 
   Widget createMoreScreen() {
@@ -40,6 +53,7 @@ void main() {
         ChangeNotifierProvider<SupabaseAuthService>.value(value: mockAuthService),
         ChangeNotifierProvider<SettingsService>.value(value: mockSettingsService),
         ChangeNotifierProvider<BackgroundMusicService>.value(value: mockMusicService),
+        ChangeNotifierProvider<ThemeProvider>.value(value: mockThemeProvider),
       ],
       child: const MaterialApp(
         home: MoreScreen(),

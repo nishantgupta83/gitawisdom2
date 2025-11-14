@@ -7,6 +7,7 @@ import 'package:GitaWisdom/screens/home_screen.dart';
 import 'package:GitaWisdom/services/supabase_auth_service.dart';
 import 'package:GitaWisdom/services/settings_service.dart';
 import 'package:GitaWisdom/services/enhanced_supabase_service.dart';
+import 'package:GitaWisdom/core/theme/theme_provider.dart';
 import 'package:GitaWisdom/models/chapter.dart';
 import 'package:GitaWisdom/models/verse.dart';
 
@@ -16,22 +17,34 @@ import 'home_screen_test.mocks.dart';
   SupabaseAuthService,
   SettingsService,
   EnhancedSupabaseService,
+  ThemeProvider,
 ])
 void main() {
   late MockSupabaseAuthService mockAuthService;
   late MockSettingsService mockSettingsService;
   late MockEnhancedSupabaseService mockSupabaseService;
+  late MockThemeProvider mockThemeProvider;
 
   setUp(() {
     mockAuthService = MockSupabaseAuthService();
     mockSettingsService = MockSettingsService();
     mockSupabaseService = MockEnhancedSupabaseService();
+    mockThemeProvider = MockThemeProvider();
 
     // Setup default mocks
     when(mockAuthService.isAuthenticated).thenReturn(false);
     when(mockAuthService.isAnonymous).thenReturn(false);
     when(mockSettingsService.isDarkMode).thenReturn(false);
     when(mockSettingsService.fontSize).thenReturn('medium');
+    when(mockThemeProvider.isDark).thenReturn(false);
+    when(mockThemeProvider.fontPref).thenReturn('medium');
+    when(mockThemeProvider.shadowEnabled).thenReturn(false);
+    when(mockThemeProvider.backgroundOpacity).thenReturn(0.8);
+    when(mockThemeProvider.textScale).thenReturn(1.0);
+    when(mockThemeProvider.themeMode).thenReturn(ThemeMode.light);
+    when(mockThemeProvider.lightTheme).thenReturn(ThemeData.light());
+    when(mockThemeProvider.darkTheme).thenReturn(ThemeData.dark());
+    when(mockThemeProvider.currentTheme).thenReturn(ThemeData.light());
   });
 
   Widget createHomeScreen() {
@@ -40,6 +53,7 @@ void main() {
         ChangeNotifierProvider<SupabaseAuthService>.value(value: mockAuthService),
         ChangeNotifierProvider<SettingsService>.value(value: mockSettingsService),
         Provider<EnhancedSupabaseService>.value(value: mockSupabaseService),
+        ChangeNotifierProvider<ThemeProvider>.value(value: mockThemeProvider),
       ],
       child: const MaterialApp(
         home: HomeScreen(),
