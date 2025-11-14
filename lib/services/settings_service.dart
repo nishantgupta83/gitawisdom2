@@ -13,6 +13,7 @@ class SettingsService extends ChangeNotifier {
   static const String musicKey = 'music_enabled';
   static const String shadowKey = 'text_shadow_enabled';
   static const String opacityKey = 'background_opacity';
+  static const String lastCacheRefreshKey = 'last_cache_refresh_date';
 
   /// Call once at startup:
   static Future<void> init() async {
@@ -164,4 +165,39 @@ class SettingsService extends ChangeNotifier {
     }
   }
   set backgroundOpacity(double v) => box.put(opacityKey, v);
+
+  // Cache Refresh Date Management (20-day limit)
+  DateTime? get lastCacheRefreshDate {
+    try {
+      final timestamp = box.get(lastCacheRefreshKey) as String?;
+      return timestamp != null ? DateTime.parse(timestamp) : null;
+    } catch (e) {
+      debugPrint('⚠️ Error reading lastCacheRefreshDate: $e');
+      return null;
+    }
+  }
+
+  void setLastCacheRefreshDate(DateTime date) {
+    box.put(lastCacheRefreshKey, date.toIso8601String());
+    notifyListeners();
+  }
+
+  /// Check if cache refresh is allowed (20+ days since last refresh)
+  bool get canRefreshCache {
+    final lastRefresh = lastCacheRefreshDate;
+    if (lastRefresh == null) return true; // First time, always allow
+
+    final daysSinceRefresh = DateTime.now().difference(lastRefresh).inDays;
+    return daysSinceRefresh >= 20;
+  }
+
+  /// Get days remaining until next cache refresh is allowed
+  int get daysUntilNextRefresh {
+    final lastRefresh = lastCacheRefreshDate;
+    if (lastRefresh == null) return 0; // No previous refresh
+
+    final daysSinceRefresh = DateTime.now().difference(lastRefresh).inDays;
+    final remaining = 20 - daysSinceRefresh;
+    return remaining > 0 ? remaining : 0;
+  }
 }

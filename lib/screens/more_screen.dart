@@ -231,101 +231,6 @@ class _MoreScreenState extends State<MoreScreen> {
 
     return ListView(
         children: [
-          // Account section - collapsed design (iOS-style with Card)
-          Selector<SupabaseAuthService, bool>(
-            selector: (context, authService) => authService.isAuthenticated,
-            builder: (context, isAuthenticated, child) {
-              if (isAuthenticated) {
-                return Consumer<SupabaseAuthService>(
-                  builder: (context, authService, child) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-                          child: Text('ACCOUNT', style: theme.textTheme.titleSmall?.copyWith(
-                            letterSpacing: 0.5,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          )),
-                        ),
-                        Card(
-                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                          elevation: 6,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            side: BorderSide(
-                              color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                              width: 1,
-                            ),
-                          ),
-                          child: ExpansionTile(
-                            leading: Icon(Icons.account_circle, color: theme.colorScheme.primary),
-                            title: Text(
-                              authService.displayName ?? 'User',
-                              style: theme.textTheme.titleSmall,
-                            ),
-                            subtitle: Text(
-                              authService.userEmail ?? '',
-                              style: theme.textTheme.bodySmall,
-                            ),
-                            collapsedBackgroundColor: theme.colorScheme.surface,
-                            backgroundColor: theme.colorScheme.surface,
-                            children: [
-                              const Divider(height: 1),
-                              ListTile(
-                                leading: const Icon(Icons.logout),
-                                title: const Text('Sign Out'),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () => _handleSignOut(context, authService),
-                          ),
-                          ListTile(
-                            leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
-                            title: Text(
-                              'Delete Account',
-                              style: TextStyle(color: theme.colorScheme.error),
-                            ),
-                              trailing: Icon(Icons.chevron_right, color: theme.colorScheme.error),
-                              onTap: () => _showDeleteAccountDialog(context, authService),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    );
-                  },
-                );
-              }
-              return const SizedBox.shrink();
-            },
-          ),
-
-          // Cache Management section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('CACHE MANAGEMENT', style: theme.textTheme.titleSmall?.copyWith(
-              letterSpacing: 0.5,
-              color: theme.colorScheme.onSurfaceVariant,
-            )),
-          ),
-          Card(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: ListTile(
-              leading: const Icon(Icons.cached),
-              title: const Text('Refresh All Data'),
-              subtitle: const Text('Clear and reload chapters, verses & scenarios (Device Specific)'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _handleRefreshCache(context),
-            ),
-          ),
-
           // Appearance section
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -435,65 +340,6 @@ class _MoreScreenState extends State<MoreScreen> {
             ),
           ),
 
-          // Extras section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('EXTRAS', style: theme.textTheme.titleSmall?.copyWith(
-              letterSpacing: 0.5,
-              color: theme.colorScheme.onSurfaceVariant,
-            )),
-          ),
-          Card(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                width: 1,
-              ),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.share),
-                  title: const Text('Share This App'),
-                  onTap: () async => await AppSharingService().shareApp(),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  title: const Text('App Version'),
-                  trailing: Text(_version, style: theme.textTheme.bodySmall),
-                ),
-              ],
-            ),
-          ),
-
-          // Language section
-     /*     Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('Language', style: theme.textTheme.titleMedium),
-          ),
-         ListTile(
-            title: const Text('App Language'),
-            trailing: DropdownButton<String>(
-              value: _settings.language,
-              items: const [
-                DropdownMenuItem(value: 'en', child: Text('English')),
-                DropdownMenuItem(value: 'hi', child: Text('हिन्दी')),
-                DropdownMenuItem(value: 'kn', child: Text('ಕನ್ನಡ')),
-              ],
-              onChanged: (newLang) {
-                if (newLang != null) {
-                  setState(() {
-                    _settings.language = newLang;
-                    // trigger localization reload if implemented
-                  });
-                }
-              },
-            ),
-          ), */
-
           // Resources section (About, Feedback, Privacy & Legal)
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
@@ -544,6 +390,135 @@ class _MoreScreenState extends State<MoreScreen> {
               ],
             ),
           ),
+
+          // Extras section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: Text('EXTRAS', style: theme.textTheme.titleSmall?.copyWith(
+              letterSpacing: 0.5,
+              color: theme.colorScheme.onSurfaceVariant,
+            )),
+          ),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.share),
+                  title: const Text('Share This App'),
+                  onTap: () async => await AppSharingService().shareApp(),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  title: const Text('App Version'),
+                  trailing: Text(_version, style: theme.textTheme.bodySmall),
+                ),
+              ],
+            ),
+          ),
+
+          // Account section - collapsed design (iOS-style with Card)
+          Selector<SupabaseAuthService, bool>(
+            selector: (context, authService) => authService.isAuthenticated,
+            builder: (context, isAuthenticated, child) {
+              if (isAuthenticated) {
+                return Consumer<SupabaseAuthService>(
+                  builder: (context, authService, child) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+                          child: Text('ACCOUNT', style: theme.textTheme.titleSmall?.copyWith(
+                            letterSpacing: 0.5,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          )),
+                        ),
+                        Card(
+                          margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                          elevation: 6,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: ExpansionTile(
+                            leading: Icon(Icons.account_circle, color: theme.colorScheme.primary),
+                            title: Text(
+                              authService.displayName ?? 'User',
+                              style: theme.textTheme.titleSmall,
+                            ),
+                            subtitle: Text(
+                              authService.userEmail ?? '',
+                              style: theme.textTheme.bodySmall,
+                            ),
+                            collapsedBackgroundColor: theme.colorScheme.surface,
+                            backgroundColor: theme.colorScheme.surface,
+                            children: [
+                              const Divider(height: 1),
+                              ListTile(
+                                leading: const Icon(Icons.logout),
+                                title: const Text('Sign Out'),
+                                trailing: const Icon(Icons.chevron_right),
+                                onTap: () => _handleSignOut(context, authService),
+                          ),
+                          ListTile(
+                            leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
+                            title: Text(
+                              'Delete Account',
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                              trailing: Icon(Icons.chevron_right, color: theme.colorScheme.error),
+                              onTap: () => _showDeleteAccountDialog(context, authService),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    );
+                  },
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+
+          // Cache Management section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+            child: Text('CACHE MANAGEMENT', style: theme.textTheme.titleSmall?.copyWith(
+              letterSpacing: 0.5,
+              color: theme.colorScheme.onSurfaceVariant,
+            )),
+          ),
+          Card(
+            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            elevation: 6,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                width: 1,
+              ),
+            ),
+            child: ListTile(
+              leading: const Icon(Icons.cached),
+              title: const Text('Refresh All Data'),
+              subtitle: const Text('Clear and reload chapters, verses & scenarios (Device Specific)'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => _handleRefreshCache(context),
+            ),
+          ),
         ],
       );
     }
@@ -581,6 +556,9 @@ class _MoreScreenState extends State<MoreScreen> {
 
   /// Handle sign out with confirmation
   Future<void> _handleSignOut(BuildContext context, SupabaseAuthService authService) async {
+    // Dismiss any active snackbars before showing dialog
+    ScaffoldMessenger.of(context).clearSnackBars();
+
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
@@ -604,8 +582,12 @@ class _MoreScreenState extends State<MoreScreen> {
 
     if (confirmed != true || !mounted) return;
 
-    // Save navigator for use after async operation
+    // Dismiss any snackbars again before signing out
+    ScaffoldMessenger.of(context).clearSnackBars();
+
+    // Save navigator and scaffold messenger for use after async operation
     final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
 
     // Show loading indicator
     showDialog(
@@ -634,6 +616,9 @@ class _MoreScreenState extends State<MoreScreen> {
 
       if (!mounted) return;
 
+      // Clear all snackbars before closing dialog
+      scaffoldMessenger.clearSnackBars();
+
       // Use saved navigator reference instead of context
       try {
         navigator.pop(); // Close loading dialog
@@ -647,6 +632,9 @@ class _MoreScreenState extends State<MoreScreen> {
       debugPrint('❌ Sign out error: $e');
       if (!mounted) return;
 
+      // Clear snackbars even on error
+      scaffoldMessenger.clearSnackBars();
+
       try {
         navigator.pop(); // Close loading dialog
       } catch (popError) {
@@ -654,10 +642,11 @@ class _MoreScreenState extends State<MoreScreen> {
       }
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Failed to sign out: $e'),
             backgroundColor: Colors.red,
+            duration: const Duration(seconds: 2),
           ),
         );
       }
@@ -898,6 +887,63 @@ class _MoreScreenState extends State<MoreScreen> {
   Future<void> _handleRefreshCache(BuildContext context) async {
     if (!mounted) return;
 
+    // Check 20-day timer before allowing refresh
+    final settingsService = Provider.of<SettingsService>(context, listen: false);
+
+    if (!settingsService.canRefreshCache) {
+      final daysRemaining = settingsService.daysUntilNextRefresh;
+
+      // Show red warning dialog
+      showDialog(
+        context: context,
+        builder: (dialogContext) {
+          return AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.warning, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                const Text('Cannot Refresh Yet'),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Cache refresh is limited to once every 20 days to preserve data integrity.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Days until next refresh: $daysRemaining',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Last refreshed: ${settingsService.lastCacheRefreshDate?.toString().split(' ')[0] ?? 'Never'}',
+                  style: const TextStyle(fontSize: 13),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+      return; // Exit early - don't allow refresh
+    }
+
     // Use a ValueNotifier to track progress across dialog rebuilds
     final progressNotifier = ValueNotifier<double>(0.0);
     final messageNotifier = ValueNotifier<String>('Clearing cache...');
@@ -981,6 +1027,10 @@ class _MoreScreenState extends State<MoreScreen> {
       );
 
       if (!mounted) return;
+
+      // Update last refresh timestamp on success
+      settingsService.setLastCacheRefreshDate(DateTime.now());
+      debugPrint('✅ Cache refresh timestamp updated');
 
       // Dialog stays open for user to tap "Done" - manual close ensures visibility
     } catch (e) {
