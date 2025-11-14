@@ -789,7 +789,7 @@ class SupabaseAuthService extends ChangeNotifier {
         webAuthenticationOptions: WebAuthenticationOptions(
           clientId: 'com.hub4apps.gitawisdom',
           redirectUri: Uri.parse(
-            'https://db.jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback',
+            'https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback',
           ),
         ),
       );

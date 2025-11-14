@@ -4,6 +4,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:GitaWisdom/models/search_result.dart';
 import 'dart:io';
 
 /// Initialize test environment
@@ -17,6 +20,20 @@ Future<void> setupTestEnvironment() async {
   // Setup mock for flutter_secure_storage
   FlutterSecureStorage.setMockInitialValues({});
 
+  // Setup mock for shared_preferences
+  SharedPreferences.setMockInitialValues({});
+
+  // Initialize Supabase with dummy credentials for testing
+  try {
+    await Supabase.initialize(
+      url: 'https://test.supabase.co',
+      anonKey: 'test-anon-key-for-testing-purposes-only',
+      debug: false,
+    );
+  } catch (e) {
+    // Supabase might already be initialized
+  }
+
   // Open settings box for SettingsService
   try {
     if (!Hive.isBoxOpen('settings')) {
@@ -29,7 +46,13 @@ Future<void> setupTestEnvironment() async {
   // Register adapters if needed
   // Hive adapters for models would go here
   try {
-    // Register any custom Hive adapters here
+    // Register SearchResult and SearchType adapters
+    if (!Hive.isAdapterRegistered(12)) {
+      Hive.registerAdapter(SearchResultAdapter());
+    }
+    if (!Hive.isAdapterRegistered(13)) {
+      Hive.registerAdapter(SearchTypeAdapter());
+    }
   } catch (e) {
     // Adapters might already be registered
   }

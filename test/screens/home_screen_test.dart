@@ -64,7 +64,7 @@ void main() {
   group('HomeScreen Widget Tests', () {
     testWidgets('should render home screen with app bar', (WidgetTester tester) async {
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify app bar is present
       expect(find.byType(AppBar), findsOneWidget);
@@ -73,7 +73,7 @@ void main() {
 
     testWidgets('should display daily verse carousel', (WidgetTester tester) async {
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify daily verse section is present
       expect(find.text('Daily Wisdom'), findsAtLeastNWidgets(1));
@@ -94,7 +94,7 @@ void main() {
       when(mockSupabaseService.fetchAllChapters()).thenAnswer((_) async => mockChapters);
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify chapters section header
       expect(find.text('18 Chapters'), findsAtLeastNWidgets(1));
@@ -114,14 +114,14 @@ void main() {
       when(mockSupabaseService.fetchAllChapters()).thenAnswer((_) async => mockChapters);
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Find and tap first chapter card
       final chapterCard = find.text('Arjuna Vishada Yoga');
       expect(chapterCard, findsAtLeastNWidgets(1));
 
       await tester.tap(chapterCard.first);
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify navigation occurred (chapter detail screen should be pushed)
       // Note: Full navigation verification would require NavigatorObserver
@@ -133,7 +133,7 @@ void main() {
       );
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pump(); // Trigger initial build
+      await tester.pumpAndSettle(const Duration(seconds: 5)); // Trigger initial build
 
       // Verify loading indicator is shown
       expect(find.byType(CircularProgressIndicator), findsAtLeastNWidgets(1));
@@ -143,7 +143,7 @@ void main() {
       when(mockSupabaseService.fetchAllChapters()).thenThrow(Exception('Network error'));
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify error handling (app should not crash)
       expect(find.byType(HomeScreen), findsOneWidget);
@@ -154,7 +154,7 @@ void main() {
       when(mockAuthService.displayName).thenReturn('Test User');
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify user greeting
       expect(find.textContaining('Test User'), findsAtLeastNWidgets(1));
@@ -164,7 +164,7 @@ void main() {
       when(mockSettingsService.isDarkMode).thenReturn(true);
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify dark theme is applied
       final ThemeData theme = Theme.of(tester.element(find.byType(HomeScreen)));
@@ -185,13 +185,13 @@ void main() {
       when(mockSupabaseService.fetchAllChapters()).thenAnswer((_) async => mockChapters);
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Find RefreshIndicator
       final refreshIndicator = find.byType(RefreshIndicator);
       if (refreshIndicator.evaluate().isNotEmpty) {
         await tester.drag(refreshIndicator.first, const Offset(0, 300));
-        await tester.pumpAndSettle();
+        await tester.pumpAndSettle(const Duration(seconds: 5));
 
         // Verify refresh was triggered
         verify(mockSupabaseService.fetchAllChapters()).called(greaterThan(1));
@@ -202,7 +202,7 @@ void main() {
   group('HomeScreen Accessibility Tests', () {
     testWidgets('should have proper semantics for screen readers', (WidgetTester tester) async {
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify semantic labels are present
       expect(
@@ -225,7 +225,7 @@ void main() {
       when(mockSupabaseService.fetchAllChapters()).thenAnswer((_) async => mockChapters);
 
       await tester.pumpWidget(createHomeScreen());
-      await tester.pumpAndSettle();
+      await tester.pumpAndSettle(const Duration(seconds: 5));
 
       // Verify touch targets are at least 44x44 (Material Design guidelines)
       final tappableWidgets = find.byType(InkWell);

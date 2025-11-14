@@ -72,3 +72,52 @@ class SearchResultAdapter extends TypeAdapter<SearchResult> {
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }
+
+class SearchTypeAdapter extends TypeAdapter<SearchType> {
+  @override
+  final int typeId = 13;
+
+  @override
+  SearchType read(BinaryReader reader) {
+    switch (reader.readByte()) {
+      case 0:
+        return SearchType.verse;
+      case 1:
+        return SearchType.chapter;
+      case 2:
+        return SearchType.scenario;
+      case 3:
+        return SearchType.query;
+      default:
+        return SearchType.verse;
+    }
+  }
+
+  @override
+  void write(BinaryWriter writer, SearchType obj) {
+    switch (obj) {
+      case SearchType.verse:
+        writer.writeByte(0);
+        break;
+      case SearchType.chapter:
+        writer.writeByte(1);
+        break;
+      case SearchType.scenario:
+        writer.writeByte(2);
+        break;
+      case SearchType.query:
+        writer.writeByte(3);
+        break;
+    }
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchTypeAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}

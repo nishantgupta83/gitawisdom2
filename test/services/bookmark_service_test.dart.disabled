@@ -1,0 +1,327 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:hive/hive.dart';
+import 'package:GitaWisdom/services/bookmark_service.dart';
+import 'package:GitaWisdom/models/verse.dart';
+import 'package:GitaWisdom/models/scenario.dart';
+import 'package:GitaWisdom/models/chapter.dart';
+import 'package:GitaWisdom/models/bookmark.dart';
+import 'dart:io';
+
+void main() {
+  late BookmarkService bookmarkService;
+
+  setUp(() async {
+    // Use temporary directory for test Hive storage
+    final tempDir = Directory.systemTemp.createTempSync('hive_test_');
+    Hive.init(tempDir.path);
+
+    // Register Bookmark adapter if not already registered
+    if (!Hive.isAdapterRegistered(9)) {
+      Hive.registerAdapter(BookmarkAdapter());
+    }
+
+    bookmarkService = BookmarkService();
+    await bookmarkService.initialize('test_device_123');
+  });
+
+  tearDown(() async {
+    await Hive.close();
+    await Hive.deleteFromDisk();
+  });
+
+  group('BookmarkService Verse Tests', () {
+    test('should add verse bookmark successfully', () async {
+      final verse = Verse(
+        verseId: 1,
+        description: 'Test verse description',
+        chapterId: 1,
+      );
+
+      final result = await bookmarkService.bookmarkVerse(verse, 1);
+      expect(result, isTrue);
+
+      // Verify bookmark was added
+      final isBookmarked = bookmarkService.isBookmarked(BookmarkType.verse, verse.verseId);
+      expect(isBookmarked, isTrue);
+    });
+
+    test('should remove verse bookmark successfully', () async {
+      final verse = Verse(
+        verseId: 1,
+        description: 'Test verse',
+        chapterId: 1,
+      );
+
+      // First add the bookmark
+      await bookmarkService.bookmarkVerse(verse, 1);
+
+      // Get the bookmark to remove it
+      final bookmark = bookmarkService.getBookmark(BookmarkType.verse, verse.verseId);
+      expect(bookmark, isNotNull);
+
+      // Remove the bookmark
+      final result = await bookmarkService.removeBookmark(bookmark!.id);
+      expect(result, isTrue);
+
+      // Verify bookmark was removed
+      final isBookmarked = bookmarkService.isBookmarked(BookmarkType.verse, verse.verseId);
+      expect(isBookmarked, isFalse);
+    });
+
+    test('should get all verse bookmarks', () async {
+      final verses = [
+        Verse(verseId: 1, description: 'Test 1', chapterId: 1),
+        Verse(verseId: 2, description: 'Test 2', chapterId: 1),
+      ];
+
+      for (final verse in verses) {
+        await bookmarkService.bookmarkVerse(verse, 1);
+      }
+
+      final bookmarks = bookmarkService.getBookmarksByType(BookmarkType.verse);
+      expect(bookmarks.length, equals(2));
+    });
+
+    test('should check if verse is bookmarked', () async {
+      final verse1 = Verse(verseId: 1, description: 'Test', chapterId: 1);
+      await bookmarkService.bookmarkVerse(verse1, 1);
+
+      final isBookmarked1 = bookmarkService.isBookmarked(BookmarkType.verse, 1);
+      final isBookmarked2 = bookmarkService.isBookmarked(BookmarkType.verse, 2);
+
+      expect(isBookmarked1, isTrue);
+      expect(isBookmarked2, isFalse);
+    });
+  });
+
+  group('BookmarkService Scenario Tests', () {
+    test('should add scenario bookmark successfully', () async {
+      final scenario = Scenario(
+        title: 'Test Scenario',
+        description: 'Test description',
+        category: 'test',
+        chapter: 1,
+        heartResponse: 'Heart',
+        dutyResponse: 'Duty',
+        gitaWisdom: 'Wisdom',
+        createdAt: DateTime.now(),
+      );
+
+      final result = await bookmarkService.bookmarkScenario(scenario);
+      expect(result, isTrue);
+
+      // Verify bookmark was added
+      final isBookmarked = bookmarkService.isBookmarked(
+        BookmarkType.scenario,
+        scenario.hashCode
+      );
+      expect(isBookmarked, isTrue);
+    });
+
+    test('should remove scenario bookmark successfully', () async {
+      final scenario = Scenario(
+        title: 'Test',
+        description: 'Test',
+        category: 'test',
+        chapter: 1,
+        heartResponse: 'Heart',
+        dutyResponse: 'Duty',
+        gitaWisdom: 'Wisdom',
+        createdAt: DateTime.now(),
+      );
+
+      await bookmarkService.bookmarkScenario(scenario);
+
+      final bookmark = bookmarkService.getBookmark(
+        BookmarkType.scenario,
+        scenario.hashCode
+      );
+      expect(bookmark, isNotNull);
+
+      final result = await bookmarkService.removeBookmark(bookmark!.id);
+      expect(result, isTrue);
+
+      // Verify bookmark was removed
+      final isBookmarked = bookmarkService.isBookmarked(
+        BookmarkType.scenario,
+        scenario.hashCode
+      );
+      expect(isBookmarked, isFalse);
+    });
+
+    test('should get all scenario bookmarks', () async {
+      final scenarios = [
+        Scenario(
+          title: 'Test 1',
+          description: 'Test',
+          category: 'test',
+          chapter: 1,
+          heartResponse: 'Heart',
+          dutyResponse: 'Duty',
+          gitaWisdom: 'Wisdom',
+          createdAt: DateTime.now(),
+        ),
+        Scenario(
+          title: 'Test 2',
+          description: 'Test',
+          category: 'test',
+          chapter: 1,
+          heartResponse: 'Heart',
+          dutyResponse: 'Duty',
+          gitaWisdom: 'Wisdom',
+          createdAt: DateTime.now(),
+        ),
+      ];
+
+      for (final scenario in scenarios) {
+        await bookmarkService.bookmarkScenario(scenario);
+      }
+
+      final bookmarks = bookmarkService.getBookmarksByType(BookmarkType.scenario);
+      expect(bookmarks.length, equals(2));
+    });
+  });
+
+  group('BookmarkService Chapter Tests', () {
+    test('should add chapter bookmark successfully', () async {
+      final chapter = Chapter(
+        chapterId: 1,
+        title: 'Test Chapter',
+        subtitle: 'Test Subtitle',
+        summary: 'This is a test chapter summary for bookmarking',
+        verseCount: 10,
+      );
+
+      final result = await bookmarkService.bookmarkChapter(chapter);
+      expect(result, isTrue);
+
+      final isBookmarked = bookmarkService.isBookmarked(
+        BookmarkType.chapter,
+        chapter.chapterId
+      );
+      expect(isBookmarked, isTrue);
+    });
+  });
+
+  group('BookmarkService Search and Filter', () {
+    test('should search bookmarks by title', () async {
+      final verse = Verse(verseId: 1, description: 'Searchable verse', chapterId: 1);
+      await bookmarkService.bookmarkVerse(verse, 1);
+
+      final results = bookmarkService.searchBookmarks('Chapter 1');
+      expect(results.isNotEmpty, isTrue);
+    });
+
+    test('should get bookmarks by chapter', () async {
+      final verse1 = Verse(verseId: 1, description: 'Test', chapterId: 1);
+      final verse2 = Verse(verseId: 2, description: 'Test', chapterId: 2);
+
+      await bookmarkService.bookmarkVerse(verse1, 1);
+      await bookmarkService.bookmarkVerse(verse2, 2);
+
+      final chapter1Bookmarks = bookmarkService.getBookmarksByChapter(1);
+      expect(chapter1Bookmarks.length, equals(1));
+    });
+
+    test('should get recent bookmarks', () async {
+      final verses = List.generate(
+        15,
+        (i) => Verse(verseId: i, description: 'Test $i', chapterId: 1),
+      );
+
+      for (final verse in verses) {
+        await bookmarkService.bookmarkVerse(verse, 1);
+      }
+
+      final recentBookmarks = bookmarkService.getRecentBookmarks(10);
+      expect(recentBookmarks.length, equals(10));
+    });
+
+    test('should get bookmarks grouped by chapter', () async {
+      await bookmarkService.bookmarkVerse(
+        Verse(verseId: 1, description: 'Test', chapterId: 1), 1
+      );
+      await bookmarkService.bookmarkVerse(
+        Verse(verseId: 2, description: 'Test', chapterId: 2), 2
+      );
+
+      final grouped = bookmarkService.getBookmarksGroupedByChapter();
+      expect(grouped.keys.length, equals(2));
+      expect(grouped[1]?.length, equals(1));
+      expect(grouped[2]?.length, equals(1));
+    });
+  });
+
+  group('BookmarkService Statistics', () {
+    test('should get bookmark statistics', () async {
+      await bookmarkService.bookmarkVerse(
+        Verse(verseId: 1, description: 'Test', chapterId: 1), 1
+      );
+      await bookmarkService.bookmarkScenario(
+        Scenario(
+          title: 'Test',
+          description: 'Test',
+          category: 'test',
+          chapter: 1,
+          heartResponse: 'Heart',
+          dutyResponse: 'Duty',
+          gitaWisdom: 'Wisdom',
+          createdAt: DateTime.now(),
+        ),
+      );
+
+      final stats = bookmarkService.getBookmarkStats();
+      expect(stats['total'], equals(2));
+      expect(stats['verse'], equals(1));
+      expect(stats['scenario'], equals(1));
+    });
+  });
+
+  group('BookmarkService Update', () {
+    test('should update bookmark notes and tags', () async {
+      final verse = Verse(verseId: 1, description: 'Test', chapterId: 1);
+      await bookmarkService.bookmarkVerse(verse, 1);
+
+      final bookmark = bookmarkService.getBookmark(BookmarkType.verse, verse.verseId);
+      expect(bookmark, isNotNull);
+
+      final result = await bookmarkService.updateBookmark(
+        bookmarkId: bookmark!.id,
+        notes: 'Updated notes',
+        tags: ['tag1', 'tag2'],
+      );
+
+      expect(result, isTrue);
+
+      final updatedBookmark = bookmarkService.getBookmark(BookmarkType.verse, verse.verseId);
+      expect(updatedBookmark?.notes, equals('Updated notes'));
+      expect(updatedBookmark?.tags, equals(['tag1', 'tag2']));
+    });
+  });
+
+  group('BookmarkService Clear', () {
+    test('should clear all bookmarks', () async {
+      await bookmarkService.bookmarkVerse(
+        Verse(verseId: 1, description: 'Test', chapterId: 1), 1
+      );
+
+      expect(bookmarkService.bookmarksCount, equals(1));
+
+      final result = await bookmarkService.clearAllBookmarks();
+      expect(result, isTrue);
+      expect(bookmarkService.bookmarksCount, equals(0));
+    });
+  });
+
+  group('BookmarkService Export', () {
+    test('should export bookmarks as JSON', () async {
+      await bookmarkService.bookmarkVerse(
+        Verse(verseId: 1, description: 'Test', chapterId: 1), 1
+      );
+
+      final exported = bookmarkService.exportBookmarks();
+      expect(exported['totalCount'], equals(1));
+      expect(exported['bookmarks'], isA<List>());
+    });
+  });
+}

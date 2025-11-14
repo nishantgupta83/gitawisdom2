@@ -3,21 +3,23 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i7;
-import 'dart:ui' as _i8;
+import 'dart:async' as _i9;
+import 'dart:ui' as _i10;
 
-import 'package:flutter/material.dart' as _i10;
-import 'package:GitaWisdom/models/chapter.dart' as _i13;
-import 'package:GitaWisdom/models/chapter_summary.dart' as _i12;
-import 'package:GitaWisdom/models/journal_entry.dart' as _i15;
-import 'package:GitaWisdom/models/scenario.dart' as _i14;
+import 'package:flutter/foundation.dart' as _i6;
+import 'package:flutter/material.dart' as _i5;
+import 'package:GitaWisdom/core/theme/theme_provider.dart' as _i17;
+import 'package:GitaWisdom/models/chapter.dart' as _i14;
+import 'package:GitaWisdom/models/chapter_summary.dart' as _i13;
+import 'package:GitaWisdom/models/journal_entry.dart' as _i16;
+import 'package:GitaWisdom/models/scenario.dart' as _i15;
 import 'package:GitaWisdom/models/verse.dart' as _i4;
-import 'package:GitaWisdom/services/enhanced_supabase_service.dart' as _i11;
-import 'package:GitaWisdom/services/settings_service.dart' as _i9;
-import 'package:GitaWisdom/services/supabase_auth_service.dart' as _i5;
+import 'package:GitaWisdom/services/enhanced_supabase_service.dart' as _i12;
+import 'package:GitaWisdom/services/settings_service.dart' as _i11;
+import 'package:GitaWisdom/services/supabase_auth_service.dart' as _i7;
 import 'package:hive/hive.dart' as _i2;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:mockito/src/dummies.dart' as _i6;
+import 'package:mockito/src/dummies.dart' as _i8;
 import 'package:supabase_flutter/supabase_flutter.dart' as _i3;
 
 // ignore_for_file: type=lint
@@ -64,11 +66,25 @@ class _FakeVerse_2 extends _i1.SmartFake implements _i4.Verse {
         );
 }
 
+class _FakeThemeData_3 extends _i1.SmartFake implements _i5.ThemeData {
+  _FakeThemeData_3(
+    Object parent,
+    Invocation parentInvocation,
+  ) : super(
+          parent,
+          parentInvocation,
+        );
+
+  @override
+  String toString({_i6.DiagnosticLevel? minLevel = _i6.DiagnosticLevel.info}) =>
+      super.toString();
+}
+
 /// A class which mocks [SupabaseAuthService].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockSupabaseAuthService extends _i1.Mock
-    implements _i5.SupabaseAuthService {
+    implements _i7.SupabaseAuthService {
   MockSupabaseAuthService() {
     _i1.throwOnMissingStub(this);
   }
@@ -94,17 +110,17 @@ class MockSupabaseAuthService extends _i1.Mock
   @override
   String get databaseUserId => (super.noSuchMethod(
         Invocation.getter(#databaseUserId),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i8.dummyValue<String>(
           this,
           Invocation.getter(#databaseUserId),
         ),
       ) as String);
 
   @override
-  _i7.Stream<bool> get authStateChanges => (super.noSuchMethod(
+  _i9.Stream<bool> get authStateChanges => (super.noSuchMethod(
         Invocation.getter(#authStateChanges),
-        returnValue: _i7.Stream<bool>.empty(),
-      ) as _i7.Stream<bool>);
+        returnValue: _i9.Stream<bool>.empty(),
+      ) as _i9.Stream<bool>);
 
   @override
   bool get hasListeners => (super.noSuchMethod(
@@ -113,17 +129,17 @@ class MockSupabaseAuthService extends _i1.Mock
       ) as bool);
 
   @override
-  _i7.Future<void> initialize() => (super.noSuchMethod(
+  _i9.Future<void> initialize() => (super.noSuchMethod(
         Invocation.method(
           #initialize,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<bool> signUpWithEmail(
+  _i9.Future<bool> signUpWithEmail(
     String? email,
     String? password,
     String? name,
@@ -137,11 +153,11 @@ class MockSupabaseAuthService extends _i1.Mock
             name,
           ],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> signInWithEmail(
+  _i9.Future<bool> signInWithEmail(
     String? email,
     String? password,
   ) =>
@@ -153,48 +169,48 @@ class MockSupabaseAuthService extends _i1.Mock
             password,
           ],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> signInAnonymously() => (super.noSuchMethod(
+  _i9.Future<bool> signInAnonymously() => (super.noSuchMethod(
         Invocation.method(
           #signInAnonymously,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<void> signOut() => (super.noSuchMethod(
+  _i9.Future<void> signOut() => (super.noSuchMethod(
         Invocation.method(
           #signOut,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<bool> resetPassword(String? email) => (super.noSuchMethod(
+  _i9.Future<bool> resetPassword(String? email) => (super.noSuchMethod(
         Invocation.method(
           #resetPassword,
           [email],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> updatePassword(String? newPassword) => (super.noSuchMethod(
+  _i9.Future<bool> updatePassword(String? newPassword) => (super.noSuchMethod(
         Invocation.method(
           #updatePassword,
           [newPassword],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> verifyOTP(
+  _i9.Future<bool> verifyOTP(
     String? email,
     String? token,
   ) =>
@@ -206,26 +222,26 @@ class MockSupabaseAuthService extends _i1.Mock
             token,
           ],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> deleteAccount() => (super.noSuchMethod(
+  _i9.Future<bool> deleteAccount() => (super.noSuchMethod(
         Invocation.method(
           #deleteAccount,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> checkUserExists(String? email) => (super.noSuchMethod(
+  _i9.Future<bool> checkUserExists(String? email) => (super.noSuchMethod(
         Invocation.method(
           #checkUserExists,
           [email],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
   void clearError() => super.noSuchMethod(
@@ -237,31 +253,31 @@ class MockSupabaseAuthService extends _i1.Mock
       );
 
   @override
-  _i7.Future<bool> continueAsAnonymous() => (super.noSuchMethod(
+  _i9.Future<bool> continueAsAnonymous() => (super.noSuchMethod(
         Invocation.method(
           #continueAsAnonymous,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> signInWithGoogle() => (super.noSuchMethod(
+  _i9.Future<bool> signInWithGoogle() => (super.noSuchMethod(
         Invocation.method(
           #signInWithGoogle,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<bool> signInWithApple() => (super.noSuchMethod(
+  _i9.Future<bool> signInWithApple() => (super.noSuchMethod(
         Invocation.method(
           #signInWithApple,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
   void dispose() => super.noSuchMethod(
@@ -273,7 +289,7 @@ class MockSupabaseAuthService extends _i1.Mock
       );
 
   @override
-  void addListener(_i8.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -282,7 +298,7 @@ class MockSupabaseAuthService extends _i1.Mock
       );
 
   @override
-  void removeListener(_i8.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i10.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
@@ -303,7 +319,7 @@ class MockSupabaseAuthService extends _i1.Mock
 /// A class which mocks [SettingsService].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
+class MockSettingsService extends _i1.Mock implements _i11.SettingsService {
   MockSettingsService() {
     _i1.throwOnMissingStub(this);
   }
@@ -335,7 +351,7 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
   @override
   String get language => (super.noSuchMethod(
         Invocation.getter(#language),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i8.dummyValue<String>(
           this,
           Invocation.getter(#language),
         ),
@@ -353,7 +369,7 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
   @override
   String get fontSize => (super.noSuchMethod(
         Invocation.getter(#fontSize),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i8.dummyValue<String>(
           this,
           Invocation.getter(#fontSize),
         ),
@@ -369,10 +385,10 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
       );
 
   @override
-  _i10.ThemeMode get themeMode => (super.noSuchMethod(
+  _i5.ThemeMode get themeMode => (super.noSuchMethod(
         Invocation.getter(#themeMode),
-        returnValue: _i10.ThemeMode.system,
-      ) as _i10.ThemeMode);
+        returnValue: _i5.ThemeMode.system,
+      ) as _i5.ThemeMode);
 
   @override
   bool get musicEnabled => (super.noSuchMethod(
@@ -456,7 +472,7 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
       );
 
   @override
-  void setTheme(_i10.ThemeMode? mode) => super.noSuchMethod(
+  void setTheme(_i5.ThemeMode? mode) => super.noSuchMethod(
         Invocation.method(
           #setTheme,
           [mode],
@@ -483,7 +499,7 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
       );
 
   @override
-  void addListener(_i8.VoidCallback? listener) => super.noSuchMethod(
+  void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #addListener,
           [listener],
@@ -492,7 +508,7 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
       );
 
   @override
-  void removeListener(_i8.VoidCallback? listener) => super.noSuchMethod(
+  void removeListener(_i10.VoidCallback? listener) => super.noSuchMethod(
         Invocation.method(
           #removeListener,
           [listener],
@@ -514,7 +530,7 @@ class MockSettingsService extends _i1.Mock implements _i9.SettingsService {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockEnhancedSupabaseService extends _i1.Mock
-    implements _i11.EnhancedSupabaseService {
+    implements _i12.EnhancedSupabaseService {
   MockEnhancedSupabaseService() {
     _i1.throwOnMissingStub(this);
   }
@@ -529,48 +545,48 @@ class MockEnhancedSupabaseService extends _i1.Mock
       ) as _i3.SupabaseClient);
 
   @override
-  _i7.Future<bool> testConnection() => (super.noSuchMethod(
+  _i9.Future<bool> testConnection() => (super.noSuchMethod(
         Invocation.method(
           #testConnection,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
-  _i7.Future<void> initializeLanguages() => (super.noSuchMethod(
+  _i9.Future<void> initializeLanguages() => (super.noSuchMethod(
         Invocation.method(
           #initializeLanguages,
           [],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<void> setCurrentLanguage(String? langCode) => (super.noSuchMethod(
+  _i9.Future<void> setCurrentLanguage(String? langCode) => (super.noSuchMethod(
         Invocation.method(
           #setCurrentLanguage,
           [langCode],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<List<_i12.ChapterSummary>> fetchChapterSummaries(
+  _i9.Future<List<_i13.ChapterSummary>> fetchChapterSummaries(
           [String? langCode]) =>
       (super.noSuchMethod(
         Invocation.method(
           #fetchChapterSummaries,
           [langCode],
         ),
-        returnValue: _i7.Future<List<_i12.ChapterSummary>>.value(
-            <_i12.ChapterSummary>[]),
-      ) as _i7.Future<List<_i12.ChapterSummary>>);
+        returnValue: _i9.Future<List<_i13.ChapterSummary>>.value(
+            <_i13.ChapterSummary>[]),
+      ) as _i9.Future<List<_i13.ChapterSummary>>);
 
   @override
-  _i7.Future<_i13.Chapter?> fetchChapterById(
+  _i9.Future<_i14.Chapter?> fetchChapterById(
     int? chapterId, [
     String? langCode,
   ]) =>
@@ -582,21 +598,21 @@ class MockEnhancedSupabaseService extends _i1.Mock
             langCode,
           ],
         ),
-        returnValue: _i7.Future<_i13.Chapter?>.value(),
-      ) as _i7.Future<_i13.Chapter?>);
+        returnValue: _i9.Future<_i14.Chapter?>.value(),
+      ) as _i9.Future<_i14.Chapter?>);
 
   @override
-  _i7.Future<List<_i13.Chapter>> fetchAllChapters([String? langCode]) =>
+  _i9.Future<List<_i14.Chapter>> fetchAllChapters([String? langCode]) =>
       (super.noSuchMethod(
         Invocation.method(
           #fetchAllChapters,
           [langCode],
         ),
-        returnValue: _i7.Future<List<_i13.Chapter>>.value(<_i13.Chapter>[]),
-      ) as _i7.Future<List<_i13.Chapter>>);
+        returnValue: _i9.Future<List<_i14.Chapter>>.value(<_i14.Chapter>[]),
+      ) as _i9.Future<List<_i14.Chapter>>);
 
   @override
-  _i7.Future<List<_i14.Scenario>> fetchScenariosByChapter(
+  _i9.Future<List<_i15.Scenario>> fetchScenariosByChapter(
     int? chapterId, [
     String? langCode,
   ]) =>
@@ -608,11 +624,11 @@ class MockEnhancedSupabaseService extends _i1.Mock
             langCode,
           ],
         ),
-        returnValue: _i7.Future<List<_i14.Scenario>>.value(<_i14.Scenario>[]),
-      ) as _i7.Future<List<_i14.Scenario>>);
+        returnValue: _i9.Future<List<_i15.Scenario>>.value(<_i15.Scenario>[]),
+      ) as _i9.Future<List<_i15.Scenario>>);
 
   @override
-  _i7.Future<_i14.Scenario?> fetchScenarioById(
+  _i9.Future<_i15.Scenario?> fetchScenarioById(
     int? scenarioId, [
     String? langCode,
   ]) =>
@@ -624,11 +640,11 @@ class MockEnhancedSupabaseService extends _i1.Mock
             langCode,
           ],
         ),
-        returnValue: _i7.Future<_i14.Scenario?>.value(),
-      ) as _i7.Future<_i14.Scenario?>);
+        returnValue: _i9.Future<_i15.Scenario?>.value(),
+      ) as _i9.Future<_i15.Scenario?>);
 
   @override
-  _i7.Future<List<_i14.Scenario>> searchScenarios(
+  _i9.Future<List<_i15.Scenario>> searchScenarios(
     String? query, [
     String? langCode,
   ]) =>
@@ -640,11 +656,11 @@ class MockEnhancedSupabaseService extends _i1.Mock
             langCode,
           ],
         ),
-        returnValue: _i7.Future<List<_i14.Scenario>>.value(<_i14.Scenario>[]),
-      ) as _i7.Future<List<_i14.Scenario>>);
+        returnValue: _i9.Future<List<_i15.Scenario>>.value(<_i15.Scenario>[]),
+      ) as _i9.Future<List<_i15.Scenario>>);
 
   @override
-  _i7.Future<List<_i14.Scenario>> fetchScenarios({
+  _i9.Future<List<_i15.Scenario>> fetchScenarios({
     int? limit = 2000,
     int? offset = 0,
     String? langCode,
@@ -659,20 +675,20 @@ class MockEnhancedSupabaseService extends _i1.Mock
             #langCode: langCode,
           },
         ),
-        returnValue: _i7.Future<List<_i14.Scenario>>.value(<_i14.Scenario>[]),
-      ) as _i7.Future<List<_i14.Scenario>>);
+        returnValue: _i9.Future<List<_i15.Scenario>>.value(<_i15.Scenario>[]),
+      ) as _i9.Future<List<_i15.Scenario>>);
 
   @override
-  _i7.Future<int> getScenarioCount() => (super.noSuchMethod(
+  _i9.Future<int> getScenarioCount() => (super.noSuchMethod(
         Invocation.method(
           #getScenarioCount,
           [],
         ),
-        returnValue: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i9.Future<int>.value(0),
+      ) as _i9.Future<int>);
 
   @override
-  _i7.Future<List<_i4.Verse>> fetchVersesByChapter(
+  _i9.Future<List<_i4.Verse>> fetchVersesByChapter(
     int? chapterId, [
     String? langCode,
   ]) =>
@@ -684,11 +700,11 @@ class MockEnhancedSupabaseService extends _i1.Mock
             langCode,
           ],
         ),
-        returnValue: _i7.Future<List<_i4.Verse>>.value(<_i4.Verse>[]),
-      ) as _i7.Future<List<_i4.Verse>>);
+        returnValue: _i9.Future<List<_i4.Verse>>.value(<_i4.Verse>[]),
+      ) as _i9.Future<List<_i4.Verse>>);
 
   @override
-  _i7.Future<_i4.Verse> fetchRandomVerseByChapter(
+  _i9.Future<_i4.Verse> fetchRandomVerseByChapter(
     int? chapterId, [
     String? langCode,
   ]) =>
@@ -700,7 +716,7 @@ class MockEnhancedSupabaseService extends _i1.Mock
             langCode,
           ],
         ),
-        returnValue: _i7.Future<_i4.Verse>.value(_FakeVerse_2(
+        returnValue: _i9.Future<_i4.Verse>.value(_FakeVerse_2(
           this,
           Invocation.method(
             #fetchRandomVerseByChapter,
@@ -710,106 +726,106 @@ class MockEnhancedSupabaseService extends _i1.Mock
             ],
           ),
         )),
-      ) as _i7.Future<_i4.Verse>);
+      ) as _i9.Future<_i4.Verse>);
 
   @override
-  _i7.Future<_i14.Scenario?> fetchRandomScenario() => (super.noSuchMethod(
+  _i9.Future<_i15.Scenario?> fetchRandomScenario() => (super.noSuchMethod(
         Invocation.method(
           #fetchRandomScenario,
           [],
         ),
-        returnValue: _i7.Future<_i14.Scenario?>.value(),
-      ) as _i7.Future<_i14.Scenario?>);
+        returnValue: _i9.Future<_i15.Scenario?>.value(),
+      ) as _i9.Future<_i15.Scenario?>);
 
   @override
-  _i7.Future<int> fetchScenarioCount(int? chapterId) => (super.noSuchMethod(
+  _i9.Future<int> fetchScenarioCount(int? chapterId) => (super.noSuchMethod(
         Invocation.method(
           #fetchScenarioCount,
           [chapterId],
         ),
-        returnValue: _i7.Future<int>.value(0),
-      ) as _i7.Future<int>);
+        returnValue: _i9.Future<int>.value(0),
+      ) as _i9.Future<int>);
 
   @override
-  _i7.Future<void> insertJournalEntry(_i15.JournalEntry? entry) =>
+  _i9.Future<void> insertJournalEntry(_i16.JournalEntry? entry) =>
       (super.noSuchMethod(
         Invocation.method(
           #insertJournalEntry,
           [entry],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<void> deleteJournalEntry(String? entryId) => (super.noSuchMethod(
+  _i9.Future<void> deleteJournalEntry(String? entryId) => (super.noSuchMethod(
         Invocation.method(
           #deleteJournalEntry,
           [entryId],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<List<_i15.JournalEntry>> fetchJournalEntries() =>
+  _i9.Future<List<_i16.JournalEntry>> fetchJournalEntries() =>
       (super.noSuchMethod(
         Invocation.method(
           #fetchJournalEntries,
           [],
         ),
         returnValue:
-            _i7.Future<List<_i15.JournalEntry>>.value(<_i15.JournalEntry>[]),
-      ) as _i7.Future<List<_i15.JournalEntry>>);
+            _i9.Future<List<_i16.JournalEntry>>.value(<_i16.JournalEntry>[]),
+      ) as _i9.Future<List<_i16.JournalEntry>>);
 
   @override
-  _i7.Future<void> insertFavorite(String? scenarioTitle) => (super.noSuchMethod(
+  _i9.Future<void> insertFavorite(String? scenarioTitle) => (super.noSuchMethod(
         Invocation.method(
           #insertFavorite,
           [scenarioTitle],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<void> removeFavorite(String? scenarioTitle) => (super.noSuchMethod(
+  _i9.Future<void> removeFavorite(String? scenarioTitle) => (super.noSuchMethod(
         Invocation.method(
           #removeFavorite,
           [scenarioTitle],
         ),
-        returnValue: _i7.Future<void>.value(),
-        returnValueForMissingStub: _i7.Future<void>.value(),
-      ) as _i7.Future<void>);
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
 
   @override
-  _i7.Future<List<String>> fetchFavorites() => (super.noSuchMethod(
+  _i9.Future<List<String>> fetchFavorites() => (super.noSuchMethod(
         Invocation.method(
           #fetchFavorites,
           [],
         ),
-        returnValue: _i7.Future<List<String>>.value(<String>[]),
-      ) as _i7.Future<List<String>>);
+        returnValue: _i9.Future<List<String>>.value(<String>[]),
+      ) as _i9.Future<List<String>>);
 
   @override
-  _i7.Future<Map<String, dynamic>> getTranslationCoverage([String? langCode]) =>
+  _i9.Future<Map<String, dynamic>> getTranslationCoverage([String? langCode]) =>
       (super.noSuchMethod(
         Invocation.method(
           #getTranslationCoverage,
           [langCode],
         ),
         returnValue:
-            _i7.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
-      ) as _i7.Future<Map<String, dynamic>>);
+            _i9.Future<Map<String, dynamic>>.value(<String, dynamic>{}),
+      ) as _i9.Future<Map<String, dynamic>>);
 
   @override
-  _i7.Future<bool> refreshTranslationViews() => (super.noSuchMethod(
+  _i9.Future<bool> refreshTranslationViews() => (super.noSuchMethod(
         Invocation.method(
           #refreshTranslationViews,
           [],
         ),
-        returnValue: _i7.Future<bool>.value(false),
-      ) as _i7.Future<bool>);
+        returnValue: _i9.Future<bool>.value(false),
+      ) as _i9.Future<bool>);
 
   @override
   bool isLanguageSupported(String? langCode) => (super.noSuchMethod(
@@ -831,7 +847,7 @@ class MockEnhancedSupabaseService extends _i1.Mock
           [langCode],
           {#useNative: useNative},
         ),
-        returnValue: _i6.dummyValue<String>(
+        returnValue: _i8.dummyValue<String>(
           this,
           Invocation.method(
             #getLanguageDisplayName,
@@ -845,6 +861,195 @@ class MockEnhancedSupabaseService extends _i1.Mock
   void dispose() => super.noSuchMethod(
         Invocation.method(
           #dispose,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+}
+
+/// A class which mocks [ThemeProvider].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockThemeProvider extends _i1.Mock implements _i17.ThemeProvider {
+  MockThemeProvider() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  bool get isDark => (super.noSuchMethod(
+        Invocation.getter(#isDark),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  String get fontPref => (super.noSuchMethod(
+        Invocation.getter(#fontPref),
+        returnValue: _i8.dummyValue<String>(
+          this,
+          Invocation.getter(#fontPref),
+        ),
+      ) as String);
+
+  @override
+  bool get shadowEnabled => (super.noSuchMethod(
+        Invocation.getter(#shadowEnabled),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  double get backgroundOpacity => (super.noSuchMethod(
+        Invocation.getter(#backgroundOpacity),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  double get textScale => (super.noSuchMethod(
+        Invocation.getter(#textScale),
+        returnValue: 0.0,
+      ) as double);
+
+  @override
+  _i5.ThemeMode get themeMode => (super.noSuchMethod(
+        Invocation.getter(#themeMode),
+        returnValue: _i5.ThemeMode.system,
+      ) as _i5.ThemeMode);
+
+  @override
+  _i5.ThemeData get lightTheme => (super.noSuchMethod(
+        Invocation.getter(#lightTheme),
+        returnValue: _FakeThemeData_3(
+          this,
+          Invocation.getter(#lightTheme),
+        ),
+      ) as _i5.ThemeData);
+
+  @override
+  _i5.ThemeData get darkTheme => (super.noSuchMethod(
+        Invocation.getter(#darkTheme),
+        returnValue: _FakeThemeData_3(
+          this,
+          Invocation.getter(#darkTheme),
+        ),
+      ) as _i5.ThemeData);
+
+  @override
+  _i5.ThemeData get currentTheme => (super.noSuchMethod(
+        Invocation.getter(#currentTheme),
+        returnValue: _FakeThemeData_3(
+          this,
+          Invocation.getter(#currentTheme),
+        ),
+      ) as _i5.ThemeData);
+
+  @override
+  bool get hasListeners => (super.noSuchMethod(
+        Invocation.getter(#hasListeners),
+        returnValue: false,
+      ) as bool);
+
+  @override
+  _i9.Future<void> initialize() => (super.noSuchMethod(
+        Invocation.method(
+          #initialize,
+          [],
+        ),
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> updateTheme({
+    bool? isDark,
+    String? fontPref,
+    bool? shadowEnabled,
+    double? backgroundOpacity,
+  }) =>
+      (super.noSuchMethod(
+        Invocation.method(
+          #updateTheme,
+          [],
+          {
+            #isDark: isDark,
+            #fontPref: fontPref,
+            #shadowEnabled: shadowEnabled,
+            #backgroundOpacity: backgroundOpacity,
+          },
+        ),
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> toggleDarkMode() => (super.noSuchMethod(
+        Invocation.method(
+          #toggleDarkMode,
+          [],
+        ),
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> setFontSize(String? size) => (super.noSuchMethod(
+        Invocation.method(
+          #setFontSize,
+          [size],
+        ),
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> toggleShadow() => (super.noSuchMethod(
+        Invocation.method(
+          #toggleShadow,
+          [],
+        ),
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> setBackgroundOpacity(double? opacity) => (super.noSuchMethod(
+        Invocation.method(
+          #setBackgroundOpacity,
+          [opacity],
+        ),
+        returnValue: _i9.Future<void>.value(),
+        returnValueForMissingStub: _i9.Future<void>.value(),
+      ) as _i9.Future<void>);
+
+  @override
+  void dispose() => super.noSuchMethod(
+        Invocation.method(
+          #dispose,
+          [],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void addListener(_i10.VoidCallback? listener) => super.noSuchMethod(
+        Invocation.method(
+          #addListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void removeListener(_i10.VoidCallback? listener) => super.noSuchMethod(
+        Invocation.method(
+          #removeListener,
+          [listener],
+        ),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  void notifyListeners() => super.noSuchMethod(
+        Invocation.method(
+          #notifyListeners,
           [],
         ),
         returnValueForMissingStub: null,

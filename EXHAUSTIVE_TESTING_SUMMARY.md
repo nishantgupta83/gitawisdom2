@@ -165,7 +165,7 @@ Optional before submission:
 ✅ **Data Consistency**: Maintained across sessions
 
 ### Expected DNS Failures
-⚠️ **Noted**: `Failed host lookup: 'db.jnzzwknjzigvupwfzfhq.supabase.co'`
+⚠️ **Noted**: `Failed host lookup: 'db.wlfwdtdtiedlcczfoslt.supabase.co'`
 - Status: **Expected when offline** ✅
 - Handling: **Graceful** ✅
 - Impact: **None** ✅

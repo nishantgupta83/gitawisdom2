@@ -376,7 +376,7 @@ const String CDN_BASE = 'https://cdn.gitawisdom.com';
 
 ### Supabase Dashboard:
 ```
-1. Go to: https://supabase.com/dashboard/project/jnzzwknjzigvupwfzfhq
+1. Go to: https://supabase.com/dashboard/project/wlfwdtdtiedlcczfoslt
 2. Settings → Usage
 3. Check:
    - Database Size: Should be <50 MB (10% of limit)

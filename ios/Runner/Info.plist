@@ -112,7 +112,7 @@
 		<!-- Allow specific Supabase domain -->
 		<key>NSExceptionDomains</key>
 		<dict>
-			<key>db.jnzzwknjzigvupwfzfhq.supabase.co</key>
+			<key>wlfwdtdtiedlcczfoslt.supabase.co</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
 				<true/>

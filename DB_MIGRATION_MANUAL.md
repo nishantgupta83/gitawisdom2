@@ -16,7 +16,7 @@ The SQL migration script is located at: `supabase/migrations/004_quality_fixes.s
 
 ```bash
 PGPASSWORD="xbQUKAWHkkcaV7Q@" psql \
-  -h db.jnzzwknjzigvupwfzfhq.supabase.co \
+  -h db.wlfwdtdtiedlcczfoslt.supabase.co \
   -p 5432 \
   -U postgres \
   -d postgres \

@@ -39,7 +39,7 @@
 
 ### Step 2: Configure Supabase Dashboard for Apple OAuth
 
-1. **Go to Supabase Dashboard**: https://supabase.com/dashboard/project/jnzzwknjzigvupwfzfhq
+1. **Go to Supabase Dashboard**: https://supabase.com/dashboard/project/wlfwdtdtiedlcczfoslt
 
 2. **Navigate to**: Authentication → Providers → Apple
 
@@ -55,8 +55,8 @@
    - Enable **"Sign in with Apple"**
    - Click **Configure** next to Sign in with Apple
    - Primary App ID: Select your app's Bundle ID (`com.hub4apps.gitawisdom`)
-   - Domains and Subdomains: `jnzzwknjzigvupwfzfhq.supabase.co`
-   - Return URLs: `https://jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback`
+   - Domains and Subdomains: `wlfwdtdtiedlcczfoslt.supabase.co`
+   - Return URLs: `https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback`
    - Save and Continue
 
    **4b. Create Key for Apple Sign In**:
@@ -74,7 +74,7 @@
    - **Key ID**: Your Key ID from step 4b
    - **Secret Key (Private Key)**: Paste contents of the `.p8` file
    - **Team ID**: Find this at https://developer.apple.com/account (top right corner)
-   - **Redirect URL**: `https://jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback`
+   - **Redirect URL**: `https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback`
 
 6. **Save** the configuration
 
@@ -86,7 +86,7 @@
 
 # OR build production release
 flutter build ipa --release \
-  --dart-define=SUPABASE_URL=https://db.jnzzwknjzigvupwfzfhq.supabase.co \
+  --dart-define=SUPABASE_URL=https://db.wlfwdtdtiedlcczfoslt.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=<your-key> \
   --dart-define=APP_ENV=production
 ```
@@ -121,7 +121,7 @@ flutter build ipa --release \
    - Navigate to: Facebook Login → Settings
    - **Valid OAuth Redirect URIs**:
      ```
-     https://jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback
+     https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback
      ```
    - **Allowed Domains for the JavaScript SDK**: (leave empty for mobile)
    - Save changes
@@ -130,7 +130,7 @@ flutter build ipa --release \
    - Go to: Settings → Basic
    - **App ID**: Copy this (e.g., `1234567890123456`)
    - **App Secret**: Click **Show** → Copy this
-   - **App Domains**: `jnzzwknjzigvupwfzfhq.supabase.co`
+   - **App Domains**: `wlfwdtdtiedlcczfoslt.supabase.co`
 
 ### Step 2: Configure iOS for Facebook Login
 
@@ -187,7 +187,7 @@ Add the following entries inside `<dict>`:
 3. **Configure**:
    - **Facebook client ID**: Your App ID from Step 1.5
    - **Facebook client secret**: Your App Secret from Step 1.5
-   - **Redirect URL**: `https://jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback`
+   - **Redirect URL**: `https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback`
 
 4. **Save**
 
@@ -245,7 +245,7 @@ Nishant's iPhone (mobile) • 00008030-001234567890ABCD • ios • iOS 17.2.1
 ```bash
 # Build IPA
 flutter build ipa --release \
-  --dart-define=SUPABASE_URL=https://db.jnzzwknjzigvupwfzfhq.supabase.co \
+  --dart-define=SUPABASE_URL=https://db.wlfwdtdtiedlcczfoslt.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=<your-anon-key> \
   --dart-define=APP_ENV=production
 
@@ -290,7 +290,7 @@ open build/ios/archive/Runner.xcarchive
 - **Check**: Return URLs in Apple Developer console match Supabase callback URL
 
 **Error**: "Unauthorized domain"
-- **Fix**: Add `jnzzwknjzigvupwfzfhq.supabase.co` to Apple Service ID domains
+- **Fix**: Add `wlfwdtdtiedlcczfoslt.supabase.co` to Apple Service ID domains
 
 **Error**: Sign-in button does nothing
 - **Fix**: Check Xcode Capabilities has "Sign in with Apple" enabled
@@ -303,7 +303,7 @@ open build/ios/archive/Runner.xcarchive
 - **Check**: Facebook App is in **Development** or **Live** mode (not Draft)
 
 **Error**: "Invalid OAuth redirect URI"
-- **Fix**: Add exact callback URL to Facebook Login Settings: `https://jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback`
+- **Fix**: Add exact callback URL to Facebook Login Settings: `https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback`
 
 **Error**: "App Not Set Up"
 - **Fix**: Complete Facebook App Review (required for production)
@@ -341,7 +341,7 @@ Before submitting to App Store:
 
 ### Supabase OAuth Callback URL
 ```
-https://jnzzwknjzigvupwfzfhq.supabase.co/auth/v1/callback
+https://wlfwdtdtiedlcczfoslt.supabase.co/auth/v1/callback
 ```
 
 ### Deep Link URL Scheme

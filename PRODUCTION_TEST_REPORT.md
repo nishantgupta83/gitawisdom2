@@ -170,7 +170,7 @@ Outdated Packages: 40
 - Background data loading operational
 
 ### DNS Resolution
-- ⚠️ Expected failures when offline: `Failed host lookup: 'db.jnzzwknjzigvupwfzfhq.supabase.co'`
+- ⚠️ Expected failures when offline: `Failed host lookup: 'db.wlfwdtdtiedlcczfoslt.supabase.co'`
 - ✅ Handled gracefully with fallback mechanisms
 - ✅ App continues functioning
 

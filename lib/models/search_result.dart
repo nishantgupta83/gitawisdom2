@@ -5,10 +5,15 @@ import 'package:hive/hive.dart';
 part 'search_result.g.dart';
 
 /// Search types that can be searched
+@HiveType(typeId: 13)
 enum SearchType {
+  @HiveField(0)
   verse,
+  @HiveField(1)
   chapter,
+  @HiveField(2)
   scenario,
+  @HiveField(3)
   query;
 
   String get value => name;

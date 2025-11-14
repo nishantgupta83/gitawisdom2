@@ -196,7 +196,7 @@ Logged In!
 ```bash
 # Build for App Store
 flutter build ipa --release \
-  --dart-define=SUPABASE_URL=https://db.jnzzwknjzigvupwfzfhq.supabase.co \
+  --dart-define=SUPABASE_URL=https://db.wlfwdtdtiedlcczfoslt.supabase.co \
   --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
   --dart-define=APP_ENV=production
 

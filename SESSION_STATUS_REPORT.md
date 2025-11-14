@@ -41,7 +41,7 @@
 ### 🔑 Current Production Credentials
 **Status**: ACTIVE AND WORKING
 ```
-SUPABASE_URL=https://db.jnzzwknjzigvupwfzfhq.supabase.co
+SUPABASE_URL=https://db.wlfwdtdtiedlcczfoslt.supabase.co
 SUPABASE_ANON_KEY=[Valid JWT token with anon role]
 APP_ENV=production
 ```
@@ -118,7 +118,7 @@ To update with fresh API keys:
 ```bash
 pkill -f "flutter run" || true
 sleep 2
-export SUPABASE_URL="https://db.jnzzwknjzigvupwfzfhq.supabase.co"
+export SUPABASE_URL="https://db.wlfwdtdtiedlcczfoslt.supabase.co"
 export SUPABASE_ANON_KEY="..."
 flutter run -d 00008030-000C0D1E0140802E \
   --dart-define=SUPABASE_URL="$SUPABASE_URL" \
