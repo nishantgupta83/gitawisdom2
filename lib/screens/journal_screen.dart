@@ -442,6 +442,7 @@ class _JournalScreenState extends State<JournalScreen> {
           SnackBar(
             content: Text(localizations.entryDeleted ?? 'Journal entry deleted'),
             backgroundColor: Colors.green,
+            duration: const Duration(milliseconds: 3500),
             action: SnackBarAction(
               label: localizations.undo ?? 'Undo',
               onPressed: () async {

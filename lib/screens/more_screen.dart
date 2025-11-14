@@ -66,34 +66,23 @@ class _MoreScreenState extends State<MoreScreen> {
     );
   }
 
-  void _sendFeedback() {
-  //  final uri = Uri(
-  //    scheme: 'mailto',
-  //    path: 'hub4app@gmail.com',
-  //    queryParameters: { 'subject': 'OldWisdom || App Feedback' },
- //   );
- //   _launchUrl(uri.toString());
+  void _sendFeedback() async {
+    final now = DateTime.now();
+    final formattedDate = DateFormat('yyyyMMdd').format(now);
 
-  final now = DateTime.now();
-  final formattedDate = DateFormat('yyyyMMdd-HHmmss').format(now);
+    final subject = 'GitaWisdom || Feedback || $formattedDate';
+    final body = 'Hi Team,\n\nWould like to provide feedback on,\n1: \n2: \n\nRegards';
 
-  final subject = Uri.encodeComponent('Gitawisdom || Feedback $formattedDate');
-  final body = Uri.encodeComponent(
-    'Hi Team,\n\nWould like to give feedback!\nn[Please add your feedback here...]\n\n\n' );
+    final uri = Uri(
+      scheme: 'mailto',
+      path: 'support@hub4apps.com',
+      queryParameters: {
+        'subject': subject,
+        'body': body,
+      },
+    );
 
-/*  final uri = Uri(
-    scheme: 'mailto',
-    path: 'hub4app@gmail.com',
-    queryParameters: {
-      'subject': subject,
-      'body': body,
-    },*/
-
-   final url = 'mailto:support@hub4apps.com?subject=$subject&body=$body';
-
- //);
-
-    _openWebView('https://hub4apps.com/feedback.html', 'Send Feedback');
+    await launchUrl(uri);
   }
 
   /// Show in-app feedback dialog (kept for reference, no longer used)
@@ -331,7 +320,7 @@ class _MoreScreenState extends State<MoreScreen> {
             child: ListTile(
               leading: const Icon(Icons.cached),
               title: const Text('Refresh All Data'),
-              subtitle: const Text('Clear and reload chapters, verses & scenarios'),
+              subtitle: const Text('Clear and reload chapters, verses & scenarios (Device Specific)'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _handleRefreshCache(context),
             ),
