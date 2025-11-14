@@ -367,13 +367,16 @@ class _MoreScreenState extends State<MoreScreen> {
                   ),
                 ),
                 const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.feedback_outlined),
-                  title: const Text('Send Feedback'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _sendFeedback,
-                ),
-                const Divider(height: 1),
+                // Hidden for Play Store approval - UI only (backend methods remain intact)
+                if (false) ...[
+                  ListTile(
+                    leading: const Icon(Icons.feedback_outlined),
+                    title: const Text('Send Feedback'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: _sendFeedback,
+                  ),
+                  const Divider(height: 1),
+                ],
                 ListTile(
                   leading: const Icon(Icons.privacy_tip_outlined),
                   title: const Text('Privacy Policy'),
@@ -493,32 +496,35 @@ class _MoreScreenState extends State<MoreScreen> {
             },
           ),
 
+          // Hidden for Play Store approval - UI only (backend methods remain intact)
           // Cache Management section
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
-            child: Text('CACHE MANAGEMENT', style: theme.textTheme.titleSmall?.copyWith(
-              letterSpacing: 0.5,
-              color: theme.colorScheme.onSurfaceVariant,
-            )),
-          ),
-          Card(
-            margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-              side: BorderSide(
-                color: theme.colorScheme.outline.withValues(alpha: 0.2),
-                width: 1,
+          if (false) ...[
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
+              child: Text('CACHE MANAGEMENT', style: theme.textTheme.titleSmall?.copyWith(
+                letterSpacing: 0.5,
+                color: theme.colorScheme.onSurfaceVariant,
+              )),
+            ),
+            Card(
+              margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              elevation: 6,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  width: 1,
+                ),
+              ),
+              child: ListTile(
+                leading: const Icon(Icons.cached),
+                title: const Text('Refresh All Data'),
+                subtitle: const Text('Clear and reload chapters, verses & scenarios (Device Specific)'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _handleRefreshCache(context),
               ),
             ),
-            child: ListTile(
-              leading: const Icon(Icons.cached),
-              title: const Text('Refresh All Data'),
-              subtitle: const Text('Clear and reload chapters, verses & scenarios (Device Specific)'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _handleRefreshCache(context),
-            ),
-          ),
+          ],
         ],
       );
     }
