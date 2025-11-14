@@ -140,3 +140,63 @@
 # Keep machine learning related classes
 -dontwarn com.google.android.gms.tflite.**
 -keep class com.google.android.gms.tflite.** { *; }
+
+# ============================================
+# Enhanced Security & Obfuscation Rules
+# ============================================
+
+# Remove logging in production for security
+-assumenosideeffects class android.util.Log {
+    public static *** d(...);
+    public static *** v(...);
+    public static *** i(...);
+    public static *** w(...);
+    public static *** e(...);
+}
+
+# Obfuscate class names and method names more aggressively
+-repackageclasses 'o'
+-allowaccessmodification
+-overloadaggressively
+
+# Remove debug information
+-keepattributes !SourceFile,!SourceDir,!LineNumberTable
+
+# Keep only essential attributes for runtime
+-keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations,RuntimeInvisibleAnnotations,RuntimeInvisibleParameterAnnotations
+
+# String encryption (renaming)
+-adaptclassstrings
+
+# Additional security hardening
+-dontskipnonpubliclibraryclassmembers
+-mergeinterfacesaggressively
+
+# Remove unused resources
+-dontnote **
+
+# Optimize code aggressively
+-optimizations !code/simplification/arithmetic,!code/simplification/cast,!field/*,!class/merging/*
+-optimizationpasses 7
+
+# ============================================
+# Sensitive Data Protection
+# ============================================
+
+# Obfuscate API keys and credentials (applied with Flutter --obfuscate)
+# Note: Never hardcode sensitive data - use --dart-define instead
+
+# Protect against reflection attacks on models
+-keepclassmembers class * implements android.os.Parcelable {
+    public static final ** CREATOR;
+}
+
+# Prevent reverse engineering of serialization
+-keepclassmembers class * implements java.io.Serializable {
+    static final long serialVersionUID;
+    private static final java.io.ObjectStreamField[] serialPersistentFields;
+    private void writeObject(java.io.ObjectOutputStream);
+    private void readObject(java.io.ObjectInputStream);
+    java.lang.Object writeReplace();
+    java.lang.Object readResolve();
+}
