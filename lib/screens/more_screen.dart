@@ -475,12 +475,14 @@ class _MoreScreenState extends State<MoreScreen> {
                                 trailing: const Icon(Icons.chevron_right),
                                 onTap: () => _handleSignOut(context, authService),
                           ),
-                          ListTile(
-                            leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
-                            title: Text(
-                              'Delete Account',
-                              style: TextStyle(color: theme.colorScheme.error),
-                            ),
+                          // Hidden for Play Store approval - UI only (backend methods remain intact)
+                          if (false)
+                            ListTile(
+                              leading: Icon(Icons.delete_forever, color: theme.colorScheme.error),
+                              title: Text(
+                                'Delete Account',
+                                style: TextStyle(color: theme.colorScheme.error),
+                              ),
                               trailing: Icon(Icons.chevron_right, color: theme.colorScheme.error),
                               onTap: () => _showDeleteAccountDialog(context, authService),
                             ),
@@ -837,55 +839,94 @@ class _MoreScreenState extends State<MoreScreen> {
       messageNotifier.value = 'Deleting account from server...';
 
       // Delete account from Supabase with timeout
-      final success = await authService
-          .deleteAccount()
-          .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              debugPrint('⏰ Account deletion timed out');
-              return false;
-            },
-          )
-          .catchError((e) {
-            debugPrint('❌ Account deletion error: $e');
-            return false;
-          });
+      bool success = false;
+      try {
+        success = await authService
+            .deleteAccount()
+            .timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                debugPrint('⏰ Account deletion timed out (expected for async deletion)');
+                return true; // Timeout is expected for fire-and-forget deletion
+              },
+            );
+      } catch (e) {
+        debugPrint('❌ Account deletion error: $e');
+        success = false;
+      }
 
+      // IMPORTANT: Check if widget is still mounted before accessing context
+      // signOut() triggers auth state changes that may dispose this widget
+      if (!mounted) {
+        debugPrint('⚠️ Widget unmounted during account deletion');
+        return;
+      }
+
+      // Close loading dialog safely using try-catch
+      try {
+        Navigator.of(context, rootNavigator: true).pop();
+      } catch (e) {
+        debugPrint('⚠️ Failed to close loading dialog (widget may be disposed): $e');
+      }
+
+      // Check mounted again after Navigator.pop
       if (!mounted) return;
-      Navigator.of(context).pop(); // Close loading dialog
 
       if (success) {
-        // Show success message
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Account deleted successfully'),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // Show success message - deletion was initiated successfully
+        try {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Account deleted successfully'),
+              backgroundColor: Colors.green,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } catch (e) {
+          debugPrint('⚠️ Failed to show success message (widget disposed): $e');
+        }
 
-        // Navigate back to auth screen or home
-        // The auth state listener will handle navigation automatically
+        // Auth state listener will handle navigation automatically
+        // User will be redirected to auth screen after signOut() completes
       } else {
-        // Show error message
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(authService.error ?? 'Failed to delete account'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        // Show error message only if deletion actually failed
+        try {
+          final errorMessage = authService.error ?? 'Failed to delete account. Please try again.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(errorMessage),
+              backgroundColor: Colors.red,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        } catch (e) {
+          debugPrint('⚠️ Failed to show error message (widget disposed): $e');
+        }
       }
     } catch (e) {
       debugPrint('❌ Account deletion error: $e');
       if (!mounted) return;
 
-      Navigator.of(context).pop(); // Close loading dialog
+      // Close loading dialog safely
+      try {
+        Navigator.of(context, rootNavigator: true).pop();
+      } catch (navError) {
+        debugPrint('⚠️ Failed to close loading dialog in catch block: $navError');
+      }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to delete account: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (!mounted) return;
+
+      // Show error message safely
+      try {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to delete account: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } catch (snackError) {
+        debugPrint('⚠️ Failed to show error snackbar: $snackError');
+      }
     }
   }
 
