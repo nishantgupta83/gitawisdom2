@@ -64,7 +64,8 @@ void main() {
   group('MoreScreen Widget Tests', () {
     testWidgets('should render more screen with app bar', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(AppBar), findsOneWidget);
       expect(find.text('More'), findsOneWidget);
@@ -72,7 +73,8 @@ void main() {
 
     testWidgets('should display sections in correct order', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify new section order: APPEARANCE → CONTENT → RESOURCES → EXTRAS → ACCOUNT → CACHE
       // Just verify all sections are present
@@ -87,7 +89,8 @@ void main() {
       when(mockAuthService.isAuthenticated).thenReturn(false);
 
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // ACCOUNT section should NOT be visible
       expect(find.text('ACCOUNT'), findsNothing);
@@ -95,7 +98,8 @@ void main() {
       // Now authenticate
       when(mockAuthService.isAuthenticated).thenReturn(true);
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // ACCOUNT section should be visible
       expect(find.text('ACCOUNT'), findsOneWidget);
@@ -105,7 +109,8 @@ void main() {
       when(mockSettingsService.isDarkMode).thenReturn(false);
 
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find dark mode switch
       final darkModeSwitch = find.widgetWithText(SwitchListTile, 'Dark Mode');
@@ -113,7 +118,8 @@ void main() {
 
       // Tap the switch
       await tester.tap(darkModeSwitch);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify setter was called
       verify(mockSettingsService.isDarkMode = true).called(1);
@@ -124,7 +130,8 @@ void main() {
       when(mockMusicService.setEnabled(any)).thenAnswer((_) async => {});
 
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find background music switch
       final musicSwitch = find.widgetWithText(SwitchListTile, 'Background Music');
@@ -132,7 +139,8 @@ void main() {
 
       // Tap the switch
       await tester.tap(musicSwitch);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify setEnabled was called
       verify(mockMusicService.setEnabled(true)).called(1);
@@ -142,7 +150,8 @@ void main() {
       when(mockSettingsService.fontSize).thenReturn('medium');
 
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find font size dropdown
       final fontSizeDropdown = find.widgetWithText(ListTile, 'Font Size');
@@ -157,11 +166,13 @@ void main() {
 
       // Tap dropdown to open it
       await tester.tap(dropdownButton);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Select 'Large' option
       await tester.tap(find.text('Large').last);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify setter was called
       verify(mockSettingsService.fontSize = 'large').called(1);
@@ -169,7 +180,8 @@ void main() {
 
     testWidgets('should navigate to search screen when search tile is tapped', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find search list tile
       final searchTile = find.widgetWithText(ListTile, 'Search');
@@ -177,7 +189,8 @@ void main() {
 
       // Tap search tile
       await tester.tap(searchTile);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify navigation (SearchScreen should be in widget tree)
       // Note: Full navigation verification would require NavigatorObserver
@@ -185,7 +198,8 @@ void main() {
 
     testWidgets('should display app version in EXTRAS section', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find app version list tile
       expect(find.text('App Version'), findsOneWidget);
@@ -195,19 +209,22 @@ void main() {
       when(mockAuthService.isAuthenticated).thenReturn(true);
 
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Expand account section
       final accountTile = find.byType(ExpansionTile);
       if (accountTile.evaluate().isNotEmpty) {
         await tester.tap(accountTile.first);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
         // Find and tap sign out button
         final signOutButton = find.text('Sign Out');
         if (signOutButton.evaluate().isNotEmpty) {
           await tester.tap(signOutButton);
-          await tester.pumpAndSettle(const Duration(seconds: 5));
+          await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
           // Verify confirmation dialog is shown
           expect(find.text('Sign Out?'), findsOneWidget);
@@ -220,19 +237,22 @@ void main() {
       when(mockAuthService.isAuthenticated).thenReturn(true);
 
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Expand account section
       final accountTile = find.byType(ExpansionTile);
       if (accountTile.evaluate().isNotEmpty) {
         await tester.tap(accountTile.first);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
         // Find and tap delete account button
         final deleteButton = find.text('Delete Account');
         if (deleteButton.evaluate().isNotEmpty) {
           await tester.tap(deleteButton);
-          await tester.pumpAndSettle(const Duration(seconds: 5));
+          await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
           // Verify confirmation dialog is shown
           expect(find.text('Delete Account?'), findsOneWidget);
@@ -243,7 +263,8 @@ void main() {
 
     testWidgets('should handle cache refresh', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find refresh cache tile
       final refreshTile = find.widgetWithText(ListTile, 'Refresh All Data');
@@ -251,7 +272,8 @@ void main() {
 
       // Tap refresh tile
       await tester.tap(refreshTile);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify progress dialog is shown
       expect(find.text('Refreshing Cache'), findsOneWidget);
@@ -261,7 +283,8 @@ void main() {
   group('MoreScreen Accessibility Tests', () {
     testWidgets('should have proper semantic labels', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify section headers are accessible
       expect(find.text('APPEARANCE'), findsOneWidget);
@@ -271,7 +294,8 @@ void main() {
 
     testWidgets('should have minimum touch target sizes for all interactive elements', (WidgetTester tester) async {
       await tester.pumpWidget(createMoreScreen());
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify ListTile touch targets
       final listTiles = find.byType(ListTile);

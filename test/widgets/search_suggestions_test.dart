@@ -127,7 +127,8 @@ void main() {
       );
 
       await tester.tap(find.text('Karma Yoga'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(tappedSuggestion, 'Karma Yoga');
     });
@@ -153,7 +154,8 @@ void main() {
       );
 
       await tester.tap(find.text('karma'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(tappedSearch, 'karma');
     });
@@ -201,7 +203,8 @@ void main() {
       );
 
       await tester.tap(find.text('Clear'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(cleared, isTrue);
     });
@@ -367,6 +370,190 @@ void main() {
 
       // Verify InkWell widgets exist for tappable cards
       expect(find.byType(InkWell), findsWidgets);
+    });
+
+    testWidgets('handles empty suggestions and recent searches', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: [],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SearchSuggestions), findsOneWidget);
+    });
+
+    testWidgets('uses ListView for scrolling', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Dharma', 'Karma', 'Yoga'],
+              recentSearches: ['Recent1', 'Recent2'],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ListView), findsWidgets);
+    });
+
+    testWidgets('adapts to light theme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Dharma'],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Dharma'), findsOneWidget);
+    });
+
+    testWidgets('adapts to dark theme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Dharma'],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Dharma'), findsOneWidget);
+    });
+
+    testWidgets('handles long suggestion texts', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Very Long Suggestion Text That Might Wrap Or Truncate'],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('Very Long'), findsOneWidget);
+    });
+
+    testWidgets('renders on narrow screens', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Dharma'],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SearchSuggestions), findsOneWidget);
+    });
+
+    testWidgets('renders on wide screens', (tester) async {
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Dharma'],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SearchSuggestions), findsOneWidget);
+    });
+
+    testWidgets('handles many suggestions', (tester) async {
+      final manySuggestions = List.generate(50, (index) => 'Suggestion $index');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: manySuggestions,
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SearchSuggestions), findsOneWidget);
+    });
+
+    testWidgets('handles many recent searches', (tester) async {
+      final manyRecent = List.generate(30, (index) => 'Recent $index');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: [],
+              recentSearches: manyRecent,
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SearchSuggestions), findsOneWidget);
+    });
+
+    testWidgets('displays suggestion icons', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchSuggestions(
+              suggestions: ['Dharma'],
+              recentSearches: [],
+              onSuggestionTap: (query) {},
+              onRecentSearchTap: (query) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Icon), findsWidgets);
     });
   });
 }

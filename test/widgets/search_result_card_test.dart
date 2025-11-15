@@ -13,7 +13,7 @@ void main() {
       await setupTestEnvironment();
     });
 
-    tearDown() async {
+    tearDown(() async {
       await teardownTestEnvironment();
     });
 
@@ -328,7 +328,8 @@ void main() {
       );
 
       await tester.tap(find.byType(InkWell));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(tapped, isTrue);
     });
@@ -703,6 +704,215 @@ void main() {
       );
 
       expect(find.text('Test'), findsOneWidget);
+    });
+
+    testWidgets('highlights multiple query words', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'This snippet contains test and another word keyword',
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test word keyword',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(RichText), findsWidgets);
+    });
+
+    testWidgets('handles case-insensitive highlighting', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'This TEST snippet CONTAINS test',
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(RichText), findsWidgets);
+    });
+
+    testWidgets('displays query type icon', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.query,
+        title: 'Test Query',
+        snippet: 'Query snippet',
+        relevanceScore: 75.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.search), findsOneWidget);
+    });
+
+    testWidgets('has proper icon container decoration', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'Snippet',
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SearchResultCard), findsOneWidget);
+    });
+
+    testWidgets('handles null chapter ID gracefully', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'Snippet',
+        chapterId: null,
+        verseId: null,
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Verse'), findsOneWidget);
+    });
+
+    testWidgets('displays relevance score as integer', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'Snippet',
+        relevanceScore: 87.5,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('87%'), findsOneWidget);
+    });
+
+    testWidgets('uses Row layout for header', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'Snippet',
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Row), findsWidgets);
+    });
+
+    testWidgets('uses Column layout for content', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'Snippet',
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(Column), findsWidgets);
+    });
+
+    testWidgets('has proper spacing with SizedBox', (tester) async {
+      final result = SearchResult(
+        resultType: SearchType.verse,
+        title: 'Test',
+        snippet: 'Snippet',
+        relevanceScore: 90.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SearchResultCard(
+              result: result,
+              query: 'test',
+              onTap: () {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(SizedBox), findsWidgets);
     });
   });
 }

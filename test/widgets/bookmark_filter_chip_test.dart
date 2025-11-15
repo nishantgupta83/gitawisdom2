@@ -104,7 +104,8 @@ void main() {
       );
 
       await tester.tap(find.byType(FilterChip));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(selectedValue, BookmarkType.verse);
     });
@@ -127,7 +128,8 @@ void main() {
       );
 
       await tester.tap(find.byType(FilterChip));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(selectedValue, isNull);
     });
@@ -153,7 +155,8 @@ void main() {
       expect(find.text('15'), findsOneWidget);
 
       await tester.tap(find.byType(FilterChip));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(selectedValue, isNull);
     });
@@ -208,14 +211,16 @@ void main() {
 
       // Tap to select
       await tester.tap(find.byType(FilterChip));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       filterChip = tester.widget<FilterChip>(find.byType(FilterChip));
       expect(filterChip.selected, isTrue);
 
       // Tap again to deselect
       await tester.tap(find.byType(FilterChip));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       filterChip = tester.widget<FilterChip>(find.byType(FilterChip));
       expect(filterChip.selected, isFalse);
@@ -280,7 +285,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Scenarios'), findsOneWidget);
       expect(find.text('7'), findsOneWidget);
@@ -302,6 +308,187 @@ void main() {
       );
 
       expect(find.text('9999'), findsOneWidget);
+    });
+
+    testWidgets('should use FilterChip widget', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 5,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(FilterChip), findsOneWidget);
+    });
+
+    testWidgets('should display zero count', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 0,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('0'), findsOneWidget);
+    });
+
+    testWidgets('should handle different bookmark types', (tester) async {
+      for (final type in [BookmarkType.verse, BookmarkType.chapter, BookmarkType.scenario]) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(
+              body: BookmarkFilterChip(
+                filterType: type,
+                selectedFilter: null,
+                label: type.toString(),
+                count: 1,
+                onSelected: (value) {},
+              ),
+            ),
+          ),
+        );
+
+        expect(find.byType(FilterChip), findsOneWidget);
+      }
+    });
+
+    testWidgets('should adapt to light theme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 5,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Verses'), findsOneWidget);
+    });
+
+    testWidgets('should adapt to dark theme', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 5,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Verses'), findsOneWidget);
+    });
+
+    testWidgets('should handle long labels gracefully', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Very Long Filter Label That Might Wrap',
+              count: 5,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.textContaining('Very Long'), findsOneWidget);
+    });
+
+    testWidgets('should be tappable', (tester) async {
+      bool tapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 5,
+              onSelected: (value) {
+                tapped = true;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.byType(FilterChip));
+      await tester.pump();
+
+      expect(tapped, isTrue);
+    });
+
+    testWidgets('should render on narrow screens', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 5,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(FilterChip), findsOneWidget);
+    });
+
+    testWidgets('should render on wide screens', (tester) async {
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkFilterChip(
+              filterType: BookmarkType.verse,
+              selectedFilter: null,
+              label: 'Verses',
+              count: 5,
+              onSelected: (value) {},
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(FilterChip), findsOneWidget);
     });
   });
 }

@@ -112,10 +112,10 @@ void main() {
       await service.getAllScenarios();
     });
 
-    tearDown() async {
+    tearDown(() async {
       // Don't clear the service cache here - let it persist across tests
       // This works better with the singleton pattern
-    }
+    });
 
     group('Initialization', () {
       test('service should initialize without errors', () async {

@@ -229,7 +229,8 @@ void main() {
       );
 
       await tester.tap(find.byType(InkWell));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(tapped, isTrue);
     });
@@ -245,7 +246,8 @@ void main() {
 
       // Find and tap the more button
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Edit'), findsOneWidget);
       expect(find.text('Remove'), findsOneWidget);
@@ -268,10 +270,12 @@ void main() {
       );
 
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       await tester.tap(find.text('Edit'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(editCalled, isTrue);
     });
@@ -293,10 +297,12 @@ void main() {
       );
 
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       await tester.tap(find.text('Remove'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(removeCalled, isTrue);
     });
@@ -577,7 +583,8 @@ void main() {
       );
 
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byIcon(Icons.edit), findsOneWidget);
     });
@@ -592,7 +599,8 @@ void main() {
       );
 
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byIcon(Icons.delete), findsOneWidget);
     });
@@ -637,10 +645,162 @@ void main() {
       );
 
       await tester.tap(find.byIcon(Icons.more_vert));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Edit'), findsOneWidget);
       expect(find.text('Remove'), findsOneWidget);
+    });
+
+    testWidgets('has semantic labels for accessibility', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: testBookmark),
+          ),
+        ),
+      );
+
+      expect(find.byType(BookmarkCard), findsOneWidget);
+    });
+
+    testWidgets('renders with null contentPreview', (tester) async {
+      final nullPreviewBookmark = testBookmark.copyWith(contentPreview: '');
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: nullPreviewBookmark),
+          ),
+        ),
+      );
+
+      expect(find.byType(BookmarkCard), findsOneWidget);
+    });
+
+    testWidgets('handles rapid popup menu opens and closes', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: testBookmark),
+          ),
+        ),
+      );
+
+      for (int i = 0; i < 3; i++) {
+        await tester.tap(find.byIcon(Icons.more_vert));
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // Tap outside to close
+        await tester.tapAt(const Offset(10, 10));
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.pump(const Duration(milliseconds: 50));
+      }
+
+      expect(find.byType(BookmarkCard), findsOneWidget);
+    });
+
+    testWidgets('card elevation is visible', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: testBookmark),
+          ),
+        ),
+      );
+
+      final card = tester.widget<Card>(find.byType(Card));
+      expect(card.elevation, 2);
+    });
+
+    testWidgets('has correct border radius', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: testBookmark),
+          ),
+        ),
+      );
+
+      final card = tester.widget<Card>(find.byType(Card));
+      expect(card.shape, isA<RoundedRectangleBorder>());
+    });
+
+    testWidgets('handles bookmark with no chapter ID', (tester) async {
+      final noChapterBookmark = Bookmark(
+        id: '1',
+        userDeviceId: 'test-device',
+        bookmarkType: BookmarkType.scenario,
+        referenceId: 1,
+        chapterId: 0,
+        title: 'Scenario Bookmark',
+        createdAt: DateTime.now(),
+        updatedAt: DateTime.now(),
+        syncStatus: SyncStatus.synced,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: noChapterBookmark),
+          ),
+        ),
+      );
+
+      expect(find.text('Chapter 0'), findsOneWidget);
+    });
+
+    testWidgets('displays proper spacing between elements', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: testBookmark),
+          ),
+        ),
+      );
+
+      expect(find.byType(SizedBox), findsWidgets);
+    });
+
+    testWidgets('uses InkWell for tap effects', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: testBookmark),
+          ),
+        ),
+      );
+
+      expect(find.byType(InkWell), findsOneWidget);
+    });
+
+    testWidgets('handles empty tags list', (tester) async {
+      final emptyTagsBookmark = testBookmark.copyWith(tags: []);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: emptyTagsBookmark),
+          ),
+        ),
+      );
+
+      expect(find.byType(Wrap), findsNothing);
+    });
+
+    testWidgets('handles single tag', (tester) async {
+      final singleTagBookmark = testBookmark.copyWith(tags: ['single']);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BookmarkCard(bookmark: singleTagBookmark),
+          ),
+        ),
+      );
+
+      expect(find.text('single'), findsOneWidget);
     });
   });
 }

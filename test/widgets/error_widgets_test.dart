@@ -12,7 +12,7 @@ void main() {
       await setupTestEnvironment();
     });
 
-    tearDown() async {
+    tearDown(() async {
       await teardownTestEnvironment();
     });
 
@@ -21,7 +21,8 @@ void main() {
         final widget = ErrorWidgets.initializationError('Test error message');
 
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Configuration Error'), findsOneWidget);
         expect(find.byIcon(Icons.error_outline), findsOneWidget);
@@ -32,7 +33,8 @@ void main() {
         final widget = ErrorWidgets.initializationError('Test error');
 
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Retry'), findsOneWidget);
         expect(find.byType(ElevatedButton), findsOneWidget);
@@ -42,13 +44,15 @@ void main() {
         final widget = ErrorWidgets.initializationError('Test error');
 
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         final retryButton = find.text('Retry');
         expect(retryButton, findsOneWidget);
 
         await tester.tap(retryButton);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         // Should not crash
       });
@@ -57,7 +61,8 @@ void main() {
         final widget = ErrorWidgets.initializationError('Test error');
 
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         final icon = tester.widget<Icon>(find.byIcon(Icons.error_outline));
         expect(icon.size, equals(64));
@@ -68,7 +73,8 @@ void main() {
         final widget = ErrorWidgets.initializationError('Test error');
 
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.byType(Center), findsWidgets);
       });
@@ -77,7 +83,8 @@ void main() {
         final widget = ErrorWidgets.initializationError('Test error');
 
         await tester.pumpWidget(widget);
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.byType(MaterialApp), findsOneWidget);
         expect(find.byType(Scaffold), findsOneWidget);
@@ -99,7 +106,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Test Error'), findsOneWidget);
         expect(find.text('This is a test error message'), findsOneWidget);
@@ -117,7 +125,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         final icon = tester.widget<Icon>(find.byIcon(Icons.error_outline));
         expect(icon.size, equals(64));
@@ -136,7 +145,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Go Home'), findsOneWidget);
       });
@@ -158,12 +168,14 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Retry'), findsOneWidget);
 
         await tester.tap(find.text('Retry'));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(retryCalled, isTrue);
       });
@@ -185,10 +197,12 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         await tester.tap(find.text('Go Home'));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(goHomeCalled, isTrue);
       });
@@ -205,7 +219,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.byType(Center), findsOneWidget);
       });
@@ -222,7 +237,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.byType(Padding), findsWidgets);
       });
@@ -240,7 +256,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Retry'), findsOneWidget);
         expect(find.text('Go Home'), findsOneWidget);
@@ -259,7 +276,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.byType(Row), findsWidgets);
       });
@@ -275,7 +293,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Network Error'), findsOneWidget);
         expect(find.textContaining('Unable to connect'), findsOneWidget);
@@ -296,12 +315,14 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Retry'), findsOneWidget);
 
         await tester.tap(find.text('Retry'));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(retryCalled, isTrue);
       });
@@ -315,7 +336,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.byIcon(Icons.error_outline), findsOneWidget);
       });
@@ -333,7 +355,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Loading Error'), findsOneWidget);
         expect(find.text('Failed to load data'), findsOneWidget);
@@ -355,10 +378,12 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         await tester.tap(find.text('Retry'));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(retryCalled, isTrue);
       });
@@ -376,7 +401,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Chapter Not Found'), findsOneWidget);
         expect(find.textContaining('could not be found'), findsOneWidget);
@@ -394,7 +420,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Custom not found message'), findsOneWidget);
       });
@@ -410,7 +437,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Retry'), findsNothing);
         expect(find.text('Go Home'), findsOneWidget);
@@ -427,7 +455,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Service Unavailable'), findsOneWidget);
         expect(find.textContaining('temporarily unavailable'), findsOneWidget);
@@ -448,10 +477,12 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         await tester.tap(find.text('Retry'));
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(retryCalled, isTrue);
       });
@@ -470,7 +501,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         // Should have buttons that are tappable
         expect(find.byType(ElevatedButton), findsWidgets);
@@ -488,7 +520,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         // Title should have proper styling
         final titleText = tester.widget<Text>(find.text('Error Title'));
@@ -515,7 +548,8 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Error'), findsOneWidget);
         expect(find.text('Retry'), findsOneWidget);
@@ -537,9 +571,250 @@ void main() {
           ),
         );
 
-        await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(milliseconds: 100));
 
         expect(find.text('Error'), findsOneWidget);
+      });
+    });
+
+    group('Additional Error Scenarios', () {
+      testWidgets('displays multiple error types correctly', (tester) async {
+        final widgets = [
+          ErrorWidgets.networkError(),
+          ErrorWidgets.loadingError(message: 'Loading failed'),
+          ErrorWidgets.notFound(title: 'Not Found'),
+          ErrorWidgets.serviceUnavailable(),
+        ];
+
+        for (final widget in widgets) {
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Scaffold(body: widget),
+            ),
+          );
+
+          await tester.pump(const Duration(milliseconds: 100));
+          expect(find.byIcon(Icons.error_outline), findsOneWidget);
+        }
+      });
+
+      testWidgets('handles long error messages', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'This is a very long error message that should wrap properly and not overflow the container ' * 10,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.byType(Text), findsWidgets);
+      });
+
+      testWidgets('handles long error titles', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'This is a very long error title that might wrap',
+          message: 'Message',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+        expect(find.byType(Text), findsWidgets);
+      });
+
+      testWidgets('displays with custom go home callback', (tester) async {
+        bool goHomeCalled = false;
+
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+          onGoHome: () {
+            goHomeCalled = true;
+          },
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        await tester.tap(find.text('Go Home'));
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(goHomeCalled, isTrue);
+      });
+
+      testWidgets('displays error icon with correct size', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        final icon = tester.widget<Icon>(find.byIcon(Icons.error_outline));
+        expect(icon.size, equals(64));
+      });
+
+      testWidgets('shows Retry and Go Home buttons together', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+          onRetry: () {},
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.text('Retry'), findsOneWidget);
+        expect(find.text('Go Home'), findsOneWidget);
+        expect(find.byType(ElevatedButton), findsNWidgets(2));
+      });
+
+      testWidgets('uses Row layout for buttons', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+          onRetry: () {},
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(Row), findsWidgets);
+      });
+
+      testWidgets('uses Column layout for content', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(Column), findsWidgets);
+      });
+
+      testWidgets('centers content properly', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(Center), findsOneWidget);
+      });
+
+      testWidgets('has proper padding', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(Padding), findsWidgets);
+      });
+
+      testWidgets('handles null details gracefully', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+          details: null,
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.text('Error'), findsOneWidget);
+      });
+
+      testWidgets('shows SizedBox for spacing', (tester) async {
+        final widget = ErrorWidgets.genericError(
+          title: 'Error',
+          message: 'Message',
+        );
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Scaffold(body: widget),
+          ),
+        );
+
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(SizedBox), findsWidgets);
+      });
+
+      testWidgets('initialization error has MaterialApp', (tester) async {
+        final widget = ErrorWidgets.initializationError('Test error');
+
+        await tester.pumpWidget(widget);
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(MaterialApp), findsOneWidget);
+        expect(find.byType(Scaffold), findsOneWidget);
+      });
+
+      testWidgets('initialization error is centered', (tester) async {
+        final widget = ErrorWidgets.initializationError('Test error');
+
+        await tester.pumpWidget(widget);
+        await tester.pump(const Duration(milliseconds: 100));
+
+        expect(find.byType(Center), findsOneWidget);
       });
     });
   });

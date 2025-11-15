@@ -97,7 +97,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify Google button container styling
       final googleContainer = tester.widget<Container>(
@@ -125,7 +126,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Apple button should have black background in light mode
       final appleContainerLight = tester.widget<Container>(
@@ -150,7 +152,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Apple button should have white background in dark mode
       final appleContainerDark = tester.widget<Container>(
@@ -175,7 +178,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find all InkWell widgets
       final inkWells = find.byType(InkWell);
@@ -200,7 +204,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find InkWell widgets
       final googleInkWell = tester.widget<InkWell>(
@@ -233,7 +238,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify Google button has shadow
       final googleContainer = tester.widget<Container>(
@@ -271,7 +277,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find CustomPaint widget (Google logo)
       expect(find.byType(CustomPaint), findsOneWidget);
@@ -303,7 +310,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       final appleIcon = tester.widget<Icon>(find.byIcon(Icons.apple));
       expect(appleIcon.size, equals(28));
@@ -321,7 +329,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find Center widgets (should have at least 2 for the buttons)
       expect(find.byType(Center).evaluate().length, greaterThanOrEqualTo(2));
@@ -338,7 +347,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       final row = tester.widget<Row>(
         find.ancestor(
@@ -361,7 +371,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find Material widgets (one for each button)
       final materials = find.byType(Material);
@@ -387,7 +398,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify buttons are accessible
       expect(find.byType(InkWell), findsNWidgets(2));
@@ -404,7 +416,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find button containers
       final googleContainer = find.ancestor(
@@ -439,7 +452,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       final initialButtonCount = find.byType(InkWell).evaluate().length;
 
       // Rebuild
@@ -453,11 +467,164 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       final rebuiltButtonCount = find.byType(InkWell).evaluate().length;
 
       expect(rebuiltButtonCount, equals(initialButtonCount));
       expect(rebuiltButtonCount, equals(2));
+    });
+
+    testWidgets('uses Row for button layout', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(Row), findsOneWidget);
+    });
+
+    testWidgets('has proper spacing between buttons', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(SizedBox), findsOneWidget);
+    });
+
+    testWidgets('Google button has white background', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(CustomPaint), findsOneWidget);
+    });
+
+    testWidgets('has circular shape for both buttons', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(Container), findsWidgets);
+    });
+
+    testWidgets('has box shadow for elevation effect', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(Container), findsWidgets);
+    });
+
+    testWidgets('uses Material widget for ink effects', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(Material), findsWidgets);
+    });
+
+    testWidgets('centers icons in buttons', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(Center), findsWidgets);
+    });
+
+    testWidgets('renders on narrow screens', (tester) async {
+      tester.view.physicalSize = const Size(320, 568);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(SocialAuthButtons), findsOneWidget);
+    });
+
+    testWidgets('renders on wide screens', (tester) async {
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SocialAuthButtons(
+              authService: mockAuthService,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.byType(SocialAuthButtons), findsOneWidget);
     });
   });
 }

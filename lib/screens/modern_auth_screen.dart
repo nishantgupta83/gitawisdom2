@@ -25,7 +25,8 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  final _formKey = GlobalKey<FormState>();
+  final _signInFormKey = GlobalKey<FormState>();
+  final _signUpFormKey = GlobalKey<FormState>();
 
   // Form controllers
   final _emailController = TextEditingController();
@@ -41,6 +42,11 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   // Store auth service reference to avoid context access after dispose
   SupabaseAuthService? _authService;
 
+  // Flag to prevent auto-navigation during email/password sign-in
+  bool _isEmailPasswordSignInInProgress = false;
+
+  // Track previous auth state to detect transitions (for OAuth completion)
+  bool _wasAuthenticatedOnLastCheck = false;
 
   @override
   void initState() {
@@ -87,8 +93,25 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
     final authService = _authService;
     if (authService == null || !mounted) return;
 
-    // If user becomes authenticated and this screen is still mounted, navigate away
-    if ((authService.isAuthenticated || authService.isAnonymous) && !authService.isLoading) {
+    // Don't auto-navigate if we're in the middle of email/password sign-in
+    // (we handle navigation manually in _handleSignIn/_handleSignUp)
+    if (_isEmailPasswordSignInInProgress) {
+      debugPrint('⏸️ Skipping auto-navigation - email/password sign-in in progress');
+      return;
+    }
+
+    // ONLY auto-navigate if user just became authenticated (not if already authenticated)
+    // This handles OAuth completion (when app returns from browser)
+    // We track the previous auth state to detect transitions
+    final wasAuthenticated = _wasAuthenticatedOnLastCheck;
+    final isNowAuthenticated = authService.isAuthenticated || authService.isAnonymous;
+    _wasAuthenticatedOnLastCheck = isNowAuthenticated;
+
+    // Only navigate if:
+    // 1. User just transitioned from unauthenticated to authenticated
+    // 2. Auth service is not loading
+    // 3. We're not in the middle of email/password sign-in
+    if (!wasAuthenticated && isNowAuthenticated && !authService.isLoading) {
       // Small delay to ensure state is fully updated
       Future.delayed(const Duration(milliseconds: 300), () {
         if (mounted) {
@@ -527,29 +550,24 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
               ),
             ),
           ),
-          IconButton(
-            icon: Icon(
-              Icons.close,
-              color: theme.colorScheme.error,
-              size: 20,
-            ),
-            onPressed: authService.clearError,
-          ),
         ],
       ),
     );
   }
 
   Widget _buildAuthForm(ThemeData theme, SupabaseAuthService authService) {
-    return Form(
-      key: _formKey,
-      child: IndexedStack(
-        index: _currentPage,
-        children: [
-          _buildSignInForm(theme, authService),
-          _buildSignUpForm(theme, authService),
-        ],
-      ),
+    return IndexedStack(
+      index: _currentPage,
+      children: [
+        Form(
+          key: _signInFormKey,
+          child: _buildSignInForm(theme, authService),
+        ),
+        Form(
+          key: _signUpFormKey,
+          child: _buildSignUpForm(theme, authService),
+        ),
+      ],
     );
   }
 
@@ -914,31 +932,67 @@ class _ModernAuthScreenState extends State<ModernAuthScreen> with TickerProvider
   }
 
   void _handleSignIn() async {
-    if (!_formKey.currentState!.validate()) return;
+    debugPrint('📧 EMAIL: Sign In button pressed');
+    debugPrint('   Email: ${_emailController.text.trim()}');
+    debugPrint('   Password length: ${_passwordController.text.length}');
 
-    final authService = context.read<SupabaseAuthService>();
-    final success = await authService.signInWithEmail(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    if (!_signInFormKey.currentState!.validate()) {
+      debugPrint('❌ EMAIL: Form validation failed');
+      return;
+    }
 
-    if (success && mounted) {
-      await Future.delayed(const Duration(milliseconds: 100));
+    debugPrint('✅ EMAIL: Form validated, calling auth service...');
+
+    // Set flag to prevent auto-navigation from listener
+    _isEmailPasswordSignInInProgress = true;
+
+    try {
+      final authService = context.read<SupabaseAuthService>();
+      final success = await authService.signInWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text,
+      );
+
       if (!mounted) return;
 
-      // Context-aware navigation
-      if (widget.isModal) {
-        Navigator.of(context).pop();
+      if (success) {
+        debugPrint('✅ EMAIL: Sign-in successful, navigating...');
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (!mounted) return;
+
+        // Context-aware navigation
+        if (widget.isModal) {
+          Navigator.of(context).pop();
+        } else {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (_) => const RootScaffold()),
+          );
+        }
       } else {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const RootScaffold()),
-        );
+        // Sign-in failed - show error and stay on auth screen
+        debugPrint('❌ EMAIL: Sign-in failed - staying on auth screen');
+
+        // Error is already displayed via the error banner (authService.error)
+        // but we can also show a SnackBar for better visibility
+        if (authService.error != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(authService.error!),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              duration: const Duration(seconds: 4),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
       }
+    } finally {
+      // Clear flag after sign-in attempt completes (success or failure)
+      _isEmailPasswordSignInInProgress = false;
     }
   }
 
   void _handleSignUp() async {
-    if (!_formKey.currentState!.validate()) return;
+    if (!_signUpFormKey.currentState!.validate()) return;
 
     final authService = context.read<SupabaseAuthService>();
     final success = await authService.signUpWithEmail(

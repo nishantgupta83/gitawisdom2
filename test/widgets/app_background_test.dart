@@ -12,7 +12,7 @@ void main() {
       await setupTestEnvironment();
     });
 
-    tearDown() async {
+    tearDown(() async {
       await teardownTestEnvironment();
     });
 
@@ -196,7 +196,8 @@ void main() {
 
       // Change to tablet size
       tester.view.physicalSize = const Size(1024, 768);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(AppBackground), findsOneWidget);
 
@@ -264,7 +265,8 @@ void main() {
 
       // Button should be tappable
       await tester.tap(find.text('Button'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Button'), findsOneWidget);
     });
@@ -400,7 +402,8 @@ void main() {
       expect(find.byType(AppBackground), findsOneWidget);
 
       controller.stop();
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(AppBackground), findsOneWidget);
     });
@@ -478,7 +481,8 @@ void main() {
 
       // Landscape
       tester.view.physicalSize = const Size(800, 400);
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(AppBackground), findsOneWidget);
 

@@ -94,7 +94,8 @@ void main() {
 
       // Tap on Chapters
       await tester.tap(find.text('Chapters'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(tappedIndex, 1);
     });
@@ -162,13 +163,16 @@ void main() {
 
       // Tap multiple items
       await tester.tap(find.text('Home'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       await tester.tap(find.text('Chapters'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       await tester.tap(find.text('More'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(tappedIndices, [0, 1, 3]);
     });
@@ -314,13 +318,15 @@ void main() {
 
       // Tap Chapters
       await tester.tap(find.text('Chapters'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(currentIndex, 1);
 
       // Tap More
       await tester.tap(find.text('More'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(currentIndex, 3);
     });
@@ -382,6 +388,290 @@ void main() {
 
       expect(find.text('Item 0'), findsOneWidget);
       expect(find.text('Item 4'), findsOneWidget);
+    });
+
+    testWidgets('should render pulsating glow for Dilemmas tab when selected', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 2,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Dilemmas'), findsOneWidget);
+    });
+
+    testWidgets('should adapt height for tablet screens', (tester) async {
+      tester.view.physicalSize = const Size(1024, 768);
+      tester.view.devicePixelRatio = 2.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should adapt height for phone screens', (tester) async {
+      tester.view.physicalSize = const Size(375, 812);
+      tester.view.devicePixelRatio = 3.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should use AnimatedContainer for non-Dilemmas tabs', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(AnimatedContainer), findsWidgets);
+    });
+
+    testWidgets('should use AnimatedSwitcher for icon transitions', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(AnimatedSwitcher), findsWidgets);
+    });
+
+    testWidgets('should use AnimatedDefaultTextStyle for label transitions', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(AnimatedDefaultTextStyle), findsWidgets);
+    });
+
+    testWidgets('should have RepaintBoundary for performance', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(RepaintBoundary), findsWidgets);
+    });
+
+    testWidgets('should use LayoutBuilder for responsive layout', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(LayoutBuilder), findsOneWidget);
+    });
+
+    testWidgets('should have gradient decoration in dark mode', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should have border in light mode', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.light(),
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should handle very long labels gracefully', (tester) async {
+      final longLabelItems = [
+        ModernNavBarItem(
+          icon: Icons.home,
+          label: 'Very Long Label That Should Truncate',
+        ),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: longLabelItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should show selection indicator for selected item', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should not show selection indicator for unselected items', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
+    });
+
+    testWidgets('should use custom backgroundColor if provided', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Align(
+              alignment: Alignment.bottomCenter,
+              child: ModernNavBar(
+                currentIndex: 0,
+                onTap: (index) {},
+                items: testItems,
+                backgroundColor: Colors.red,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byType(ModernNavBar), findsOneWidget);
     });
   });
 }

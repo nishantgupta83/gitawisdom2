@@ -1,12 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(do sed -i '' 's/await tester\\.pump();/await tester.pumpAndSettle(const Duration(seconds: 5));/g' \"$file\")"
+      "Bash(flutter test:*)",
+      "Bash(pgrep:*)"
     ],
     "deny": [],
+    "ask": [],
     "additionalDirectories": [
       "/Users/nishantgupta/Desktop/iOS_Certificates"
-    ],
-    "ask": []
+    ]
   }
 }

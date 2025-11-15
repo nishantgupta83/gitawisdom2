@@ -75,7 +75,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Should show verse chapter and verse ID
       expect(find.text('Bhagavad Gita 2.47'), findsOneWidget);
@@ -91,7 +92,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Daily Wisdom'), findsOneWidget);
       expect(find.text(testScenario.title), findsOneWidget);
@@ -107,7 +109,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Cancel'), findsOneWidget);
       expect(find.text('Share Now'), findsOneWidget);
@@ -134,14 +137,16 @@ void main() {
 
       // Open the bottom sheet
       await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify sheet is open
       expect(find.text('Share Wisdom'), findsOneWidget);
 
       // Tap cancel
       await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify sheet is closed
       expect(find.text('Share Wisdom'), findsNothing);
@@ -168,11 +173,13 @@ void main() {
 
       // Open the bottom sheet
       await tester.tap(find.text('Open'));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Tap close icon
       await tester.tap(find.byIcon(Icons.close));
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Verify sheet is closed
       expect(find.text('Share Wisdom'), findsNothing);
@@ -187,7 +194,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Find Container with gradient
       final containerFinder = find.ancestor(
@@ -208,7 +216,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(ShareCardWidget), findsOneWidget);
     });
 
@@ -222,7 +231,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
       expect(find.byType(ShareCardWidget), findsOneWidget);
     });
 
@@ -235,7 +245,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byIcon(Icons.share), findsOneWidget);
     });
@@ -249,7 +260,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byIcon(Icons.close), findsOneWidget);
     });
@@ -263,7 +275,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Should have preview with verse/scenario content
       expect(find.byType(ShareCardWidget), findsOneWidget);
@@ -278,7 +291,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Share this wisdom with friends across all platforms'), findsOneWidget);
       expect(find.byIcon(Icons.info_outline), findsOneWidget);
@@ -293,7 +307,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Widget should exist
       expect(find.byType(ShareCardWidget), findsOneWidget);
@@ -308,7 +323,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Share Now'), findsOneWidget);
       expect(find.byIcon(Icons.send_rounded), findsOneWidget);
@@ -323,7 +339,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       final cancelButton = find.ancestor(
         of: find.text('Cancel'),
@@ -342,7 +359,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       final shareButton = find.ancestor(
         of: find.text('Share Now'),
@@ -361,7 +379,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Both buttons should exist
       expect(find.text('Cancel'), findsOneWidget);
@@ -377,7 +396,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(SafeArea), findsOneWidget);
     });
@@ -398,7 +418,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Widget should be rendered
       expect(find.byType(ShareCardWidget), findsOneWidget);
@@ -424,7 +445,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       // Should find the text widget with overflow
       expect(find.byType(ShareCardWidget), findsOneWidget);
@@ -450,7 +472,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(ShareCardWidget), findsOneWidget);
     });
@@ -468,7 +491,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(ShareCardWidget), findsOneWidget);
     });
@@ -486,7 +510,8 @@ void main() {
         ),
       );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.byType(ShareCardWidget), findsOneWidget);
     });

@@ -74,6 +74,11 @@ class ThemeProvider extends ChangeNotifier {
     // Cancel previous timer to debounce rapid theme changes
     _themeUpdateTimer?.cancel();
     _themeUpdateTimer = Timer(_themeDebounce, () {
+      // Safety check: don't access box if it's closed
+      if (!_settingsBox.isOpen) {
+        return;
+      }
+
       final newIsDark = _settingsBox.get(SettingsService.darkKey, defaultValue: AppConfig.defaultDarkMode) as bool;
       final newFontPref = _settingsBox.get(SettingsService.fontKey, defaultValue: AppConfig.defaultFontSize) as String;
       final newShadowEnabled = _settingsBox.get(SettingsService.shadowKey, defaultValue: AppConfig.defaultShadowEnabled) as bool;
